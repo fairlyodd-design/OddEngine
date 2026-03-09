@@ -3421,3 +3421,10 @@ button:hover:not(:disabled){ border-color: rgba(94,234,242,0.24); }
 
 /* v10.24.48 Grocery store-specific connector starter */
 .groceryProxyPrepCard .field select, .groceryProxyPrepCard .field input{ min-width:0; }
+
+
+/* v10.24.49 Grocery coupon stack engine + trip optimizer */
+.groceryStackGrid{ display:grid; grid-template-columns: 1.1fr 1fr; gap:12px; margin-top:12px; }
+.groceryStackCard{ border-color: rgba(251,191,36,0.14); background: linear-gradient(180deg, rgba(18,16,10,0.74), rgba(10,14,22,0.88)); }
+.groceryStackRow{ border-color: rgba(251,191,36,0.12); }
+@media (max-width: 980px){ .groceryStackGrid{ grid-template-columns: 1fr; } }

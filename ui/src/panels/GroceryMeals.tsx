@@ -134,6 +134,66 @@ function scoreDeal(item: FeedItem, groceryList: string[], preferredStores: strin
   return Math.max(0, Math.min(99, score));
 }
 
+function inferDealStore(item: FeedItem, preferredStores: string[]) {
+  const hay = `${item.title} ${item.summary || ""} ${item.source || ""}`.toLowerCase();
+  const known = Array.from(new Set([...(preferredStores || []), ...STORE_OPTIONS]));
+  for (const store of known) {
+    const low = store.toLowerCase();
+    const flat = low.replace(/[^a-z0-9]+/g, "");
+    if (hay.includes(low) || (flat && hay.includes(flat))) return store;
+    if (low.includes("smith") && (hay.includes("smith") || hay.includes("kroger"))) return "Smith's/Kroger";
+    if ((low.includes("albertsons") || low.includes("vons")) && (hay.includes("albertsons") || hay.includes("vons"))) return "Albertsons/Vons";
+  }
+  return preferredStores[0] || STORE_OPTIONS[0];
+}
+
+type StoreStackRow = {
+  store: string;
+  score: number;
+  hits: number;
+  bestTitle: string;
+  stopValue: string;
+};
+
+function buildStoreStackRows(feed: FeedItem[], groceryList: string[], preferredStores: string[]): StoreStackRow[] {
+  const stores = Array.from(new Set([...(preferredStores || []), ...STORE_OPTIONS]));
+  const rows = stores.map((store) => {
+    const ranked = feed
+      .map((item) => ({ item, score: scoreDeal(item, groceryList, preferredStores) }))
+      .filter(({ item }) => inferDealStore(item, preferredStores) === store)
+      .sort((a, b) => b.score - a.score);
+    const top = ranked[0];
+    const score = ranked.slice(0, 3).reduce((sum, row) => sum + row.score, 0);
+    const hits = ranked.length;
+    const stopValue = hits >= 3 ? "Heavy stop" : hits >= 1 ? "Quick hit" : "Skip unless needed";
+    return {
+      store,
+      score,
+      hits,
+      bestTitle: top?.item.title || "No strong hit yet",
+      stopValue,
+    };
+  });
+  return rows
+    .sort((a, b) => b.score - a.score)
+    .filter((row) => row.hits > 0 || preferredStores.includes(row.store))
+    .slice(0, 5);
+}
+
+function buildTripOptimizer(rows: StoreStackRow[], basketDelta: number, couponMatches: string[], prepFocus: string[]) {
+  const steps: string[] = [];
+  const first = rows[0];
+  const second = rows[1];
+  const third = rows[2];
+  if (first) steps.push(`Hit ${first.store} first for the strongest stack: ${first.bestTitle}.`);
+  if (second) steps.push(`Only do ${second.store} as stop two if it protects the basket better than the primary lane.`);
+  if (third) steps.push(`Treat ${third.store} as optional cleanup only if one missing item still beats your main route.`);
+  steps.push(couponMatches.length ? `Checkout shield: lock ${couponMatches[0]} before any fun extras hit the basket.` : "Checkout shield: verify one high-value coupon before adding bonus items.");
+  steps.push(prepFocus.length ? `Prep shield: ${prepFocus[0]} + ${prepFocus[1] || "portion snacks"} the same day so deals turn into real meals.` : "Prep shield: batch one protein and one carb base right away.");
+  steps.push(basketDelta > 0 ? `Budget warning: trim about $${Math.round(Math.abs(basketDelta))} unless the second stop adds a real savings edge.` : "Budget posture: under goal, so bonus buys only happen after the core list is locked.");
+  return steps;
+}
+
 export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?: (id: string) => void; onOpenHowTo?: () => void } = {}) {
   const [state, setState] = useState<GroceryState>(() => ({ ...defaultState, ...loadJSON<GroceryState>(KEY, defaultState) }));
   const [busy, setBusy] = useState(false);
@@ -335,6 +395,9 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
       .slice(0, 6);
   }, [state.couponFeed, state.groceryList, state.preferredStores]);
 
+  const storeStackRows = useMemo(() => buildStoreStackRows(state.couponFeed, state.groceryList, state.preferredStores), [state.couponFeed, state.groceryList, state.preferredStores]);
+  const tripOptimizerSteps = useMemo(() => buildTripOptimizer(storeStackRows, budgetDelta, state.couponMatches, prepFocus), [storeStackRows, budgetDelta, state.couponMatches, prepFocus]);
+  const bestTripRoute = storeStackRows.slice(0, 3).map((row) => row.store).join(" → ") || primaryStore;
   const totalAutoDealScore = autoDealBoard.reduce((sum, row) => sum + row.score, 0);
   const warRoomSavings = Math.max(0, Math.round((state.couponMatches.length * 4.5) + (couponStackScore * 0.35) + (targetNumber ? Math.max(0, targetNumber - estimatedListCost) * 0.2 : 0)));
   const groceryWarMode = warRoomSavings >= 25 ? "CRUSHING IT" : warRoomSavings >= 12 ? "STACKING SAVINGS" : "BUILD MORE STACKS";
@@ -500,6 +563,56 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
               </div>
             ))}
             {!autoDealBoard.length && <div className="small">Refresh the coupon lane to populate the auto deal board.</div>}
+          </div>
+        </div>
+      </div>
+
+      <div className="groceryStackGrid mt-4">
+        <div className="card softCard groceryStackCard">
+          <div className="small shellEyebrow">COUPON STACK ENGINE</div>
+          <div className="grocerySectionTitle">Rank stores like Extreme Couponing mode</div>
+          <div className="small groceryDenseText">This lane scores which store deserves the first hit, which one is worth a second stop, and which store should get skipped unless a specific item forces the route.</div>
+          <div className="assistantStack" style={{ marginTop: 12 }}>
+            {storeStackRows.map((row, idx) => (
+              <div key={row.store} className="timelineCard groceryStackRow">
+                <div className="row" style={{ justifyContent: "space-between", gap: 10, alignItems: "center" }}>
+                  <div>
+                    <div style={{ fontWeight: 800 }}>{idx + 1}. {row.store}</div>
+                    <div className="small" style={{ marginTop: 4 }}>{row.bestTitle}</div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <span className={`badge ${idx === 0 ? "good" : idx === 1 ? "warn" : ""}`}>Stack {row.score}</span>
+                    <div className="small" style={{ marginTop: 4 }}>{row.hits} hits • {row.stopValue}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {!storeStackRows.length && <div className="small">Load proxy deals or refresh RSS so the stack engine can rank your stops.</div>}
+          </div>
+        </div>
+
+        <div className="card softCard groceryStackCard">
+          <div className="small shellEyebrow">TRIP OPTIMIZER</div>
+          <div className="grocerySectionTitle">Best route right now</div>
+          <div className="assistantChipWrap" style={{ marginTop: 10 }}>
+            <span className="badge good">Route {bestTripRoute}</span>
+            <span className={`badge ${budgetDelta > 0 ? "warn" : "good"}`}>{budgetDelta > 0 ? `Over plan $${Math.abs(budgetDelta).toFixed(0)}` : "Under plan"}</span>
+            <span className="badge">{storeStackRows.length} active stops</span>
+          </div>
+          <div className="assistantStack" style={{ marginTop: 12 }}>
+            {tripOptimizerSteps.map((step, idx) => (
+              <div key={idx} className="timelineCard">
+                <div className="row" style={{ justifyContent: "space-between", gap: 10 }}>
+                  <div style={{ fontWeight: 800 }}>Move {idx + 1}</div>
+                  <span className="badge">{idx === 0 ? "Route" : idx === 1 ? "Stop 2" : idx === 2 ? "Cleanup" : idx === 3 ? "Checkout" : idx === 4 ? "Prep" : "Budget"}</span>
+                </div>
+                <div className="small" style={{ marginTop: 6 }}>{step}</div>
+              </div>
+            ))}
+          </div>
+          <div className="row wrap mt-4">
+            <button className="tabBtn active" onClick={() => { refreshProxyDeals(); window.setTimeout(() => buildAiDealAssist(), 200); }}>Re-rank route</button>
+            <button className="tabBtn" onClick={() => buildAiDealAssist()}>Refresh stack note</button>
           </div>
         </div>
       </div>
