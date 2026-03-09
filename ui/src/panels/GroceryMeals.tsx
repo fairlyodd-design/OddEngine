@@ -404,8 +404,8 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
       <div className="card softCard groceryProxyPrepCard">
         <div className="small shellEyebrow">REAL COUPON SCRAPER / LOCAL PROXY PREP</div>
         <div className="grocerySectionTitle">Proxy-ready deal ingestion lane</div>
-        <div className="small groceryDenseText">Choose a connector provider now so the UI and local backend are ready for real store logic later.</div>
-        <div className="small groceryDenseText">Keep the stable RSS feed as fallback, but prep a local proxy for real coupon scraping, store ads, and custom grocery deal ranking without CORS pain in the browser.</div>
+        <div className="small groceryDenseText">Choose a connector provider now so the UI and local backend can route by store lane like a real coupon cockpit.</div>
+        <div className="small groceryDenseText">Keep the stable RSS feed as fallback, but prep a local proxy for store-specific weekly ads, digital coupon lanes, and Extreme Couponing-style stack logic without CORS pain in the browser.</div>
         <div className="groceryProxyGrid" style={{ marginTop: 12 }}>
           <label className="field">Deal source mode
             <select value={state.dealSourceMode} onChange={(e) => persist({ ...state, dealSourceMode: e.target.value as any, lastUpdated: Date.now() })}>
@@ -422,7 +422,7 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
           <label className="field">Connector provider
             <select value={state.proxyProviderId} onChange={(e) => persist({ ...state, proxyProviderId: e.target.value, lastUpdated: Date.now() })}>
               {(state.proxyProviders.length ? state.proxyProviders : [{ id: "seed", label: "Seed data" }, { id: "mock-coupons", label: "Mock coupon engine" }]).map((provider) => (
-                <option key={provider.id} value={provider.id}>{provider.label}</option>
+                <option key={provider.id} value={provider.id}>{provider.label}{provider.kind === 'store-starter' ? ' • store starter' : ''}</option>
               ))}
             </select>
           </label>
@@ -433,10 +433,12 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
           <button className="tabBtn" onClick={testProxy} disabled={busy}>Test proxy</button>
           <button className={`tabBtn ${state.dealSourceMode === "rss" ? "active" : ""}`} onClick={refreshCoupons} disabled={busy}>Use RSS fallback</button>
         </div>
+        <div className="small groceryDenseText" style={{ marginTop: 10 }}>Starter connectors now available: Walmart, Smith's/Kroger, Albertsons/Vons, Costco, and Target. Pick one when you want the deal board to act more like an Extreme Couponing route instead of a generic feed.</div>
         <div className="assistantChipWrap" style={{ marginTop: 10 }}>
           <span className={`badge ${state.dealSourceMode === "local-proxy" ? "good" : ""}`}>{state.dealSourceMode === "local-proxy" ? "Local proxy armed" : "RSS safe mode"}</span>
           <span className="badge">{state.proxyStatus || "Proxy idle"}</span>
           <span className="badge">Provider {state.proxyProviderId}</span>
+          <span className="badge">{(state.proxyProviders.find((p) => p.id === state.proxyProviderId)?.stores || []).join(" • ") || "Multi-store"}</span>
           <span className="badge">{state.proxyBaseUrl}</span>
         </div>
       </div>
@@ -561,7 +563,8 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
           <div className="small shellEyebrow">FOOD PREP COMMAND</div>
           <div className="grocerySectionTitle">Turn groceries into ready food</div>
           <div className="small groceryDenseText">Prep is the anti-takeout shield. Batch proteins, chop veg, portion snacks, and lock one flex carb so your deals actually become meals.</div>
-          <div className="assistantChipWrap" style={{ marginTop: 10 }}>
+          <div className="small groceryDenseText" style={{ marginTop: 10 }}>Starter connectors now available: Walmart, Smith's/Kroger, Albertsons/Vons, Costco, and Target. Pick one when you want the deal board to act more like an Extreme Couponing route instead of a generic feed.</div>
+        <div className="assistantChipWrap" style={{ marginTop: 10 }}>
             {(prepFocus.length ? prepFocus : ["Batch protein", "Chop veg", "Portion snacks", "Make one sauce"]).map((item) => <span key={item} className="badge">{item}</span>)}
           </div>
         </div>
@@ -593,7 +596,8 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
             <input value={state.basketGoal} onChange={(e) => persist({ ...state, basketGoal: e.target.value, lastUpdated: Date.now() })} placeholder="$125 family week" />
           </label>
           <div className="assistantSectionTitle" style={{ marginTop: 14 }}>Preferred stores</div>
-          <div className="assistantChipWrap" style={{ marginTop: 10 }}>
+          <div className="small groceryDenseText" style={{ marginTop: 10 }}>Starter connectors now available: Walmart, Smith's/Kroger, Albertsons/Vons, Costco, and Target. Pick one when you want the deal board to act more like an Extreme Couponing route instead of a generic feed.</div>
+        <div className="assistantChipWrap" style={{ marginTop: 10 }}>
             {STORE_OPTIONS.map((store) => (
               <button key={store} className={`tabBtn ${state.preferredStores.includes(store) ? "active" : ""}`} onClick={() => toggleStore(store)}>{store}</button>
             ))}
@@ -604,7 +608,8 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
             <button className="tabBtn" onClick={runCheapWeek}>Cheap week</button>
           </div>
           <div className="assistantSectionTitle" style={{ marginTop: 14 }}>Live coupon links</div>
-          <div className="assistantChipWrap" style={{ marginTop: 10 }}>
+          <div className="small groceryDenseText" style={{ marginTop: 10 }}>Starter connectors now available: Walmart, Smith's/Kroger, Albertsons/Vons, Costco, and Target. Pick one when you want the deal board to act more like an Extreme Couponing route instead of a generic feed.</div>
+        <div className="assistantChipWrap" style={{ marginTop: 10 }}>
             {DEFAULT_COUPON_LINKS.map((link) => <button key={link.label} className="tabBtn" onClick={() => openExternalLink(link.url)}>{link.label}</button>)}
           </div>
         </div>

@@ -21,6 +21,8 @@ export type GroceryProxyProvider = {
   id: string;
   label: string;
   kind?: string;
+  stores?: string[];
+  description?: string;
 };
 
 function uid(prefix = "deal") {

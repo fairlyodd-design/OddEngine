@@ -47,7 +47,9 @@ const server = http.createServer(async (req, res) => {
       endpoints: [
         '/health',
         '/providers',
-        '/grocery/deals?q=chicken&stores=Walmart,Smith\'s/Kroger&provider=seed'
+        '/grocery/deals?q=chicken&stores=Walmart,Smith\'s/Kroger&provider=seed',
+        '/grocery/deals?q=cheap week&stores=Walmart&provider=walmart-starter',
+        '/grocery/deals?q=protein&stores=Smith\'s/Kroger&provider=smiths-kroger-starter'
       ],
     });
     return;

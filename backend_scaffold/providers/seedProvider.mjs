@@ -32,7 +32,7 @@ function fallbackDeals() {
   ];
 }
 
-function loadSeedDeals() {
+export function loadSeedDeals() {
   try {
     if (fs.existsSync(seedPath)) {
       const raw = fs.readFileSync(seedPath, 'utf8');

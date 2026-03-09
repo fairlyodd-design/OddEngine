@@ -3417,3 +3417,7 @@ button:hover:not(:disabled){ border-color: rgba(94,234,242,0.24); }
 .groceryProxyPrepCard{ margin-top:14px; border-color: rgba(94,234,242,0.12); background: linear-gradient(180deg, rgba(10,16,24,0.92), rgba(9,13,19,0.86)); }
 .groceryProxyGrid{ display:grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap:12px; }
 @media(max-width: 980px){ .groceryProxyGrid{ grid-template-columns:1fr; } }
+
+
+/* v10.24.48 Grocery store-specific connector starter */
+.groceryProxyPrepCard .field select, .groceryProxyPrepCard .field input{ min-width:0; }
