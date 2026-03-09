@@ -1,31 +1,77 @@
-# OddEngine Budget Sync Scaffold
+# Grocery local proxy scaffold
 
-This folder gives you two tiny backend examples for the Family Budget sync bridge in OddEngine v10.14.0.
+This is a lightweight local-first backend scaffold for the OddEngine Grocery panel.
+It matches the UI contract used by `ui/src/lib/groceryDealsProxy.ts`.
 
-## Routes expected by the app
+## What it does
+- Serves a local grocery deals endpoint
+- Supports `q` and `stores` filters
+- Returns score-ranked deals in the shape the UI expects
+- Uses seed JSON now, so you can swap in real scraping/provider code later
 
-- `GET /api/health`
-- `GET /api/households/:id/snapshot`
-- `POST /api/households/:id/snapshot`
-
-## Express
-
-```bash
-npm i express
-node backend_scaffold/express-snapshot-server.mjs
-```
-
-## Fastify
+## Run it
+From this folder:
 
 ```bash
-npm i fastify
-node backend_scaffold/fastify-snapshot-server.mjs
+npm run grocery-proxy
 ```
 
-## Optional env vars
+Or on Windows, double-click:
 
-- `PORT=8787`
-- `API_PREFIX=/api`
-- `BEARER_TOKEN=your-secret`
+- `RUN_GROCERY_PROXY_WINDOWS.bat`
 
-The scaffold stores one JSON snapshot per household under `backend_scaffold_data/`.
+Default URL:
+
+- `http://127.0.0.1:8787`
+
+## Endpoints
+
+### Health
+
+`GET /health`
+
+### Grocery deals
+
+`GET /grocery/deals?q=chicken&stores=Walmart,Smith's/Kroger`
+
+Response shape:
+
+```json
+{
+  "updatedAt": "2026-03-09T12:00:00Z",
+  "stores": ["Walmart", "Smith's/Kroger"],
+  "query": "chicken",
+  "deals": [
+    {
+      "id": "smiths-chicken-001",
+      "title": "Digital coupon on family-pack chicken thighs",
+      "link": "https://example.local/smiths/chicken-thighs",
+      "source": "Smith's/Kroger",
+      "store": "Smith's/Kroger",
+      "publishedAt": "2026-03-09",
+      "summary": "Save $2.00 and stack with meal-prep family pack week.",
+      "score": 82
+    }
+  ]
+}
+```
+
+## Hook it into the UI
+In the Grocery panel, switch source mode to **local proxy** and use:
+
+- Base URL: `http://127.0.0.1:8787`
+- Query: your grocery search, like `chicken`, `meal prep`, or `cheap week`
+
+## Upgrade path
+Right now this server reads `data/groceryDeals.seed.json`.
+
+Next easy upgrade steps:
+1. Add provider modules for stores you care about
+2. Swap `loadSeedDeals()` for live provider functions
+3. Add deal dedupe and stronger score logic
+4. Cache results locally so the panel feels instant
+
+## Environment variables
+- `GROCERY_PROXY_PORT` default `8787`
+- `GROCERY_PROXY_HOST` default `127.0.0.1`
+- `GROCERY_PROXY_CORS_ORIGIN` default `*`

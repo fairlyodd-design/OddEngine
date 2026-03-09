@@ -1,0 +1,34 @@
+{
+  "deals": [
+    {
+      "id": "smiths-chicken-001",
+      "title": "Digital coupon on family-pack chicken thighs",
+      "link": "https://example.local/smiths/chicken-thighs",
+      "source": "Smith's/Kroger",
+      "store": "Smith's/Kroger",
+      "publishedAt": "2026-03-09",
+      "summary": "Save $2.00 and stack with meal-prep family pack week.",
+      "score": 82
+    },
+    {
+      "id": "walmart-rice-001",
+      "title": "Rollback on 10 lb jasmine rice",
+      "link": "https://example.local/walmart/rice",
+      "source": "Walmart",
+      "store": "Walmart",
+      "publishedAt": "2026-03-09",
+      "summary": "Cheap-week saver item with pantry coverage upside.",
+      "score": 76
+    },
+    {
+      "id": "target-freezer-001",
+      "title": "Circle deal on frozen vegetables",
+      "link": "https://example.local/target/frozen-veg",
+      "source": "Target",
+      "store": "Target",
+      "publishedAt": "2026-03-09",
+      "summary": "Pairs well with meal prep and cheap week baskets.",
+      "score": 71
+    }
+  ]
+}
