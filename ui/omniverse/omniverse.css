@@ -1,0 +1,55 @@
+
+.omniverseDesktop{
+ height:100vh;
+ display:flex;
+ flex-direction:column;
+ background:#0c0d14;
+ color:white;
+}
+
+.marketBar{
+ height:32px;
+ display:flex;
+ gap:20px;
+ padding:6px 14px;
+ background:#12141f;
+ font-size:12px;
+}
+
+.omniverseMain{
+ flex:1;
+ display:flex;
+}
+
+.omniverseLeft{
+ width:260px;
+ border-right:1px solid rgba(255,255,255,0.06);
+ padding:10px;
+}
+
+.omniverseCenter{
+ flex:1;
+ position:relative;
+}
+
+.omniverseRight{
+ width:300px;
+ border-left:1px solid rgba(255,255,255,0.06);
+ padding:10px;
+}
+
+.workspaceArea{
+ position:relative;
+ width:100%;
+ height:100%;
+}
+
+.aiOperator input{
+ width:100%;
+ margin-bottom:6px;
+}
+
+.activityItem{
+ padding:4px 0;
+ font-size:12px;
+}

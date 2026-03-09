@@ -1,0 +1,39 @@
+
+.windowFrame{
+ background: rgba(20,20,20,.7);
+ border: 1px solid rgba(255,255,255,.06);
+ border-radius: 12px;
+ backdrop-filter: blur(14px);
+ box-shadow: 0 0 40px rgba(80,120,255,.08);
+}
+
+.windowHeader{
+ padding: 8px 12px;
+ font-weight: bold;
+ cursor: move;
+ border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.windowBody{
+ padding: 12px;
+}
+
+.commandPalette{
+ position: fixed;
+ top: 25%;
+ left: 50%;
+ transform: translateX(-50%);
+ background: #0e0e0e;
+ border: 1px solid rgba(255,255,255,.1);
+ border-radius: 10px;
+ padding: 20px;
+ width: 400px;
+}
+
+.commandPalette input{
+ width: 100%;
+ padding: 10px;
+ background: #141414;
+ border: none;
+ color: white;
+}

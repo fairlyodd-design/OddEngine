@@ -1,0 +1,74 @@
+{
+  "rooms": [
+    {
+      "room_id": "room-1",
+      "name": "Fairly Odd Grow",
+      "dev_id": null,
+      "medium": "coco",
+      "reservoir_gal": 1.0,
+      "start_date": "2026-02-05",
+      "veg_weeks_plan": 4,
+      "stage": "VEG",
+      "week_index": 1,
+      "flip_date": null,
+      "pending_trade": null,
+      "pump_map": {
+        "Grow": {
+          "bottle": "Grow",
+          "channel": null,
+          "stock_concentration_g_per_ml": null
+        },
+        "Base": {
+          "bottle": "Base",
+          "channel": null,
+          "stock_concentration_g_per_ml": null
+        },
+        "Bloom": {
+          "bottle": "Bloom",
+          "channel": null,
+          "stock_concentration_g_per_ml": null
+        },
+        "CalMag": {
+          "bottle": "CalMag",
+          "channel": null,
+          "stock_concentration_g_per_ml": null
+        },
+        "Shock&Awe": {
+          "bottle": "Shock&Awe",
+          "channel": null,
+          "stock_concentration_g_per_ml": null
+        },
+        "Bottle 6": {
+          "bottle": "Bottle 6",
+          "channel": null,
+          "stock_concentration_g_per_ml": null
+        },
+        "Bottle 7": {
+          "bottle": "Bottle 7",
+          "channel": null,
+          "stock_concentration_g_per_ml": null
+        },
+        "Bottle 8": {
+          "bottle": "Bottle 8",
+          "channel": null,
+          "stock_concentration_g_per_ml": null
+        },
+        "Sticky Icky": {
+          "bottle": "Sticky Icky",
+          "channel": null,
+          "stock_concentration_g_per_ml": null
+        },
+        "Foliar Science": {
+          "bottle": "Foliar Science",
+          "channel": null,
+          "stock_concentration_g_per_ml": null
+        },
+        "Bio Minerals": {
+          "bottle": "Bio Minerals",
+          "channel": null,
+          "stock_concentration_g_per_ml": null
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,174 @@
+
+.panelChrome{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 12px;
+  border-radius:14px 14px 10px 10px;
+  border:1px solid rgba(121,87,255,0.24);
+  background: linear-gradient(180deg, rgba(23,28,42,0.95) 0%, rgba(14,18,28,0.92) 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.panelChromeLead{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex:0 0 auto;
+}
+.panelChromeDot{
+  width:10px;
+  height:10px;
+  border-radius:999px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 0 0 1px rgba(0,0,0,0.25);
+}
+.panelChromeDotClose{ background: rgba(255,122,167,0.95); }
+.panelChromeDotMove{ background: rgba(94,234,242,0.95); }
+.panelChromeDotPin{ background: rgba(255,209,102,0.95); }
+.panelChromeTitleWrap{ min-width:0; flex:1 1 auto; }
+.panelChromeTitle{ font-weight:900; letter-spacing:.02em; }
+.panelChromeSubtitle{ font-size:12px; color:var(--muted); margin-top:2px; }
+.panelChromeActions{ display:flex; align-items:center; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
+.panelChromePill{ padding:6px 10px; border-radius:999px; border:1px solid rgba(140,160,190,0.16); background: rgba(255,255,255,0.04); font-size:12px; color:var(--muted); font-weight:800; }
+.panelChromePillPinned{ color:var(--gold); border-color: rgba(255,209,102,0.28); }
+.marketGraphCard{ overflow:hidden; }
+.marketGraphSurface{ border:1px solid rgba(121,87,255,0.18); background: linear-gradient(180deg, rgba(19,24,36,0.96) 0%, rgba(11,14,24,0.96) 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.04); }
+.marketGraphHeader{ margin-bottom: 10px; }
+.marketGraphHeaderRight{ gap:8px; }
+.marketGraphTopline{ display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:10px; margin-bottom:12px; }
+.marketGraphMetric{ padding:12px; border-radius:14px; border:1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.03); }
+.marketGraphMetricPrimary{ border-color: rgba(94,234,242,0.18); background: linear-gradient(180deg, rgba(94,234,242,0.08) 0%, rgba(255,255,255,0.02) 100%); }
+.marketGraphMetricLabel{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+.marketGraphMetricValue{ font-size:26px; font-weight:900; margin-top:6px; }
+.marketGraphMetricSub{ font-size:12px; color:var(--muted); margin-top:4px; }
+.marketGraphBody{ display:grid; gap:12px; }
+.marketGraphStage{ position:relative; padding:10px 10px 2px; border-radius:18px; border:1px solid rgba(255,255,255,0.06); background: radial-gradient(420px 180px at 18% 0%, rgba(94,234,242,0.10) 0%, rgba(9,12,20,0) 55%), radial-gradient(440px 180px at 88% 0%, rgba(255,209,102,0.08) 0%, rgba(9,12,20,0) 55%), rgba(7,10,18,0.72); }
+.marketGraphSvg{ width:100%; height:240px; display:block; }
+.marketGraphGridLine{ stroke: rgba(255,255,255,0.08); stroke-width:1; }
+.marketGraphGridLineVertical{ stroke-dasharray: 4 8; opacity:.75; }
+.marketGraphArea{ fill: rgba(94,234,242,0.14); }
+.marketGraphLine{ fill:none; stroke: var(--accent); stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+.marketGraphDot{ fill: var(--gold); }
+.marketGraphMarker{ stroke-width:1.5; stroke-dasharray: 5 7; opacity:.72; }
+.marketGraphMarkerHigh{ stroke: rgba(94,234,242,0.72); }
+.marketGraphMarkerLow{ stroke: rgba(255,122,167,0.70); }
+.marketGraphMarkerClose{ stroke: rgba(255,209,102,0.78); }
+.marketGraphCallout, .marketGraphCloseBadge{ position:absolute; transform: translateX(-50%); display:grid; gap:2px; padding:8px 10px; border-radius:12px; backdrop-filter: blur(8px); border:1px solid rgba(255,255,255,0.09); background: rgba(10,14,22,0.78); box-shadow: 0 10px 28px rgba(0,0,0,0.22); }
+.marketGraphCallout span, .marketGraphCloseBadge span{ font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+.marketGraphCallout strong, .marketGraphCloseBadge strong{ font-size:12px; }
+.marketGraphCalloutHigh{ border-color: rgba(94,234,242,0.22); }
+.marketGraphCalloutLow{ border-color: rgba(255,122,167,0.22); }
+.marketGraphCloseBadge{ transform:none; border-color: rgba(255,209,102,0.20); }
+.marketGraphLower{ display:grid; grid-template-columns: 1.4fr .8fr; gap:12px; align-items:start; }
+.marketGraphLegend{ display:flex; gap:10px; flex-wrap:wrap; font-size:12px; color:var(--muted); padding:10px 0 0; }
+.marketGraphVolumeStrip{ padding:12px; border-radius:14px; border:1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.03); }
+.marketGraphVolumeLabel{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+.marketGraphVolumeBar{ margin-top:10px; height:10px; border-radius:999px; overflow:hidden; background: rgba(255,255,255,0.06); }
+.marketGraphVolumeFill{ height:100%; border-radius:999px; background: linear-gradient(90deg, rgba(94,234,242,0.92) 0%, rgba(255,209,102,0.96) 100%); box-shadow: 0 0 24px rgba(94,234,242,0.18); }
+.marketGraphVolumeText{ margin-top:8px; font-size:12px; color:var(--muted); }
+.marketMapGrid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:10px; }
+.marketMapTile{ padding:12px; border-radius:14px; border:1px solid rgba(121,87,255,0.22); background: rgba(255,255,255,0.03); }
+.marketMapTile.good{ box-shadow: inset 0 0 0 1px rgba(108,242,207,0.10); }
+.marketMapTile.bad{ box-shadow: inset 0 0 0 1px rgba(255,122,167,0.10); }
+.marketMapTile.warn{ box-shadow: inset 0 0 0 1px rgba(255,209,102,0.10); }
+.marketMapPrice{ font-size:24px; font-weight:900; margin-top:10px; }
+.marketMapChange.good{ color:var(--good); }
+.marketMapChange.bad{ color:var(--bad); }
+.marketLadder{ display:grid; gap:10px; }
+.marketLane{ display:flex; justify-content:space-between; gap:12px; align-items:center; padding:12px; border-radius:14px; border:1px solid rgba(121,87,255,0.22); background: rgba(255,255,255,0.03); }
+.workflowSteps{ display:grid; gap:10px; }
+.workflowStep{ display:grid; grid-template-columns: 108px 1fr auto; gap:12px; align-items:center; padding:10px 12px; border-radius:14px; border:1px solid rgba(121,87,255,0.22); background: rgba(255,255,255,0.03); }
+.workflowStep.done{ box-shadow: inset 0 0 0 1px rgba(108,242,207,0.10); }
+.workflowStep.active{ box-shadow: inset 0 0 0 1px rgba(255,209,102,0.10); }
+.workflowStep.queued{ opacity:0.9; }
+.stepStatus{ font-weight:900; text-transform:uppercase; font-size:11px; letter-spacing:.08em; }
+.ticketGrid{ display:grid; grid-template-columns: 1.2fr .8fr; gap:12px; }
+.chainTable{ width:100%; border-collapse:collapse; font-size:13px; }
+.chainTable th,.chainTable td{ padding:8px 10px; border-bottom:1px solid rgba(255,255,255,0.07); text-align:left; }
+.chainRowActive{ background: rgba(255,209,102,0.08); }
+.contractDrawer{ padding:12px; border-radius:14px; border:1px solid rgba(255,209,102,0.20); background: rgba(255,255,255,0.03); }
+.kvGrid{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:8px; }
+.kv{ padding:10px; border-radius:12px; background: rgba(255,255,255,0.035); border:1px solid rgba(255,255,255,0.06); }
+.kvLabel{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+.kvValue{ font-weight:900; margin-top:4px; }
+.fiftyGrid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:10px; }
+.goalCard{ padding:12px; border-radius:14px; border:1px solid rgba(121,87,255,0.22); background: rgba(255,255,255,0.03); }
+@media (max-width: 980px){
+  .ticketGrid{ grid-template-columns: 1fr; }
+  .panelChrome{ align-items:flex-start; }
+  .panelChromeActions{ justify-content:flex-start; }
+}
+
+
+.panelChromeCompact{
+  padding: 8px 10px;
+  border-radius: 12px;
+}
+.panelChromeHint{
+  font-size: 11px;
+  color: var(--muted);
+  opacity: 0.82;
+  letter-spacing: 0.02em;
+}
+@media (max-width: 980px){
+  .panelChromeHint{ display:none; }
+}
+
+@media (max-width: 980px){
+  .marketGraphTopline{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .marketGraphLower{ grid-template-columns: 1fr; }
+}
+@media (max-width: 640px){
+  .marketGraphTopline{ grid-template-columns: 1fr; }
+  .marketGraphCallout, .marketGraphCloseBadge{ display:none; }
+}
+
+
+/* v10.24.14 Window chrome unification */
+.panelChrome{
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 14px;
+  border-color: rgba(121,87,255,0.20);
+}
+.panelChromeLead{
+  padding-right: 2px;
+}
+.panelChromeTitleRow{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+}
+.panelChromeTitle{
+  font-size: 14px;
+  line-height: 1.15;
+}
+.panelChromeSubtitle{
+  font-size: 11px;
+  margin-top: 3px;
+}
+.panelChromeActions{
+  gap: 6px;
+}
+.panelChromePill{
+  padding: 5px 9px;
+  font-size: 11px;
+}
+.panelChromeHint{
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: 10px;
+}
+
+
+/* v10.24.29 Final cohesion bundle */
+.panelChrome{
+  border-color: rgba(121,87,255,0.18);
+  background: linear-gradient(180deg, rgba(22,26,40,0.94) 0%, rgba(12,16,26,0.92) 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 10px 24px rgba(0,0,0,0.16);
+}
+.panelChromeDot{ box-shadow: inset 0 1px 0 rgba(255,255,255,0.30), 0 0 14px rgba(255,255,255,0.05); }
+.panelChromeTitle{ letter-spacing: .015em; }
+.panelChromeSubtitle{ opacity: .84; }
+.panelChromePill{ background: rgba(255,255,255,0.045); }

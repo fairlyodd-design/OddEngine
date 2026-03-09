@@ -1,0 +1,17 @@
+{
+  "id": "example.plugin",
+  "name": "Example Plugin",
+  "version": "1.0.0",
+  "description": "Starter manifest showing how plugins can link to external UIs or actions.",
+  "ui": "https://example.com",
+  "actions": [
+    {
+      "id": "docs",
+      "label": "Open Plugin Docs",
+      "type": "open_url",
+      "payload": {
+        "url": "https://example.com"
+      }
+    }
+  ]
+}

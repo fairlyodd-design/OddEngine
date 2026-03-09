@@ -1,0 +1,9 @@
+{
+  "id": "family-health-research-pack",
+  "name": "Family Health Research Pack",
+  "version": "10.16.2",
+  "description": "Adds trusted-source permissions, doctor-question builder, and research helpers to Family Health.",
+  "actions": [
+    { "id": "panel_family_health", "label": "Open Family Health", "type": "open_url", "payload": { "url": "/?panel=FamilyHealth" } }
+  ]
+}

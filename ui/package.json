@@ -1,0 +1,24 @@
+{
+  "name": "oddengine-ui",
+  "private": true,
+  "version": "10.23.3",
+  "type": "module",
+  "scripts": {
+    "dev": "node ./node_modules/vite/bin/vite.js",
+    "build": "node ./node_modules/vite/bin/vite.js build",
+    "preview": "node ./node_modules/vite/bin/vite.js preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "jszip": "^3.10.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.3",
+    "@vitejs/plugin-react": "^4.3.1"
+  },
+  "description": "OddEngine UI v10.22.0 \u2014 UI cleanup + Calendar panel\u2014 Homie Rive game-buddy mode (state machine + pointer tracking + talk/listen states)"
+}

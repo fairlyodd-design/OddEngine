@@ -1,0 +1,44 @@
+
+.commandOverlay{
+ position:fixed;
+ inset:0;
+ background:rgba(0,0,0,0.45);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ z-index:9999;
+}
+
+.commandBox{
+ width:520px;
+ background:#111;
+ border-radius:12px;
+ padding:12px;
+ box-shadow:0 10px 40px rgba(0,0,0,0.5);
+}
+
+.commandBox input{
+ width:100%;
+ padding:10px;
+ border:none;
+ outline:none;
+ background:#1a1a22;
+ color:white;
+ border-radius:8px;
+}
+
+.commandResults{
+ margin-top:10px;
+ max-height:300px;
+ overflow:auto;
+}
+
+.commandItem{
+ padding:8px 10px;
+ cursor:pointer;
+ border-radius:6px;
+}
+
+.commandItem:hover{
+ background:#26263a;
+}

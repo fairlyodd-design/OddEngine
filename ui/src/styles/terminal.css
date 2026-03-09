@@ -1,0 +1,25 @@
+
+.oe-terminal-grid{
+ display:grid;
+ grid-template-columns:repeat(12,1fr);
+ gap:10px;
+ padding:10px;
+}
+
+.oe-terminal-panel{
+ background:#0f0f0f;
+ border:1px solid #222;
+ border-radius:8px;
+ display:flex;
+ flex-direction:column;
+}
+
+.oe-terminal-header{
+ padding:8px 10px;
+ border-bottom:1px solid #222;
+ font-weight:600;
+}
+
+.oe-terminal-body{
+ padding:12px;
+}

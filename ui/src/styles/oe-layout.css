@@ -1,0 +1,30 @@
+
+:root{
+ --panel-gap:12px;
+ --panel-radius:10px;
+}
+
+.oe-workspace{
+ display:grid;
+ grid-template-columns:repeat(12,1fr);
+ gap:var(--panel-gap);
+ padding:12px;
+}
+
+.oe-panel{
+ background:#111;
+ border-radius:var(--panel-radius);
+ border:1px solid #222;
+ display:flex;
+ flex-direction:column;
+}
+
+.oe-panel-header{
+ padding:8px 12px;
+ border-bottom:1px solid #222;
+ font-weight:600;
+}
+
+.oe-panel-body{
+ padding:12px;
+}

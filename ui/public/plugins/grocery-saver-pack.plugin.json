@@ -1,0 +1,9 @@
+{
+  "id": "grocery-saver-pack",
+  "name": "Grocery Saver Pack",
+  "version": "10.16.2",
+  "description": "Adds cheap-week mode, store profiles, coupon matching, and savings helpers to Grocery Meals.",
+  "actions": [
+    { "id": "panel_grocery", "label": "Open Grocery Meals", "type": "open_url", "payload": { "url": "/?panel=GroceryMeals" } }
+  ]
+}

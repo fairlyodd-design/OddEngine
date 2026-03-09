@@ -1,0 +1,24 @@
+
+body{
+ background:#0b0f14;
+ color:#e6e6e6;
+ font-family:system-ui;
+}
+
+.window{
+ backdrop-filter:blur(18px);
+ background:rgba(20,20,20,.7);
+ border:1px solid rgba(255,255,255,.06);
+ border-radius:10px;
+}
+
+.dataTape{
+ position:fixed;
+ bottom:0;
+ width:100%;
+ background:#111;
+ padding:6px;
+ display:flex;
+ gap:20px;
+ overflow:auto;
+}

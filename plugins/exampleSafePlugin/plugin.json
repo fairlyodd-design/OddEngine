@@ -1,0 +1,6 @@
+
+{
+ "name":"exampleSafePlugin",
+ "version":"1.0",
+ "entry":"main.ts"
+}

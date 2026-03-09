@@ -1,0 +1,54 @@
+
+body{
+ background:#090c12;
+ color:white;
+ font-family:system-ui;
+}
+
+.cosmosWindow{
+ background:rgba(18,18,22,.75);
+ border:1px solid rgba(255,255,255,.08);
+ border-radius:12px;
+ backdrop-filter:blur(14px);
+}
+
+.cosmosHeader{
+ padding:8px 12px;
+ font-weight:bold;
+ cursor:move;
+ border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+.cosmosBody{
+ padding:14px;
+}
+
+.marketBar{
+ position:fixed;
+ top:0;
+ width:100%;
+ background:#111;
+ padding:6px;
+ display:flex;
+ gap:24px;
+ overflow:auto;
+}
+
+.cosmosCommand{
+ position:fixed;
+ top:25%;
+ left:50%;
+ transform:translateX(-50%);
+ background:#101010;
+ border-radius:10px;
+ padding:20px;
+ width:420px;
+}
+
+.workspaceManager{
+ position:fixed;
+ top:36px;
+ right:20px;
+ display:flex;
+ gap:8px;
+}

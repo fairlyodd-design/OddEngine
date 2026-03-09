@@ -1,0 +1,36 @@
+
+.dockWindow{
+ background:rgba(20,20,26,0.9);
+ border:1px solid rgba(255,255,255,0.08);
+ border-radius:12px;
+ backdrop-filter:blur(12px);
+}
+
+.dockHeader{
+ padding:10px;
+ font-weight:bold;
+ cursor:move;
+ border-bottom:1px solid rgba(255,255,255,0.06);
+}
+
+.dockBody{
+ padding:14px;
+}
+
+.workspacePanel{
+ position:fixed;
+ right:20px;
+ top:80px;
+ background:#111;
+ padding:10px;
+ border-radius:8px;
+}
+
+.monitorControl{
+ position:fixed;
+ left:20px;
+ bottom:60px;
+ background:#111;
+ padding:10px;
+ border-radius:8px;
+}

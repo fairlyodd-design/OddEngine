@@ -1,0 +1,15 @@
+
+{
+  "plugins": [
+    {
+      "name": "options-scanner",
+      "version": "1.0",
+      "capabilities": ["trading.read"]
+    },
+    {
+      "name": "grow-ai",
+      "version": "1.0",
+      "capabilities": ["grow.read","ai.run"]
+    }
+  ]
+}

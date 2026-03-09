@@ -1,0 +1,233 @@
+v10.24.0 — Design-system layout pass (top 5 panels)
+
+- Removed the remaining inline spacing flow from the main OS surfaces: Home, Calendar, Entertainment, Writers Lounge, and Trading
+- Swapped repeated marginTop/gap wrappers into shared spacing primitives: stack / grid / cluster + mt utilities where only vertical offset was needed
+- Tightened repeated action rows, detail stacks, list wrappers, and table spacing so the app reads like one system instead of five different layouts
+- Added small layout utility classes (mt-*, tight/loose cluster helpers, flow stacks, table wrap) to keep future polish fast and consistent
+- No feature changes; visual/layout cohesion only
+
+v10.23.9 — Per-widget spacing grid normalization (one-piece cohesion)
+
+- Added spacing primitives (grid/stack/cluster) + subCard styling so nested widgets share one spacing language
+- widgetBody now defaults to a vertical stack with consistent gap (prevents random margin/padding drift)
+- Calendar: converted inner panels + event tiles to subCard + grid utilities (consistent internal padding)
+- Writers Lounge: normalized Library/Tools internal layout spacing (reduced inline gap/padding drift)
+- Home: minor internal grid normalization (Recent Activity list uses grid utility)
+- No functional changes
+
+v10.23.8 — Micro-spacing pass (tight + cohesive)
+
+- Tightened internal spacing so widgets feel like one continuous OS surface
+  - Slightly reduced card padding + widget body margins
+  - Reduced common gap utilities (rows, stacks) to avoid “floaty” air
+  - Slightly tighter mission/timeline card padding for denser readability
+- No feature changes; purely visual/spacing polish
+
+v10.23.7 — Header Standard + Action Menus + Layout Reset
+
+- Standardized widget headers (title/subtitle + right-side actions) for cleaner alignment
+- CardFrame: replaced noisy header button rows with a single ⋯ action menu (Shrink / Move / Pin via FairlyGOD)
+- PanelScheduleCard: presets moved into “+ Add” menu; Open Calendar stays clean and clickable
+- Entertainment: Browse actions tightened to Open/Favorite + Actions menu (less clutter)
+- Preferences: new “Layout & Windows” section
+  - Reset card layouts (sizes/positions)
+  - Reset popout bounds (Desktop)
+  - Reset ALL (cards + popout bounds)
+- Desktop: added odd:resetWindowBounds IPC (clears saved window_bounds + entertainment player bounds)
+
+v10.23.6 — UI Widget Cleanup (FairlyGOD controls safe)
+
+- FairlyGOD card controls hidden by default; show on hover
+- Controls moved away from widget header buttons; no more click-stealing overlays
+
+v10.23.3 — One-piece OS Home (Now Playing + Routine Step + Top Tasks)
+
+- Home: new Live Lane cards powered by Calendar + Activity
+  - Now Playing (pulls from Entertainment + focuses player)
+  - Current routine step (active/next from today's Calendar)
+  - Today's top 3 tasks (from Calendar) with completion checkboxes (local)
+- Entertainment: emits entertainment-changed event + logs Now Playing activity
+
+v10.23.2 — OS finish pass (Mission Control polish)
+
+- Compact shell header mode (less clutter). Toggle:
+  - Button in header (Expand/Collapse)
+  - Hotkey: Ctrl/Cmd + Shift + H
+- Home Mission Control cards now focus Calendar to the correct date when you tap “Calendar”
+- Calendar supports external focus (Home/OS can jump to a specific day)
+- Small Home polish: dynamic greeting + minor UI smoothness
+- Smooth panel transition (subtle fade-in)
+
+v10.23.0 — Lil Homie Agent (walking NPC assistant)
+
+- New floating Lil Homie character that can roam the screen (Fortnite mascot vibe)
+- Drag anywhere; optional roam mode; position persists
+- Walk cycle animation + “talk” animation (even in quiet mode)
+- Click to open a chat bubble with quick actions (Calendar / Command Bar / Homie / Writer’s Lounge)
+- Ask Lil Homie: Desktop uses local Homie (Ollama) via oddApi().homieChat; web shows offline note
+- Calendar nudges: Lil Homie reminds you ~12 minutes before upcoming events
+- Preferences controls under AI Assistants:
+  - Lil Homie Agent on/off
+  - Roam on/off
+  - Speech on/off
+  - Speed + size sliders
+  - Chatter on/off
+
+
+v10.22.3 — OS Home + Entertainment polish + Writers Lounge styling
+
+- OS-style shell feel: wallpaper/glass UI (keeps current logo + theme palette)
+- Home panel: smooth launcher dashboard (widgets + pinned apps + app grid + recent activity)
+- Family Entertainment: Kodi-inspired “details + list” browse view + quick tiles; manage mode preserved
+- Books panel upgraded to ✍️ Writers Lounge with embedded AI writing assistant + clean 3-column layout
+
+
+v10.22.2 — Panel polish wave 2 (Mining/Money/FamilyHealth/GroceryMeals/Security/Plugins/DevEngine)
+
+- Clean headers (PanelHeader) + compact Data menu (Snapshot/Restore/Export/Import) to reduce button clutter
+- Added Schedule cards + Calendar quick-add presets on:
+  - Mining, Money, FamilyHealth, GroceryMeals, Security, Plugins, DevEngine
+- Added cross-links: “Open Calendar” actions + per-item Calendar buttons (e.g., Money sellables Launch + FamilyHealth Next visit)
+- Navigation wiring: these panels now receive onNavigate so Calendar links open correctly
+
+
+v10.21.9 — Homie mascot Hype buddy animations
+
+- Fortnite mascot (Memoji) now animates like a modern game buddy (no Rive required)
+  - Hype idle bounce + snappy rotations
+  - Pointer tracking (eyes/head feel) via subtle aim offsets
+  - Speaking intensity pulses (drives scale while talking)
+  - Gesture animations for wave/nod/tilt/spark
+  - Big emote FX buttons: 👊 🎉 ⚠️ 🤦
+- Preferences: Mascot animation toggle + Energy slider
+
+v10.21.7 — Preferences crash fix (FairlyGOD defaults)
+
+- Fix: Preferences runtime error “Cannot read properties of undefined (reading 'gridSize')”
+- Adds missing DEFAULT_PREFS.fairlygod and merges stored prefs safely
+
+v10.21.6 — Homie mascot avatar (transparent)
+
+- Added new avatar skin: Fortnite mascot (Memoji)
+- Removes black background (transparent PNG) and uses it as the Homie Buddy default skin (one-time migration; can switch back in Preferences)
+- Skin-specific idle gestures (no wink for memoji image)
+
+v10.21.5 — Fix HomieBuddy crash (skin TDZ)
+
+- Fix: Cannot access 'skin' before initialization (idle-gesture effect referenced skin before it was declared)
+- Keeps v10.21.4 Rive game-buddy mode intact
+
+v10.21.4 — Homie Rive “game buddy” mode (modern character)
+
+- Optional Rive runtime integration via @rive-app/react-webgl2
+- Prefs + quick toggle: Game buddy on/off
+- Drives state machine inputs (if present): isTalking/isListening/mood/lookX/lookY + gesture triggers
+- Safe fallback to classic CSS Homie if .riv is missing
+
+v10.21.3 — Homie Buddy animation pass (alive avatar)
+
+- Orb: blink + pupil drift + brows/cheeks, spark/wink/nod/tilt idle gestures
+- Lil Homie: idle wave/nod/tilt gestures
+- Gestures pause while Listening/Speaking
+- Respects prefers-reduced-motion
+
+v10.20.8 — Bright UI + cleaner collapsible cards
+
+v10.20.7 — Ticket smart exits + broker-friendly copy
+
+- Auto-fill exit stop from entry and stop-loss %
+- Take-profit ladder buttons (25/50/100) with target price badges
+- Copy broker-friendly ticket string (Public/Tradier style) including stops/TPs
+
+- Brighter shell background using FairlyOdd logo palette
+- Card controls fade in on hover (less visual clutter)
+- Double-click card header to collapse/expand
+- Weather fetch: longer timeout + retry + cached fallback
+
+Includes: v10.19.8c “Never again” launcher protections
+
+- Guard: auto-wipe ui\node_modules\.vite when UI version changes (prevents stale Vite cache issues)
+- Guard: preflight `npm --prefix ui run build` before launching (fail fast on syntax/TS errors)
+
+v10.19.7 — Multi-monitor Routine Presets + Display Assignments
+
+- Added display enumeration (odd:getDisplays)
+- Routine tiler supports presets + per-panel display assignments
+- New Routine Launcher controls for presets + per-panel display mapping
+- Tiler attaches panel id metadata for routine windows
+
+OddEngine v10.19.0
+- CardFrame: shrink + move + resize inside panels
+- Money: Sellables Pipeline (books/GPTs/apps/templates)
+- Books Vault panel
+
+
+v10.19.2 — Grid + Lock + Presets + Reset
+- Snap grid + alignment guides for floating cards (Shift disables snapping)
+- Lock layout toggle (prevents dragging/resizing)
+- Layout presets per panel (Save/Apply)
+- One-click Reset panel layout (clears positions/sizes/presets)
+
+v10.19.3 — Layout cloning + Global preset sets
+- Panel-to-panel layout cloning:
+  - Copy To: copy the current panel layout template to another panel
+  - Clone In: pull a layout template (or preset fallback) from another panel into the current panel
+- Global preset sets:
+  - Save→Set: add the current panel layout to a named set (e.g., “Morning Routine”)
+  - Apply→This: apply the set’s layout for the current panel
+  - Apply All: write templates for all panels in the set (open panels to see them apply instantly)
+
+v10.19.4 — Routine Launcher panel
+- New panel: 🚀 Routine Launcher
+- One button applies a global set (e.g., “Morning Routine”) and opens a chosen panel sequence
+- Launch modes:
+  - Windows: open each panel in its own undocked window (Desktop)
+  - Main shell: jump to first panel and step through via “Next Panel”
+
+
+v10.19.4 — Routine Launcher panel
+- New panel: Routine Launcher (apply a global set + open a chosen panel sequence)
+- Modes: Windows (multi-window cockpit) or Main Shell step-through
+
+v10.19.5 — Routine window auto-stack + clean shutdown
+- Routine windows are now tracked by routine id
+- Auto-stack (tile) routine windows neatly via IPC
+- One-click close routine windows
+- Routine Launcher UI adds: Tile windows + Close windows buttons
+
+v10.19.6 — Routine tiling styles (remembered per routine)
+- Add tiling styles: Grid / Left-main+stack / 2×2 Hero
+- Routine Launcher: style selector per routine + Tile/Close controls
+- Desktop: remember tiling style per routine id (persisted to userData)
+
+- Added Auto-fill TP from custom profit % input
+- Added Bracket/OCO copy block (entry + exits)
+
+
+v10.22.0 — UI cleanup + Calendar panel
+- Sidebar sections are now collapsible (state persists)
+- Pin stars only show on hover (pinned stars stay visible)
+- FairlyGOD Layout bar is cleaner by default (Grid/Lock/Layout; advanced controls under Layout)
+- New panel: 📅 Calendar (month view, add/edit/delete events, upcoming list)
+- Calendar events can optionally deep-link to a panel (one-click jump)
+- Shell header quick action: Open Calendar
+
+v10.22.1 — Panel polish pass: Brain / News / Homie + shared calendar hooks
+- Brain: new top header + 4 clean views (Overview / Router / Notes / Systems)
+- Brain: Ops schedule card (quick add reminders + upcoming items across panels)
+- News: new top header + action menu + News schedule card + “Add to calendar” on stories
+- Homie: new top header + action menu + Dev schedule card + quick actions
+- Calendar: dispatches oddengine:calendar-changed so panels refresh instantly
+- New shared components:
+  - ActionMenu (⋯)
+  - PanelScheduleCard
+  - calendarStore helpers (addQuickEvent, listUpcoming, etc.)
+
+v10.23.1 — Lil Homie 3D (Option A pipeline)
+- Added true 3D render mode for Lil Homie using Three.js (react-three-fiber)
+- Auto-detects ui/public/models/lilhomie.glb (recommended animations: Idle/Walk/Talk)
+- Safe fallback: lightweight 3D billboard buddy (uses /public/assets/homie-mascot.png)
+- New prefs:
+  - Lil Homie render: 3D / 2D
+  - Lil Homie energy slider
+- Added model drop-in docs: ui/public/models/README.md
