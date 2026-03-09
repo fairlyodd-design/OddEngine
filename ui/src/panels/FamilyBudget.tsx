@@ -1331,6 +1331,53 @@ export default function FamilyBudget() {
         </div>
       </div>
 
+      <div className="familyBudgetWarRoomGrid">
+        <div className="card softCard familyBudgetWarRoomCard">
+          <div className="small shellEyebrow">SAVINGS WAR ROOM</div>
+          <div style={{ fontWeight: 900, fontSize: 20, marginTop: 6 }}>Make grocery wins extend the household runway</div>
+          <div className="small" style={{ marginTop: 8, lineHeight: 1.55 }}>
+            Tie the Grocery command center directly into the budget. Treat weekly list discipline, coupon hits, and cheap-week planning as a real cashflow lever instead of an afterthought.
+          </div>
+          <div className="familyBudgetWarMetrics">
+            <div className="card familyBudgetWarMini">
+              <div className="small shellEyebrow">GROCERY LANE</div>
+              <div className="familyBudgetMetricValue">{grocerySaveLane}</div>
+              <div className="small">{groceryBudgetLine ? `${money(grocerySpendActual, state.household.currency)} vs ${money(grocerySpendPlanned, state.household.currency)}` : "Add a grocery budget line"}</div>
+            </div>
+            <div className="card familyBudgetWarMini">
+              <div className="small shellEyebrow">RUNWAY MOVE</div>
+              <div className="familyBudgetMetricValue">{money(Math.max(0, groceryWarRoomGap), state.household.currency)}</div>
+              <div className="small">{groceryWarRoomGap >= 0 ? "Potential monthly breathing room" : `Need ${money(groceryTighten, state.household.currency)} back`}</div>
+            </div>
+            <div className="card familyBudgetWarMini">
+              <div className="small shellEyebrow">PRIORITY</div>
+              <div className="familyBudgetMetricValue" style={{ fontSize: 18 }}>{householdWarPriority}</div>
+              <div className="small">Highest-impact household lever</div>
+            </div>
+          </div>
+          <div className="assistantStack" style={{ marginTop: 12 }}>
+            <div className="timelineCard">
+              <div className="row" style={{ justifyContent: "space-between", gap: 10 }}>
+                <div style={{ fontWeight: 800 }}>1. Stabilize grocery spend</div>
+                <span className={`badge ${groceryWarRoomGap >= 0 ? "good" : "warn"}`}>{grocerySaveLane}</span>
+              </div>
+              <div className="small" style={{ marginTop: 6 }}>
+                {groceryBudgetLine ? `Aim to hold groceries near ${money(grocerySpendPlanned, state.household.currency)} and route every coupon/deal win into extra runway.` : "Create a groceries budget line so coupon wins show up in the household plan."}
+              </div>
+            </div>
+            <div className="timelineCard">
+              <div className="row" style={{ justifyContent: "space-between", gap: 10 }}>
+                <div style={{ fontWeight: 800 }}>2. Protect monthly free cash</div>
+                <span className={`badge ${projectedFreeCash >= 0 ? "good" : "bad"}`}>{money(projectedFreeCash, state.household.currency)}</span>
+              </div>
+              <div className="small" style={{ marginTop: 6 }}>
+                Grocery discipline is the fastest recurring lifestyle lever. Keep it tight so the month closes stronger without touching essentials.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="spotlightGrid familyBudgetFollowupGrid">
         <div className="card spotlightCard familyBudgetFollowupCard">
           <div className="small shellEyebrow">MONEY PLAYBOOK</div>

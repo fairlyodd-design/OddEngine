@@ -3334,33 +3334,6 @@ button:hover:not(:disabled){ border-color: rgba(94,234,242,0.24); }
 
 
 /* v10.24.38 Writers layout + home/grocery/chores follow-up */
-.writersGrid{ grid-template-columns: minmax(0,1fr); gap:16px; }
-.writersLeft,.writersCenter,.writersRight{ width:100%; }
-.writersStudioDeck,.writersHandoffLab,.writersReleaseEngine,.writersGreenlightBoard,.writersProducerGrid,.writersProductionGrid,.writersPipelineBoard,.writersDocPreviewGrid,.writersCastingGrid,.writersSceneGrid,.writersDirectorTimeline,.writersBeatMap,.writersGreenlightSelectors{ width:100%; }
-.writersSceneGrid,.writersCastingGrid,.writersProductionGrid,.writersDocPreviewGrid,.writersProducerGrid,.writersGreenlightSelectors{ grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); }
-.writersDirectorTimeline,.writersBeatMap{ display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
-.writersTimelineStep,.writersBeatStep,.writersCastingCard,.writersSceneCard,.writersProducerCard,.writersProductionCard,.writersAssetCard,.writersPipelineStage,.creativeMetricCard,.writersSelectorBlock{ min-width:0; overflow-wrap:anywhere; word-break:break-word; }
-.writersProducerGrid .writersProducerCard{ min-height: 0; }
-.writersReleaseEngine .writersPlannerPreview,.writersPlannerPreview,.writersAssetPreview{ white-space: pre-wrap; overflow-wrap:anywhere; word-break:break-word; }
-.homeHubGrid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin-top:14px; }
-.homeHubCard{ text-align:left; padding:14px; border-radius:16px; border:1px solid rgba(255,255,255,0.08); background:linear-gradient(180deg, rgba(18,22,36,0.86), rgba(10,12,22,0.82)); }
-.homeHubCard:hover{ border-color: rgba(94,234,242,0.24); transform: translateY(-1px); }
-.homeHubTop{ display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
-.homeHubTitle{ font-size:15px; font-weight:900; }
-.homeHubSub{ font-size:12px; opacity:0.78; margin-top:6px; line-height:1.35; }
-.homeHubTodo{ margin-top:10px; font-size:12px; line-height:1.4; color: rgba(240,248,255,0.88); }
-.homeHubActions{ display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
-.groceryPrepGrid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:12px; margin-top:14px; }
-.groceryCommandGrid{ grid-template-columns: repeat(3,minmax(0,1fr)); margin-top: 12px; }
-.groceryCommandCard{ min-height: 0; }
-.groceryCommandCard .timelineCard{ background: rgba(255,255,255,0.02); }
-@media(max-width: 1120px){ .groceryCommandGrid{ grid-template-columns: 1fr; } }
-.choresMetricStrip{ display:grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-top:14px; }
-.choresGrid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:12px; margin-top:14px; }
-.choresCard{ padding:14px; border-radius:16px; border:1px solid rgba(255,255,255,0.08); background:linear-gradient(180deg, rgba(18,22,36,0.86), rgba(10,12,22,0.82)); }
-.choresTask{ display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-top:1px solid rgba(255,255,255,0.06); }
-.choresTask:first-child{ border-top:0; padding-top:0; }
-.choresDone{ opacity:0.62; text-decoration:line-through; }
 
 /* v10.24.39 Books full-width + Home command center follow-up */
 .writersStudioRoot .panelScroller, .writersStudioRoot .panelBody, .writersStudioRoot .panelContent{ width:100%; }
@@ -3386,3 +3359,57 @@ button:hover:not(:disabled){ border-color: rgba(94,234,242,0.24); }
 .homeZoneItemTitle{ font-weight:800; }
 .homeZoneItemSub{ margin-top:3px; font-size:12.5px; line-height:1.4; color:rgba(255,255,255,0.72); }
 @media (max-width: 1100px){ .homeZoneGrid{ grid-template-columns:1fr; } }
+
+
+/* v10.24.41 Daily Chores command center pass */
+.choresHeroCard{ border-color: rgba(255,214,102,0.18); }
+.choresTopGrid{ display:grid; grid-template-columns: 1.2fr 0.95fr; gap:12px; margin-top:14px; }
+.choresFocusCard{ min-height: 0; }
+.choresFocusList{ display:grid; gap:10px; margin-top:12px; }
+.choresFocusRow{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding:10px 12px; border:1px solid rgba(255,255,255,0.06); border-radius:14px; background:rgba(12,16,26,0.52); }
+.choresMetricStrip{ display:grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-top:14px; }
+.choresGrid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap:12px; margin-top:14px; }
+.choresCard{ padding:14px; border-radius:16px; border:1px solid rgba(255,255,255,0.08); background:linear-gradient(180deg, rgba(18,22,36,0.9), rgba(10,12,22,0.84)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.03); }
+.choresProgress{ width:100%; height:8px; border-radius:999px; overflow:hidden; background:rgba(255,255,255,0.06); }
+.choresProgress span{ display:block; height:100%; border-radius:999px; background:linear-gradient(90deg, rgba(255,214,102,0.92), rgba(94,234,242,0.92)); box-shadow:0 0 16px rgba(94,234,242,0.22); }
+.choresTask{ display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-top:1px solid rgba(255,255,255,0.06); }
+.choresTask:first-child{ border-top:0; padding-top:0; }
+.choresDone{ opacity:0.62; text-decoration:line-through; }
+@media (max-width: 980px){ .choresTopGrid{ grid-template-columns: 1fr; } }
+
+/* v10.24.42 Home super-launcher + Grocery GodMode */
+.homeSavingsDeck{ border-color: rgba(251,191,36,0.14); background: linear-gradient(180deg, rgba(31,24,10,0.72), rgba(11,15,24,0.84)); }
+.homeSavingsGrid{ display:grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap:14px; }
+.homeSavingsCard{ width:100%; text-align:left; padding:16px; border-radius:18px; border:1px solid rgba(255,255,255,0.08); background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.03); }
+.homeSavingsCard:hover{ border-color: rgba(251,191,36,0.28); transform: translateY(-1px); }
+.homeSavingsTop{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+.homeSavingsTitle{ font-size:18px; font-weight:900; letter-spacing:0.01em; }
+.homeSavingsSub{ margin-top:4px; font-size:12.5px; color:rgba(255,255,255,0.72); line-height:1.45; }
+.homeSavingsBody{ margin-top:12px; min-height:44px; line-height:1.55; color:rgba(255,255,255,0.86); }
+.homeSavingsActions{ margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; }
+.groceryGodModeGrid{ display:grid; grid-template-columns: 1.3fr 1fr; gap:14px; }
+.groceryGodModeCard{ min-height: 0; }
+@media (max-width: 1100px){ .homeSavingsGrid{ grid-template-columns:1fr; } .groceryGodModeGrid{ grid-template-columns:1fr; } }
+
+.groceryHunterGrid{ display:grid; grid-template-columns:1.05fr 1fr; gap:12px; margin-top:14px; }
+.groceryHunterCard{ min-height:100%; }
+.groceryDealBoard{ max-height:520px; overflow:auto; }
+.groceryDealRow{ border-color: rgba(251,191,36,0.12); }
+.groceryDenseText{ margin-top:8px; line-height:1.6; opacity:0.9; }
+.groceryPlannerPreview{ min-height: 186px; white-space: pre-wrap; }
+@media(max-width: 980px){ .groceryHunterGrid{ grid-template-columns:1fr; } }
+
+
+/* v10.24.44 FamilyBudget + Grocery savings war room */
+.groceryWarRoomGrid{ display:grid; grid-template-columns: 1.35fr 1fr; gap:12px; margin-top:12px; }
+.groceryWarRoomCard{ border-color: rgba(94,234,242,0.14); background: linear-gradient(180deg, rgba(11,16,24,0.92), rgba(8,12,18,0.86)); }
+.groceryWarRoomMetrics{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:10px; margin-top:12px; }
+.groceryMiniWarCard{ background: linear-gradient(180deg, rgba(17,25,36,0.85), rgba(12,18,28,0.78)); border-color: rgba(255,255,255,0.06); min-height: 110px; }
+.familyBudgetWarRoomGrid{ display:grid; grid-template-columns: 1fr; gap:12px; margin-top:12px; }
+.familyBudgetWarRoomCard{ border-color: rgba(94,234,242,0.14); background: linear-gradient(180deg, rgba(11,16,24,0.92), rgba(8,12,18,0.86)); }
+.familyBudgetWarMetrics{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:10px; margin-top:12px; }
+.familyBudgetWarMini{ background: linear-gradient(180deg, rgba(17,25,36,0.85), rgba(12,18,28,0.78)); border-color: rgba(255,255,255,0.06); min-height: 110px; }
+@media (max-width: 980px){
+  .groceryWarRoomGrid{ grid-template-columns: 1fr; }
+  .groceryWarRoomMetrics, .familyBudgetWarMetrics{ grid-template-columns: 1fr; }
+}

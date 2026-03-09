@@ -350,6 +350,11 @@ export default function Home({ onNavigate }: Props) {
   const pct = quota > 0 ? Math.min(100, Math.max(0, Math.round((usage / quota) * 100))) : 0;
 
   const appMap = useMemo(() => new Map(PANEL_META.map((p) => [normalizePanelId(p.id), p])), []);
+  const grocerySnapshot = useMemo(() => loadJSON<any>("oddengine:groceryMeals:v1", {} as any), [calTick]);
+  const groceryDealCount = Number(grocerySnapshot?.couponMatches?.length || 0);
+  const groceryBestDeal = grocerySnapshot?.couponMatches?.[0] || grocerySnapshot?.couponFeed?.[0]?.title || "Refresh coupon radar";
+  const groceryPrimaryStore = grocerySnapshot?.preferredStores?.[0] || "Walmart";
+  const groceryBasketGoal = grocerySnapshot?.basketGoal || "$125 family week";
 
   const homeZones = useMemo(() => ([
     {
@@ -771,6 +776,58 @@ export default function Home({ onNavigate }: Props) {
                   </div>
                 </button>
               ))}
+            </div>
+          </div>
+
+          <div className="card softCard mt-5 homeSavingsDeck">
+            <div className="small shellEyebrow">SAVINGS BLITZ</div>
+            <div className="h">Coupon + deal saver mode</div>
+            <div className="sub">Treat Home like your money-back launch pad: hit Grocery for deals, FamilyBudget for guardrails, and Daily Chores for the prep flow that keeps takeout from winning.</div>
+            <div className="homeSavingsGrid mt-4">
+              <button className="homeSavingsCard" onClick={() => onNavigate("GroceryMeals")}>
+                <div className="homeSavingsTop">
+                  <div>
+                    <div className="homeSavingsTitle">🛒 Grocery deal radar</div>
+                    <div className="homeSavingsSub">Primary store: {groceryPrimaryStore} • Goal: {groceryBasketGoal}</div>
+                  </div>
+                  <span className={`badge ${groceryDealCount ? "good" : "warn"}`}>{groceryDealCount ? `${groceryDealCount} matches` : "Need refresh"}</span>
+                </div>
+                <div className="homeSavingsBody">Best current lane: {groceryBestDeal}</div>
+                <div className="homeSavingsActions">
+                  <span className="badge good">Open saver mode</span>
+                  <span className="badge">Coupons + prep</span>
+                </div>
+              </button>
+
+              <button className="homeSavingsCard" onClick={() => onNavigate("FamilyBudget")}>
+                <div className="homeSavingsTop">
+                  <div>
+                    <div className="homeSavingsTitle">💸 Budget guardrail</div>
+                    <div className="homeSavingsSub">Keep the run inside the family lane and protect the month.</div>
+                  </div>
+                  <span className="badge">Money lane</span>
+                </div>
+                <div className="homeSavingsBody">Before checkout: compare basket cost vs goal, then cut the fun extras before the staples.</div>
+                <div className="homeSavingsActions">
+                  <span className="badge good">Open budget</span>
+                  <span className="badge">Trim basket</span>
+                </div>
+              </button>
+
+              <button className="homeSavingsCard" onClick={() => onNavigate("DailyChores")}>
+                <div className="homeSavingsTop">
+                  <div>
+                    <div className="homeSavingsTitle">🏠 Prep + household lane</div>
+                    <div className="homeSavingsSub">Batch prep, reset the house, and stop waste before it starts.</div>
+                  </div>
+                  <span className="badge">Ops lane</span>
+                </div>
+                <div className="homeSavingsBody">Use the chores loop with food prep to stretch groceries longer and stop the “we forgot” tax.</div>
+                <div className="homeSavingsActions">
+                  <span className="badge good">Open chores</span>
+                  <span className="badge">Recurring reset</span>
+                </div>
+              </button>
             </div>
           </div>
 

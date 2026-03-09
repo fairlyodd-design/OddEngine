@@ -46,7 +46,7 @@ frozen vegetables`,
   priceBook: {},
   storePlan: [],
   basketGoal: "$125 family week",
-  prepPlan: "Cook protein first, prep grab-and-go snacks, and batch one flexible carb for the week.",
+  prepPlan: "Batch protein, wash fruit, chop veg, portion snacks, and cook one flexible carb for the week.",
   aiDealNote: "",
 };
 
@@ -82,11 +82,43 @@ function buildStorePlanText(preferredStores: string[], cheapWeekMode: boolean, c
   const stores = preferredStores.length ? preferredStores : ["Walmart", "Smith's/Kroger"];
   const primary = stores[0];
   const notes = [`Primary run: ${primary} for staple items and pantry refills.`];
-  if (stores[1]) notes.push(`Secondary pass: ${stores[1]} for ad-match or better produce/meat pricing.`);
-  if (cheapWeekMode) notes.push("Cheap-week mode is on, so prioritize staples, frozen veg, eggs, beans, rice, oats, and overlap ingredients.");
-  if (couponMatches.length) notes.push(`Coupon lane has ${couponMatches.length} likely matches. Check those before checkout.`);
-  if (!couponMatches.length) notes.push("Refresh the coupon lane before shopping so the plan can pivot to live deals.");
+  if (stores[1]) notes.push(`Second stop: ${stores[1]} only if ad-match, produce, or meat pricing beats the primary lane.`);
+  if (cheapWeekMode) notes.push("Cheap-week mode is on, so push staples, frozen veg, eggs, beans, rice, oats, and overlap ingredients.");
+  if (couponMatches.length) notes.push(`Coupon lane found ${couponMatches.length} likely matches. Check them before checkout.`);
+  if (!couponMatches.length) notes.push("Refresh the coupon lane before shopping so the route can pivot to live deals.");
   return notes;
+}
+
+function buildCouponGodMode(base: GroceryState) {
+  const best = base.couponMatches[0] || base.couponFeed[0]?.title || "Refresh the coupon lane";
+  const target = base.basketGoal || "$125 family week";
+  const stores = (base.preferredStores || []).slice(0, 2).join(" → ") || "Walmart → Smith's/Kroger";
+  const listHot = (base.groceryList || []).slice(0, 5).join(", ") || "rice, eggs, frozen vegetables";
+  return [
+    "# Coupon GodMode",
+    "",
+    `Basket goal: ${target}`,
+    `Store route: ${stores}`,
+    `Best current deal: ${best}`,
+    `High-priority items: ${listHot}`,
+    "",
+    "## Attack plan",
+    "1. Lock staple items first and skip impulse add-ons until the basket is under goal.",
+    "2. Route produce/meat only through the second store if the deal lane beats the primary stop.",
+    "3. Batch prep proteins + snacks the same day so deals turn into real savings instead of spoilage.",
+    "4. Use pantry overlap and one flex carb to stretch the whole run.",
+  ].join("\n");
+}
+
+function scoreDeal(item: FeedItem, groceryList: string[], preferredStores: string[]) {
+  const hay = `${item.title} ${item.summary || ""}`.toLowerCase();
+  let score = 30;
+  const hits = groceryList.filter((entry) => hay.includes(entry.toLowerCase()));
+  score += hits.length * 18;
+  if (preferredStores.some((store) => hay.includes(store.toLowerCase().replace(/[^a-z]/g, "")) || hay.includes(store.toLowerCase()))) score += 8;
+  if (["coupon", "cash back", "bogo", "free", "clearance", "digital"].some((tag) => hay.includes(tag))) score += 10;
+  if (["snack", "chips", "candy", "soda"].some((tag) => hay.includes(tag))) score -= 6;
+  return Math.max(0, Math.min(99, score));
 }
 
 export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?: (id: string) => void; onOpenHowTo?: () => void } = {}) {
@@ -114,10 +146,10 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
     groceryList.forEach((item) => {
       if (!(item in priceBook)) priceBook[item] = Number(estimateItemPrice(item).toFixed(2));
     });
-    const storePlan = hasSaverPack ? buildStorePlanText(base.preferredStores, base.cheapWeekMode, base.couponMatches) : base.storePlan;
+    const storePlan = buildStorePlanText(base.preferredStores, base.cheapWeekMode, base.couponMatches);
     const next = { ...base, groceryList, priceBook, storePlan, lastUpdated: Date.now() };
     persist(next);
-    if (hasSaverPack) matchCoupons(next, false);
+    matchCoupons(next, false);
   }
 
   async function refreshCoupons() {
@@ -126,7 +158,7 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
       const couponFeed = await fetchNewsFeed("https://slickdeals.net/newsearch.php?q=grocery&searcharea=deals&searchin=first&rss=1", "Slickdeals Grocery");
       const next = { ...state, couponFeed, lastUpdated: Date.now(), lastError: "" };
       persist(next);
-      if (hasSaverPack) matchCoupons(next, false);
+      matchCoupons(next, false);
     } catch (e: any) {
       persist({ ...state, lastError: e?.message || String(e), lastUpdated: Date.now() });
     } finally {
@@ -135,7 +167,6 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
   }
 
   function runCheapWeek() {
-    if (!hasSaverPack) return;
     const meals = DAYS.map((day, idx) => ({ day, ...CHEAP_WEEK_TEMPLATE[idx] }));
     const next = { ...state, meals, cheapWeekMode: true, lastUpdated: Date.now() };
     persist(next);
@@ -150,11 +181,10 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
   }
 
   function matchCoupons(base = state, push = true) {
-    if (!hasSaverPack) return;
     const items = (base.groceryList || []).map((item) => item.toLowerCase());
     const couponMatches = (base.couponFeed || [])
       .filter((deal) => items.some((item) => `${deal.title} ${deal.summary || ""}`.toLowerCase().includes(item)))
-      .slice(0, 8)
+      .slice(0, 10)
       .map((deal) => deal.title);
     const next = { ...base, couponMatches, storePlan: buildStorePlanText(base.preferredStores, base.cheapWeekMode, couponMatches), lastUpdated: Date.now() };
     if (push) persist(next); else { setState(next); saveJSON(KEY, next); }
@@ -165,7 +195,7 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
     state.groceryList.forEach((item) => {
       if (!(item in priceBook)) priceBook[item] = Number(estimateItemPrice(item).toFixed(2));
     });
-    persist({ ...state, priceBook, storePlan: hasSaverPack ? buildStorePlanText(state.preferredStores, state.cheapWeekMode, state.couponMatches) : state.storePlan, lastUpdated: Date.now() });
+    persist({ ...state, priceBook, storePlan: buildStorePlanText(state.preferredStores, state.cheapWeekMode, state.couponMatches), lastUpdated: Date.now() });
   }
 
   function patchPrice(item: string, value: string) {
@@ -174,29 +204,26 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
     persist(next);
   }
 
-  function buildStorePlan() {
-    if (!hasSaverPack) return;
-    persist({ ...state, storePlan: buildStorePlanText(state.preferredStores, state.cheapWeekMode, state.couponMatches), lastUpdated: Date.now() });
-  }
-
   function buildAiDealAssist(base = state) {
-    const topDeals = (base.couponFeed || []).slice(0, 4).map((d) => d.title);
+    const ranked = [...(base.couponFeed || [])].sort((a, b) => scoreDeal(b, base.groceryList, base.preferredStores) - scoreDeal(a, base.groceryList, base.preferredStores));
+    const topDeals = ranked.slice(0, 4).map((d) => `${d.title} (${scoreDeal(d, base.groceryList, base.preferredStores)})`);
     const target = base.basketGoal || "$125 family week";
-    const strongest = base.couponMatches.length ? `Strongest current matches: ${base.couponMatches.slice(0,3).join(", ")}.` : "No direct coupon matches yet, so lean into pantry overlap and staple swaps.";
+    const strongest = base.couponMatches.length ? `Strongest direct matches: ${base.couponMatches.slice(0, 3).join(", ")}.` : "No direct matches yet, so lean into pantry overlap, staple swaps, and store timing.";
     const focus = base.groceryList.slice(0, 5).join(", ") || "rice, eggs, frozen vegetables";
     const note = [
-      `# AI Deal Assistant`,
-      ``,
+      "# AI Deal Assistant",
+      "",
       `Basket goal: ${target}.`,
       `Primary store lane: ${base.preferredStores[0] || "Walmart"}.`,
       strongest,
       `Priority items: ${focus}.`,
-      topDeals.length ? `Live deal lane: ${topDeals.join(" | ")}` : `Refresh the live deal lane for fresh coupon data.`,
-      ``,
-      `## Best move`,
-      `1. Lock meals that reuse the same proteins + veg.`,
-      `2. Buy staples first, then only add bonus snacks if the basket stays within goal.`,
-      `3. Use the cheapest store for pantry refills and only do a second stop if coupon matches justify it.`,
+      topDeals.length ? `Auto deal board: ${topDeals.join(" | ")}` : "Refresh the live deal lane for fresh coupon data.",
+      "",
+      "## Best move",
+      "1. Lock meals that reuse the same proteins + veg.",
+      "2. Buy staples first, then only add bonus snacks if the basket stays within goal.",
+      "3. Use the cheapest store for pantry refills and only do a second stop if coupon matches justify it.",
+      "4. Prep proteins and snacks immediately so the deal stack turns into actual savings.",
     ].join("\n");
     persist({ ...base, aiDealNote: note, lastUpdated: Date.now() });
   }
@@ -206,7 +233,7 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
   useEffect(() => {
     const pluginHandler = () => setPluginTick((v) => v + 1);
     window.addEventListener(UPGRADE_PACKS_EVENT, pluginHandler as EventListener);
-  return () => window.removeEventListener(UPGRADE_PACKS_EVENT, pluginHandler as EventListener);
+    return () => window.removeEventListener(UPGRADE_PACKS_EVENT, pluginHandler as EventListener);
   }, []);
 
   useEffect(() => {
@@ -217,7 +244,8 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
         if (action.actionId === "grocery:cheap-week") runCheapWeek();
         if (action.actionId === "grocery:match-coupons") matchCoupons();
         if (action.actionId === "grocery:estimate-basket") estimateBasket();
-        if (action.actionId === "grocery:store-plan") buildStorePlan();
+        if (action.actionId === "grocery:store-plan") persist({ ...state, storePlan: buildStorePlanText(state.preferredStores, state.cheapWeekMode, state.couponMatches), lastUpdated: Date.now() });
+        if (action.actionId === "grocery:deal-assist") buildAiDealAssist();
         acknowledgePanelAction(action.id);
       }
     };
@@ -237,19 +265,38 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
     return Math.round(((deduped.length - state.groceryList.length) / deduped.length) * 100);
   }, [state.meals, state.groceryList]);
 
-  const topNeed = state.groceryList[0] || "Build your list";
+  const prepFocus = useMemo(() => normalizeItems(state.prepPlan).slice(0, 6), [state.prepPlan]);
   const primaryStore = state.preferredStores[0] || "Walmart";
   const couponPosture = state.couponMatches.length ? "Deals matched" : state.couponFeed.length ? "Deals loaded" : "Need refresh";
-  const prepFocus = useMemo(() => normalizeItems(state.prepPlan).slice(0, 4), [state.prepPlan]);
   const bestDealHeadline = state.couponMatches[0] || state.couponFeed[0]?.title || "Refresh the coupon lane";
-  const storePlaybook = useMemo(() => (state.storePlan || []).slice(0, 3), [state.storePlan]);
+  const couponStackScore = Math.min(99, state.couponMatches.length * 15 + state.couponFeed.length * 2 + (state.cheapWeekMode ? 8 : 0));
+  const leakRisk = Math.max(0, Math.round((budgetDelta > 0 ? budgetDelta : 0) + (prepFocus.length ? 0 : 14)));
+  const topNeed = state.groceryList[0] || "Build your list";
+  const hottestLane = state.couponMatches.length ? "Coupon hunter" : state.cheapWeekMode ? "Cheap week" : "Meal prep";
+  const autoDealBoard = useMemo(() => {
+    return [...state.couponFeed]
+      .map((item) => ({ item, score: scoreDeal(item, state.groceryList, state.preferredStores) }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 6);
+  }, [state.couponFeed, state.groceryList, state.preferredStores]);
+
+  const totalAutoDealScore = autoDealBoard.reduce((sum, row) => sum + row.score, 0);
+  const warRoomSavings = Math.max(0, Math.round((state.couponMatches.length * 4.5) + (couponStackScore * 0.35) + (targetNumber ? Math.max(0, targetNumber - estimatedListCost) * 0.2 : 0)));
+  const groceryWarMode = warRoomSavings >= 25 ? "CRUSHING IT" : warRoomSavings >= 12 ? "STACKING SAVINGS" : "BUILD MORE STACKS";
+  const cheapestHit = autoDealBoard[0]?.item?.title || state.couponMatches[0] || "Scan the deal board";
+  const basketShield = budgetDelta <= 0 ? "Budget shield up" : `Trim ${Math.ceil(Math.abs(budgetDelta))} more`;
+  const warRoomPlaybook = [
+    `Hit ${primaryStore} first for ${cheapestHit}.`,
+    state.couponMatches.length ? `Prioritize ${state.couponMatches[0]} before discretionary add-ons.` : "Match core list items to active coupons first.",
+    prepFocus.length ? `Prep first: ${prepFocus.slice(0, 2).join(" + ")}.` : "Prep one protein + one carb base before the week starts.",
+  ];
 
   return (
     <div className="page">
       <PanelHeader
         panelId="GroceryMeals"
         title="🛒 Grocery Meals"
-        subtitle="Meal planning + grocery list + coupon feed."
+        subtitle="Meal planning + food prep + coupon hunting + auto deal board."
         storagePrefix="oddengine:groceryMeals"
         storageActionsMode="menu"
         badges={[
@@ -283,90 +330,134 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
         onNavigate={onNavigate}
       />
 
-
       <PluginMiniWidgets panelId="GroceryMeals" onNavigate={onNavigate} onOpenHowTo={onOpenHowTo} />
 
       <div className="groceryHeroBar card softCard">
         <div>
-          <div className="small shellEyebrow">MEAL + SAVINGS COMMAND</div>
-          <div className="groceryHeroTitle">Grocery Meals</div>
-          <div className="small groceryHeroSub">Plan meals, build the list, pressure-test the basket, and route the run through your best store lane.</div>
+          <div className="small shellEyebrow">COUPON HUNTER COMMAND</div>
+          <div className="groceryHeroTitle">Food Prep + Auto Deal Board</div>
+          <div className="small groceryHeroSub">Build the meals, hunt the best deals, route the run, and prep food fast enough that the basket actually saves money.</div>
         </div>
         <div className="row wrap groceryHeroBadges" style={{ justifyContent: "flex-end" }}>
           <span className={`badge ${state.cheapWeekMode ? "warn" : "good"}`}>{state.cheapWeekMode ? "Cheap week active" : "Balanced planning"}</span>
-          <span className={`badge ${budgetDelta > 0 ? "warn" : "good"}`}>Basket {targetNumber ? `${estimatedListCost.toFixed(0)} / ${targetNumber.toFixed(0)}` : `$${estimatedListCost.toFixed(0)}`}</span>
-          <span className="badge">Primary store {primaryStore}</span>
-          <span className="badge">{couponPosture}</span>
+          <span className="badge">Primary {primaryStore}</span>
+          <span className={`badge ${budgetDelta > 0 ? "warn" : "good"}`}>{targetNumber ? `${estimatedListCost.toFixed(0)} / ${targetNumber.toFixed(0)}` : `$${estimatedListCost.toFixed(0)}`}</span>
+          <span className={`badge ${state.couponMatches.length ? "good" : "warn"}`}>{couponPosture}</span>
         </div>
       </div>
 
       <div className="groceryMetricStrip">
         <div className="card groceryMetricCard">
-          <div className="small shellEyebrow">PANTRY COVERAGE</div>
-          <div className="groceryMetricValue">{pantryCoverage}%</div>
-          <div className="small">{pantryCount} pantry staples already in play.</div>
+          <div className="small shellEyebrow">STACK SCORE</div>
+          <div className="groceryMetricValue">{couponStackScore}</div>
+          <div className="small">Hottest lane: {hottestLane}</div>
         </div>
         <div className="card groceryMetricCard">
-          <div className="small shellEyebrow">LIST LOAD</div>
-          <div className="groceryMetricValue">{state.groceryList.length}</div>
+          <div className="small shellEyebrow">PANTRY COVERAGE</div>
+          <div className="groceryMetricValue">{pantryCoverage}%</div>
+          <div className="small">{pantryCount} staples on hand.</div>
+        </div>
+        <div className="card groceryMetricCard">
+          <div className="small shellEyebrow">COUPON HITS</div>
+          <div className="groceryMetricValue">{state.couponMatches.length}</div>
           <div className="small">Top need: {topNeed}</div>
         </div>
         <div className="card groceryMetricCard">
-          <div className="small shellEyebrow">COUPON MATCHES</div>
-          <div className="groceryMetricValue">{state.couponMatches.length}</div>
-          <div className="small">{state.couponFeed.length} deal items in the live lane.</div>
-        </div>
-        <div className="card groceryMetricCard">
-          <div className="small shellEyebrow">BASKET DELTA</div>
-          <div className="groceryMetricValue">{targetNumber ? `${budgetDelta >= 0 ? "+" : "-"}$${Math.abs(budgetDelta).toFixed(0)}` : `$${estimatedListCost.toFixed(0)}`}</div>
-          <div className="small">{targetNumber ? (budgetDelta > 0 ? "Above goal" : "Within goal") : "Set a basket goal to track."}</div>
+          <div className="small shellEyebrow">LEAK RISK</div>
+          <div className="groceryMetricValue">${leakRisk}</div>
+          <div className="small">{leakRisk > 0 ? "Prep or route gap detected" : "Basket shield is up"}</div>
         </div>
       </div>
 
-      <div className="spotlightGrid groceryFollowupGrid">
-        <div className="card spotlightCard groceryFollowupCard">
-          <div className="small shellEyebrow">FASTEST WIN</div>
-          <div className="grocerySectionTitle">Trim the basket first</div>
-          <div className="small" style={{ marginTop: 8, lineHeight: 1.55 }}>Start with pantry overlap, then swap the highest-cost new adds for staples or coupon-matched items before checkout.</div>
-          <div className="assistantChipWrap" style={{ marginTop: 10 }}>
-            <span className="badge">Top need {topNeed}</span>
-            <span className={`badge ${budgetDelta > 0 ? "warn" : "good"}`}>{targetNumber ? `${budgetDelta > 0 ? "Above" : "Within"} goal` : "Goal optional"}</span>
-          </div>
-        </div>
-        <div className="card spotlightCard groceryFollowupCard">
-          <div className="small shellEyebrow">STORE PLAYBOOK</div>
-          <div className="grocerySectionTitle">Route the run</div>
-          <div className="small" style={{ marginTop: 8, lineHeight: 1.55 }}>{state.storePlan?.[0] || `Start with ${primaryStore} for staple coverage, then use the coupon lane to decide if a second stop is worth it.`}</div>
-          <div className="assistantChipWrap" style={{ marginTop: 10 }}>
-            <span className="badge">Primary {primaryStore}</span>
-            <span className="badge">{couponPosture}</span>
-          </div>
-        </div>
-      </div>
-
-
-
-      <div className="groceryPrepGrid">
-        <div className="card softCard grocerySectionCard">
-          <div className="small shellEyebrow">FOOD PREP + PLANNING</div>
-          <div className="grocerySectionTitle">Prep game plan</div>
-          <div className="small" style={{ marginTop: 8, lineHeight: 1.55 }}>Use this as your real-life prep lane so groceries turn into ready meals instead of good intentions.</div>
-          <textarea className="input mt-4" rows={6} value={state.prepPlan} onChange={(e) => persist({ ...state, prepPlan: e.target.value, lastUpdated: Date.now() })} placeholder="Cook proteins, chop veg, portion snacks, make a sauce base…" />
-          <div className="assistantChipWrap" style={{ marginTop: 10 }}>
-            <span className="badge">Batch protein</span>
-            <span className="badge">Grab-and-go snacks</span>
-            <span className="badge">One flexible carb</span>
-          </div>
-        </div>
-        <div className="card softCard grocerySectionCard">
-          <div className="small shellEyebrow">AI DEAL ASSISTANT</div>
-          <div className="grocerySectionTitle">Coupon + deal strategy</div>
-          <div className="small" style={{ marginTop: 8, lineHeight: 1.55 }}>Pull a quick strategy note from your live deal lane, coupon matches, basket goal, and current list.</div>
+      <div className="groceryHunterGrid mt-4">
+        <div className="card softCard grocerySectionCard groceryHunterCard">
+          <div className="small shellEyebrow">COUPON HUNTER</div>
+          <div className="grocerySectionTitle">Auto-find the best deals first</div>
+          <div className="small groceryDenseText">Use the live deal feed plus your current list to rank the strongest coupon/deal targets before you ever leave the house.</div>
           <div className="row wrap mt-4">
-            <button className="tabBtn active" onClick={() => buildAiDealAssist()}>{state.aiDealNote ? "Refresh strategy" : "Build strategy"}</button>
-            <button className="tabBtn" onClick={refreshCoupons} disabled={busy}>{busy ? "Refreshing…" : "Refresh deals"}</button>
+            <button className="tabBtn active" onClick={() => { refreshCoupons(); window.setTimeout(() => matchCoupons(), 200); }} disabled={busy}>{busy ? "Scanning…" : "Scan coupon lane"}</button>
+            <button className="tabBtn" onClick={() => buildAiDealAssist()}>{state.aiDealNote ? "Refresh strategy" : "Build strategy"}</button>
+            <button className="tabBtn" onClick={() => persist({ ...state, aiDealNote: buildCouponGodMode(state), lastUpdated: Date.now() })}>Build GodMode</button>
           </div>
-          <pre className="writersPlannerPreview mt-4">{state.aiDealNote || "No AI deal strategy yet. Build one after refreshing the coupon lane."}</pre>
+          <div className="assistantChipWrap" style={{ marginTop: 12 }}>
+            <span className="badge good">Best hit: {bestDealHeadline}</span>
+            <span className="badge">{primaryStore}</span>
+            <span className={`badge ${budgetDelta > 0 ? "warn" : "good"}`}>{targetNumber ? `${budgetDelta > 0 ? "Over" : "Within"} goal` : "Set basket goal"}</span>
+          </div>
+        </div>
+        <div className="card softCard grocerySectionCard groceryHunterCard">
+          <div className="small shellEyebrow">AUTO DEAL BOARD</div>
+          <div className="grocerySectionTitle">Ranked deal board</div>
+          <div className="assistantStack groceryDealBoard" style={{ marginTop: 10 }}>
+            {autoDealBoard.map(({ item, score }) => (
+              <div key={item.id} className="timelineCard groceryDealRow">
+                <div className="row" style={{ justifyContent: "space-between", gap: 10, alignItems: "center" }}>
+                  <div style={{ fontWeight: 800 }}>{item.title}</div>
+                  <span className={`badge ${score >= 70 ? "good" : score >= 50 ? "warn" : ""}`}>Score {score}</span>
+                </div>
+                {item.summary && <div className="small" style={{ marginTop: 6 }}>{item.summary.slice(0, 150)}{item.summary.length > 150 ? "…" : ""}</div>}
+                <div className="row wrap" style={{ marginTop: 8, gap: 8 }}>
+                  <span className="badge">{item.source || "Deals"}</span>
+                  <button className="tabBtn" onClick={() => openExternalLink(item.link)}>Open deal</button>
+                </div>
+              </div>
+            ))}
+            {!autoDealBoard.length && <div className="small">Refresh the coupon lane to populate the auto deal board.</div>}
+          </div>
+        </div>
+      </div>
+
+      <div className="groceryWarRoomGrid mt-4">
+        <div className="card softCard groceryWarRoomCard">
+          <div className="small shellEyebrow">SAVINGS WAR ROOM</div>
+          <div className="grocerySectionTitle">Build the basket like a discount operator</div>
+          <div className="small groceryDenseText">This board turns the coupon lane, list load, and prep plan into one weekly save-money attack. Stack the best board hits first, then route the run so the basket lands under goal.</div>
+          <div className="groceryWarRoomMetrics">
+            <div className="card groceryMiniWarCard">
+              <div className="small shellEyebrow">SAVE SHOT</div>
+              <div className="groceryMetricValue">${warRoomSavings}</div>
+              <div className="small">{groceryWarMode}</div>
+            </div>
+            <div className="card groceryMiniWarCard">
+              <div className="small shellEyebrow">BOARD POWER</div>
+              <div className="groceryMetricValue">{totalAutoDealScore}</div>
+              <div className="small">{autoDealBoard.length} ranked hits</div>
+            </div>
+            <div className="card groceryMiniWarCard">
+              <div className="small shellEyebrow">BASKET SHIELD</div>
+              <div className="groceryMetricValue">{basketShield}</div>
+              <div className="small">{targetNumber ? `Goal ${targetNumber.toFixed(0)}` : "Add a basket goal"}</div>
+            </div>
+          </div>
+          <div className="assistantStack" style={{ marginTop: 12 }}>
+            {warRoomPlaybook.map((step, idx) => (
+              <div key={idx} className="timelineCard">
+                <div className="row" style={{ justifyContent: "space-between", gap: 10 }}>
+                  <div style={{ fontWeight: 800 }}>Step {idx + 1}</div>
+                  <span className="badge">{idx === 0 ? "Attack" : idx === 1 ? "Stack" : "Prep"}</span>
+                </div>
+                <div className="small" style={{ marginTop: 6 }}>{step}</div>
+              </div>
+            ))}
+          </div>
+          <div className="row wrap mt-4">
+            <button className="tabBtn active" onClick={() => { refreshCoupons(); window.setTimeout(() => matchCoupons(), 200); }}>{busy ? "Scanning…" : "Rebuild war room"}</button>
+            <button className="tabBtn" onClick={() => buildAiDealAssist()}>Refresh savings brief</button>
+            <button className="tabBtn" onClick={() => persist({ ...state, aiDealNote: buildCouponGodMode(state), cheapWeekMode: true, lastUpdated: Date.now() })}>Flip cheap week saver</button>
+          </div>
+        </div>
+        <div className="card softCard groceryWarRoomCard">
+          <div className="small shellEyebrow">FAMILY BUDGET LINK</div>
+          <div className="grocerySectionTitle">Translate deal wins into household runway</div>
+          <div className="small groceryDenseText">Every saved dollar here should become more monthly breathing room. Use this lane to treat grocery wins like a real budget lever, not just a lucky coupon day.</div>
+          <div className="assistantChipWrap" style={{ marginTop: 12 }}>
+            <span className="badge good">${warRoomSavings} weekly save shot</span>
+            <span className="badge">{state.groceryList.length} items on list</span>
+            <span className="badge">{state.couponMatches.length} coupon hits</span>
+          </div>
+          <div className="small" style={{ marginTop: 12, lineHeight: 1.55 }}>
+            Route the win into FamilyBudget as grocery savings, payoff fuel, or runway protection. The cleaner this board gets, the easier it is to keep the whole house under pressure without feeling broke.
+          </div>
         </div>
       </div>
 
@@ -374,53 +465,29 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
         <div className="card spotlightCard groceryCommandCard">
           <div className="small shellEyebrow">FOOD PREP COMMAND</div>
           <div className="grocerySectionTitle">Turn groceries into ready food</div>
-          <div className="small" style={{ marginTop: 8, lineHeight: 1.55 }}>Build the prep lane first so the basket actually becomes breakfasts, grab-and-go lunches, and easy dinners.</div>
+          <div className="small groceryDenseText">Prep is the anti-takeout shield. Batch proteins, chop veg, portion snacks, and lock one flex carb so your deals actually become meals.</div>
           <div className="assistantChipWrap" style={{ marginTop: 10 }}>
             {(prepFocus.length ? prepFocus : ["Batch protein", "Chop veg", "Portion snacks", "Make one sauce"]).map((item) => <span key={item} className="badge">{item}</span>)}
           </div>
         </div>
         <div className="card spotlightCard groceryCommandCard">
-          <div className="small shellEyebrow">AI DEAL RADAR</div>
-          <div className="grocerySectionTitle">Best current savings lane</div>
-          <div className="small" style={{ marginTop: 8, lineHeight: 1.55 }}>{bestDealHeadline}</div>
-          <div className="assistantChipWrap" style={{ marginTop: 10 }}>
-            <span className="badge">{couponPosture}</span>
-            <span className="badge">{primaryStore}</span>
-            <span className={`badge ${budgetDelta > 0 ? "warn" : "good"}`}>{targetNumber ? `${budgetDelta > 0 ? "Over" : "Within"} goal` : "Goal optional"}</span>
+          <div className="small shellEyebrow">STORE PLAYBOOK</div>
+          <div className="grocerySectionTitle">Route the run</div>
+          <div className="assistantStack" style={{ marginTop: 10 }}>
+            {(state.storePlan.length ? state.storePlan : buildStorePlanText(state.preferredStores, state.cheapWeekMode, state.couponMatches)).slice(0, 3).map((line, idx) => <div key={idx} className="timelineCard groceryTimelineCard">{line}</div>)}
           </div>
         </div>
         <div className="card spotlightCard groceryCommandCard">
-          <div className="small shellEyebrow">RUN ROUTE</div>
-          <div className="grocerySectionTitle">Store playbook</div>
-          <div className="assistantStack" style={{ marginTop: 10 }}>
-            {(storePlaybook.length ? storePlaybook : [state.storePlan?.[0] || `Start at ${primaryStore} for staples and pantry overlap.`]).map((line, idx) => <div key={idx} className="timelineCard groceryTimelineCard">{line}</div>)}
-          </div>
+          <div className="small shellEyebrow">AI DEAL ASSISTANT</div>
+          <div className="grocerySectionTitle">Savings strategy note</div>
+          <pre className="writersPlannerPreview groceryPlannerPreview">{state.aiDealNote || "No strategy note yet. Scan the coupon lane or build the AI deal assist to populate this board."}</pre>
         </div>
       </div>
 
       <div className="grid2" style={{ alignItems: "start" }}>
-        <div className="card softCard groceryOverviewCard">
-          <div className="small shellEyebrow">SHOPPING RADAR</div>
-          <div className="grocerySectionTitle">Savings overview</div>
-          <div className="assistantStack" style={{ marginTop: 10 }}>
-            <div className="timelineCard groceryTimelineCard">Pantry items: {pantryCount}</div>
-            <div className="timelineCard groceryTimelineCard">Estimated basket: ${estimatedListCost.toFixed(2)}</div>
-            <div className="timelineCard groceryTimelineCard">Coupon matches: {state.couponMatches.length}</div>
-            <div className="timelineCard groceryTimelineCard">Mode: {state.cheapWeekMode ? "Cheap week active" : "Balanced planning"}</div>
-          </div>
-          <div className="groceryChecklistCard">
-            <div className="small shellEyebrow">RUN CHECKLIST</div>
-            <ul className="groceryListBullets">
-              <li>Build the list from this week’s meals.</li>
-              <li>Refresh the coupon lane before checkout.</li>
-              <li>Use the price book to tighten next week’s basket.</li>
-            </ul>
-          </div>
-        </div>
-
         <div className="card softCard grocerySectionCard">
-          <div className="small shellEyebrow">PANTRY + COUPONS</div>
-          <div className="grocerySectionTitle">Pantry + savings lane</div>
+          <div className="small shellEyebrow">PANTRY + SETTINGS</div>
+          <div className="grocerySectionTitle">Pantry, tags, and basket goal</div>
           <label className="field" style={{ marginTop: 10 }}>Pantry items
             <textarea rows={6} value={state.pantry} onChange={(e) => persist({ ...state, pantry: e.target.value, lastUpdated: Date.now() })} placeholder="List one item per line…" />
           </label>
@@ -430,44 +497,35 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
           <label className="field">Basket goal
             <input value={state.basketGoal} onChange={(e) => persist({ ...state, basketGoal: e.target.value, lastUpdated: Date.now() })} placeholder="$125 family week" />
           </label>
-          <div className="row" style={{ marginTop: 10, gap: 8, flexWrap: "wrap" }}>
+          <div className="assistantSectionTitle" style={{ marginTop: 14 }}>Preferred stores</div>
+          <div className="assistantChipWrap" style={{ marginTop: 10 }}>
+            {STORE_OPTIONS.map((store) => (
+              <button key={store} className={`tabBtn ${state.preferredStores.includes(store) ? "active" : ""}`} onClick={() => toggleStore(store)}>{store}</button>
+            ))}
+          </div>
+          <div className="row wrap" style={{ marginTop: 12 }}>
             <button className="tabBtn active" onClick={() => buildList()}>Build grocery list</button>
-            <button className="tabBtn" onClick={refreshCoupons} disabled={busy}>{busy ? "Refreshing…" : "Refresh coupon lane"}</button>
-            {hasSaverPack && <button className="tabBtn" onClick={runCheapWeek}>Cheap week</button>}
-            {hasSaverPack && <button className="tabBtn" onClick={estimateBasket}>Estimate basket</button>}
-            <button className="tabBtn" onClick={() => buildAiDealAssist()}>{state.aiDealNote ? "Refresh AI deals" : "AI deal assist"}</button>
+            <button className="tabBtn" onClick={estimateBasket}>Estimate basket</button>
+            <button className="tabBtn" onClick={runCheapWeek}>Cheap week</button>
           </div>
           <div className="assistantSectionTitle" style={{ marginTop: 14 }}>Live coupon links</div>
           <div className="assistantChipWrap" style={{ marginTop: 10 }}>
             {DEFAULT_COUPON_LINKS.map((link) => <button key={link.label} className="tabBtn" onClick={() => openExternalLink(link.url)}>{link.label}</button>)}
           </div>
         </div>
-      </div>
 
-      <div className="spotlightGrid groceryCommandGrid">
-        <div className="card spotlightCard groceryCommandCard">
-          <div className="small shellEyebrow">FOOD PREP COMMAND</div>
-          <div className="grocerySectionTitle">Turn groceries into ready food</div>
-          <div className="small" style={{ marginTop: 8, lineHeight: 1.55 }}>Build the prep lane first so the basket actually becomes breakfasts, grab-and-go lunches, and easy dinners.</div>
-          <div className="assistantChipWrap" style={{ marginTop: 10 }}>
-            {(prepFocus.length ? prepFocus : ["Batch protein", "Chop veg", "Portion snacks", "Make one sauce"]).map((item) => <span key={item} className="badge">{item}</span>)}
+        <div className="card softCard grocerySectionCard">
+          <div className="small shellEyebrow">FOOD PREP + PLANNING</div>
+          <div className="grocerySectionTitle">Prep game plan</div>
+          <label className="field" style={{ marginTop: 10 }}>Prep plan
+            <textarea rows={6} value={state.prepPlan} onChange={(e) => persist({ ...state, prepPlan: e.target.value, lastUpdated: Date.now() })} placeholder="Batch protein, chop veg, prep grab-and-go snacks…" />
+          </label>
+          <div className="row wrap" style={{ marginTop: 12 }}>
+            <button className="tabBtn active" onClick={() => buildAiDealAssist()}>Build prep strategy</button>
+            <button className="tabBtn" onClick={() => onNavigate?.("DailyChores")}>Open chores</button>
           </div>
-        </div>
-        <div className="card spotlightCard groceryCommandCard">
-          <div className="small shellEyebrow">AI DEAL RADAR</div>
-          <div className="grocerySectionTitle">Best current savings lane</div>
-          <div className="small" style={{ marginTop: 8, lineHeight: 1.55 }}>{bestDealHeadline}</div>
-          <div className="assistantChipWrap" style={{ marginTop: 10 }}>
-            <span className="badge">{couponPosture}</span>
-            <span className="badge">{primaryStore}</span>
-            <span className={`badge ${budgetDelta > 0 ? "warn" : "good"}`}>{targetNumber ? `${budgetDelta > 0 ? "Over" : "Within"} goal` : "Goal optional"}</span>
-          </div>
-        </div>
-        <div className="card spotlightCard groceryCommandCard">
-          <div className="small shellEyebrow">RUN ROUTE</div>
-          <div className="grocerySectionTitle">Store playbook</div>
-          <div className="assistantStack" style={{ marginTop: 10 }}>
-            {(storePlaybook.length ? storePlaybook : [state.storePlan?.[0] || `Start at ${primaryStore} for staples and pantry overlap.`]).map((line, idx) => <div key={idx} className="timelineCard groceryTimelineCard">{line}</div>)}
+          <div className="assistantStack" style={{ marginTop: 12 }}>
+            {(prepFocus.length ? prepFocus : ["Batch protein first", "Prep fruit and snacks", "Cook one flex carb"]).map((line, idx) => <div key={idx} className="timelineCard groceryTimelineCard">{line}</div>)}
           </div>
         </div>
       </div>
@@ -493,87 +551,56 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
 
         <div className="card softCard grocerySectionCard">
           <div className="small shellEyebrow">BUILD OUTPUT</div>
-          <div className="grocerySectionTitle">Generated grocery list</div>
+          <div className="grocerySectionTitle">Generated grocery list + matched deals</div>
           <div className="assistantStack" style={{ marginTop: 10 }}>
-            {state.groceryList.map((item) => <div key={item} className="timelineCard groceryTimelineCard">{item}</div>)}
+            {state.groceryList.map((item) => (
+              <div key={item} className="timelineCard groceryTimelineCard row" style={{ justifyContent: "space-between", gap: 10, alignItems: "center" }}>
+                <span>{item}</span>
+                <span className={`badge ${state.couponMatches.some((match) => match.toLowerCase().includes(item.toLowerCase())) ? "good" : ""}`}>{state.couponMatches.some((match) => match.toLowerCase().includes(item.toLowerCase())) ? "Matched" : "Watch"}</span>
+              </div>
+            ))}
             {!state.groceryList.length && <div className="small">Build the list from your meal plan to see what you still need.</div>}
           </div>
         </div>
       </div>
 
-      {hasSaverPack && (
-        <div className="grid2" style={{ alignItems: "start" }}>
-          <div className="card softCard grocerySectionCard">
-            <div className="small shellEyebrow">STORE ROUTING</div>
-            <div className="grocerySectionTitle">Store profiles + store plan</div>
-            <div className="assistantChipWrap" style={{ marginTop: 10 }}>
-              {STORE_OPTIONS.map((store) => (
-                <button key={store} className={`tabBtn ${state.preferredStores.includes(store) ? "active" : ""}`} onClick={() => toggleStore(store)}>{store}</button>
-              ))}
-            </div>
-            <div className="row" style={{ marginTop: 10, gap: 8, flexWrap: "wrap" }}>
-              <button className="tabBtn active" onClick={buildStorePlan}>Build store plan</button>
-              <button className="tabBtn" onClick={() => matchCoupons()}>Match coupons</button>
-            </div>
-            <div className="assistantStack" style={{ marginTop: 12 }}>
-              {(state.storePlan || []).map((line, idx) => <div key={idx} className="timelineCard groceryTimelineCard">{line}</div>)}
-              {!state.storePlan.length && <div className="small">Select preferred stores, then build a store plan.</div>}
-            </div>
-          </div>
-          <div className="card softCard grocerySectionCard">
-            <div className="small shellEyebrow">MATCHED DEALS</div>
-            <div className="grocerySectionTitle">Coupon matches</div>
-            <div className="assistantStack" style={{ marginTop: 10 }}>
-              {state.couponMatches.map((item) => <div key={item} className="timelineCard groceryTimelineCard">{item}</div>)}
-              {!state.couponMatches.length && <div className="small">Build the list and refresh deals to surface likely coupon matches.</div>}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {hasSaverPack && (
+      <div className="grid2" style={{ alignItems: "start" }}>
         <div className="card softCard grocerySectionCard">
-          <div className="row" style={{ justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-            <div>
-              <div className="small shellEyebrow">PRICE MEMORY</div>
-              <div className="grocerySectionTitle">Price book</div>
-              <div className="sub">Tune estimated prices so the basket forecast gets more real over time.</div>
-            </div>
-            <button className="tabBtn active" onClick={estimateBasket}>Refresh estimate</button>
-          </div>
+          <div className="small shellEyebrow">PRICE MEMORY</div>
+          <div className="grocerySectionTitle">Price book</div>
           <div className="assistantStack" style={{ marginTop: 10 }}>
             {state.groceryList.map((item) => (
               <div key={item} className="timelineCard">
                 <div className="row" style={{ justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
                   <div style={{ fontWeight: 800 }}>{item}</div>
-                  <label className="field" style={{ minWidth: 140 }}>
+                  <label className="field" style={{ minWidth: 150 }}>
                     Est. price
                     <input value={String(state.priceBook[item] ?? estimateItemPrice(item))} onChange={(e) => patchPrice(item, e.target.value)} />
                   </label>
                 </div>
               </div>
             ))}
-            {!state.groceryList.length && <div className="small">Your generated grocery list will seed the price book automatically.</div>}
+            {!state.groceryList.length && <div className="small">Your generated grocery list seeds the price book automatically.</div>}
           </div>
         </div>
-      )}
 
-      <div className="card softCard grocerySectionCard">
-        <div className="small shellEyebrow">LIVE DEALS</div>
-        <div className="grocerySectionTitle">Coupon / deals feed</div>
-        {state.lastError && <div className="small" style={{ marginTop: 8, color: "var(--warn)" }}>{state.lastError}</div>}
-        <div className="assistantStack" style={{ marginTop: 10 }}>
-          {state.couponFeed.slice(0, 8).map((item) => (
-            <div key={item.id} className="timelineCard groceryTimelineCard">
-              <div className="small">{item.source || "Deals"}{item.publishedAt ? ` • ${item.publishedAt}` : ""}</div>
-              <div style={{ fontWeight: 800, marginTop: 4 }}>{item.title}</div>
-              {item.summary && <div className="small" style={{ marginTop: 6 }}>{item.summary.slice(0, 180)}{item.summary.length > 180 ? "…" : ""}</div>}
-              <div className="row" style={{ marginTop: 8, gap: 8 }}>
-                <button className="tabBtn" onClick={() => openExternalLink(item.link)}>Open deal</button>
+        <div className="card softCard grocerySectionCard">
+          <div className="small shellEyebrow">LIVE DEALS</div>
+          <div className="grocerySectionTitle">Coupon / deals feed</div>
+          {state.lastError && <div className="small" style={{ marginTop: 8, color: "var(--warn)" }}>{state.lastError}</div>}
+          <div className="assistantStack" style={{ marginTop: 10 }}>
+            {state.couponFeed.slice(0, 8).map((item) => (
+              <div key={item.id} className="timelineCard groceryTimelineCard">
+                <div className="small">{item.source || "Deals"}{item.publishedAt ? ` • ${item.publishedAt}` : ""}</div>
+                <div style={{ fontWeight: 800, marginTop: 4 }}>{item.title}</div>
+                {item.summary && <div className="small" style={{ marginTop: 6 }}>{item.summary.slice(0, 180)}{item.summary.length > 180 ? "…" : ""}</div>}
+                <div className="row wrap" style={{ marginTop: 8 }}>
+                  <button className="tabBtn" onClick={() => openExternalLink(item.link)}>Open deal</button>
+                </div>
               </div>
-            </div>
-          ))}
-          {!state.couponFeed.length && <div className="small">No coupon feed yet.</div>}
+            ))}
+            {!state.couponFeed.length && <div className="small">No coupon feed yet.</div>}
+          </div>
         </div>
       </div>
     </div>
