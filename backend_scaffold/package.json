@@ -1,9 +1,9 @@
 {
-  "name": "oddengine-grocery-proxy",
+  "name": "oddengine-backend-scaffold",
   "private": true,
-  "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "grocery-proxy": "node grocery-deals-proxy.mjs"
+    "grocery-proxy": "node grocery-deals-proxy.mjs",
+    "grocery-proxy:mock": "node --env-file=.env grocery-deals-proxy.mjs"
   }
 }

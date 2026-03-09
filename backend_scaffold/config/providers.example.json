@@ -1,0 +1,13 @@
+{
+  "defaultProvider": "seed",
+  "providers": [
+    {
+      "id": "seed",
+      "label": "Seed data"
+    },
+    {
+      "id": "mock-coupons",
+      "label": "Mock coupon engine"
+    }
+  ]
+}

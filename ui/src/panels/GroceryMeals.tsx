@@ -3,7 +3,7 @@ import { acknowledgePanelAction, getPanelActions, PANEL_ACTION_EVENT } from "../
 import { loadJSON, saveJSON } from "../lib/storage";
 import { pushNotif } from "../lib/notifs";
 import { DEFAULT_COUPON_LINKS, FeedItem, fetchNewsFeed, openExternalLink } from "../lib/webData";
-import { fetchGroceryProxyDeals } from "../lib/groceryDealsProxy";
+import { GroceryProxyProvider, fetchGroceryProxyDeals, fetchGroceryProxyProviders } from "../lib/groceryDealsProxy";
 import PluginMiniWidgets from "../components/PluginMiniWidgets";
 import { UPGRADE_PACKS_EVENT, isUpgradePackInstalled } from "../lib/plugins";
 import { PanelHeader } from "../components/PanelHeader";
@@ -30,6 +30,8 @@ type GroceryState = {
   proxyBaseUrl: string;
   proxyQuery: string;
   proxyStatus: string;
+  proxyProviderId: string;
+  proxyProviders: GroceryProxyProvider[];
   lastUpdated?: number;
   lastError?: string;
 };
@@ -57,6 +59,8 @@ frozen vegetables`,
   proxyBaseUrl: "http://127.0.0.1:8787",
   proxyQuery: "grocery coupons weekly ad produce protein pantry",
   proxyStatus: "Proxy idle",
+  proxyProviderId: "seed",
+  proxyProviders: [],
 };
 
 function normalizeItems(text: string) {
@@ -178,8 +182,8 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
   async function refreshProxyDeals() {
     setBusy(true);
     try {
-      const couponFeed = await fetchGroceryProxyDeals(state.proxyBaseUrl, state.proxyQuery, state.preferredStores);
-      const next = { ...state, couponFeed, dealSourceMode: "local-proxy" as const, proxyStatus: `Proxy loaded ${couponFeed.length} deals`, lastUpdated: Date.now(), lastError: "" };
+      const couponFeed = await fetchGroceryProxyDeals(state.proxyBaseUrl, state.proxyQuery, state.preferredStores, state.proxyProviderId);
+      const next = { ...state, couponFeed, dealSourceMode: "local-proxy" as const, proxyStatus: `Proxy loaded ${couponFeed.length} deals via ${state.proxyProviderId}`, lastUpdated: Date.now(), lastError: "" };
       persist(next);
       matchCoupons(next, false);
     } catch (e: any) {
@@ -192,12 +196,24 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
   async function testProxy() {
     setBusy(true);
     try {
-      const probe = await fetchGroceryProxyDeals(state.proxyBaseUrl, state.proxyQuery, state.preferredStores);
-      persist({ ...state, proxyStatus: `Proxy OK • ${probe.length} deals visible`, lastError: "", lastUpdated: Date.now() });
+      const providers = await fetchGroceryProxyProviders(state.proxyBaseUrl);
+      const probe = await fetchGroceryProxyDeals(state.proxyBaseUrl, state.proxyQuery, state.preferredStores, state.proxyProviderId);
+      persist({ ...state, proxyProviders: providers, proxyStatus: `Proxy OK • ${probe.length} deals visible`, lastError: "", lastUpdated: Date.now() });
     } catch (e: any) {
       persist({ ...state, proxyStatus: "Proxy offline / bad response", lastError: e?.message || String(e), lastUpdated: Date.now() });
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function refreshProxyProviders() {
+    try {
+      const providers = await fetchGroceryProxyProviders(state.proxyBaseUrl);
+      if (!providers.length) return;
+      const providerStillValid = providers.some((p) => p.id === state.proxyProviderId);
+      persist({ ...state, proxyProviders: providers, proxyProviderId: providerStillValid ? state.proxyProviderId : providers[0].id, proxyStatus: `Loaded ${providers.length} providers`, lastUpdated: Date.now() });
+    } catch (e: any) {
+      persist({ ...state, proxyStatus: "Provider list unavailable", lastError: e?.message || String(e), lastUpdated: Date.now() });
     }
   }
 
@@ -264,6 +280,8 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
   }
 
   useEffect(() => { if (!state.couponFeed.length) refreshCoupons(); }, []);
+
+  useEffect(() => { if (state.dealSourceMode === "local-proxy") refreshProxyProviders(); }, [state.dealSourceMode, state.proxyBaseUrl]);
 
   useEffect(() => {
     const pluginHandler = () => setPluginTick((v) => v + 1);
@@ -386,6 +404,7 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
       <div className="card softCard groceryProxyPrepCard">
         <div className="small shellEyebrow">REAL COUPON SCRAPER / LOCAL PROXY PREP</div>
         <div className="grocerySectionTitle">Proxy-ready deal ingestion lane</div>
+        <div className="small groceryDenseText">Choose a connector provider now so the UI and local backend are ready for real store logic later.</div>
         <div className="small groceryDenseText">Keep the stable RSS feed as fallback, but prep a local proxy for real coupon scraping, store ads, and custom grocery deal ranking without CORS pain in the browser.</div>
         <div className="groceryProxyGrid" style={{ marginTop: 12 }}>
           <label className="field">Deal source mode
@@ -400,15 +419,24 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
           <label className="field">Proxy query
             <input value={state.proxyQuery} onChange={(e) => persist({ ...state, proxyQuery: e.target.value, lastUpdated: Date.now() })} placeholder="grocery coupons weekly ad produce protein pantry" />
           </label>
+          <label className="field">Connector provider
+            <select value={state.proxyProviderId} onChange={(e) => persist({ ...state, proxyProviderId: e.target.value, lastUpdated: Date.now() })}>
+              {(state.proxyProviders.length ? state.proxyProviders : [{ id: "seed", label: "Seed data" }, { id: "mock-coupons", label: "Mock coupon engine" }]).map((provider) => (
+                <option key={provider.id} value={provider.id}>{provider.label}</option>
+              ))}
+            </select>
+          </label>
         </div>
         <div className="row wrap mt-4">
           <button className={`tabBtn ${state.dealSourceMode === "local-proxy" ? "active" : ""}`} onClick={refreshProxyDeals} disabled={busy}>Load proxy deals</button>
+          <button className="tabBtn" onClick={refreshProxyProviders} disabled={busy}>Load providers</button>
           <button className="tabBtn" onClick={testProxy} disabled={busy}>Test proxy</button>
           <button className={`tabBtn ${state.dealSourceMode === "rss" ? "active" : ""}`} onClick={refreshCoupons} disabled={busy}>Use RSS fallback</button>
         </div>
         <div className="assistantChipWrap" style={{ marginTop: 10 }}>
           <span className={`badge ${state.dealSourceMode === "local-proxy" ? "good" : ""}`}>{state.dealSourceMode === "local-proxy" ? "Local proxy armed" : "RSS safe mode"}</span>
           <span className="badge">{state.proxyStatus || "Proxy idle"}</span>
+          <span className="badge">Provider {state.proxyProviderId}</span>
           <span className="badge">{state.proxyBaseUrl}</span>
         </div>
       </div>
@@ -654,7 +682,7 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
         <div className="card softCard grocerySectionCard">
           <div className="small shellEyebrow">LIVE DEALS</div>
           <div className="grocerySectionTitle">Coupon / deals feed</div>
-          <div className="small groceryDenseText" style={{ marginTop: 6 }}>Source: {state.dealSourceMode === "local-proxy" ? `Local proxy • ${state.proxyStatus}` : "RSS fallback"}</div>
+          <div className="small groceryDenseText" style={{ marginTop: 6 }}>Source: {state.dealSourceMode === "local-proxy" ? `Local proxy • ${state.proxyProviderId} • ${state.proxyStatus}` : "RSS fallback"}</div>
           {state.lastError && <div className="small" style={{ marginTop: 8, color: "var(--warn)" }}>{state.lastError}</div>}
           <div className="assistantStack" style={{ marginTop: 10 }}>
             {state.couponFeed.slice(0, 8).map((item) => (
