@@ -1,12 +1,37 @@
 {
   "defaultProvider": "seed",
   "providers": [
-    { "id": "seed", "label": "Seed data" },
-    { "id": "mock-coupons", "label": "Mock coupon engine" },
-    { "id": "walmart-starter", "label": "Walmart starter" },
-    { "id": "smiths-kroger-starter", "label": "Smith's / Kroger starter" },
-    { "id": "albertsons-starter", "label": "Albertsons / Vons starter" },
-    { "id": "costco-starter", "label": "Costco starter" },
-    { "id": "target-starter", "label": "Target starter" }
+    {
+      "id": "seed",
+      "label": "Seed data"
+    },
+    {
+      "id": "mock-coupons",
+      "label": "Mock coupon engine"
+    },
+    {
+      "id": "walmart-starter",
+      "label": "Walmart starter"
+    },
+    {
+      "id": "smiths-kroger-starter",
+      "label": "Smith's / Kroger starter"
+    },
+    {
+      "id": "albertsons-starter",
+      "label": "Albertsons / Vons starter"
+    },
+    {
+      "id": "costco-starter",
+      "label": "Costco starter"
+    },
+    {
+      "id": "target-starter",
+      "label": "Target starter"
+    }
+  ],
+  "enabledProviders": [
+    "amazon-fresh-starter",
+    "sams-club-starter"
   ]
 }

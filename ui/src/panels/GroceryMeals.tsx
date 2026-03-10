@@ -12,6 +12,8 @@ import { PanelScheduleCard } from "../components/PanelScheduleCard";
 import { addQuickEvent, fmtDate } from "../lib/calendarStore";
 
 type MealPlan = { day: string; breakfast: string; lunch: string; dinner: string; snacks: string };
+type FulfillmentMode = "pickup" | "delivery" | "either";
+
 type GroceryState = {
   pantry: string;
   dietaryTags: string;
@@ -32,13 +34,15 @@ type GroceryState = {
   proxyStatus: string;
   proxyProviderId: string;
   proxyProviders: GroceryProxyProvider[];
+  zipCode: string;
+  fulfillmentMode: FulfillmentMode;
   lastUpdated?: number;
   lastError?: string;
 };
 
 const KEY = "oddengine:groceryMeals:v1";
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const STORE_OPTIONS = ["Walmart", "Smith's/Kroger", "Albertsons/Vons", "Costco", "Target"];
+const STORE_OPTIONS = ["Walmart", "Smith's/Kroger", "Albertsons/Vons", "Costco", "Target", "Sam's Club", "Amazon Fresh"];
 const defaultState: GroceryState = {
   pantry: `rice
 eggs
@@ -61,6 +65,8 @@ frozen vegetables`,
   proxyStatus: "Proxy idle",
   proxyProviderId: "seed",
   proxyProviders: [],
+  zipCode: "89121",
+  fulfillmentMode: "either",
 };
 
 function normalizeItems(text: string) {
@@ -178,6 +184,93 @@ function buildStoreStackRows(feed: FeedItem[], groceryList: string[], preferredS
     .sort((a, b) => b.score - a.score)
     .filter((row) => row.hits > 0 || preferredStores.includes(row.store))
     .slice(0, 5);
+}
+
+
+function buildPantryIntelligence(items: string[], list: string[], preferredStores: string[], zipCode: string, fulfillmentMode: FulfillmentMode) {
+  const pantry = items.map((i) => i.toLowerCase());
+  const protein = pantry.filter((i) => /chicken|beef|turkey|eggs|beans|fish|sausage/.test(i)).length;
+  const produce = pantry.filter((i) => /fruit|banana|apple|berries|carrot|broccoli|vegetable|salad/.test(i)).length;
+  const staples = pantry.filter((i) => /rice|beans|oat|bread|pasta|potato/.test(i)).length;
+  const weakLane = list[0] || 'protein + produce';
+  const route = preferredStores.slice(0, 2).join(' → ') || "Smith's/Kroger → Walmart";
+  return [
+    `ZIP ${zipCode} • ${fulfillmentMode === 'either' ? 'pickup or delivery' : fulfillmentMode} mode`,
+    `Staple base: ${staples} pantry anchors • protein lane ${protein} • produce lane ${produce}.`,
+    `Weakest lane to refill next: ${weakLane}.`,
+    `Best current route: ${route}.`,
+  ];
+}
+
+function buildPriceMemoryRows(groceryList: string[], priceBook: Record<string, number>) {
+  return groceryList.slice(0, 8).map((item) => ({
+    item,
+    remembered: Number((priceBook[item] || estimateItemPrice(item)).toFixed(2)),
+    posture: (priceBook[item] || estimateItemPrice(item)) <= 3.5 ? 'green' : (priceBook[item] || estimateItemPrice(item)) <= 5.5 ? 'watch' : 'expensive',
+  }));
+}
+
+function buildVegasDealCommand(zipCode: string, fulfillmentMode: FulfillmentMode, preferredStores: string[]) {
+  const lane = fulfillmentMode === 'delivery' ? 'delivery' : fulfillmentMode === 'pickup' ? 'pickup' : 'pickup + delivery';
+  const stores = preferredStores.slice(0, 3).join(' • ');
+  return `Las Vegas ${zipCode} ${lane} lane armed. Hunt ${stores || "Smith's/Kroger • Sam's Club • Amazon Fresh"} first, then only expand if the second stop beats the main basket shield.`;
+}
+
+function buildVegasLiveHunterRows(base: GroceryState, stackRows: StoreStackRow[]) {
+  const stores = new Map<string, { status: string; note: string; tone: 'good' | 'warn' | 'bad' | '' }>();
+  const zip = base.zipCode || '89121';
+  const lane = base.fulfillmentMode === 'delivery' ? 'Delivery' : base.fulfillmentMode === 'pickup' ? 'Pickup' : 'Pickup + delivery';
+  stores.set("Smith's/Kroger", {
+    status: 'Weekly ad + digital coupons',
+    note: `Best for ad-matching in ${zip}. Prioritize digital deals and pickup timing first.`,
+    tone: 'good',
+  });
+  stores.set('Walmart', {
+    status: lane.includes('Pickup') ? 'Strong pickup anchor' : 'Delivery-friendly anchor',
+    note: `Use as the main basket shield when the run needs one-store simplicity in ${zip}.`,
+    tone: 'good',
+  });
+  stores.set("Sam's Club", {
+    status: 'Bulk + curbside angle',
+    note: 'Use when proteins, pantry staples, paper goods, or drinks justify the membership-size stop.',
+    tone: 'warn',
+  });
+  stores.set('Amazon Fresh', {
+    status: base.fulfillmentMode === 'pickup' ? 'Delivery-leaning lane' : 'Digital convenience lane',
+    note: 'Treat as a convenience/value check, especially when you need same-day style flexibility.',
+    tone: '',
+  });
+  stores.set('Albertsons/Vons', {
+    status: 'Coupon swing lane',
+    note: 'Best as a second-stop lane when meat/produce or app deals beat the primary route.',
+    tone: '',
+  });
+  return stackRows.slice(0, 5).map((row, idx) => {
+    const preset = stores.get(row.store) || { status: 'Watch lane', note: 'Use only if the board score justifies the stop.', tone: '' as const };
+    return {
+      store: row.store,
+      rank: idx + 1,
+      status: preset.status,
+      note: preset.note,
+      tone: preset.tone,
+      score: row.score,
+      bestTitle: row.bestTitle,
+      stopValue: row.stopValue,
+    };
+  });
+}
+
+function buildVegasLiveHunterBrief(base: GroceryState, route: string, stackRows: StoreStackRow[]) {
+  const zip = base.zipCode || '89121';
+  const lane = base.fulfillmentMode === 'delivery' ? 'delivery only' : base.fulfillmentMode === 'pickup' ? 'pickup only' : 'pickup + delivery';
+  const first = stackRows[0]?.store || base.preferredStores[0] || "Smith's/Kroger";
+  const second = stackRows[1]?.store || base.preferredStores[1] || 'Walmart';
+  return [
+    `Las Vegas ${zip} live-deal hunter armed for ${lane}.`,
+    `First hit: ${first}.`,
+    `Second look: ${second} only if it beats the basket shield.`,
+    `Current route: ${route}.`,
+  ];
 }
 
 function buildTripOptimizer(rows: StoreStackRow[], basketDelta: number, couponMatches: string[], prepFocus: string[]) {
@@ -399,6 +492,9 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
   const tripOptimizerSteps = useMemo(() => buildTripOptimizer(storeStackRows, budgetDelta, state.couponMatches, prepFocus), [storeStackRows, budgetDelta, state.couponMatches, prepFocus]);
   const bestTripRoute = storeStackRows.slice(0, 3).map((row) => row.store).join(" → ") || primaryStore;
   const totalAutoDealScore = autoDealBoard.reduce((sum, row) => sum + row.score, 0);
+  const pantryIntel = buildPantryIntelligence(normalizeItems(state.pantry), state.groceryList, state.preferredStores, state.zipCode, state.fulfillmentMode);
+  const priceMemoryRows = buildPriceMemoryRows(state.groceryList, state.priceBook);
+  const vegasDealCommand = buildVegasDealCommand(state.zipCode, state.fulfillmentMode, state.preferredStores);
   const warRoomSavings = Math.max(0, Math.round((state.couponMatches.length * 4.5) + (couponStackScore * 0.35) + (targetNumber ? Math.max(0, targetNumber - estimatedListCost) * 0.2 : 0)));
   const groceryWarMode = warRoomSavings >= 25 ? "CRUSHING IT" : warRoomSavings >= 12 ? "STACKING SAVINGS" : "BUILD MORE STACKS";
   const cheapestHit = autoDealBoard[0]?.item?.title || state.couponMatches[0] || "Scan the deal board";
@@ -408,6 +504,10 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
     state.couponMatches.length ? `Prioritize ${state.couponMatches[0]} before discretionary add-ons.` : "Match core list items to active coupons first.",
     prepFocus.length ? `Prep first: ${prepFocus.slice(0, 2).join(" + ")}.` : "Prep one protein + one carb base before the week starts.",
   ];
+
+  const vegasLiveHunterRows = useMemo(() => buildVegasLiveHunterRows(state, storeStackRows), [state, storeStackRows]);
+  const vegasLiveHunterBrief = useMemo(() => buildVegasLiveHunterBrief(state, bestTripRoute, storeStackRows), [state, bestTripRoute, storeStackRows]);
+  const bestLiveLane = vegasLiveHunterRows[0]?.store || primaryStore;
 
   return (
     <div className="page">
@@ -470,6 +570,16 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
         <div className="small groceryDenseText">Choose a connector provider now so the UI and local backend can route by store lane like a real coupon cockpit.</div>
         <div className="small groceryDenseText">Keep the stable RSS feed as fallback, but prep a local proxy for store-specific weekly ads, digital coupon lanes, and Extreme Couponing-style stack logic without CORS pain in the browser.</div>
         <div className="groceryProxyGrid" style={{ marginTop: 12 }}>
+          <label className="field">ZIP code
+            <input value={state.zipCode} onChange={(e) => persist({ ...state, zipCode: e.target.value, lastUpdated: Date.now() })} placeholder="89121" />
+          </label>
+          <label className="field">Fulfillment mode
+            <select value={state.fulfillmentMode} onChange={(e) => persist({ ...state, fulfillmentMode: e.target.value as FulfillmentMode, lastUpdated: Date.now() })}>
+              <option value="either">Pickup + delivery</option>
+              <option value="pickup">Pickup only</option>
+              <option value="delivery">Delivery only</option>
+            </select>
+          </label>
           <label className="field">Deal source mode
             <select value={state.dealSourceMode} onChange={(e) => persist({ ...state, dealSourceMode: e.target.value as any, lastUpdated: Date.now() })}>
               <option value="rss">RSS fallback</option>
@@ -496,13 +606,62 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
           <button className="tabBtn" onClick={testProxy} disabled={busy}>Test proxy</button>
           <button className={`tabBtn ${state.dealSourceMode === "rss" ? "active" : ""}`} onClick={refreshCoupons} disabled={busy}>Use RSS fallback</button>
         </div>
-        <div className="small groceryDenseText" style={{ marginTop: 10 }}>Starter connectors now available: Walmart, Smith's/Kroger, Albertsons/Vons, Costco, and Target. Pick one when you want the deal board to act more like an Extreme Couponing route instead of a generic feed.</div>
+        <div className="small groceryDenseText" style={{ marginTop: 10 }}>Starter connectors now available: Walmart, Smith's/Kroger, Albertsons/Vons, Costco, Target, Sam's Club, and Amazon Fresh. Pick one when you want the deal board to act more like an Extreme Couponing route instead of a generic feed.</div>
+        <div className="small groceryDenseText" style={{ marginTop: 6 }}>{vegasDealCommand}</div>
         <div className="assistantChipWrap" style={{ marginTop: 10 }}>
           <span className={`badge ${state.dealSourceMode === "local-proxy" ? "good" : ""}`}>{state.dealSourceMode === "local-proxy" ? "Local proxy armed" : "RSS safe mode"}</span>
           <span className="badge">{state.proxyStatus || "Proxy idle"}</span>
           <span className="badge">Provider {state.proxyProviderId}</span>
+          <span className="badge">ZIP {state.zipCode}</span>
+          <span className="badge">{state.fulfillmentMode === "either" ? "Pickup + delivery" : state.fulfillmentMode}</span>
           <span className="badge">{(state.proxyProviders.find((p) => p.id === state.proxyProviderId)?.stores || []).join(" • ") || "Multi-store"}</span>
           <span className="badge">{state.proxyBaseUrl}</span>
+        </div>
+      </div>
+
+      <div className="groceryVegasGrid mt-4">
+        <div className="card softCard groceryVegasCard">
+          <div className="small shellEyebrow">VEGAS LIVE DEAL HUNTER</div>
+          <div className="grocerySectionTitle">89121 pickup / delivery strike board</div>
+          <div className="small groceryDenseText">This board acts like a live-route command lane: which store deserves the first hit, which lane is bulk value, and which stop stays optional unless it meaningfully beats the basket shield.</div>
+          <div className="assistantChipWrap" style={{ marginTop: 12 }}>
+            <span className="badge good">Best live lane {bestLiveLane}</span>
+            <span className="badge">{state.fulfillmentMode === "either" ? "Pickup + delivery" : state.fulfillmentMode}</span>
+            <span className="badge">ZIP {state.zipCode}</span>
+            <span className="badge">Route {bestTripRoute}</span>
+          </div>
+          <div className="assistantStack" style={{ marginTop: 12 }}>
+            {vegasLiveHunterBrief.map((line, idx) => <div key={idx} className="timelineCard groceryTimelineCard">{line}</div>)}
+          </div>
+          <div className="row wrap mt-4">
+            <button className="tabBtn active" onClick={() => { state.dealSourceMode === "local-proxy" ? refreshProxyDeals() : refreshCoupons(); }}>Refresh live hunter</button>
+            <button className="tabBtn" onClick={() => { buildAiDealAssist(); }}>Rebuild Vegas brief</button>
+            <button className="tabBtn" onClick={() => onNavigate?.("FamilyBudget")}>Open budget war room</button>
+          </div>
+        </div>
+
+        <div className="card softCard groceryVegasCard">
+          <div className="small shellEyebrow">STORE HUNT BOARD</div>
+          <div className="grocerySectionTitle">Best stores to hit now</div>
+          <div className="assistantStack" style={{ marginTop: 10 }}>
+            {vegasLiveHunterRows.map((row) => (
+              <div key={row.store} className="timelineCard groceryStackRow">
+                <div className="row" style={{ justifyContent: "space-between", gap: 10, alignItems: "center" }}>
+                  <div>
+                    <div style={{ fontWeight: 800 }}>{row.rank}. {row.store}</div>
+                    <div className="small" style={{ marginTop: 4 }}>{row.status}</div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <span className={`badge ${row.tone}`}>Stack {row.score}</span>
+                    <div className="small" style={{ marginTop: 4 }}>{row.stopValue}</div>
+                  </div>
+                </div>
+                <div className="small" style={{ marginTop: 8 }}>{row.bestTitle}</div>
+                <div className="small groceryDenseText" style={{ marginTop: 6 }}>{row.note}</div>
+              </div>
+            ))}
+            {!vegasLiveHunterRows.length && <div className="small">Load the deal board to populate the Vegas live hunter lanes.</div>}
+          </div>
         </div>
       </div>
 
@@ -515,7 +674,7 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
         <div className="card groceryMetricCard">
           <div className="small shellEyebrow">PANTRY COVERAGE</div>
           <div className="groceryMetricValue">{pantryCoverage}%</div>
-          <div className="small">{pantryCount} staples on hand.</div>
+          <div className="small">{pantryCount} staples on hand • ZIP {state.zipCode}</div>
         </div>
         <div className="card groceryMetricCard">
           <div className="small shellEyebrow">COUPON HITS</div>
@@ -676,7 +835,7 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
           <div className="small shellEyebrow">FOOD PREP COMMAND</div>
           <div className="grocerySectionTitle">Turn groceries into ready food</div>
           <div className="small groceryDenseText">Prep is the anti-takeout shield. Batch proteins, chop veg, portion snacks, and lock one flex carb so your deals actually become meals.</div>
-          <div className="small groceryDenseText" style={{ marginTop: 10 }}>Starter connectors now available: Walmart, Smith's/Kroger, Albertsons/Vons, Costco, and Target. Pick one when you want the deal board to act more like an Extreme Couponing route instead of a generic feed.</div>
+          <div className="small groceryDenseText" style={{ marginTop: 10 }}>Starter connectors now available: Walmart, Smith's/Kroger, Albertsons/Vons, Costco, Target, Sam's Club, and Amazon Fresh. Pick one when you want the deal board to act more like an Extreme Couponing route instead of a generic feed.</div>
         <div className="assistantChipWrap" style={{ marginTop: 10 }}>
             {(prepFocus.length ? prepFocus : ["Batch protein", "Chop veg", "Portion snacks", "Make one sauce"]).map((item) => <span key={item} className="badge">{item}</span>)}
           </div>
@@ -697,6 +856,31 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
 
       <div className="grid2" style={{ alignItems: "start" }}>
         <div className="card softCard grocerySectionCard">
+          <div className="small shellEyebrow">PANTRY INTELLIGENCE</div>
+          <div className="grocerySectionTitle">Las Vegas pantry command</div>
+          <div className="assistantStack" style={{ marginTop: 10 }}>
+            {pantryIntel.map((line, idx) => <div key={idx} className="timelineCard groceryTimelineCard">{line}</div>)}
+          </div>
+        </div>
+        <div className="card softCard grocerySectionCard">
+          <div className="small shellEyebrow">PRICE MEMORY ENGINE</div>
+          <div className="grocerySectionTitle">Remember your best basket prices</div>
+          <div className="assistantStack" style={{ marginTop: 10 }}>
+            {priceMemoryRows.map((row) => (
+              <div key={row.item} className="row" style={{ justifyContent: 'space-between', gap: 10, padding: '10px 12px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12 }}>
+                <div>
+                  <div style={{ fontWeight: 700 }}>{row.item}</div>
+                  <div className="small">Remembered ${row.remembered.toFixed(2)}</div>
+                </div>
+                <span className={`badge ${row.posture === 'green' ? 'good' : row.posture === 'watch' ? 'warn' : 'bad'}`}>{row.posture}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid2" style={{ alignItems: "start" }}>
+        <div className="card softCard grocerySectionCard">
           <div className="small shellEyebrow">PANTRY + SETTINGS</div>
           <div className="grocerySectionTitle">Pantry, tags, and basket goal</div>
           <label className="field" style={{ marginTop: 10 }}>Pantry items
@@ -709,7 +893,7 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
             <input value={state.basketGoal} onChange={(e) => persist({ ...state, basketGoal: e.target.value, lastUpdated: Date.now() })} placeholder="$125 family week" />
           </label>
           <div className="assistantSectionTitle" style={{ marginTop: 14 }}>Preferred stores</div>
-          <div className="small groceryDenseText" style={{ marginTop: 10 }}>Starter connectors now available: Walmart, Smith's/Kroger, Albertsons/Vons, Costco, and Target. Pick one when you want the deal board to act more like an Extreme Couponing route instead of a generic feed.</div>
+          <div className="small groceryDenseText" style={{ marginTop: 10 }}>Starter connectors now available: Walmart, Smith's/Kroger, Albertsons/Vons, Costco, Target, Sam's Club, and Amazon Fresh. Pick one when you want the deal board to act more like an Extreme Couponing route instead of a generic feed.</div>
         <div className="assistantChipWrap" style={{ marginTop: 10 }}>
             {STORE_OPTIONS.map((store) => (
               <button key={store} className={`tabBtn ${state.preferredStores.includes(store) ? "active" : ""}`} onClick={() => toggleStore(store)}>{store}</button>
@@ -721,7 +905,7 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
             <button className="tabBtn" onClick={runCheapWeek}>Cheap week</button>
           </div>
           <div className="assistantSectionTitle" style={{ marginTop: 14 }}>Live coupon links</div>
-          <div className="small groceryDenseText" style={{ marginTop: 10 }}>Starter connectors now available: Walmart, Smith's/Kroger, Albertsons/Vons, Costco, and Target. Pick one when you want the deal board to act more like an Extreme Couponing route instead of a generic feed.</div>
+          <div className="small groceryDenseText" style={{ marginTop: 10 }}>Starter connectors now available: Walmart, Smith's/Kroger, Albertsons/Vons, Costco, Target, Sam's Club, and Amazon Fresh. Pick one when you want the deal board to act more like an Extreme Couponing route instead of a generic feed.</div>
         <div className="assistantChipWrap" style={{ marginTop: 10 }}>
             {DEFAULT_COUPON_LINKS.map((link) => <button key={link.label} className="tabBtn" onClick={() => openExternalLink(link.url)}>{link.label}</button>)}
           </div>

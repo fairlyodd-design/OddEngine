@@ -72,3 +72,8 @@ GROCERY_PROXY_PROVIDER=mock-coupons
 - add real provider connectors under `providers/`
 - keep the same payload contract so the UI keeps working
 - add rate limits, caching, and store-specific parsers later
+
+
+## Store starter lanes
+
+The proxy now ships with starter connectors for Walmart, Smith's/Kroger, Albertsons/Vons, Costco, Target, Amazon Fresh, and Sam's Club. These are starter connectors, not authenticated live scrapers. Use them to test the UI flow, ranking, and route logic before wiring real provider credentials or scraper logic.

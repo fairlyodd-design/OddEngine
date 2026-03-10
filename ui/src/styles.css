@@ -3428,3 +3428,7 @@ button:hover:not(:disabled){ border-color: rgba(94,234,242,0.24); }
 .groceryStackCard{ border-color: rgba(251,191,36,0.14); background: linear-gradient(180deg, rgba(18,16,10,0.74), rgba(10,14,22,0.88)); }
 .groceryStackRow{ border-color: rgba(251,191,36,0.12); }
 @media (max-width: 980px){ .groceryStackGrid{ grid-template-columns: 1fr; } }
+
+.groceryVegasGrid{ display:grid; grid-template-columns: 1.15fr 1fr; gap:12px; margin-top:14px; }
+.groceryVegasCard{ border-color: rgba(94,234,242,0.14); background: linear-gradient(180deg, rgba(10,18,28,0.92), rgba(8,12,18,0.86)); }
+@media (max-width: 980px){ .groceryVegasGrid{ grid-template-columns:1fr; } }

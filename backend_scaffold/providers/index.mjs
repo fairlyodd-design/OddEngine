@@ -5,6 +5,8 @@ import { smithsStarterProvider } from './smithsStarterProvider.mjs';
 import { albertsonsStarterProvider } from './albertsonsStarterProvider.mjs';
 import { costcoStarterProvider } from './costcoStarterProvider.mjs';
 import { targetStarterProvider } from './targetStarterProvider.mjs';
+import { amazonFreshStarterProvider } from './amazonFreshStarterProvider.mjs';
+import { samsClubStarterProvider } from './samsClubStarterProvider.mjs';
 
 export const PROVIDERS = [
   seedProvider,
@@ -14,6 +16,8 @@ export const PROVIDERS = [
   albertsonsStarterProvider,
   costcoStarterProvider,
   targetStarterProvider,
+  amazonFreshStarterProvider,
+  samsClubStarterProvider,
 ];
 
 export function listProviders() {
