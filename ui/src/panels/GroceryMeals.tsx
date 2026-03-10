@@ -153,6 +153,45 @@ function inferDealStore(item: FeedItem, preferredStores: string[]) {
   return preferredStores[0] || STORE_OPTIONS[0];
 }
 
+
+
+type BasketCompareRow = {
+  store: string;
+  lane: string;
+  basketScore: number;
+  estimatedTotal: number;
+  savingsAngle: string;
+  orderNote: string;
+  posture: "good" | "warn" | "bad" | "";
+};
+
+function estimateFulfillmentFee(store: string, mode: FulfillmentMode) {
+  const low = store.toLowerCase();
+  if (mode === "pickup") return 0;
+  if (low.includes("sam")) return 0;
+  if (low.includes("amazon")) return 6.99;
+  if (low.includes("walmart")) return 6.97;
+  if (low.includes("smith") || low.includes("kroger")) return 4.95;
+  if (low.includes("albertsons") || low.includes("vons")) return 5.95;
+  if (low.includes("costco")) return 0;
+  return mode === "delivery" ? 5.99 : 0;
+}
+
+function buildBasketCompareRows(base: GroceryState, stackRows: StoreStackRow[], targetNumber: number, estimatedListCost: number): BasketCompareRow[] {
+  const stores = stackRows.length ? stackRows.map((row) => row.store) : (base.preferredStores.length ? base.preferredStores : ["Smith's/Kroger", "Walmart", "Sam's Club"]);
+  return stores.slice(0, 6).map((store, idx) => {
+    const lane = base.fulfillmentMode === "either" ? (idx % 2 === 0 ? "pickup" : "delivery") : base.fulfillmentMode;
+    const fee = estimateFulfillmentFee(store, lane as FulfillmentMode);
+    const stack = stackRows.find((row) => row.store === store);
+    const discount = Math.max(4, Math.min(28, ((stack?.score || 36) * 0.16) + (base.couponMatches.length * 0.9) - fee));
+    const total = Math.max(12, estimatedListCost - discount + fee);
+    const basketScore = Math.max(0, Math.min(99, Math.round((stack?.score || 32) + (targetNumber && total <= targetNumber ? 10 : 0) - (fee > 0 ? 4 : 0))));
+    const savingsAngle = total <= estimatedListCost ? `Save about $${Math.max(1, Math.round(estimatedListCost - total))}` : `Convenience tax about $${Math.max(1, Math.round(total - estimatedListCost))}`;
+    const orderNote = lane === "pickup" ? `Best if you want lower fees and a tighter basket shield at ${store}.` : `Use delivery only if the time saved beats the extra cost from ${store}.`;
+    const posture = total <= estimatedListCost * 0.92 ? "good" : total <= estimatedListCost * 1.03 ? "warn" : "bad";
+    return { store, lane, basketScore, estimatedTotal: Number(total.toFixed(2)), savingsAngle, orderNote, posture };
+  }).sort((a,b) => a.estimatedTotal - b.estimatedTotal || b.basketScore - a.basketScore);
+}
 type StoreStackRow = {
   store: string;
   score: number;
@@ -507,7 +546,9 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
 
   const vegasLiveHunterRows = useMemo(() => buildVegasLiveHunterRows(state, storeStackRows), [state, storeStackRows]);
   const vegasLiveHunterBrief = useMemo(() => buildVegasLiveHunterBrief(state, bestTripRoute, storeStackRows), [state, bestTripRoute, storeStackRows]);
+  const basketCompareRows = useMemo(() => buildBasketCompareRows(state, storeStackRows, targetNumber, estimatedListCost), [state, storeStackRows, targetNumber, estimatedListCost]);
   const bestLiveLane = vegasLiveHunterRows[0]?.store || primaryStore;
+  const bestBasketLane = basketCompareRows[0];
 
   return (
     <div className="page">
@@ -661,6 +702,53 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
               </div>
             ))}
             {!vegasLiveHunterRows.length && <div className="small">Load the deal board to populate the Vegas live hunter lanes.</div>}
+          </div>
+        </div>
+      </div>
+
+      <div className="groceryBasketCompareGrid mt-4">
+        <div className="card softCard groceryBasketCompareCard">
+          <div className="small shellEyebrow">REAL VEGAS BASKET COMPARER</div>
+          <div className="grocerySectionTitle">Compare the whole basket before you roll</div>
+          <div className="small groceryDenseText">This board compares likely total basket outcome by store and fulfillment lane for Las Vegas {state.zipCode}. It is built to answer the real question: where should AI Homie send you for the cheapest actual cart, not just the coolest coupon.</div>
+          <div className="assistantChipWrap" style={{ marginTop: 12 }}>
+            <span className={`badge ${bestBasketLane?.posture || ""}`}>Best basket {bestBasketLane?.store || primaryStore}</span>
+            <span className="badge">{state.fulfillmentMode === "either" ? "Pickup + delivery" : state.fulfillmentMode}</span>
+            <span className="badge">Goal {targetNumber ? `$${targetNumber.toFixed(0)}` : "Set basket goal"}</span>
+            <span className="badge">Est list ${estimatedListCost.toFixed(0)}</span>
+          </div>
+          <div className="assistantStack" style={{ marginTop: 12 }}>
+            {basketCompareRows.map((row, idx) => (
+              <div key={`${row.store}-${row.lane}`} className="timelineCard groceryBasketRow">
+                <div className="row" style={{ justifyContent: "space-between", gap: 10, alignItems: "center" }}>
+                  <div>
+                    <div style={{ fontWeight: 800 }}>{idx + 1}. {row.store}</div>
+                    <div className="small" style={{ marginTop: 4 }}>{row.lane.toUpperCase()} lane • basket score {row.basketScore}</div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <span className={`badge ${row.posture}`}>${row.estimatedTotal.toFixed(2)}</span>
+                    <div className="small" style={{ marginTop: 4 }}>{row.savingsAngle}</div>
+                  </div>
+                </div>
+                <div className="small groceryDenseText" style={{ marginTop: 8 }}>{row.orderNote}</div>
+              </div>
+            ))}
+          </div>
+          <div className="row wrap mt-4">
+            <button className="tabBtn active" onClick={() => { state.dealSourceMode === "local-proxy" ? refreshProxyDeals() : refreshCoupons(); }}>Re-compare basket</button>
+            <button className="tabBtn" onClick={() => onNavigate?.("FamilyBudget")}>Open savings war room</button>
+            <button className="tabBtn" onClick={() => buildAiDealAssist()}>Refresh AI compare note</button>
+          </div>
+        </div>
+
+        <div className="card softCard groceryBasketCompareCard">
+          <div className="small shellEyebrow">ULTIMATE DEAL FINDER MODE</div>
+          <div className="grocerySectionTitle">Online + Las Vegas shopping attack plan</div>
+          <div className="assistantStack" style={{ marginTop: 12 }}>
+            <div className="timelineCard groceryTimelineCard">Start with <b>{bestBasketLane?.store || primaryStore}</b> because it currently projects the strongest whole-cart outcome, not just the flashiest coupon.</div>
+            <div className="timelineCard groceryTimelineCard">Use <b>pickup</b> whenever possible for 89121 if you want the cleanest savings result. Delivery wins only when time saved matters more than the fee drag.</div>
+            <div className="timelineCard groceryTimelineCard">Treat Amazon Fresh and Sam's Club as tactical lanes: Amazon for convenience/time, Sam's for pantry-protein-paper bulk, not random one-off fillers.</div>
+            <div className="timelineCard groceryTimelineCard">Keep Smith's/Kroger and Walmart in the fight because weekly ads, digital coupons, and pickup value usually decide the real winner in Vegas.</div>
           </div>
         </div>
       </div>

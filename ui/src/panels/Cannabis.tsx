@@ -59,6 +59,150 @@ type State = {
 const KEY_V3 = "oddengine:cannabis:v3";
 const KEY_V2 = "oddengine:cannabis:v2";
 
+
+const VEGAS_FEATURED_DEALS = [
+  {
+    id: "planet13",
+    name: "Planet 13 Las Vegas",
+    area: "Las Vegas",
+    notes: "$180 1/2oz Best in Vegas Tier Flower, plus rotating preroll / edible / vape promos.",
+    url: "https://www.planet13lasvegas.com/deals/",
+    tags: ["daily deals", "flower", "prerolls", "vapes"]
+  },
+  {
+    id: "dispnv",
+    name: "The Dispensary NV",
+    area: "Las Vegas / Henderson",
+    notes: "$89 and $99 ounce mix-and-match deals, members-only cart promos, plus first/second/third-visit discounts.",
+    url: "https://thedispensarynv.com/",
+    tags: ["ounce deals", "rewards", "new customer"]
+  },
+  {
+    id: "nuwu",
+    name: "NuWu",
+    area: "Downtown Las Vegas",
+    notes: "Secret Menu / loyalty specials, plus event-night penny promos and lounge offers.",
+    url: "https://nuwu.vegas/news/",
+    tags: ["lounge", "specials", "community"]
+  },
+  {
+    id: "reef",
+    name: "REEF / Curaleaf Las Vegas",
+    area: "Las Vegas Strip",
+    notes: "Online-order specials and value flower lanes that work well for comparison shopping.",
+    url: "https://reefdispensaries.com/locations/las-vegas/order-now/",
+    tags: ["pickup", "delivery", "flower value"]
+  }
+] as const;
+
+const VEGAS_COMMUNITY_EVENTS = [
+  {
+    id: "tokin-trivia",
+    title: "Tokin Trivia",
+    when: "Mar 10, 2026 · 8:00 PM",
+    venue: "NuWu Sky High Lounge",
+    url: "https://nuwu.vegas/events/",
+    tags: ["community", "games", "lounge"]
+  },
+  {
+    id: "comedy-club",
+    title: "NuWu Comedy Club",
+    when: "Fridays · 8:30 PM",
+    venue: "NuWu Sky High Lounge",
+    url: "https://nuwu.vegas/events/?category=comedy",
+    tags: ["comedy", "nightlife", "community"]
+  },
+  {
+    id: "sunday-fundays",
+    title: "Sunday Fundays",
+    when: "Sundays · 12:00 PM–7:00 PM",
+    venue: "NuWu Courtyard",
+    url: "https://nuwu.vegas/events/events/sunday-fundays-2026-03-15/",
+    tags: ["outdoor", "music", "weekly"]
+  },
+  {
+    id: "paint-puff",
+    title: "Paint & Puff",
+    when: "Mar 21, 2026 · 6:00 PM–8:00 PM",
+    venue: "NuWu Sky High Lounge",
+    url: "https://nuwu.vegas/events/paint-and-puff-with-adrian-tom-off-the-rez-designs-las-vegas/",
+    tags: ["art", "community", "special event"]
+  },
+  {
+    id: "ladies-night",
+    title: "Ladies Night",
+    when: "Mar 26, 2026 · 8:00 PM–11:00 PM",
+    venue: "NuWu Sky High Lounge",
+    url: "https://nuwu.vegas/events/ladies-night-2026-03-26/",
+    tags: ["specials", "nightlife", "event deals"]
+  },
+  {
+    id: "mjbizcon",
+    title: "MJBizCon 2026",
+    when: "Dec 1–4, 2026",
+    venue: "Las Vegas Convention Center",
+    url: "https://mjbizconference.com/",
+    tags: ["industry", "expo", "community"]
+  }
+] as const;
+
+type LiveTrackerItem = {
+  id: string;
+  name: string;
+  lane: string;
+  notes: string;
+  url: string;
+  strength: number;
+  tags: string[];
+};
+
+const VEGAS_LIVE_TRACKER: LiveTrackerItem[] = [
+  {
+    id: "planet13-live",
+    name: "Planet 13 Las Vegas",
+    lane: "Menu + specials",
+    notes: "Live menu/specials lane with rotating flower, preroll, edible, and vape promos.",
+    url: "https://www.planet13lasvegas.com/deals/",
+    strength: 88,
+    tags: ["daily specials", "menu", "tourist-friendly"]
+  },
+  {
+    id: "dispnv-live",
+    name: "The Dispensary NV",
+    lane: "Daily menu deals",
+    notes: "Strong daily deal rhythm with ounce lanes, vape/carts promos, and new-customer discount stack.",
+    url: "https://thedispensarynv.com/shop-eastern/",
+    strength: 91,
+    tags: ["locals value", "daily deals", "rewards"]
+  },
+  {
+    id: "nuwu-live",
+    name: "NuWu",
+    lane: "Events + secret menu",
+    notes: "Best blend of specials, lounge/community energy, and event-night promo traffic.",
+    url: "https://nuwu.vegas/news/",
+    strength: 83,
+    tags: ["community", "lounge", "events"]
+  },
+  {
+    id: "reef-live",
+    name: "REEF / Curaleaf",
+    lane: "Value compare",
+    notes: "Useful Strip-adjacent comparison lane when you want a quick online-order value check.",
+    url: "https://reefdispensaries.com/locations/las-vegas/order-now/",
+    strength: 76,
+    tags: ["pickup", "online order", "value"]
+  }
+] as const;
+
+function strengthLabel(score: number){
+  if(score >= 88) return "🔥 strongest";
+  if(score >= 80) return "⚡ hot lane";
+  if(score >= 70) return "👀 watch lane";
+  return "steady";
+}
+
+
 function uid(){
   return Math.random().toString(16).slice(2) + "-" + Date.now().toString(16);
 }
@@ -194,6 +338,7 @@ export default function Cannabis(){
 
   const topDeal = useMemo(() => [...state.deals].sort((a,b) => b.score - a.score)[0] || null, [state.deals]);
   const mappedFavorites = useMemo(() => state.favorites.filter(f => !!f.coords).length, [state.favorites]);
+  const savedVegasLinks = useMemo(() => state.favorites.filter(f => [f.url, f.name, f.address||""].join(" ").toLowerCase().includes("vegas") || [f.url, f.name].join(" ").toLowerCase().includes("planet 13") || [f.url, f.name].join(" ").toLowerCase().includes("nuwu")).length, [state.favorites]);
   const activeTabLabel = useMemo(() => {
     switch(tab){
       case "discover": return "Discovery";
@@ -401,6 +546,23 @@ export default function Cannabis(){
     }
   }
 
+
+
+  function saveFeaturedLink(name: string, url: string, category = "Deals", notes = ""){
+    const f: Fav = {
+      id: uid(),
+      name,
+      url,
+      category,
+      notes,
+      address: category === "Event" ? "Las Vegas, NV" : undefined,
+      tags: ["vegas", "curated"],
+      createdAt: Date.now()
+    };
+    setState(st => ({ ...st, favorites: [f, ...st.favorites] }));
+    pushNotif({ kind:"Vault", title:"Saved", detail:`${name} added to Favorites.` });
+  }
+
   function askRankDeals(){
     setTab("assistant");
     setInput("Rank my saved deals and tell me which 1–2 are best overall and why.");
@@ -441,11 +603,17 @@ export default function Cannabis(){
       <div className="card cannabisHeroCard">
         <PanelHeader panelId="Cannabis" title="Cannabis" storagePrefix="oddengine:cannabis" />
 
+        <div className="row wrap" style={{gap:8, marginTop:10}}>
+          <button className="tabBtn" onClick={() => setZip("89121")}>Use Vegas 89121</button>
+          <button className="tabBtn" onClick={() => openUrl(googleQuery(`best cannabis deals Las Vegas ${state.zip || "89121"}`))}>Open Vegas deal search</button>
+          <button className="tabBtn" onClick={() => openUrl(googleQuery(`cannabis community events Las Vegas March 2026`))}>Open community event search</button>
+        </div>
+
         <div className="cannabisHeroTop" style={{marginTop: 10}}>
           <div>
             <div className="small shellEyebrow">CANNABIS OPS</div>
             <div className="cannabisHeroTitle">Cannabis Command Center</div>
-            <div className="sub cannabisHeroSub">Keep discovery, scored deals, favorite menus, pinned map locations, notes, and Homie guidance in one clean local workspace.</div>
+            <div className="sub cannabisHeroSub">Track live Vegas deal lanes, menus, community events, favorites, notes, and Homie guidance in one clean local workspace.</div>
           </div>
           <div className="row wrap cannabisHeroBadges" style={{justifyContent:"flex-end"}}>
             <span className="badge">ZIP {state.zip || "Not set"}</span>
@@ -475,6 +643,11 @@ export default function Cannabis(){
             <div className="small shellEyebrow">MAP READY</div>
             <div className="cannabisMetricValue">{mappedFavorites}</div>
             <div className="small">Favorites already pinned with coordinates.</div>
+          </div>
+          <div className="card cannabisMetricCard">
+            <div className="small shellEyebrow">VEGAS LINKS</div>
+            <div className="cannabisMetricValue">{savedVegasLinks}</div>
+            <div className="small">Curated deals, events, and community links saved locally.</div>
           </div>
         </div>
 
@@ -525,33 +698,128 @@ export default function Cannabis(){
       {/* Discover */}
       {tab==="discover" && (
         <div className="card cannabisSectionCard">
-          <div className="h">Discover (opens browser)</div>
-          <div className="sub">Pick a source → opens a search near your ZIP. Save links + paste deal text into Deals for scoring.</div>
+          <div className="h">Vegas Deals + Community Radar</div>
+          <div className="sub">Built for Las Vegas first: find strong dispensary deal lanes, save them locally, and keep a current cannabis-community radar in one place.</div>
 
-          <div className="grid2" style={{marginTop:10}}>
-            {services.map(s => (
-              <div key={s.id} className="card cannabisMiniCard">
-                <div style={{fontWeight:900}}>{s.label}</div>
-                <div className="sub">{s.hint}</div>
-                <div className="row" style={{gap:8, marginTop:10}}>
-                  <button onClick={() => openUrl(googleQuery(s.q(state.zip || "")))}>Open search</button>
-                  <button onClick={() => {
-                    const f: Fav = { id: uid(), name: `${s.label} — ${state.zip || "near me"}`, url: googleQuery(s.q(state.zip||"")), category:"Info", createdAt: Date.now() };
-                    setState(st => ({...st, favorites:[f, ...st.favorites]}));
-                    pushNotif({ kind:"Vault", title:"Saved", detail:"Added to Favorites." });
-                  }}>Save link</button>
-                </div>
+          <div className="card cannabisMiniCard cannabisTrackerBoard" style={{marginTop:12}}>
+            <div className="row" style={{justifyContent:"space-between", gap:10, alignItems:"baseline", flexWrap:"wrap"}}>
+              <div>
+                <div className="small shellEyebrow">LIVE MENU / DEAL TRACKER</div>
+                <div style={{fontWeight:900}}>Best right-now Vegas dispensary lanes</div>
+                <div className="sub">Use this board like a local strike list: strongest lane first, community/events as a second layer, then save the keepers into Favorites.</div>
               </div>
-            ))}
+              <span className="badge">Updated from current public deal surfaces</span>
+            </div>
+            <div className="cannabisTrackerGrid" style={{marginTop:10}}>
+              {VEGAS_LIVE_TRACKER.map(item => (
+                <div key={item.id} className="card cannabisMiniCard cannabisTrackerCard" style={{padding:12}}>
+                  <div className="row" style={{justifyContent:"space-between", gap:8, flexWrap:"wrap"}}>
+                    <div>
+                      <div style={{fontWeight:900}}>{item.name}</div>
+                      <div className="sub">{item.lane}</div>
+                    </div>
+                    <span className={"badge " + (item.strength >= 88 ? "good" : item.strength >= 80 ? "warn" : "")}>{strengthLabel(item.strength)}</span>
+                  </div>
+                  <div className="sub" style={{marginTop:8}}>{item.notes}</div>
+                  <div className="cannabisTrackerMeter" style={{marginTop:10}}>
+                    <div className="cannabisTrackerMeterFill" style={{width: `${item.strength}%`}} />
+                  </div>
+                  <div className="row" style={{justifyContent:"space-between", gap:8, marginTop:6, flexWrap:"wrap"}}>
+                    <div className="small">Strength {item.strength}/100</div>
+                    <div className="row" style={{gap:6, flexWrap:"wrap"}}>
+                      {item.tags.map(tag => <span key={tag} className="badge">{tag}</span>)}
+                    </div>
+                  </div>
+                  <div className="row" style={{gap:8, flexWrap:"wrap", marginTop:10}}>
+                    <a href={item.url} target="_blank" rel="noreferrer">Open live lane</a>
+                    <button onClick={() => saveFeaturedLink(item.name, item.url, "Live deal lane", item.notes)}>Save tracker</button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="card cannabisSectionCard" style={{marginTop:12}}>
-            <div style={{fontWeight:900}}>Events near ZIP</div>
-            <div className="sub">We open public event searches in your browser.</div>
-            <div className="row" style={{gap:8, flexWrap:"wrap", marginTop:8}}>
-              <button onClick={() => openUrl(googleQuery(`cannabis events near ${state.zip}`))}>Google</button>
-              <button onClick={() => openUrl(googleQuery(`site:eventbrite.com cannabis event ${state.zip}`))}>Eventbrite</button>
-              <button onClick={() => openUrl(googleQuery(`site:meetup.com cannabis ${state.zip}`))}>Meetup</button>
+          <div className="grid2 cannabisDiscoverGrid" style={{marginTop:12}}>
+            <div className="card cannabisMiniCard">
+              <div className="small shellEyebrow">BEST DEAL LANES</div>
+              <div className="sub">Use these as your first stops for Las Vegas comparison shopping.</div>
+              <div style={{marginTop:10, display:"grid", gap:10}}>
+                {VEGAS_FEATURED_DEALS.map(item => (
+                  <div key={item.id} className="card cannabisMiniCard" style={{padding:12}}>
+                    <div className="row" style={{justifyContent:"space-between", gap:8, flexWrap:"wrap"}}>
+                      <div>
+                        <div style={{fontWeight:900}}>{item.name}</div>
+                        <div className="sub">{item.area}</div>
+                      </div>
+                      <span className="badge">Vegas deal lane</span>
+                    </div>
+                    <div className="sub" style={{marginTop:8}}>{item.notes}</div>
+                    <div className="row" style={{gap:8, flexWrap:"wrap", marginTop:10}}>
+                      {item.tags.map(tag => <span key={tag} className="badge">{tag}</span>)}
+                    </div>
+                    <div className="row" style={{gap:8, marginTop:10, flexWrap:"wrap"}}>
+                      <a href={item.url} target="_blank" rel="noreferrer">Open deal lane</a>
+                      <button onClick={() => saveFeaturedLink(item.name, item.url, "Deals", item.notes)}>Save lane</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="card cannabisMiniCard">
+              <div className="small shellEyebrow">COMMUNITY EVENTS</div>
+              <div className="sub">Up-to-date cannabis-friendly hangs and larger Vegas community events to watch.</div>
+              <div style={{marginTop:10, display:"grid", gap:10}}>
+                {VEGAS_COMMUNITY_EVENTS.map(evt => (
+                  <div key={evt.id} className="card cannabisMiniCard" style={{padding:12}}>
+                    <div className="row" style={{justifyContent:"space-between", gap:8, flexWrap:"wrap"}}>
+                      <div>
+                        <div style={{fontWeight:900}}>{evt.title}</div>
+                        <div className="sub">{evt.when}</div>
+                      </div>
+                      <span className="badge">{evt.venue}</span>
+                    </div>
+                    <div className="row" style={{gap:8, flexWrap:"wrap", marginTop:10}}>
+                      {evt.tags.map(tag => <span key={tag} className="badge">{tag}</span>)}
+                    </div>
+                    <div className="row" style={{gap:8, marginTop:10, flexWrap:"wrap"}}>
+                      <a href={evt.url} target="_blank" rel="noreferrer">Open event</a>
+                      <button onClick={() => saveFeaturedLink(evt.title, evt.url, "Event", `${evt.when} · ${evt.venue}`)}>Save event</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid2 cannabisDiscoverGrid" style={{marginTop:12}}>
+            <div className="card cannabisMiniCard">
+              <div style={{fontWeight:900}}>Open public sources near ZIP</div>
+              <div className="sub">Browser-open sources for menus, strains, shops, and quick searches near your ZIP.</div>
+              <div className="grid2" style={{marginTop:10}}>
+                {services.map(s => (
+                  <div key={s.id} className="card cannabisMiniCard">
+                    <div style={{fontWeight:900}}>{s.label}</div>
+                    <div className="sub">{s.hint}</div>
+                    <div className="row" style={{gap:8, marginTop:10, flexWrap:"wrap"}}>
+                      <button onClick={() => openUrl(googleQuery(s.q(state.zip || "89121")))}>Open search</button>
+                      <button onClick={() => saveFeaturedLink(`${s.label} — ${state.zip || "89121"}`, googleQuery(s.q(state.zip || "89121")), "Info", s.hint)}>Save link</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="card cannabisMiniCard">
+              <div style={{fontWeight:900}}>Vegas action board</div>
+              <div className="sub">Quick launch the strongest current research lanes.</div>
+              <div className="row" style={{gap:8, flexWrap:"wrap", marginTop:8}}>
+                <button onClick={() => openUrl(googleQuery(`best cannabis deals Las Vegas ${state.zip || "89121"}`))}>Vegas deals</button>
+                <button onClick={() => openUrl(googleQuery(`site:nuwu.vegas/events cannabis Las Vegas March 2026`))}>NuWu events</button>
+                <button onClick={() => openUrl(googleQuery(`site:planet13lasvegas.com/deals Las Vegas cannabis deals`))}>Planet 13 deals</button>
+                <button onClick={() => openUrl(googleQuery(`site:thedispensarynv.com Las Vegas daily deals cannabis`))}>The Dispensary NV</button>
+                <button onClick={() => openUrl(googleQuery(`cannabis community Las Vegas meetup March 2026`))}>Community search</button>
+              </div>
             </div>
           </div>
         </div>
