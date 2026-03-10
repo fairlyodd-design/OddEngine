@@ -3460,3 +3460,5 @@ button:hover:not(:disabled){ border-color: rgba(94,234,242,0.24); }
 .cannabisCompareCard{ min-height: 0; }
 
 .cannabisProxyControlCard{ border:1px solid rgba(94,234,242,0.16); background:linear-gradient(180deg, rgba(8,12,18,0.88), rgba(10,16,24,0.82)); }
+
+video{ max-width:100%; }
