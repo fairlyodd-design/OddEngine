@@ -35,6 +35,11 @@ const KEY_PRODUCTION_TYPE = "oddengine:writers:productionType:v1";
 const KEY_RELEASE_TARGET = "oddengine:writers:releaseTarget:v1";
 const KEY_BUDGET_BAND = "oddengine:writers:budgetBand:v1";
 const KEY_SCOPE_LEVEL = "oddengine:writers:scopeLevel:v1";
+const KEY_RENDER_PROVIDER = "oddengine:writers:renderProvider:v1";
+const KEY_RENDER_FORMAT = "oddengine:writers:renderFormat:v1";
+const KEY_RENDER_FPS = "oddengine:writers:renderFps:v1";
+const KEY_RENDER_RESOLUTION = "oddengine:writers:renderResolution:v1";
+const KEY_RENDER_BASE = "oddengine:writers:renderBaseUrl:v1";
 
 type WriterMode = "story" | "song" | "cartoon" | "video" | "movie";
 type StudioAssetKind = "story" | "song" | "character" | "storyboard" | "cartoonBible" | "videoTreatment" | "shotList" | "productionPack" | "featureOutline" | "episodeGuide" | "animationPlan" | "castingPack" | "artPromptPack" | "productionRunbook" | "pitchDeck" | "oneSheet" | "trailerBrief" | "renderHandoff" | "screeningPacket";
@@ -830,6 +835,188 @@ function buildFinalAssemblyChecklist(seed: string, productionType: ProductionTyp
   ].join("\n");
 }
 
+function buildFinalVideoHandoff(seed: string, productionType: ProductionType, visualStyle: VisualStyle, releaseTarget: ReleaseTarget, assets: StudioAsset[]) {
+  const scenes = parseStoryboardScenes(latestAssetOfKind(assets, ["storyboard", "shotList"])?.content || "");
+  return [
+    `# Final Video Handoff`,
+    ``,
+    `- Project: ${seed || "Untitled project"}`,
+    `- Product lane: ${productionType}`,
+    `- Visual style: ${visualStyle}`,
+    `- Release target: ${releaseTarget}`,
+    `- Scene count: ${scenes.length}`,
+    ``,
+    `## Deliverables`,
+    `- Master timeline package`,
+    `- Scene batch prompts`,
+    `- Voiceover + dialogue reference`,
+    `- Soundtrack cue sheet`,
+    `- Continuity board`,
+    `- Poster / release assets`,
+    ``,
+    `## Watch-ready path`,
+    `- Lock script + edit map`,
+    `- Render scene batches in order`,
+    `- Review continuity and pickups`,
+    `- Final audio mix + subtitles`,
+    `- Export screening master`,
+    ``,
+    `## Honest note`,
+    `- OddEngine is generating the handoff pack and production docs here. It does not directly render a finished full-length movie inside the panel.`,
+  ].join("\n");
+}
+
+function buildProducerOpsBoard(seed: string, productionType: ProductionType, releaseTarget: ReleaseTarget, assets: StudioAsset[]) {
+  const rollup = buildAssetRollup(assets);
+  const scenes = parseStoryboardScenes(latestAssetOfKind(assets, ["storyboard", "shotList"])?.content || "").length;
+  const readiness = Math.min(100, Math.round(((rollup.writing * 2) + (rollup.visual * 2) + (rollup.production * 3)) / 21 * 100));
+  return [
+    `# Producer Ops Board`,
+    ``,
+    `- Project: ${seed || "Untitled project"}`,
+    `- Product lane: ${productionType}`,
+    `- Release target: ${releaseTarget}`,
+    `- Readiness: ${readiness}%`,
+    `- Writing assets: ${rollup.writing}`,
+    `- Visual assets: ${rollup.visual}`,
+    `- Production assets: ${rollup.production}`,
+    `- Scene count: ${scenes}`,
+    ``,
+    `## Ops calls`,
+    `- Highest leverage next move: ${rollup.visual < 2 ? "Expand storyboard + style prompts" : rollup.production < 2 ? "Build render/audio handoff docs" : "Prep launch and release assets"}`,
+    `- Risk lane: ${scenes ? "Continuity + runtime polish" : "Scene planning incomplete"}`,
+    `- Delivery lane: ${releaseTarget}`,
+    ``,
+    `## Producer checklist`,
+    `- [ ] Lock cast / voice assumptions`,
+    `- [ ] Approve style bible`,
+    `- [ ] Approve timeline + runtime`,
+    `- [ ] Approve soundtrack / VO plan`,
+    `- [ ] Approve launch packet`,
+  ].join("\n");
+}
+
+
+function buildShotImagePromptBatch(title: string, visualStyle: VisualStyle, assets: StudioAsset[], provider: string, format: string, resolution: string, fps: string) {
+  const storyboard = latestAssetOfKind(assets, ["storyboard"]);
+  const treatment = latestAssetOfKind(assets, ["videoTreatment", "renderHandoff"]);
+  const promptSource = (storyboard?.content || treatment?.content || "").split("\n").filter(Boolean).slice(0, 10);
+  const lines = promptSource.length ? promptSource : [
+    `OPEN — establish mood, environment, and hero silhouette.`,
+    `BUILD — add motion, texture, and key supporting visual beats.`,
+    `TURN — reveal twist, push emotional or visual escalation.`,
+    `PAYOFF — land the signature image and strongest dramatic beat.`,
+  ];
+  return [
+    `# Shot / Image Prompt Batch`,
+    ``,
+    `Project: ${title || "Untitled Project"}`,
+    `Render provider: ${provider}`,
+    `Format: ${format}`,
+    `Output: ${resolution} @ ${fps}`,
+    `Visual style: ${visualStyle}`,
+    ``,
+    `## Batch export`,
+    ...lines.map((line, idx) => `### Scene ${idx + 1}\n- Prompt seed: ${line}\n- Camera: cinematic motion / coverage variation\n- Deliverables: keyframe still, motion pass, alt safety shot\n- Notes: keep continuity with previous scene, maintain color story`),
+    ``,
+    `## Handoff note`,
+    `Use this batch as the source pack for external image/video generation tools.`
+  ].join("\n");
+}
+
+function buildVoiceMusicAssetExport(title: string, productionType: ProductionType, assets: StudioAsset[], provider: string) {
+  const song = latestAssetOfKind(assets, ["song"]);
+  const story = latestAssetOfKind(assets, ["story", "featureOutline"]);
+  return [
+    `# Voice / Music Asset Export`,
+    ``,
+    `Project: ${title || "Untitled Project"}`,
+    `Production type: ${productionType}`,
+    `Audio provider target: ${provider}`,
+    ``,
+    `## Voiceover pack`,
+    `- Narration tone: cinematic, intimate, emotionally clear`,
+    `- Dialogue pass: export by scene batch`,
+    `- Safety pass: neutral delivery for trailer / recap use`,
+    ``,
+    `## Music pack`,
+    `- Main theme: derived from project core and emotional arc`,
+    `- Cue stems: intro, build, chorus/payoff, outro, sting`,
+    `- Trailer version: 30s / 60s / 90s cuts`,
+    ``,
+    `## Source hooks`,
+    song ? `Song source: ${song.title}` : `Song source: none saved yet`,
+    story ? `Story source: ${story.title}` : `Story source: none saved yet`,
+    ``,
+    `## Delivery`,
+    `- Export VO script by scene`,
+    `- Export cue sheet by runtime lane`,
+    `- Export stems and timing notes for final assembly`,
+  ].join("\n");
+}
+
+function buildFinalAssemblyManifest(title: string, productionType: ProductionType, releaseTarget: ReleaseTarget, assets: StudioAsset[], provider: string, format: string, resolution: string, fps: string, baseUrl: string) {
+  const counts = {
+    writing: assets.filter(a => ["story","song","featureOutline","episodeGuide"].includes(a.kind)).length,
+    visual: assets.filter(a => ["storyboard","videoTreatment","artPromptPack","cartoonBible","renderHandoff"].includes(a.kind)).length,
+    production: assets.filter(a => ["productionPack","productionRunbook","castingPack","screeningPacket"].includes(a.kind)).length,
+  };
+  return [
+    `# Final Assembly Manifest`,
+    ``,
+    `Project: ${title || "Untitled Project"}`,
+    `Type: ${productionType}`,
+    `Release target: ${releaseTarget}`,
+    `Render provider: ${provider}`,
+    `Output spec: ${format} / ${resolution} / ${fps}`,
+    `Render bridge: ${baseUrl || "local / manual handoff"}`,
+    ``,
+    `## Asset coverage`,
+    `- Writing assets: ${counts.writing}`,
+    `- Visual assets: ${counts.visual}`,
+    `- Production assets: ${counts.production}`,
+    ``,
+    `## Required packets`,
+    `- [ ] Shot / image prompt batch`,
+    `- [ ] Voice / music export`,
+    `- [ ] Continuity board`,
+    `- [ ] Final video handoff`,
+    `- [ ] Producer ops board`,
+    ``,
+    `## Final outputs`,
+    `- Master render`,
+    `- Trailer cut`,
+    `- Poster stills`,
+    `- Thumbnail / promo stills`,
+    `- Caption / subtitle / metadata set`,
+  ].join("\n");
+}
+
+function buildExternalVideoToolHandoff(title: string, productionType: ProductionType, visualStyle: VisualStyle, releaseTarget: ReleaseTarget, provider: string, format: string, resolution: string, fps: string, baseUrl: string) {
+  return [
+    `# External Video Tool Handoff`,
+    ``,
+    `Project: ${title || "Untitled Project"}`,
+    `Type: ${productionType}`,
+    `Style: ${visualStyle}`,
+    `Release target: ${releaseTarget}`,
+    `Provider: ${provider}`,
+    `Output: ${format} / ${resolution} / ${fps}`,
+    `Bridge URL: ${baseUrl || "manual export package"}`,
+    ``,
+    `## Tool handoff checklist`,
+    `- Import shot batch prompts`,
+    `- Import voice/music assets`,
+    `- Apply style profile`,
+    `- Assemble timeline using continuity board`,
+    `- Render proof cut`,
+    `- Render final master and trailer cut`,
+    ``,
+    `## Notes`,
+    `This package is designed to bridge OddEngine Writers assets into external video / animation tools for actual rendering.`
+  ].join("\n");
+}
+
 function buildGreenlightScore(args: { assets: StudioAsset[]; productionType: ProductionType; budgetBand: BudgetBand; scopeLevel: ScopeLevel; releaseTarget: ReleaseTarget; writerMode: WriterMode; }) {
   const assets = args.assets || [];
   const hasWriting = assets.some(a => ["story","song","featureOutline","episodeGuide"].includes(a.kind));
@@ -911,6 +1098,11 @@ export default function Books({ onNavigate }: { onNavigate: (panelId: string) =>
   const [releaseTarget, setReleaseTarget] = useState<ReleaseTarget>(() => loadJSON<ReleaseTarget>(KEY_RELEASE_TARGET, "Pitch / Publishing"));
   const [budgetBand, setBudgetBand] = useState<BudgetBand>(() => loadJSON<BudgetBand>(KEY_BUDGET_BAND, "$$"));
   const [scopeLevel, setScopeLevel] = useState<ScopeLevel>(() => loadJSON<ScopeLevel>(KEY_SCOPE_LEVEL, "Balanced"));
+  const [renderProvider, setRenderProvider] = useState<string>(() => loadJSON<string>(KEY_RENDER_PROVIDER, "Runway / external"));
+  const [renderFormat, setRenderFormat] = useState<string>(() => loadJSON<string>(KEY_RENDER_FORMAT, "mp4"));
+  const [renderFps, setRenderFps] = useState<string>(() => loadJSON<string>(KEY_RENDER_FPS, "24 fps"));
+  const [renderResolution, setRenderResolution] = useState<string>(() => loadJSON<string>(KEY_RENDER_RESOLUTION, "1080p"));
+  const [renderBaseUrl, setRenderBaseUrl] = useState<string>(() => loadJSON<string>(KEY_RENDER_BASE, "http://127.0.0.1:3000/render"));
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   const systemPrompt = useMemo(() => {
@@ -947,6 +1139,11 @@ export default function Books({ onNavigate }: { onNavigate: (panelId: string) =>
   useEffect(() => { saveJSON(KEY_RELEASE_TARGET, releaseTarget); }, [releaseTarget]);
   useEffect(() => { saveJSON(KEY_BUDGET_BAND, budgetBand); }, [budgetBand]);
   useEffect(() => { saveJSON(KEY_SCOPE_LEVEL, scopeLevel); }, [scopeLevel]);
+  useEffect(() => { saveJSON(KEY_RENDER_PROVIDER, renderProvider); }, [renderProvider]);
+  useEffect(() => { saveJSON(KEY_RENDER_FORMAT, renderFormat); }, [renderFormat]);
+  useEffect(() => { saveJSON(KEY_RENDER_FPS, renderFps); }, [renderFps]);
+  useEffect(() => { saveJSON(KEY_RENDER_RESOLUTION, renderResolution); }, [renderResolution]);
+  useEffect(() => { saveJSON(KEY_RENDER_BASE, renderBaseUrl); }, [renderBaseUrl]);
 
   useEffect(() => {
     saveJSON(KEY_CHAT, chat);
@@ -1147,6 +1344,12 @@ Generate an art prompt pack from a saved asset to populate this export.`;
   const soundtrackCueSheet = useMemo(() => buildSoundtrackCueSheet(studioPrompt, visualStyle, beatMap, productionType), [studioPrompt, visualStyle, beatMap, productionType]);
   const shotContinuityBoard = useMemo(() => buildShotContinuityBoard(studioPrompt, visualStyle, studioAssets), [studioPrompt, visualStyle, studioAssets]);
   const finalAssemblyChecklist = useMemo(() => buildFinalAssemblyChecklist(studioPrompt, productionType, studioAssets), [studioPrompt, productionType, studioAssets]);
+  const finalVideoHandoff = useMemo(() => buildFinalVideoHandoff(studioPrompt, productionType, visualStyle, releaseTarget, studioAssets), [studioPrompt, productionType, visualStyle, releaseTarget, studioAssets]);
+  const producerOpsBoard = useMemo(() => buildProducerOpsBoard(studioPrompt, productionType, releaseTarget, studioAssets), [studioPrompt, productionType, releaseTarget, studioAssets]);
+  const shotImagePromptBatch = useMemo(() => buildShotImagePromptBatch(active?.title || studioPrompt, visualStyle, studioAssets, renderProvider, renderFormat, renderResolution, renderFps), [active?.title, studioPrompt, visualStyle, studioAssets, renderProvider, renderFormat, renderResolution, renderFps]);
+  const voiceMusicAssetExport = useMemo(() => buildVoiceMusicAssetExport(active?.title || studioPrompt, productionType, studioAssets, renderProvider), [active?.title, studioPrompt, productionType, studioAssets, renderProvider]);
+  const finalAssemblyManifest = useMemo(() => buildFinalAssemblyManifest(active?.title || studioPrompt, productionType, releaseTarget, studioAssets, renderProvider, renderFormat, renderResolution, renderFps, renderBaseUrl), [active?.title, studioPrompt, productionType, releaseTarget, studioAssets, renderProvider, renderFormat, renderResolution, renderFps, renderBaseUrl]);
+  const externalVideoToolHandoff = useMemo(() => buildExternalVideoToolHandoff(active?.title || studioPrompt, productionType, visualStyle, releaseTarget, renderProvider, renderFormat, renderResolution, renderFps, renderBaseUrl), [active?.title, studioPrompt, productionType, visualStyle, releaseTarget, renderProvider, renderFormat, renderResolution, renderFps, renderBaseUrl]);
   const producerDashboard = useMemo(() => ({
     project: active?.title || "Untitled",
     completion: Math.min(100, Math.round(((assetRollup.writing * 2) + (assetRollup.visual * 2) + (assetRollup.production * 3)) / 21 * 100)),
@@ -1219,6 +1422,12 @@ Generate an art prompt pack from a saved asset to populate this export.`;
   const downloadSoundtrackCueSheet = () => downloadTextFile(`${slugifyName(active?.title || studioPrompt)}-soundtrack-cue-sheet.md`, soundtrackCueSheet);
   const downloadShotContinuityBoard = () => downloadTextFile(`${slugifyName(active?.title || studioPrompt)}-shot-continuity-board.md`, shotContinuityBoard);
   const downloadFinalAssemblyChecklist = () => downloadTextFile(`${slugifyName(active?.title || studioPrompt)}-final-assembly-checklist.md`, finalAssemblyChecklist);
+  const downloadFinalVideoHandoff = () => downloadTextFile(`${slugifyName(active?.title || studioPrompt)}-final-video-handoff.md`, finalVideoHandoff);
+  const downloadProducerOpsBoard = () => downloadTextFile(`${slugifyName(active?.title || studioPrompt)}-producer-ops-board.md`, producerOpsBoard);
+  const downloadShotImagePromptBatch = () => downloadTextFile(`${slugifyName(active?.title || studioPrompt)}-shot-image-prompt-batch.md`, shotImagePromptBatch);
+  const downloadVoiceMusicAssetExport = () => downloadTextFile(`${slugifyName(active?.title || studioPrompt)}-voice-music-asset-export.md`, voiceMusicAssetExport);
+  const downloadFinalAssemblyManifest = () => downloadTextFile(`${slugifyName(active?.title || studioPrompt)}-final-assembly-manifest.md`, finalAssemblyManifest);
+  const downloadExternalVideoToolHandoff = () => downloadTextFile(`${slugifyName(active?.title || studioPrompt)}-external-video-tool-handoff.md`, externalVideoToolHandoff);
   const saveReleasePlan = () => saveComputedAsset("productionRunbook", `Release Plan • ${active?.title || studioPrompt || "Untitled"}`, releasePlan);
   const saveMarketingHooks = () => saveComputedAsset("productionPack", `Marketing Hooks • ${active?.title || studioPrompt || "Untitled"}`, marketingHooks);
   const savePlatformPitch = () => saveComputedAsset("pitchDeck", `Platform Pitch • ${active?.title || studioPrompt || "Untitled"}`, platformPitch);
@@ -1230,6 +1439,12 @@ Generate an art prompt pack from a saved asset to populate this export.`;
   const saveSoundtrackCueSheet = () => saveComputedAsset("productionPack", `Soundtrack Cue Sheet • ${active?.title || studioPrompt || "Untitled"}`, soundtrackCueSheet);
   const saveShotContinuityBoard = () => saveComputedAsset("renderHandoff", `Shot Continuity Board • ${active?.title || studioPrompt || "Untitled"}`, shotContinuityBoard);
   const saveFinalAssemblyChecklist = () => saveComputedAsset("productionRunbook", `Final Assembly Checklist • ${active?.title || studioPrompt || "Untitled"}`, finalAssemblyChecklist);
+  const saveFinalVideoHandoff = () => saveComputedAsset("screeningPacket", `Final Video Handoff • ${active?.title || studioPrompt || "Untitled"}`, finalVideoHandoff);
+  const saveProducerOpsBoard = () => saveComputedAsset("productionRunbook", `Producer Ops Board • ${active?.title || studioPrompt || "Untitled"}`, producerOpsBoard);
+  const saveShotImagePromptBatch = () => saveComputedAsset("renderHandoff", `Shot / Image Prompt Batch • ${active?.title || studioPrompt || "Untitled"}`, shotImagePromptBatch);
+  const saveVoiceMusicAssetExport = () => saveComputedAsset("productionPack", `Voice / Music Asset Export • ${active?.title || studioPrompt || "Untitled"}`, voiceMusicAssetExport);
+  const saveFinalAssemblyManifest = () => saveComputedAsset("screeningPacket", `Final Assembly Manifest • ${active?.title || studioPrompt || "Untitled"}`, finalAssemblyManifest);
+  const saveExternalVideoToolHandoff = () => saveComputedAsset("renderHandoff", `External Video Tool Handoff • ${active?.title || studioPrompt || "Untitled"}`, externalVideoToolHandoff);
 
   return (
     <div className="panelRoot writersStudioRoot">
@@ -1736,6 +1951,76 @@ Generate an art prompt pack from a saved asset to populate this export.`;
                 <button className="tabBtn" onClick={downloadShotContinuityBoard}>Download continuity board</button>
                 <button className="tabBtn" onClick={downloadFinalAssemblyChecklist}>Download final checklist</button>
                 <button className="tabBtn" onClick={downloadRenderHandoffPack}>Download render handoff</button>
+              </div>
+            </div>
+
+            <div className="writersProducerOps mt-4">
+              <div className="cluster wrap spread">
+                <div>
+                  <div className="h">Final Video Handoff + Producer Ops</div>
+                  <div className="sub">Package the project for the people who will actually finish, assemble, and release it.</div>
+                </div>
+                <div className="row wrap">
+                  <button className="tabBtn" onClick={saveProducerOpsBoard}>Save producer ops</button>
+                  <button className="tabBtn" onClick={saveFinalVideoHandoff}>Save final video handoff</button>
+                  <button className="tabBtn" onClick={downloadProducerOpsBoard}>Download producer ops</button>
+                  <button className="tabBtn active" onClick={downloadFinalVideoHandoff}>Download final video handoff</button>
+                </div>
+              </div>
+              <div className="writersDocPreviewGrid mt-4">
+                <pre className="writersPlannerPreview">{producerOpsBoard}</pre>
+                <pre className="writersPlannerPreview">{finalVideoHandoff}</pre>
+              </div>
+            </div>
+
+            <div className="writersProducerOps mt-4">
+              <div className="cluster wrap spread">
+                <div>
+                  <div className="h">External Render Bridge</div>
+                  <div className="sub">Prep provider settings, shot/image batches, audio exports, and a final assembly manifest for real outside render tools.</div>
+                </div>
+                <div className="row wrap">
+                  <button className="tabBtn" onClick={saveShotImagePromptBatch}>Save shot batch</button>
+                  <button className="tabBtn" onClick={saveVoiceMusicAssetExport}>Save voice/music export</button>
+                  <button className="tabBtn" onClick={saveFinalAssemblyManifest}>Save assembly manifest</button>
+                  <button className="tabBtn active" onClick={saveExternalVideoToolHandoff}>Save tool handoff</button>
+                </div>
+              </div>
+
+              <div className="card softCard mt-4">
+                <div className="small shellEyebrow">RENDER PROVIDER SETTINGS</div>
+                <div className="row wrap mt-3" style={{ gap: 10 }}>
+                  <select className="input" style={{ minWidth: 180 }} value={renderProvider} onChange={(e) => setRenderProvider(e.target.value)}>
+                    {["Runway / external", "Pika / external", "Comfy / local", "AnimateDiff / local", "Editor timeline / manual"].map((opt) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                  <select className="input" style={{ minWidth: 120 }} value={renderFormat} onChange={(e) => setRenderFormat(e.target.value)}>
+                    {["mp4", "mov", "image-sequence"].map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+                  </select>
+                  <select className="input" style={{ minWidth: 120 }} value={renderResolution} onChange={(e) => setRenderResolution(e.target.value)}>
+                    {["1080p", "1440p", "4K"].map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+                  </select>
+                  <select className="input" style={{ minWidth: 120 }} value={renderFps} onChange={(e) => setRenderFps(e.target.value)}>
+                    {["24 fps", "30 fps", "60 fps"].map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+                  </select>
+                  <input className="input" style={{ flex: 1, minWidth: 260 }} value={renderBaseUrl} onChange={(e) => setRenderBaseUrl(e.target.value)} placeholder="http://127.0.0.1:3000/render" />
+                </div>
+              </div>
+
+              <div className="writersDocPreviewGrid mt-4">
+                <pre className="writersPlannerPreview">{shotImagePromptBatch}</pre>
+                <pre className="writersPlannerPreview">{voiceMusicAssetExport}</pre>
+              </div>
+              <div className="writersDocPreviewGrid mt-4">
+                <pre className="writersPlannerPreview">{finalAssemblyManifest}</pre>
+                <pre className="writersPlannerPreview">{externalVideoToolHandoff}</pre>
+              </div>
+              <div className="row wrap mt-4">
+                <button className="tabBtn" onClick={downloadShotImagePromptBatch}>Download shot batch</button>
+                <button className="tabBtn" onClick={downloadVoiceMusicAssetExport}>Download voice/music export</button>
+                <button className="tabBtn" onClick={downloadFinalAssemblyManifest}>Download assembly manifest</button>
+                <button className="tabBtn active" onClick={downloadExternalVideoToolHandoff}>Download external tool handoff</button>
               </div>
             </div>
 
