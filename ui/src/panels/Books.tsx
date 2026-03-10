@@ -37,7 +37,7 @@ const KEY_BUDGET_BAND = "oddengine:writers:budgetBand:v1";
 const KEY_SCOPE_LEVEL = "oddengine:writers:scopeLevel:v1";
 
 type WriterMode = "story" | "song" | "cartoon" | "video" | "movie";
-type StudioAssetKind = "story" | "song" | "character" | "storyboard" | "cartoonBible" | "videoTreatment" | "shotList" | "productionPack" | "featureOutline" | "episodeGuide" | "animationPlan" | "castingPack" | "artPromptPack" | "productionRunbook" | "pitchDeck" | "oneSheet" | "trailerBrief";
+type StudioAssetKind = "story" | "song" | "character" | "storyboard" | "cartoonBible" | "videoTreatment" | "shotList" | "productionPack" | "featureOutline" | "episodeGuide" | "animationPlan" | "castingPack" | "artPromptPack" | "productionRunbook" | "pitchDeck" | "oneSheet" | "trailerBrief" | "renderHandoff" | "screeningPacket";
 type StoryboardScene = { title: string; summary: string; camera: string; purpose: string };
 type StudioAsset = { id: string; kind: StudioAssetKind; title: string; content: string; ts: number };
 type VisualStyle = "neo-noir anime" | "cartoon surreal" | "punk comic" | "dreamy watercolor" | "glitch cyberpop" | "cinematic realism";
@@ -80,6 +80,8 @@ function studioAssetTitle(kind: StudioAssetKind) {
     case "pitchDeck": return "Pitch Deck";
     case "oneSheet": return "One Sheet";
     case "trailerBrief": return "Trailer Brief";
+    case "renderHandoff": return "Render Handoff Pack";
+    case "screeningPacket": return "Screening Packet";
     default: return "Studio Asset";
   }
 }
@@ -380,7 +382,9 @@ function buildStudioPrompt(args: {
     productionRunbook: "Create a full production runbook that turns this project into a ready-to-handoff package for a short film, cartoon, or music video team.",
     pitchDeck: "Create a sharp pitch deck in markdown with hook, positioning, audience, comparables, world, characters, monetization/release angle, and why this project is greenlight-worthy.",
     oneSheet: "Create a commercial one-sheet for this project with title, hook, logline, audience, visual identity, release lane, and key reasons to buy/watch/read.",
-    trailerBrief: "Create a trailer brief with teaser structure, opening hook, emotional turn, signature visuals, end-card copy, and release CTA."
+    trailerBrief: "Create a trailer brief with teaser structure, opening hook, emotional turn, signature visuals, end-card copy, and release CTA.",
+    renderHandoff: "Create a render handoff pack for a long-form video team: scene batches, shot prompts, voice/music cues, edit map, delivery settings, and final QC checklist.",
+    screeningPacket: "Create a screening packet for a watch-ready product with synopsis, runtime plan, scene order, interstitials, soundtrack cues, poster copy, and post-launch follow-up."
   };
 
   return `${shared}\n\n${context}\n\nUser prompt: ${seed}\n\nTask: ${byKind[args.kind]}`;
@@ -649,6 +653,68 @@ function buildFinishedProduct(seed: string, productionType: ProductionType, rele
     `- Production assets: ${rollup.production}`,
     ``,
     `${title} is packaged as a finished FairlyOdd-ready ${productionType.toLowerCase()} with launch docs, visuals, trailer logic, platform pitch language, and monetization paths ready for deployment.`,
+  ].join("\n");
+}
+
+function buildCinemaMasterPlan(seed: string, productionType: ProductionType, style: VisualStyle, releaseTarget: ReleaseTarget, assets: StudioAsset[]) {
+  const timeline = buildDirectorTimeline(assets);
+  const casting = buildCastingBoard(assets, seed);
+  const beats = buildBeatMap(assets, seed);
+  const targetRuntime = productionType === "Movie" ? "78–96 min" : productionType === "Music Video" ? "3–6 min" : productionType === "Cartoon" ? "11–22 min" : productionType === "Series" ? "22–48 min pilot" : "15–35 min";
+  return [
+    `# Cinema Master Plan`,
+    ``,
+    `- Project: ${seed || "Untitled project"}`,
+    `- Product lane: ${productionType}`,
+    `- Visual style: ${style}`,
+    `- Release lane: ${releaseTarget}`,
+    `- Target runtime: ${targetRuntime}`,
+    ``,
+    `## Scene Blocks`,
+    ...timeline.map((step, idx) => `${idx + 1}. ${step.phase} — ${step.summary} | Camera: ${step.camera} | Purpose: ${step.purpose}`),
+    ``,
+    `## Cast / Voice Lane`,
+    ...casting.map((c) => `- ${c.role}: ${c.name} — ${c.voice}`),
+    ``,
+    `## Rhythm / Beat Lane`,
+    ...beats.map((b) => `- ${b.part} [${b.timing}] — ${b.move} (${b.beat})`),
+    ``,
+    `## Watch-Ready Goal`,
+    `- Build the project as a complete viewer-facing product with opening hook, narrative flow, emotional payoffs, end image, and end-card / release CTA.`,
+  ].join("\n");
+}
+
+function buildRenderHandoff(seed: string, productionType: ProductionType, style: VisualStyle, assets: StudioAsset[]) {
+  const source = latestAssetOfKind(assets, ["storyboard", "shotList", "videoTreatment"]);
+  const scenes = parseStoryboardScenes(source?.content || "");
+  const rows = scenes.length ? scenes : [{ title: "Scene 1", summary: "Opening hook", camera: "Wide establish", purpose: "Hook" }];
+  return [
+    `# Render Handoff Pack`,
+    ``,
+    `- Project: ${seed || "Untitled project"}`,
+    `- Product lane: ${productionType}`,
+    `- Visual style: ${style}`,
+    `- Note: This is a production/export handoff for full-length video creation. It does not directly render a finished movie inside OddEngine.`,
+    ``,
+    `## Scene Batch Prompts`,
+    ...rows.flatMap((scene, idx) => [
+      `### Batch ${idx + 1} — ${scene.title}`,
+      `- Summary: ${scene.summary}`,
+      `- Camera: ${scene.camera}`,
+      `- Purpose: ${scene.purpose}`,
+      `- Render prompt: ${style} | ${scene.summary} | ${scene.camera} | cinematic continuity | production-ready frame consistency`,
+      ``
+    ]),
+    `## Audio / Music / Voice Lane`,
+    `- Dialogue / VO pass`,
+    `- Music bed / transitions`,
+    `- FX accents / ambience`,
+    ``,
+    `## Delivery`,
+    `- Master timeline assembly`,
+    `- QC pass`,
+    `- Final render export`,
+    `- Poster / trailer / release cut`,
   ].join("\n");
 }
 
@@ -962,6 +1028,8 @@ Generate an art prompt pack from a saved asset to populate this export.`;
   const platformPitch = useMemo(() => buildPlatformPitch(studioPrompt, productionType, releaseTarget, visualStyle), [studioPrompt, productionType, releaseTarget, visualStyle]);
   const monetizationLane = useMemo(() => buildMonetizationLane(studioPrompt, productionType, releaseTarget), [studioPrompt, productionType, releaseTarget]);
   const finishedProduct = useMemo(() => buildFinishedProduct(studioPrompt, productionType, releaseTarget, visualStyle, studioAssets), [studioPrompt, productionType, releaseTarget, visualStyle, studioAssets]);
+  const cinemaMasterPlan = useMemo(() => buildCinemaMasterPlan(studioPrompt, productionType, visualStyle, releaseTarget, studioAssets), [studioPrompt, productionType, visualStyle, releaseTarget, studioAssets]);
+  const renderHandoffPack = useMemo(() => buildRenderHandoff(studioPrompt, productionType, visualStyle, studioAssets), [studioPrompt, productionType, visualStyle, studioAssets]);
   const producerDashboard = useMemo(() => ({
     project: active?.title || "Untitled",
     completion: Math.min(100, Math.round(((assetRollup.writing * 2) + (assetRollup.visual * 2) + (assetRollup.production * 3)) / 21 * 100)),
@@ -1027,10 +1095,14 @@ Generate an art prompt pack from a saved asset to populate this export.`;
   const downloadPlatformPitch = () => downloadTextFile(`${slugifyName(active?.title || studioPrompt)}-platform-pitch.md`, platformPitch);
   const downloadMonetizationLane = () => downloadTextFile(`${slugifyName(active?.title || studioPrompt)}-monetization-lane.md`, monetizationLane);
   const downloadFinishedProduct = () => downloadTextFile(`${slugifyName(active?.title || studioPrompt)}-finished-product.md`, finishedProduct);
+  const downloadCinemaMasterPlan = () => downloadTextFile(`${slugifyName(active?.title || studioPrompt)}-cinema-master-plan.md`, cinemaMasterPlan);
+  const downloadRenderHandoffPack = () => downloadTextFile(`${slugifyName(active?.title || studioPrompt)}-render-handoff-pack.md`, renderHandoffPack);
   const saveReleasePlan = () => saveComputedAsset("productionRunbook", `Release Plan • ${active?.title || studioPrompt || "Untitled"}`, releasePlan);
   const saveMarketingHooks = () => saveComputedAsset("productionPack", `Marketing Hooks • ${active?.title || studioPrompt || "Untitled"}`, marketingHooks);
   const savePlatformPitch = () => saveComputedAsset("pitchDeck", `Platform Pitch • ${active?.title || studioPrompt || "Untitled"}`, platformPitch);
   const saveFinishedProduct = () => saveComputedAsset("productionPack", `Finished Product • ${active?.title || studioPrompt || "Untitled"}`, finishedProduct);
+  const saveCinemaMasterPlan = () => saveComputedAsset("screeningPacket", `Cinema Master Plan • ${active?.title || studioPrompt || "Untitled"}`, cinemaMasterPlan);
+  const saveRenderHandoffPack = () => saveComputedAsset("renderHandoff", `Render Handoff • ${active?.title || studioPrompt || "Untitled"}`, renderHandoffPack);
 
   return (
     <div className="panelRoot writersStudioRoot">

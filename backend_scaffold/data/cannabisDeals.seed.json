@@ -1,0 +1,70 @@
+{
+  "updatedAt": "2026-03-10T00:00:00Z",
+  "providers": [
+    {
+      "id": "seed-las-vegas",
+      "label": "Seed Las Vegas",
+      "kind": "seed",
+      "stores": [
+        "Planet 13",
+        "The Dispensary NV",
+        "NuWu",
+        "REEF / Curaleaf"
+      ],
+      "description": "Seeded Vegas dispensary deals and community events."
+    },
+    {
+      "id": "mock-events",
+      "label": "Mock Vegas Events",
+      "kind": "events",
+      "stores": [
+        "NuWu",
+        "Las Vegas Convention Center"
+      ],
+      "description": "Mock event/community provider for cannabis culture lanes."
+    }
+  ],
+  "deals": [
+    {
+      "id": "p13-half",
+      "title": "Planet 13 half-ounce value lane",
+      "link": "https://www.planet13lasvegas.com/deals/",
+      "source": "Planet 13",
+      "store": "Planet 13",
+      "publishedAt": "2026-03-10",
+      "summary": "Flower-led value lane with rotating half-ounce and preroll specials.",
+      "score": 89
+    },
+    {
+      "id": "disp-ounce",
+      "title": "The Dispensary NV ounce / cart stack",
+      "link": "https://thedispensarynv.com/",
+      "source": "The Dispensary NV",
+      "store": "The Dispensary NV",
+      "publishedAt": "2026-03-10",
+      "summary": "Locals-value lane with ounce focus, cart deals, and visit discounts.",
+      "score": 93
+    },
+    {
+      "id": "nuwu-paint",
+      "title": "NuWu community event lane",
+      "link": "https://nuwu.vegas/events/",
+      "source": "NuWu",
+      "store": "NuWu",
+      "publishedAt": "2026-03-10",
+      "summary": "Community night / lounge event lane with save-worthy specials.",
+      "score": 84,
+      "event": true
+    },
+    {
+      "id": "reef-quick",
+      "title": "REEF / Curaleaf quick compare lane",
+      "link": "https://reefdispensaries.com/locations/las-vegas/order-now/",
+      "source": "REEF / Curaleaf",
+      "store": "REEF / Curaleaf",
+      "publishedAt": "2026-03-10",
+      "summary": "Good second-stop value check for online-order comparison shopping.",
+      "score": 77
+    }
+  ]
+}

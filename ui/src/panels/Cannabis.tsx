@@ -5,6 +5,7 @@ import { isDesktop, oddApi } from "../lib/odd";
 import { loadPrefs } from "../lib/prefs";
 import { scoreDealBestOverall } from "../lib/dealScore";
 import { PanelHeader } from "../components/PanelHeader";
+import { fetchCannabisProxyDeals, fetchCannabisProxyProviders, proxyRowsToDeals, type CannabisProxyProvider } from "../lib/cannabisDealsProxy";
 
 type Coords = { lat: number; lon: number };
 
@@ -58,6 +59,9 @@ type State = {
 
 const KEY_V3 = "oddengine:cannabis:v3";
 const KEY_V2 = "oddengine:cannabis:v2";
+const KEY_PROXY_BASE = "oddengine:cannabis:proxyBase:v1";
+const KEY_PROXY_PROVIDER = "oddengine:cannabis:proxyProvider:v1";
+const KEY_PROXY_QUERY = "oddengine:cannabis:proxyQuery:v1";
 
 
 const VEGAS_FEATURED_DEALS = [
@@ -328,6 +332,16 @@ export default function Cannabis(){
     saveJSON(KEY_V3, state);
   }, [state]);
 
+  const [cannabisProxyBase, setCannabisProxyBase] = useState<string>(() => loadJSON(KEY_PROXY_BASE, "http://127.0.0.1:8797"));
+  const [cannabisProxyProvider, setCannabisProxyProvider] = useState<string>(() => loadJSON(KEY_PROXY_PROVIDER, "seed-las-vegas"));
+  const [cannabisProxyQuery, setCannabisProxyQuery] = useState<string>(() => loadJSON(KEY_PROXY_QUERY, "vegas"));
+  const [cannabisProxyProviders, setCannabisProxyProviders] = useState<CannabisProxyProvider[]>([]);
+  const [cannabisProxyStatus, setCannabisProxyStatus] = useState<string>("Proxy idle");
+
+  useEffect(() => { saveJSON(KEY_PROXY_BASE, cannabisProxyBase); }, [cannabisProxyBase]);
+  useEffect(() => { saveJSON(KEY_PROXY_PROVIDER, cannabisProxyProvider); }, [cannabisProxyProvider]);
+  useEffect(() => { saveJSON(KEY_PROXY_QUERY, cannabisProxyQuery); }, [cannabisProxyQuery]);
+
   const services = useMemo(() => ([
     { id:"weedmaps", label:"Weedmaps", hint:"Directory / menus (opens browser)", q:(zip:string)=>`Weedmaps dispensary near ${zip}` },
     { id:"leafly", label:"Leafly", hint:"Strains + shops (opens browser)", q:(zip:string)=>`Leafly dispensary near ${zip}` },
@@ -587,6 +601,51 @@ const bestVegasBasket = vegasPriceCompare[0];
   }
 
 
+
+  async function loadCannabisProxyProviders(){
+    try{
+      const rows = await fetchCannabisProxyProviders(cannabisProxyBase);
+      setCannabisProxyProviders(rows);
+      setCannabisProxyStatus(rows.length ? `Loaded ${rows.length} provider lanes.` : "Proxy online, no providers returned.");
+      pushNotif({ kind:"Workspace", title:"Cannabis proxy", detail: rows.length ? `Loaded ${rows.length} provider lanes.` : "No providers returned." });
+    }catch(err:any){
+      const msg = String(err?.message || err || "Cannabis proxy unavailable.");
+      setCannabisProxyStatus(msg);
+      pushNotif({ kind:"Error", title:"Cannabis proxy", detail: msg });
+    }
+  }
+
+  async function testCannabisProxy(){
+    try{
+      const payload = await fetchCannabisProxyDeals(cannabisProxyBase, cannabisProxyQuery, state.zip || "89121", cannabisProxyProvider);
+      const count = Array.isArray(payload?.deals) ? payload.deals.length : 0;
+      setCannabisProxyStatus(`Proxy healthy • ${count} rows • ${payload.providerLabel || cannabisProxyProvider}`);
+      pushNotif({ kind:"Workspace", title:"Cannabis proxy healthy", detail:`${count} rows from ${payload.providerLabel || cannabisProxyProvider}` });
+    }catch(err:any){
+      const msg = String(err?.message || err || "Cannabis proxy unavailable.");
+      setCannabisProxyStatus(msg);
+      pushNotif({ kind:"Error", title:"Cannabis proxy", detail: msg });
+    }
+  }
+
+  async function importCannabisProxyDeals(){
+    try{
+      const payload = await fetchCannabisProxyDeals(cannabisProxyBase, cannabisProxyQuery, state.zip || "89121", cannabisProxyProvider);
+      const imported = proxyRowsToDeals(payload);
+      if(!imported.length){
+        setCannabisProxyStatus("Proxy returned zero rows.");
+        pushNotif({ kind:"Workspace", title:"Cannabis proxy", detail:"No deal rows returned." });
+        return;
+      }
+      setState(s => ({ ...s, deals: [...imported, ...s.deals].slice(0, 80) }));
+      setCannabisProxyStatus(`Imported ${imported.length} proxy lanes.`);
+      pushNotif({ kind:"Vault", title:"Imported proxy lanes", detail:`${imported.length} Vegas rows added to Deal Lab.` });
+    }catch(err:any){
+      const msg = String(err?.message || err || "Cannabis proxy unavailable.");
+      setCannabisProxyStatus(msg);
+      pushNotif({ kind:"Error", title:"Cannabis proxy", detail: msg });
+    }
+  }
 
   function saveFeaturedLink(name: string, url: string, category = "Deals", notes = ""){
     const f: Fav = {
@@ -1346,6 +1405,37 @@ const bestVegasBasket = vegasPriceCompare[0];
                 <button onClick={()=>pushNotif({kind:"Workspace", title:"Tip", detail:"Type a tier and press Enter."})}>?</button>
               </div>
             </div>
+          </div>
+
+          <div className="card cannabisSectionCard" style={{marginTop:12}}>
+            <div className="row" style={{justifyContent:"space-between", gap:10, alignItems:"baseline", flexWrap:"wrap"}}>
+              <div>
+                <div style={{fontWeight:900}}>Cannabis local proxy + real deal source prep</div>
+                <div className="sub">Prep a local Vegas feed for menus, deals, events, and community lanes without depending on browser scraping inside the panel.</div>
+              </div>
+              <span className="badge">Status {cannabisProxyStatus}</span>
+            </div>
+            <div className="grid2" style={{marginTop:10}}>
+              <label className="field">Proxy base URL
+                <input value={cannabisProxyBase} onChange={e=>setCannabisProxyBase(e.target.value)} placeholder="http://127.0.0.1:8797" />
+              </label>
+              <label className="field">Proxy query
+                <input value={cannabisProxyQuery} onChange={e=>setCannabisProxyQuery(e.target.value)} placeholder="vegas flower value" />
+              </label>
+            </div>
+            <div className="row" style={{gap:8, flexWrap:"wrap", marginTop:10}}>
+              <button onClick={loadCannabisProxyProviders}>Load providers</button>
+              <button onClick={testCannabisProxy}>Test proxy</button>
+              <button onClick={importCannabisProxyDeals}>Import proxy lanes</button>
+            </div>
+            <div className="row" style={{gap:8, flexWrap:"wrap", marginTop:10}}>
+              {(cannabisProxyProviders.length ? cannabisProxyProviders : [{ id:"seed-las-vegas", label:"Seed Las Vegas" }, { id:"mock-events", label:"Mock Vegas Events" } as any]).map((p:any) => (
+                <button key={p.id} className={"tabBtn " + (cannabisProxyProvider === p.id ? "active" : "")} onClick={() => setCannabisProxyProvider(p.id)}>
+                  {p.label}
+                </button>
+              ))}
+            </div>
+            <div className="sub" style={{marginTop:10}}>Run <code>backend_scaffold\RUN_CANNABIS_PROXY_WINDOWS.bat</code>, then use <code>http://127.0.0.1:8797</code> as the base URL.</div>
           </div>
 
           <div className="card cannabisSectionCard" style={{marginTop:12}}>

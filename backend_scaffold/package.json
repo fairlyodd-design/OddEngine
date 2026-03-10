@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "grocery-proxy": "node grocery-deals-proxy.mjs",
-    "grocery-proxy:mock": "node --env-file=.env grocery-deals-proxy.mjs"
+    "grocery-proxy:mock": "node --env-file=.env grocery-deals-proxy.mjs",
+    "cannabis-proxy": "node cannabis-deals-proxy.mjs",
+    "cannabis-proxy:mock": "node --env-file=.env cannabis-deals-proxy.mjs"
   }
 }

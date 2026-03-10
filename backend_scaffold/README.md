@@ -77,3 +77,13 @@ GROCERY_PROXY_PROVIDER=mock-coupons
 ## Store starter lanes
 
 The proxy now ships with starter connectors for Walmart, Smith's/Kroger, Albertsons/Vons, Costco, Target, Amazon Fresh, and Sam's Club. These are starter connectors, not authenticated live scrapers. Use them to test the UI flow, ranking, and route logic before wiring real provider credentials or scraper logic.
+
+
+## Cannabis local proxy
+
+Run `npm run cannabis-proxy` and use `http://127.0.0.1:8797` in the Cannabis panel.
+
+Routes:
+- `GET /health`
+- `GET /cannabis/providers`
+- `GET /cannabis/deals?provider=seed-las-vegas&q=vegas`
