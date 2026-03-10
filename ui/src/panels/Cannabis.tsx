@@ -195,6 +195,26 @@ const VEGAS_LIVE_TRACKER: LiveTrackerItem[] = [
   }
 ] as const;
 
+
+type PriceCompareItem = {
+  id: string;
+  store: string;
+  lane: string;
+  basketScore: number;
+  estSavings: string;
+  bestFor: string;
+  risk: string;
+  url: string;
+};
+
+const VEGAS_PRICE_COMPARE: PriceCompareItem[] = [
+  { id: "dispnv-compare", store: "The Dispensary NV", lane: "Locals value lane", basketScore: 92, estSavings: "Best ounce / cart stack", bestFor: "flower + carts + new-customer stack", risk: "strong deal rotation, watch day-specific promos", url: "https://thedispensarynv.com/" },
+  { id: "planet13-compare", store: "Planet 13", lane: "Promo-heavy mega menu", basketScore: 86, estSavings: "Strong bundle specials", bestFor: "tourist-friendly menu + rotating promos", risk: "not always the cheapest whole basket", url: "https://www.planet13lasvegas.com/deals/" },
+  { id: "nuwu-compare", store: "NuWu", lane: "Community + lounge lane", basketScore: 79, estSavings: "Best event-night value", bestFor: "lounge nights + secret menu energy", risk: "useful for experiences, not always cheapest cart", url: "https://nuwu.vegas/news/" },
+  { id: "reef-compare", store: "REEF / Curaleaf", lane: "Quick value compare", basketScore: 74, estSavings: "Good compare stop", bestFor: "quick online order value checks", risk: "usually a second-stop compare lane", url: "https://reefdispensaries.com/locations/las-vegas/order-now/" }
+] as const;
+
+
 function strengthLabel(score: number){
   if(score >= 88) return "🔥 strongest";
   if(score >= 80) return "⚡ hot lane";
@@ -339,6 +359,26 @@ export default function Cannabis(){
   const topDeal = useMemo(() => [...state.deals].sort((a,b) => b.score - a.score)[0] || null, [state.deals]);
   const mappedFavorites = useMemo(() => state.favorites.filter(f => !!f.coords).length, [state.favorites]);
   const savedVegasLinks = useMemo(() => state.favorites.filter(f => [f.url, f.name, f.address||""].join(" ").toLowerCase().includes("vegas") || [f.url, f.name].join(" ").toLowerCase().includes("planet 13") || [f.url, f.name].join(" ").toLowerCase().includes("nuwu")).length, [state.favorites]);
+
+const favoriteWarRoom = useMemo(() => {
+  const vegasFavs = state.favorites.filter(f => [f.name, f.url, f.address || "", f.notes || ""].join(" ").toLowerCase().includes("vegas") || [f.name, f.url].join(" ").toLowerCase().includes("planet 13") || [f.name, f.url].join(" ").toLowerCase().includes("nuwu") || [f.name, f.url].join(" ").toLowerCase().includes("dispensa"));
+  const mapped = vegasFavs.filter(f => !!f.coords).length;
+  const eventLane = vegasFavs.filter(f => (f.category || "").toLowerCase().includes("event")).length;
+  const dealLane = vegasFavs.filter(f => (f.category || "").toLowerCase().includes("deal") || (f.category || "").toLowerCase().includes("live")).length;
+  const strongest = state.deals.slice().sort((a,b) => b.score - a.score)[0];
+  return {
+    total: vegasFavs.length,
+    mapped,
+    eventLane,
+    dealLane,
+    strongestLabel: strongest ? `${strongest.store || strongest.category || "Saved deal"} • ${strongest.score}/100` : "No scored deals yet",
+    nextMove: vegasFavs.length ? (mapped ? "Compare your saved Vegas keepers against today's best lane." : "Map your best saved Vegas keepers so the war room can route them faster.") : "Save a few Vegas lanes first to activate the war room."
+  };
+}, [state.favorites, state.deals]);
+
+const vegasPriceCompare = useMemo(() => [...VEGAS_PRICE_COMPARE].sort((a,b) => b.basketScore - a.basketScore), []);
+const bestVegasBasket = vegasPriceCompare[0];
+
   const activeTabLabel = useMemo(() => {
     switch(tab){
       case "discover": return "Discovery";
@@ -737,9 +777,46 @@ export default function Cannabis(){
                 </div>
               ))}
             </div>
-          </div>
 
-          <div className="grid2 cannabisDiscoverGrid" style={{marginTop:12}}>
+</div>
+
+<div className="card cannabisMiniCard cannabisWarRoomCard" style={{marginTop:12}}>
+  <div className="row" style={{justifyContent:"space-between", gap:10, alignItems:"baseline", flexWrap:"wrap"}}>
+    <div>
+      <div className="small shellEyebrow">VEGAS PRICE COMPARER</div>
+      <div style={{fontWeight:900}}>Best basket lane right now: {bestVegasBasket?.store || "No lane yet"}</div>
+      <div className="sub">Use this like a cannabis savings war room: strongest whole-cart lane first, then save the ones worth revisiting into Favorites.</div>
+    </div>
+    {bestVegasBasket ? <span className="badge good">Top basket score {bestVegasBasket.basketScore}/100</span> : null}
+  </div>
+
+  <div className="cannabisCompareGrid" style={{marginTop:10}}>
+    {vegasPriceCompare.map(item => (
+      <div key={item.id} className="card cannabisMiniCard cannabisCompareCard" style={{padding:12}}>
+        <div className="row" style={{justifyContent:"space-between", gap:8, flexWrap:"wrap"}}>
+          <div>
+            <div style={{fontWeight:900}}>{item.store}</div>
+            <div className="sub">{item.lane}</div>
+          </div>
+          <span className={"badge " + (item.basketScore >= 88 ? "good" : item.basketScore >= 78 ? "warn" : "")}>Basket {item.basketScore}</span>
+        </div>
+        <div className="sub" style={{marginTop:8}}>Best for: {item.bestFor}</div>
+        <div className="sub" style={{marginTop:6}}>Savings angle: {item.estSavings}</div>
+        <div className="sub" style={{marginTop:6}}>Watchout: {item.risk}</div>
+        <div className="cannabisTrackerMeter" style={{marginTop:10}}>
+          <div className="cannabisTrackerMeterFill" style={{width: `${item.basketScore}%`}} />
+        </div>
+        <div className="row" style={{gap:8, marginTop:10, flexWrap:"wrap"}}>
+          <a href={item.url} target="_blank" rel="noreferrer">Open compare lane</a>
+          <button onClick={() => saveFeaturedLink(item.store, item.url, "Price compare", `${item.lane} • ${item.estSavings}`)}>Save compare</button>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<div className="grid2 cannabisDiscoverGrid" style={{marginTop:12}}>
+
             <div className="card cannabisMiniCard">
               <div className="small shellEyebrow">BEST DEAL LANES</div>
               <div className="sub">Use these as your first stops for Las Vegas comparison shopping.</div>
@@ -790,9 +867,46 @@ export default function Cannabis(){
                 ))}
               </div>
             </div>
-          </div>
 
-          <div className="grid2 cannabisDiscoverGrid" style={{marginTop:12}}>
+</div>
+
+<div className="card cannabisMiniCard cannabisWarRoomCard" style={{marginTop:12}}>
+  <div className="row" style={{justifyContent:"space-between", gap:10, alignItems:"baseline", flexWrap:"wrap"}}>
+    <div>
+      <div className="small shellEyebrow">VEGAS PRICE COMPARER</div>
+      <div style={{fontWeight:900}}>Best basket lane right now: {bestVegasBasket?.store || "No lane yet"}</div>
+      <div className="sub">Use this like a cannabis savings war room: strongest whole-cart lane first, then save the ones worth revisiting into Favorites.</div>
+    </div>
+    {bestVegasBasket ? <span className="badge good">Top basket score {bestVegasBasket.basketScore}/100</span> : null}
+  </div>
+
+  <div className="cannabisCompareGrid" style={{marginTop:10}}>
+    {vegasPriceCompare.map(item => (
+      <div key={item.id} className="card cannabisMiniCard cannabisCompareCard" style={{padding:12}}>
+        <div className="row" style={{justifyContent:"space-between", gap:8, flexWrap:"wrap"}}>
+          <div>
+            <div style={{fontWeight:900}}>{item.store}</div>
+            <div className="sub">{item.lane}</div>
+          </div>
+          <span className={"badge " + (item.basketScore >= 88 ? "good" : item.basketScore >= 78 ? "warn" : "")}>Basket {item.basketScore}</span>
+        </div>
+        <div className="sub" style={{marginTop:8}}>Best for: {item.bestFor}</div>
+        <div className="sub" style={{marginTop:6}}>Savings angle: {item.estSavings}</div>
+        <div className="sub" style={{marginTop:6}}>Watchout: {item.risk}</div>
+        <div className="cannabisTrackerMeter" style={{marginTop:10}}>
+          <div className="cannabisTrackerMeterFill" style={{width: `${item.basketScore}%`}} />
+        </div>
+        <div className="row" style={{gap:8, marginTop:10, flexWrap:"wrap"}}>
+          <a href={item.url} target="_blank" rel="noreferrer">Open compare lane</a>
+          <button onClick={() => saveFeaturedLink(item.store, item.url, "Price compare", `${item.lane} • ${item.estSavings}`)}>Save compare</button>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<div className="grid2 cannabisDiscoverGrid" style={{marginTop:12}}>
+
             <div className="card cannabisMiniCard">
               <div style={{fontWeight:900}}>Open public sources near ZIP</div>
               <div className="sub">Browser-open sources for menus, strains, shops, and quick searches near your ZIP.</div>
@@ -936,9 +1050,49 @@ export default function Cannabis(){
       )}
 
       {/* Favorites */}
-      {tab==="favorites" && (
-        <>
-          <div className="card">
+
+{tab==="favorites" && (
+  <>
+    <div className="card cannabisMiniCard cannabisWarRoomCard">
+      <div className="row" style={{justifyContent:"space-between", gap:10, alignItems:"baseline", flexWrap:"wrap"}}>
+        <div>
+          <div className="small shellEyebrow">FAVORITES WAR ROOM</div>
+          <div style={{fontWeight:900}}>Vegas keeper board</div>
+          <div className="sub">{favoriteWarRoom.nextMove}</div>
+        </div>
+        <span className="badge">{favoriteWarRoom.total} Vegas keepers</span>
+      </div>
+      <div className="cannabisMetricStrip" style={{marginTop:12}}>
+        <div className="card cannabisMetricCard">
+          <div className="small shellEyebrow">KEEPERS</div>
+          <div className="cannabisMetricValue">{favoriteWarRoom.total}</div>
+          <div className="small">Saved Vegas links in the war room.</div>
+        </div>
+        <div className="card cannabisMetricCard">
+          <div className="small shellEyebrow">MAPPED</div>
+          <div className="cannabisMetricValue">{favoriteWarRoom.mapped}</div>
+          <div className="small">Pinned and map-ready favorites.</div>
+        </div>
+        <div className="card cannabisMetricCard">
+          <div className="small shellEyebrow">DEAL LANES</div>
+          <div className="cannabisMetricValue">{favoriteWarRoom.dealLane}</div>
+          <div className="small">Saved special/menu/value lanes.</div>
+        </div>
+        <div className="card cannabisMetricCard">
+          <div className="small shellEyebrow">EVENT LANES</div>
+          <div className="cannabisMetricValue">{favoriteWarRoom.eventLane}</div>
+          <div className="small">Community and event keepers.</div>
+        </div>
+        <div className="card cannabisMetricCard">
+          <div className="small shellEyebrow">STRONGEST DEAL</div>
+          <div className="small" style={{fontWeight:900, marginTop:6}}>{favoriteWarRoom.strongestLabel}</div>
+          <div className="small">Top scored local deal in your lab.</div>
+        </div>
+      </div>
+    </div>
+
+    <div className="card">
+
             <div className="h">Add Favorite</div>
             <div className="grid2" style={{marginTop:10}}>
               <label className="field">Name
