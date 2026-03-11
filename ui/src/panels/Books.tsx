@@ -1,10 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { loadJSON, saveJSON } from "../lib/storage";
 import {
+  assembleFinalProjectPacket,
+  downloadTextFile,
+  finalProjectPacketToMarkdown,
   generateFullStudioPipeline,
   generateStudioRoomAssets,
-  inferStudioProjectType,
+  getMissingRooms,
   mapProjectTypeToProductionType,
+  splitAssetsByRoom,
+  titleFromPrompt,
+  type FinalProjectPacket,
   type StudioAsset as AutomationStudioAsset,
   type StudioProjectType,
   type StudioRoomKey,
@@ -43,13 +49,7 @@ type ReleaseTarget =
 type BudgetBand = "$" | "$$" | "$$$" | "$$$$";
 type ScopeLevel = "Lean" | "Balanced" | "Epic";
 
-type ProjectAsset = {
-  id: string;
-  kind: string;
-  title: string;
-  content: string;
-  ts: number;
-};
+type ProjectAsset = AutomationStudioAsset;
 
 type StudioProject = {
   id: string;
@@ -95,8 +95,9 @@ const KEY_RENDER_FPS = "oddengine:writers:renderFps:v1";
 const KEY_RENDER_RESOLUTION = "oddengine:writers:renderResolution:v1";
 const KEY_RENDER_BASE = "oddengine:writers:renderBaseUrl:v1";
 const KEY_STUDIO_ROOM = "oddengine:writers:studioRoom:v1";
-const KEY_STUDIO_PROJECT_TYPE = "oddengine:writers:studioProjectType:v1";
 const KEY_STUDIO_PIPELINE_RUN = "oddengine:writers:studioPipelineRun:v1";
+const KEY_ASSET_VIEW_MODE = "oddengine:writers:assetViewMode:v1";
+const KEY_ASSET_FILTER_KIND = "oddengine:writers:assetFilterKind:v1";
 
 const ROOM_META: Array<{
   key: StudioRoomKey;
@@ -151,18 +152,28 @@ const PROJECT_TYPES: StudioProjectType[] = [
   "other",
 ];
 
+const VISUAL_STYLE_OPTIONS: VisualStyle[] = [
+  "neo-noir anime",
+  "cartoon surreal",
+  "punk comic",
+  "dreamy watercolor",
+  "glitch cyberpop",
+  "cinematic realism",
+];
+
+const RELEASE_TARGET_OPTIONS: ReleaseTarget[] = [
+  "Indie Launch",
+  "YouTube / Social",
+  "Festival Circuit",
+  "Pitch / Publishing",
+  "Streaming / Platform",
+];
+
+const BUDGET_OPTIONS: BudgetBand[] = ["$", "$$", "$$$", "$$$$"];
+const SCOPE_OPTIONS: ScopeLevel[] = ["Lean", "Balanced", "Epic"];
+
 function uid() {
   return Math.random().toString(16).slice(2) + Date.now().toString(16);
-}
-
-function titleFromPrompt(prompt: string, fallback = "Untitled Studio Project") {
-  const text = String(prompt || "").trim();
-  if (!text) return fallback;
-  return text
-    .split(/\s+/)
-    .slice(0, 8)
-    .join(" ")
-    .replace(/[.,:;!?]+$/g, "");
 }
 
 function projectTypeToWriterMode(projectType: StudioProjectType): WriterMode {
@@ -183,7 +194,7 @@ function safeJsonParse(text: string) {
 function createBlankProject(seed?: Partial<StudioProject>): StudioProject {
   const projectType = seed?.projectType || "video";
   return {
-    id: uid(),
+    id: seed?.id || uid(),
     title: seed?.title || "Untitled Studio Project",
     subtitle: seed?.subtitle || "",
     status: seed?.status || "Idea",
@@ -213,12 +224,16 @@ function createBlankProject(seed?: Partial<StudioProject>): StudioProject {
 }
 
 function coerceProject(raw: any, fallbackAssets: ProjectAsset[] = []): StudioProject {
-  const inferred = (raw?.projectType ||
-    inferStudioProjectType(raw?.writerMode || "story")) as StudioProjectType;
+  const projectType = (raw?.projectType ||
+    (raw?.writerMode === "song"
+      ? "song"
+      : raw?.writerMode === "cartoon"
+      ? "cartoon"
+      : raw?.writerMode === "video" || raw?.writerMode === "movie"
+      ? "video"
+      : "book")) as StudioProjectType;
 
-  const assets = Array.isArray(raw?.studioAssets)
-    ? raw.studioAssets
-    : fallbackAssets;
+  const assets = Array.isArray(raw?.studioAssets) ? raw.studioAssets : fallbackAssets;
 
   return createBlankProject({
     id: String(raw?.id || uid()),
@@ -230,11 +245,11 @@ function coerceProject(raw: any, fallbackAssets: ProjectAsset[] = []): StudioPro
     chapters: Array.isArray(raw?.chapters) ? raw.chapters : [],
     updatedAt: Number(raw?.updatedAt || Date.now()),
     masterPrompt: String(raw?.masterPrompt || raw?.logline || ""),
-    projectType: inferred,
-    writerMode: (raw?.writerMode || projectTypeToWriterMode(inferred)) as WriterMode,
+    projectType,
+    writerMode: (raw?.writerMode || projectTypeToWriterMode(projectType)) as WriterMode,
     visualStyle: (raw?.visualStyle || "cinematic realism") as VisualStyle,
     productionType: (raw?.productionType ||
-      mapProjectTypeToProductionType(inferred)) as ProductionType,
+      mapProjectTypeToProductionType(projectType)) as ProductionType,
     releaseTarget: (raw?.releaseTarget || "Indie Launch") as ReleaseTarget,
     budgetBand: (raw?.budgetBand || "$$") as BudgetBand,
     scopeLevel: (raw?.scopeLevel || "Balanced") as ScopeLevel,
@@ -252,13 +267,20 @@ function newestFirst<T extends { ts?: number }>(items: T[]) {
 }
 
 function latestAsset(assets: ProjectAsset[], kinds: string[]) {
-  return newestFirst(assets).find((a) => kinds.includes(a.kind));
+  return newestFirst(assets).find((asset) => kinds.includes(asset.kind));
 }
 
-function roomAssets(assets: ProjectAsset[], room: StudioRoomKey) {
-  const meta = ROOM_META.find((r) => r.key === room);
-  if (!meta) return [];
-  return newestFirst(assets).filter((asset) => meta.kinds.includes(asset.kind));
+async function copyText(text: string) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+  }
 }
 
 export default function Books() {
@@ -275,6 +297,14 @@ export default function Books() {
   const [studioRoom, setStudioRoom] = useState<StudioRoomKey>(() =>
     loadJSON<StudioRoomKey>(KEY_STUDIO_ROOM, "home")
   );
+  const [assetViewMode, setAssetViewMode] = useState<"latest" | "all">(() =>
+    loadJSON<"latest" | "all">(KEY_ASSET_VIEW_MODE, "latest")
+  );
+  const [assetFilterKind, setAssetFilterKind] = useState<string>(() =>
+    loadJSON<string>(KEY_ASSET_FILTER_KIND, "all")
+  );
+  const [collapsedAssetIds, setCollapsedAssetIds] = useState<Record<string, boolean>>({});
+  const [packetCopiedState, setPacketCopiedState] = useState<"" | "json" | "md">("");
 
   const [pipelineBusy, setPipelineBusy] = useState(false);
   const [pipelineError, setPipelineError] = useState("");
@@ -296,28 +326,73 @@ export default function Books() {
   const activeRoomMeta =
     ROOM_META.find((room) => room.key === studioRoom) || ROOM_META[0];
 
-  const activeRoomAssets = useMemo(
-    () => (activeProject ? roomAssets(activeProject.studioAssets, studioRoom) : []),
-    [activeProject, studioRoom]
+  const splitRooms = useMemo(
+    () => splitAssetsByRoom(activeProject?.studioAssets || []),
+    [activeProject]
   );
+
+  const activeRoomAssets = useMemo(
+    () => newestFirst(splitRooms[studioRoom] || []),
+    [splitRooms, studioRoom]
+  );
+
+  const missingRooms = useMemo(
+    () => getMissingRooms(activeProject?.studioAssets || []),
+    [activeProject]
+  );
+
+  const finalPacket = useMemo<FinalProjectPacket | null>(() => {
+    if (!activeProject) return null;
+    return assembleFinalProjectPacket({
+      masterPrompt: activeProject.masterPrompt,
+      projectType: activeProject.projectType,
+      visualStyle: activeProject.visualStyle,
+      productionType: activeProject.productionType,
+      releaseTarget: activeProject.releaseTarget,
+      budgetBand: activeProject.budgetBand,
+      scopeLevel: activeProject.scopeLevel,
+      existingAssets: activeProject.studioAssets,
+    });
+  }, [activeProject]);
 
   const assetCounts = useMemo(() => {
     const assets = activeProject?.studioAssets || [];
     return {
       total: assets.length,
-      home: roomAssets(assets, "home").length,
-      writing: roomAssets(assets, "writing").length,
-      director: roomAssets(assets, "director").length,
-      music: roomAssets(assets, "music").length,
-      render: roomAssets(assets, "render").length,
-      ops: roomAssets(assets, "ops").length,
+      home: splitRooms.home.length,
+      writing: splitRooms.writing.length,
+      director: splitRooms.director.length,
+      music: splitRooms.music.length,
+      render: splitRooms.render.length,
+      ops: splitRooms.ops.length,
     };
-  }, [activeProject]);
+  }, [activeProject, splitRooms]);
 
   const activeRenderJob = useMemo(
     () => renderJobs.find((job) => job.id === activeRenderJobId) || renderJobs[0] || null,
     [renderJobs, activeRenderJobId]
   );
+
+  const filteredAssetKinds = useMemo(
+    () => Array.from(new Set(activeRoomAssets.map((asset) => asset.kind))),
+    [activeRoomAssets]
+  );
+
+  const filteredRoomAssets = useMemo(() => {
+    let list = activeRoomAssets;
+    if (assetFilterKind !== "all") {
+      list = list.filter((asset) => asset.kind === assetFilterKind);
+    }
+    if (assetViewMode === "latest") {
+      const seen = new Set<string>();
+      list = list.filter((asset) => {
+        if (seen.has(asset.kind)) return false;
+        seen.add(asset.kind);
+        return true;
+      });
+    }
+    return list;
+  }, [activeRoomAssets, assetFilterKind, assetViewMode]);
 
   useEffect(() => {
     if (!activeId && projects[0]?.id) {
@@ -355,23 +430,20 @@ export default function Books() {
     saveJSON(KEY_STUDIO_PIPELINE_RUN, lastPipelineRunAt);
   }, [lastPipelineRunAt]);
 
-  const updateActiveProject = (patch: Partial<StudioProject>) => {
-    if (!activeProject) return;
+  useEffect(() => {
+    saveJSON(KEY_ASSET_VIEW_MODE, assetViewMode);
+  }, [assetViewMode]);
+
+  useEffect(() => {
+    saveJSON(KEY_ASSET_FILTER_KIND, assetFilterKind);
+  }, [assetFilterKind]);
+
+  const patchActiveProject = (mutator: (project: StudioProject) => StudioProject) => {
     setProjects((prev) =>
       prev.map((project) =>
-        project.id === activeProject.id
-          ? { ...project, ...patch, updatedAt: Date.now() }
-          : project
+        project.id === activeId ? { ...mutator(project), updatedAt: Date.now() } : project
       )
     );
-  };
-
-  const prependAssetsToActiveProject = (assets: ProjectAsset[]) => {
-    if (!activeProject || !assets.length) return;
-    updateActiveProject({
-      studioAssets: [...assets, ...activeProject.studioAssets],
-      title: titleFromPrompt(activeProject.masterPrompt, activeProject.title),
-    });
   };
 
   const addProject = () => {
@@ -412,7 +484,7 @@ export default function Books() {
       releaseTarget: activeProject.releaseTarget,
       budgetBand: activeProject.budgetBand,
       scopeLevel: activeProject.scopeLevel,
-      existingAssets: activeProject.studioAssets as AutomationStudioAsset[],
+      existingAssets: activeProject.studioAssets,
     };
   };
 
@@ -422,7 +494,7 @@ export default function Books() {
     setPipelineError("");
     try {
       const input = buildAutomationInput();
-      const packet = generateFullStudioPipeline(input as any);
+      const packet = generateFullStudioPipeline(input);
       const generated = [
         ...packet.home,
         ...packet.writing,
@@ -432,15 +504,14 @@ export default function Books() {
         ...packet.ops,
       ] as ProjectAsset[];
 
-      prependAssetsToActiveProject(generated);
-      updateActiveProject({
-        title: titleFromPrompt(activeProject.masterPrompt, activeProject.title),
-        productionType: mapProjectTypeToProductionType(
-          activeProject.projectType
-        ) as ProductionType,
-        writerMode: projectTypeToWriterMode(activeProject.projectType),
-        logline: activeProject.masterPrompt,
-      });
+      patchActiveProject((project) => ({
+        ...project,
+        title: titleFromPrompt(project.masterPrompt, project.title),
+        productionType: mapProjectTypeToProductionType(project.projectType) as ProductionType,
+        writerMode: projectTypeToWriterMode(project.projectType),
+        logline: project.masterPrompt,
+        studioAssets: [...generated, ...project.studioAssets],
+      }));
       setLastPipelineRunAt(Date.now());
       setStudioRoom("home");
     } catch (error: any) {
@@ -456,19 +527,39 @@ export default function Books() {
     setPipelineError("");
     try {
       const input = buildAutomationInput();
-      const generated = generateStudioRoomAssets(
-        input as any,
-        studioRoom as StudioRoomKey
+      const generated = generateStudioRoomAssets(input, studioRoom) as ProjectAsset[];
+
+      patchActiveProject((project) => ({
+        ...project,
+        productionType: mapProjectTypeToProductionType(project.projectType) as ProductionType,
+        writerMode: projectTypeToWriterMode(project.projectType),
+        studioAssets: [...generated, ...project.studioAssets],
+      }));
+      setLastPipelineRunAt(Date.now());
+    } catch (error: any) {
+      setPipelineError(error?.message || String(error));
+    } finally {
+      setPipelineBusy(false);
+    }
+  };
+
+  const generateMissingRooms = async () => {
+    if (!activeProject) return;
+    setPipelineBusy(true);
+    setPipelineError("");
+    try {
+      const input = buildAutomationInput();
+      const generated = getMissingRooms(activeProject.studioAssets).flatMap((room) =>
+        generateStudioRoomAssets(input, room)
       ) as ProjectAsset[];
 
-      prependAssetsToActiveProject(generated);
-      updateActiveProject({
-        productionType: mapProjectTypeToProductionType(
-          activeProject.projectType
-        ) as ProductionType,
-        writerMode: projectTypeToWriterMode(activeProject.projectType),
-      });
-      setLastPipelineRunAt(Date.now());
+      if (generated.length) {
+        patchActiveProject((project) => ({
+          ...project,
+          studioAssets: [...generated, ...project.studioAssets],
+        }));
+        setLastPipelineRunAt(Date.now());
+      }
     } catch (error: any) {
       setPipelineError(error?.message || String(error));
     } finally {
@@ -492,12 +583,17 @@ export default function Books() {
 
   const submitRenderJob = async () => {
     if (!activeProject) return;
+    const renderAsset = latestAsset(activeProject.studioAssets, ["renderHandoff"]);
+    if (!renderAsset) {
+      setRenderError("Generate the Render Lab room first.");
+      return;
+    }
+
     setRenderBusy(true);
     setRenderError("");
     try {
-      const renderAsset = latestAsset(activeProject.studioAssets, ["renderHandoff"]);
       const directionAsset = latestAsset(activeProject.studioAssets, ["storyboard", "shotList"]);
-      const parsedPayload = safeJsonParse(renderAsset?.content || "");
+      const parsedPayload = safeJsonParse(renderAsset.content || "");
       const title = activeProject.title || titleFromPrompt(activeProject.masterPrompt);
 
       const res = await createRenderJob({
@@ -515,7 +611,7 @@ export default function Books() {
         resolution: activeProject.renderResolution,
         storyboardSummary: directionAsset?.content || activeProject.masterPrompt,
         assetIds: activeProject.studioAssets.map((asset) => asset.id),
-        handoff: parsedPayload || { renderAssetTitle: renderAsset?.title || null },
+        handoff: parsedPayload || { renderAssetTitle: renderAsset.title || null },
         promptPack: parsedPayload || undefined,
         payload:
           parsedPayload ||
@@ -534,15 +630,19 @@ export default function Books() {
       setActiveRenderJobId(res.job.id);
       setLastRenderSyncAt(Date.now());
 
-      prependAssetsToActiveProject([
-        {
-          id: uid(),
-          kind: "renderJob",
-          title: `Render Job • ${title}`,
-          content: JSON.stringify(res.job, null, 2),
-          ts: Date.now(),
-        },
-      ]);
+      patchActiveProject((project) => ({
+        ...project,
+        studioAssets: [
+          {
+            id: uid(),
+            kind: "renderJob",
+            title: `Render Job â€¢ ${title}`,
+            content: JSON.stringify(res.job, null, 2),
+            ts: Date.now(),
+          },
+          ...project.studioAssets,
+        ],
+      }));
     } catch (error: any) {
       setRenderError(error?.message || String(error));
     } finally {
@@ -573,15 +673,19 @@ export default function Books() {
         false
       );
       setRenderJobs((prev) => [res.job, ...prev.filter((job) => job.id !== res.job.id)]);
-      prependAssetsToActiveProject([
-        {
-          id: uid(),
-          kind: "renderJob",
-          title: `Imported Render • ${res.job.title || res.job.projectTitle || activeProject.title}`,
-          content: JSON.stringify(res.job, null, 2),
-          ts: Date.now(),
-        },
-      ]);
+      patchActiveProject((project) => ({
+        ...project,
+        studioAssets: [
+          {
+            id: uid(),
+            kind: "renderJob",
+            title: `Imported Render â€¢ ${res.job.title || res.job.projectTitle || project.title}`,
+            content: JSON.stringify(res.job, null, 2),
+            ts: Date.now(),
+          },
+          ...project.studioAssets,
+        ],
+      }));
     } catch (error: any) {
       setRenderError(error?.message || String(error));
     } finally {
@@ -596,8 +700,7 @@ export default function Books() {
     try {
       const res = await markRenderWatched(activeProject.renderBaseUrl, activeRenderJobId);
       setRenderJobs((prev) => [res.job, ...prev.filter((job) => job.id !== res.job.id)]);
-      const previewUrl =
-        res.job.output?.previewUrl || res.job.output?.localPath || "";
+      const previewUrl = res.job.output?.previewUrl || res.job.output?.localPath || "";
       if (previewUrl) {
         window.open(previewUrl, "_blank", "noopener,noreferrer");
       }
@@ -606,6 +709,40 @@ export default function Books() {
     } finally {
       setRenderBusy(false);
     }
+  };
+
+  const toggleAssetCollapse = (id: string) => {
+    setCollapsedAssetIds((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const copyPacketJson = async () => {
+    if (!finalPacket) return;
+    await copyText(JSON.stringify(finalPacket, null, 2));
+    setPacketCopiedState("json");
+  };
+
+  const copyPacketMarkdown = async () => {
+    if (!finalPacket) return;
+    await copyText(finalProjectPacketToMarkdown(finalPacket));
+    setPacketCopiedState("md");
+  };
+
+  const downloadPacketJson = () => {
+    if (!finalPacket || !activeProject) return;
+    downloadTextFile(
+      `${titleFromPrompt(activeProject.masterPrompt || activeProject.title || "studio-project")}.json`,
+      JSON.stringify(finalPacket, null, 2),
+      "application/json"
+    );
+  };
+
+  const downloadPacketMarkdown = () => {
+    if (!finalPacket || !activeProject) return;
+    downloadTextFile(
+      `${titleFromPrompt(activeProject.masterPrompt || activeProject.title || "studio-project")}.md`,
+      finalProjectPacketToMarkdown(finalPacket),
+      "text/markdown"
+    );
   };
 
   useEffect(() => {
@@ -622,11 +759,11 @@ export default function Books() {
   }, [activeProject?.renderBaseUrl, activeRenderJobId, studioRoom]);
 
   if (!activeProject) {
-    return <div className="card softCard">Studio is loading…</div>;
+    return <div className="card softCard">Studio is loadingâ€¦</div>;
   }
 
   return (
-    <div style={{ display: "grid", gap: 16 }}>
+    <div style={{ display: "grid", gap: 12 }}>
       <div className="card softCard">
         <div className="small shellEyebrow">FAIRLYODD OS / STUDIO</div>
         <div className="h mt-2">Prompt-to-project creative pipeline inside the larger FairlyOdd OS.</div>
@@ -636,8 +773,8 @@ export default function Books() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gap: 16, gridTemplateColumns: "320px 1fr" }}>
-        <div style={{ display: "grid", gap: 16 }}>
+      <div style={{ display: "grid", gap: 12, gridTemplateColumns: "300px 1fr" }}>
+        <div style={{ display: "grid", gap: 12 }}>
           <div className="card softCard">
             <div className="cluster wrap spread">
               <div>
@@ -647,7 +784,7 @@ export default function Books() {
               <button className="tabBtn active" onClick={addProject}>New</button>
             </div>
 
-            <div className="mt-3" style={{ display: "grid", gap: 10 }}>
+            <div className="mt-3" style={{ display: "grid", gap: 8 }}>
               {projects.map((project) => (
                 <button
                   key={project.id}
@@ -690,7 +827,7 @@ export default function Books() {
           </div>
         </div>
 
-        <div style={{ display: "grid", gap: 16 }}>
+        <div style={{ display: "grid", gap: 12 }}>
           <div className="card softCard">
             <div className="row wrap">
               {ROOM_META.map((room) => (
@@ -704,19 +841,19 @@ export default function Books() {
               ))}
             </div>
 
-            <div className="card softCard mt-4">
+            <div className="card softCard mt-3">
               <div className="small shellEyebrow">{activeRoomMeta.label.toUpperCase()}</div>
               <div className="sub mt-2">{activeRoomMeta.blurb}</div>
             </div>
 
-            <div className="card softCard mt-4">
-              <div className="small shellEyebrow">PROMPT ? PROJECT AUTOMATION</div>
+            <div className="card softCard mt-3">
+              <div className="small shellEyebrow">PROMPT â†’ PROJECT AUTOMATION</div>
               <div className="sub mt-2">
-                Generate the full Studio packet from one master prompt, or regenerate
-                only the current room without wiping the rest of the project.
+                Generate the full Studio packet from one master prompt, regenerate
+                only the current room, or fill the rooms that are still missing.
               </div>
 
-              <div className="mt-4" style={{ display: "grid", gap: 12, gridTemplateColumns: "1.2fr 0.8fr" }}>
+              <div className="mt-3" style={{ display: "grid", gap: 12, gridTemplateColumns: "1.25fr 0.75fr" }}>
                 <div className="card softCard">
                   <div className="small shellEyebrow">MASTER PROMPT</div>
                   <textarea
@@ -724,11 +861,12 @@ export default function Books() {
                     rows={8}
                     value={activeProject.masterPrompt}
                     onChange={(e) =>
-                      updateActiveProject({
+                      patchActiveProject((project) => ({
+                        ...project,
                         masterPrompt: e.target.value,
-                        title: titleFromPrompt(e.target.value, activeProject.title),
+                        title: titleFromPrompt(e.target.value, project.title),
                         logline: e.target.value,
-                      })
+                      }))
                     }
                     placeholder="Describe the song, book, cartoon, video, music video, or other project you want the Studio to build end-to-end."
                   />
@@ -744,50 +882,111 @@ export default function Books() {
                         value={activeProject.projectType}
                         onChange={(e) => {
                           const next = e.target.value as StudioProjectType;
-                          updateActiveProject({
+                          patchActiveProject((project) => ({
+                            ...project,
                             projectType: next,
                             writerMode: projectTypeToWriterMode(next),
                             productionType: mapProjectTypeToProductionType(next) as ProductionType,
-                          });
+                          }));
                         }}
                       >
                         {PROJECT_TYPES.map((type) => (
-                          <option key={type} value={type}>
-                            {type}
-                          </option>
+                          <option key={type} value={type}>{type}</option>
                         ))}
                       </select>
                     </label>
 
                     <label className="small">
                       Visual style
-                      <input
+                      <select
                         className="input mt-2"
                         value={activeProject.visualStyle}
                         onChange={(e) =>
-                          updateActiveProject({ visualStyle: e.target.value as VisualStyle })
+                          patchActiveProject((project) => ({
+                            ...project,
+                            visualStyle: e.target.value as VisualStyle,
+                          }))
                         }
-                      />
+                      >
+                        {VISUAL_STYLE_OPTIONS.map((style) => (
+                          <option key={style} value={style}>{style}</option>
+                        ))}
+                      </select>
                     </label>
 
                     <label className="small">
                       Release target
-                      <input
+                      <select
                         className="input mt-2"
                         value={activeProject.releaseTarget}
                         onChange={(e) =>
-                          updateActiveProject({ releaseTarget: e.target.value as ReleaseTarget })
+                          patchActiveProject((project) => ({
+                            ...project,
+                            releaseTarget: e.target.value as ReleaseTarget,
+                          }))
                         }
-                      />
+                      >
+                        {RELEASE_TARGET_OPTIONS.map((target) => (
+                          <option key={target} value={target}>{target}</option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="small">
+                      Budget band
+                      <select
+                        className="input mt-2"
+                        value={activeProject.budgetBand}
+                        onChange={(e) =>
+                          patchActiveProject((project) => ({
+                            ...project,
+                            budgetBand: e.target.value as BudgetBand,
+                          }))
+                        }
+                      >
+                        {BUDGET_OPTIONS.map((band) => (
+                          <option key={band} value={band}>{band}</option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="small">
+                      Scope level
+                      <select
+                        className="input mt-2"
+                        value={activeProject.scopeLevel}
+                        onChange={(e) =>
+                          patchActiveProject((project) => ({
+                            ...project,
+                            scopeLevel: e.target.value as ScopeLevel,
+                          }))
+                        }
+                      >
+                        {SCOPE_OPTIONS.map((scope) => (
+                          <option key={scope} value={scope}>{scope}</option>
+                        ))}
+                      </select>
                     </label>
 
                     <button className="tabBtn active" disabled={pipelineBusy} onClick={() => void runGenerateFullPipeline()}>
-                      {pipelineBusy ? "Generating…" : "Generate full pipeline"}
+                      {pipelineBusy ? "Generatingâ€¦" : "Generate full pipeline"}
                     </button>
 
                     <button className="tabBtn" disabled={pipelineBusy} onClick={() => void regenerateCurrentRoom()}>
-                      {pipelineBusy ? "Working…" : `Regenerate ${activeRoomMeta.label}`}
+                      {pipelineBusy ? "Workingâ€¦" : `Regenerate ${activeRoomMeta.label}`}
                     </button>
+
+                    <button
+                      className="tabBtn"
+                      disabled={pipelineBusy || !missingRooms.length}
+                      onClick={() => void generateMissingRooms()}
+                    >
+                      {pipelineBusy ? "Workingâ€¦" : `Generate missing rooms${missingRooms.length ? ` (${missingRooms.length})` : ""}`}
+                    </button>
+
+                    <div className="small">
+                      <b>Missing rooms:</b> {missingRooms.length ? missingRooms.join(", ") : "None"}
+                    </div>
 
                     {pipelineError ? <div className="note">{pipelineError}</div> : null}
                   </div>
@@ -795,7 +994,7 @@ export default function Books() {
               </div>
             </div>
 
-            <div className="mt-4" style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
+            <div className="mt-3" style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
               <div className="card softCard">
                 <div className="small shellEyebrow">PROJECT CORE</div>
                 <div className="small mt-2"><b>Title:</b> {activeProject.title}</div>
@@ -806,32 +1005,133 @@ export default function Books() {
               </div>
 
               <div className="card softCard">
-                <div className="small shellEyebrow">ACTIVE ROOM OUTPUTS</div>
-                <div className="small mt-2">{activeRoomAssets.length} assets in {activeRoomMeta.label}</div>
-                <div className="small mt-2">
-                  Most recent: {activeRoomAssets[0]?.title || "Nothing generated yet."}
-                </div>
+                <div className="small shellEyebrow">ROOM SUMMARY</div>
+                <div className="small mt-2"><b>Room:</b> {activeRoomMeta.label}</div>
+                <div className="small mt-2"><b>Assets:</b> {activeRoomAssets.length}</div>
+                <div className="small mt-2"><b>Latest:</b> {activeRoomAssets[0]?.title || "None yet"}</div>
+                <div className="small mt-2"><b>Updated:</b> {activeRoomAssets[0] ? new Date(activeRoomAssets[0].ts).toLocaleString() : "â€”"}</div>
               </div>
             </div>
 
+            <div className="card softCard mt-3">
+              <div className="small shellEyebrow">{activeRoomMeta.label.toUpperCase()} ASSETS</div>
+
+              <div className="row wrap mt-3">
+                <button className={`tabBtn ${assetViewMode === "latest" ? "active" : ""}`} onClick={() => setAssetViewMode("latest")}>
+                  Latest only
+                </button>
+                <button className={`tabBtn ${assetViewMode === "all" ? "active" : ""}`} onClick={() => setAssetViewMode("all")}>
+                  All
+                </button>
+                <select
+                  className="input"
+                  value={assetFilterKind}
+                  onChange={(e) => setAssetFilterKind(e.target.value)}
+                  style={{ minWidth: 180 }}
+                >
+                  <option value="all">All asset types</option>
+                  {filteredAssetKinds.map((kind) => (
+                    <option key={kind} value={kind}>{kind}</option>
+                  ))}
+                </select>
+              </div>
+
+              {!filteredRoomAssets.length ? (
+                <div className="small mt-3">No assets yet for this room. Generate the full pipeline or regenerate this room.</div>
+              ) : (
+                <div className="mt-3" style={{ display: "grid", gap: 12 }}>
+                  {filteredRoomAssets.map((asset, idx) => {
+                    const collapsed = collapsedAssetIds[asset.id] ?? idx > 1;
+                    return (
+                      <div key={asset.id} className="card softCard">
+                        <div className="cluster wrap spread">
+                          <div>
+                            <div className="small shellEyebrow">{asset.kind}</div>
+                            <div className="small mt-2"><b>{asset.title}</b></div>
+                            <div className="small mt-2">{new Date(asset.ts).toLocaleString()}</div>
+                          </div>
+                          <button className="tabBtn" onClick={() => toggleAssetCollapse(asset.id)}>
+                            {collapsed ? "Expand" : "Collapse"}
+                          </button>
+                        </div>
+
+                        {!collapsed ? (
+                          <pre
+                            className="writersPlannerPreview"
+                            style={{
+                              whiteSpace: "pre-wrap",
+                              marginTop: 12,
+                              maxHeight: 360,
+                              overflow: "auto",
+                            }}
+                          >
+                            {asset.content}
+                          </pre>
+                        ) : null}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="card softCard mt-3">
+              <div className="small shellEyebrow">FINAL PROJECT PACKET</div>
+              <div className="sub mt-2">
+                Assemble a ready-to-copy or downloadable Studio packet from the current project state.
+              </div>
+
+              <div className="row wrap mt-3">
+                <button className="tabBtn" onClick={() => void copyPacketJson()}>Copy JSON</button>
+                <button className="tabBtn" onClick={() => void copyPacketMarkdown()}>Copy Markdown</button>
+                <button className="tabBtn" onClick={() => downloadPacketJson()}>Download .json</button>
+                <button className="tabBtn" onClick={() => downloadPacketMarkdown()}>Download .md</button>
+              </div>
+
+              <div className="small mt-3">
+                <b>Status:</b> {packetCopiedState ? `Copied ${packetCopiedState}` : "Ready"}
+              </div>
+
+              <pre
+                className="writersPlannerPreview"
+                style={{ whiteSpace: "pre-wrap", marginTop: 12, maxHeight: 360, overflow: "auto" }}
+              >
+                {finalPacket ? JSON.stringify(finalPacket, null, 2) : "No packet yet."}
+              </pre>
+            </div>
+
             {studioRoom === "render" ? (
-              <div className="card softCard mt-4">
+              <div className="card softCard mt-3">
                 <div className="small shellEyebrow">RENDER LAB</div>
                 <div className="sub mt-2">
                   Existing local render backend target stays at {activeProject.renderBaseUrl || "http://127.0.0.1:8899"}.
+                </div>
+
+                <div className="card softCard mt-3">
+                  <div className="small shellEyebrow">LATEST RENDER STATUS</div>
+                  <div className="small mt-2">
+                    {activeRenderJob
+                      ? `${activeRenderJob.status || "unknown"} â€¢ ${activeRenderJob.title || activeRenderJob.projectTitle || activeRenderJob.id}`
+                      : "No render job yet."}
+                  </div>
                 </div>
 
                 <div className="mt-3" style={{ display: "grid", gap: 10 }}>
                   <input
                     className="input"
                     value={activeProject.renderBaseUrl}
-                    onChange={(e) => updateActiveProject({ renderBaseUrl: e.target.value })}
+                    onChange={(e) =>
+                      patchActiveProject((project) => ({
+                        ...project,
+                        renderBaseUrl: e.target.value,
+                      }))
+                    }
                     placeholder="http://127.0.0.1:8899"
                   />
 
                   <div className="row wrap">
                     <button className="tabBtn active" disabled={renderBusy} onClick={() => void submitRenderJob()}>
-                      {renderBusy ? "Submitting…" : "Create render job"}
+                      {renderBusy ? "Submittingâ€¦" : "Create render from latest handoff"}
                     </button>
                     <button className="tabBtn" onClick={() => void refreshRenderJobs()}>
                       Refresh queue
@@ -876,7 +1176,7 @@ export default function Books() {
                               <div className="small shellEyebrow">{job.status || "unknown"}</div>
                               <div className="small mt-2"><b>{job.title || job.projectTitle || job.id}</b></div>
                               <div className="small mt-2">Provider: {job.provider || "local-worker"}</div>
-                              <div className="small mt-1">Progress: {job.progress ?? "—"}</div>
+                              <div className="small mt-1">Progress: {job.progress ?? "â€”"}</div>
                             </button>
                           ))}
                         </div>
@@ -892,7 +1192,7 @@ export default function Books() {
                           <div className="small mt-3"><b>{activeRenderJob.title || activeRenderJob.projectTitle || activeRenderJob.id}</b></div>
                           <div className="small mt-2">Status: <b>{activeRenderJob.status || "unknown"}</b></div>
                           <div className="small mt-1">Provider: {activeRenderJob.provider || "local-worker"}</div>
-                          <div className="small mt-1">Progress: {activeRenderJob.progress ?? "—"}</div>
+                          <div className="small mt-1">Progress: {activeRenderJob.progress ?? "â€”"}</div>
                           {activeRenderJob.workerMessage ? (
                             <div className="small mt-2">{activeRenderJob.workerMessage}</div>
                           ) : null}
@@ -903,34 +1203,6 @@ export default function Books() {
                 </div>
               </div>
             ) : null}
-
-            <div className="card softCard mt-4">
-              <div className="small shellEyebrow">{activeRoomMeta.label.toUpperCase()} ASSETS</div>
-              {!activeRoomAssets.length ? (
-                <div className="small mt-3">No assets yet for this room. Generate the full pipeline or regenerate this room.</div>
-              ) : (
-                <div className="mt-3" style={{ display: "grid", gap: 12 }}>
-                  {activeRoomAssets.map((asset) => (
-                    <div key={asset.id} className="card softCard">
-                      <div className="small shellEyebrow">{asset.kind}</div>
-                      <div className="small mt-2"><b>{asset.title}</b></div>
-                      <div className="small mt-2">{new Date(asset.ts).toLocaleString()}</div>
-                      <pre
-                        className="writersPlannerPreview"
-                        style={{
-                          whiteSpace: "pre-wrap",
-                          marginTop: 12,
-                          maxHeight: 360,
-                          overflow: "auto",
-                        }}
-                      >
-                        {asset.content}
-                      </pre>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </div>
