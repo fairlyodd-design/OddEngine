@@ -3,6 +3,14 @@ import { PanelHeader } from "../components/PanelHeader";
 import CardFrame from "../components/CardFrame";
 import { loadJSON, saveJSON } from "../lib/storage";
 import { oddApi, isDesktop } from "../lib/odd";
+import {
+  createRenderJob,
+  getRenderJob,
+  getRenderJobs,
+  importRenderOutput,
+  markRenderWatched,
+  type RenderJob,
+} from "../lib/renderWorkerBridge";
 
 type Chapter = {
   title: string;
@@ -1212,9 +1220,14 @@ export default function Books({ onNavigate }: { onNavigate: (panelId: string) =>
   const [renderFormat, setRenderFormat] = useState<string>(() => loadJSON<string>(KEY_RENDER_FORMAT, "mp4"));
   const [renderFps, setRenderFps] = useState<string>(() => loadJSON<string>(KEY_RENDER_FPS, "24 fps"));
   const [renderResolution, setRenderResolution] = useState<string>(() => loadJSON<string>(KEY_RENDER_RESOLUTION, "1080p"));
-  const [renderBaseUrl, setRenderBaseUrl] = useState<string>(() => loadJSON<string>(KEY_RENDER_BASE, "http://127.0.0.1:3000/render"));
+  const [renderBaseUrl, setRenderBaseUrl] = useState<string>(() => loadJSON<string>(KEY_RENDER_BASE, "http://127.0.0.1:8899"));
   const [renderJobMode, setRenderJobMode] = useState<string>(() => loadJSON<string>(KEY_RENDER_JOB_MODE, "Internal job builder"));
   const [renderPreviewUrl, setRenderPreviewUrl] = useState<string>(() => loadJSON<string>(KEY_RENDER_PREVIEW, ""));
+  const [renderJobs, setRenderJobs] = useState<RenderJob[]>([]);
+  const [activeRenderJobId, setActiveRenderJobId] = useState<string>("");
+  const [renderBusy, setRenderBusy] = useState(false);
+  const [renderError, setRenderError] = useState<string>("");
+  const [lastRenderSyncAt, setLastRenderSyncAt] = useState<number>(0);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   const systemPrompt = useMemo(() => {
@@ -1258,6 +1271,19 @@ export default function Books({ onNavigate }: { onNavigate: (panelId: string) =>
   useEffect(() => { saveJSON(KEY_RENDER_BASE, renderBaseUrl); }, [renderBaseUrl]);
   useEffect(() => { saveJSON(KEY_RENDER_JOB_MODE, renderJobMode); }, [renderJobMode]);
   useEffect(() => { saveJSON(KEY_RENDER_PREVIEW, renderPreviewUrl); }, [renderPreviewUrl]);
+
+  useEffect(() => {
+    if (!renderBaseUrl) return;
+    void refreshRenderJobs();
+  }, [renderBaseUrl]);
+
+  useEffect(() => {
+    if (!renderBaseUrl || !activeRenderJobId) return;
+    const timer = window.setInterval(() => {
+      void syncActiveRenderJob();
+    }, 3000);
+    return () => window.clearInterval(timer);
+  }, [renderBaseUrl, activeRenderJobId]);
 
   useEffect(() => {
     saveJSON(KEY_CHAT, chat);
@@ -1414,6 +1440,147 @@ export default function Books({ onNavigate }: { onNavigate: (panelId: string) =>
       window.dispatchEvent(new CustomEvent("oddengine:toast", { detail: { kind: "ok", text: "Copied chapter markdown." } }));
     } catch {
       // ignore
+    }
+  };
+
+  const refreshRenderJobs = async () => {
+    if (!renderBaseUrl) return;
+    try {
+      const res = await getRenderJobs(renderBaseUrl);
+      const jobs = res.jobs || [];
+      setRenderJobs(jobs);
+      setLastRenderSyncAt(Date.now());
+      if (!activeRenderJobId && jobs[0]?.id) {
+        setActiveRenderJobId(jobs[0].id);
+      }
+    } catch (err: any) {
+      setRenderError(err?.message || String(err));
+    }
+  };
+
+  const activeRenderJob = useMemo(
+    () => renderJobs.find((job) => job.id === activeRenderJobId) || renderJobs[0] || null,
+    [renderJobs, activeRenderJobId]
+  );
+
+  const submitRenderJob = async () => {
+    if (!renderBaseUrl) {
+      setRenderError("Set the render backend base URL first.");
+      return;
+    }
+
+    setRenderBusy(true);
+    setRenderError("");
+
+    try {
+      let parsedPayload: Record<string, unknown> | null = null;
+      try {
+        parsedPayload = JSON.parse(internalRenderJobJson);
+      } catch {
+        parsedPayload = null;
+      }
+
+      const title = active?.title || studioPrompt || "Untitled render";
+
+      const res = await createRenderJob({
+        baseUrl: renderBaseUrl,
+        projectTitle: title,
+        title,
+        kind: "video",
+        prompt: studioPrompt || active?.logline || "",
+        provider: renderProvider,
+        productionType,
+        visualStyle,
+        releaseTarget,
+        format: renderFormat,
+        fps: renderFps,
+        resolution: renderResolution,
+        storyboardSummary: latestStoryboardAsset?.content || "",
+        assetIds: studioAssets.map((asset) => asset.id),
+        handoff: {
+          finalAssemblyManifest,
+          externalVideoToolHandoff,
+          watchDeckManifest,
+        },
+        promptPack: parsedPayload,
+        payload: parsedPayload || {
+          finalAssemblyManifest,
+          externalVideoToolHandoff,
+          watchDeckManifest,
+        },
+      });
+
+      setActiveRenderJobId(res.job.id);
+      setRenderJobs((prev) => [res.job, ...prev.filter((job) => job.id !== res.job.id)]);
+      saveComputedAsset(
+        "renderJob",
+        `Render Job � ${res.job.title || res.job.projectTitle || title}`,
+        JSON.stringify(res.job, null, 2)
+      );
+      await refreshRenderJobs();
+    } catch (err: any) {
+      setRenderError(err?.message || String(err));
+    } finally {
+      setRenderBusy(false);
+    }
+  };
+
+  const syncActiveRenderJob = async () => {
+    if (!renderBaseUrl || !activeRenderJobId) return;
+    try {
+      const res = await getRenderJob(renderBaseUrl, activeRenderJobId);
+      setRenderJobs((prev) => [res.job, ...prev.filter((job) => job.id !== res.job.id)]);
+      setLastRenderSyncAt(Date.now());
+
+      const preview =
+        res.job.output?.previewUrl ||
+        res.job.output?.localPath ||
+        "";
+
+      if (preview && !renderPreviewUrl) {
+        setRenderPreviewUrl(preview);
+      }
+    } catch (err: any) {
+      setRenderError(err?.message || String(err));
+    }
+  };
+
+  const runImportCompletedRender = async () => {
+    if (!renderBaseUrl || !activeRenderJobId) return;
+    setRenderBusy(true);
+    setRenderError("");
+    try {
+      const res = await importRenderOutput(renderBaseUrl, activeRenderJobId, "OddEngine Render Lab", false);
+      setRenderJobs((prev) => [res.job, ...prev.filter((job) => job.id !== res.job.id)]);
+      saveComputedAsset(
+        "renderJob",
+        `Imported Render � ${res.job.title || res.job.projectTitle || active?.title || "Untitled"}`,
+        JSON.stringify(res.job, null, 2)
+      );
+      if (res.job.output?.previewUrl) {
+        setRenderPreviewUrl(res.job.output.previewUrl);
+      }
+    } catch (err: any) {
+      setRenderError(err?.message || String(err));
+    } finally {
+      setRenderBusy(false);
+    }
+  };
+
+  const runWatchCompletedRender = async () => {
+    if (!renderBaseUrl || !activeRenderJobId) return;
+    setRenderBusy(true);
+    setRenderError("");
+    try {
+      const res = await markRenderWatched(renderBaseUrl, activeRenderJobId);
+      setRenderJobs((prev) => [res.job, ...prev.filter((job) => job.id !== res.job.id)]);
+      if (res.job.output?.previewUrl) {
+        setRenderPreviewUrl(res.job.output.previewUrl);
+      }
+    } catch (err: any) {
+      setRenderError(err?.message || String(err));
+    } finally {
+      setRenderBusy(false);
     }
   };
 
@@ -2175,6 +2342,87 @@ Generate an art prompt pack from a saved asset to populate this export.`;
                     ))}
                   </select>
                   <input className="input" style={{ flex: 1, minWidth: 260 }} value={renderPreviewUrl} onChange={(e) => setRenderPreviewUrl(e.target.value)} placeholder="Paste a finished video URL or local file URL for in-panel preview" />
+                </div>
+              </div>
+
+              <div className="card softCard mt-4">
+                <div className="cluster wrap spread">
+                  <div>
+                    <div className="small shellEyebrow">RENDER WORKER BRIDGE</div>
+                    <div className="sub mt-2">POST /render/jobs, queue polling, completed output import, and watch flow against the local render backend.</div>
+                  </div>
+                  <div className="row wrap">
+                    <button className="tabBtn active" disabled={renderBusy} onClick={() => void submitRenderJob()}>
+                      {renderBusy ? "Submitting�" : "Create render job"}
+                    </button>
+                    <button className="tabBtn" onClick={() => void refreshRenderJobs()}>Refresh queue</button>
+                    <button className="tabBtn" onClick={() => void syncActiveRenderJob()} disabled={!activeRenderJobId}>Poll active</button>
+                  </div>
+                </div>
+
+                <div className="row wrap mt-3" style={{ gap: 10 }}>
+                  <input
+                    className="input"
+                    style={{ flex: 1, minWidth: 260 }}
+                    value={renderBaseUrl}
+                    onChange={(e) => setRenderBaseUrl(e.target.value)}
+                    placeholder="http://127.0.0.1:8899"
+                  />
+                </div>
+
+                {renderError ? <div className="note mt-3">{renderError}</div> : null}
+
+                <div className="writersDocPreviewGrid mt-4">
+                  <div className="card softCard">
+                    <div className="small shellEyebrow">LOCAL RENDER QUEUE</div>
+                    <div className="small mt-2">
+                      {lastRenderSyncAt ? `Last sync: ${new Date(lastRenderSyncAt).toLocaleTimeString()}` : "No sync yet"}
+                    </div>
+                    {!renderJobs.length ? (
+                      <div className="small mt-3">No render jobs yet.</div>
+                    ) : (
+                      <div className="mt-3" style={{ display: "grid", gap: 10 }}>
+                        {renderJobs.slice(0, 8).map((job) => (
+                          <button
+                            key={job.id}
+                            className="writersProducerCard"
+                            style={{ textAlign: "left", border: activeRenderJobId === job.id ? "1px solid rgba(255,255,255,0.25)" : undefined }}
+                            onClick={() => setActiveRenderJobId(job.id)}
+                          >
+                            <div className="small shellEyebrow">{job.status || "unknown"}</div>
+                            <div className="small"><b>{job.title || job.projectTitle || job.id}</b></div>
+                            <div className="small mt-2">Provider: {job.provider || "local-worker"}</div>
+                            <div className="small">Progress: {job.progress ?? "�"}</div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="card softCard">
+                    <div className="small shellEyebrow">ACTIVE JOB</div>
+                    {!activeRenderJob ? (
+                      <div className="small mt-3">Select a render job from the queue.</div>
+                    ) : (
+                      <>
+                        <div className="small mt-3"><b>{activeRenderJob.title || activeRenderJob.projectTitle || activeRenderJob.id}</b></div>
+                        <div className="small mt-2">Status: <b>{activeRenderJob.status || "unknown"}</b></div>
+                        <div className="small">Provider: <b>{activeRenderJob.provider || "local-worker"}</b></div>
+                        <div className="small">Progress: <b>{activeRenderJob.progress ?? "�"}</b></div>
+                        {activeRenderJob.workerMessage ? (
+                          <div className="small mt-2">{activeRenderJob.workerMessage}</div>
+                        ) : null}
+                        <div className="row wrap mt-4">
+                          <button className="tabBtn" disabled={renderBusy} onClick={() => void runImportCompletedRender()}>
+                            Import completed
+                          </button>
+                          <button className="tabBtn" disabled={renderBusy} onClick={() => void runWatchCompletedRender()}>
+                            Watch completed
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
 
