@@ -17,13 +17,24 @@ export type StudioRoomKey =
 export type StudioAssetKind =
   | "story"
   | "song"
+  | "character"
   | "storyboard"
+  | "cartoonBible"
+  | "videoTreatment"
   | "shotList"
   | "productionPack"
+  | "featureOutline"
+  | "episodeGuide"
+  | "animationPlan"
+  | "castingPack"
+  | "artPromptPack"
   | "productionRunbook"
+  | "pitchDeck"
   | "oneSheet"
+  | "trailerBrief"
   | "renderHandoff"
-  | "screeningPacket";
+  | "screeningPacket"
+  | "renderJob";
 
 export type StudioAsset = {
   id: string;
@@ -53,6 +64,31 @@ export type StudioAutomationOutput = {
   ops: StudioAsset[];
 };
 
+export type FinalProjectPacket = {
+  title: string;
+  projectType: StudioProjectType;
+  productionType: string;
+  visualStyle: string;
+  releaseTarget: string;
+  budgetBand: string;
+  scopeLevel: string;
+  masterPrompt: string;
+  generatedAt: number;
+  rooms: {
+    home: StudioAsset[];
+    writing: StudioAsset[];
+    director: StudioAsset[];
+    music: StudioAsset[];
+    render: StudioAsset[];
+    ops: StudioAsset[];
+  };
+  summary: {
+    totalAssets: number;
+    latestByRoom: Record<string, string | null>;
+    missingRooms: StudioRoomKey[];
+  };
+};
+
 function uid() {
   return `studio_${Math.random().toString(36).slice(2, 10)}_${Date.now().toString(36)}`;
 }
@@ -61,20 +97,18 @@ function clean(text: string) {
   return String(text || "").trim().replace(/\s+/g, " ");
 }
 
-function titleFromPrompt(prompt: string, fallback = "Untitled Studio Project") {
+export function titleFromPrompt(prompt: string, fallback = "Untitled Studio Project") {
   const text = clean(prompt);
   if (!text) return fallback;
-  const words = text.split(" ").slice(0, 8).join(" ");
-  return words.replace(/[.,:;!?]+$/g, "");
+  return text.split(" ").slice(0, 8).join(" ").replace(/[.,:;!?]+$/g, "");
 }
 
 export function inferStudioProjectType(writerMode: string): StudioProjectType {
   const value = String(writerMode || "").toLowerCase();
   if (value === "song") return "song";
-  if (value === "story") return "book";
   if (value === "cartoon") return "cartoon";
   if (value === "video" || value === "movie") return "video";
-  return "other";
+  return "book";
 }
 
 export function mapProjectTypeToProductionType(projectType: StudioProjectType) {
@@ -91,6 +125,25 @@ export function mapProjectTypeToProductionType(projectType: StudioProjectType) {
       return "Music Video";
     default:
       return "Story";
+  }
+}
+
+export function getRoomKinds(room: StudioRoomKey): StudioAssetKind[] {
+  switch (room) {
+    case "home":
+      return ["oneSheet"];
+    case "writing":
+      return ["story", "song"];
+    case "director":
+      return ["storyboard", "shotList", "videoTreatment", "featureOutline"];
+    case "music":
+      return ["productionPack", "song"];
+    case "render":
+      return ["renderHandoff", "renderJob"];
+    case "ops":
+      return ["productionRunbook", "screeningPacket", "oneSheet"];
+    default:
+      return [];
   }
 }
 
@@ -169,7 +222,7 @@ function buildHome(input: StudioAutomationInput): StudioAsset[] {
     `Give the audience one clean reason to care immediately, one emotional turn in the middle, and one strong ending image or feeling to leave with.`,
   ].join("\n");
 
-  return [createAsset("oneSheet", `Studio Brief • ${title}`, content)];
+  return [createAsset("oneSheet", `Studio Brief â€¢ ${title}`, content)];
 }
 
 function buildWriting(input: StudioAutomationInput): StudioAsset[] {
@@ -207,7 +260,7 @@ function buildWriting(input: StudioAutomationInput): StudioAsset[] {
       `- Build toward a final line that feels like closure.`,
     ].join("\n");
 
-    return [createAsset("song", `Song Draft • ${title}`, content)];
+    return [createAsset("song", `Song Draft â€¢ ${title}`, content)];
   }
 
   const content = [
@@ -233,14 +286,14 @@ function buildWriting(input: StudioAutomationInput): StudioAsset[] {
     `- Release-minded finish: ${input.releaseTarget}`,
   ].join("\n");
 
-  return [createAsset("story", `Writing Draft • ${title}`, content)];
+  return [createAsset("story", `Writing Draft â€¢ ${title}`, content)];
 }
 
 function buildDirector(input: StudioAutomationInput): StudioAsset[] {
   const title = titleFromPrompt(input.masterPrompt);
 
   const storyboard = [
-    `# ${title} — Storyboard Beats`,
+    `# ${title} â€” Storyboard Beats`,
     ``,
     `1. Opening hook image`,
     `2. Character / idea reveal`,
@@ -256,7 +309,7 @@ function buildDirector(input: StudioAutomationInput): StudioAsset[] {
   ].join("\n");
 
   const shotList = [
-    `# ${title} — Shot List`,
+    `# ${title} â€” Shot List`,
     ``,
     `- Wide establishing frame`,
     `- Medium character/action frame`,
@@ -272,8 +325,8 @@ function buildDirector(input: StudioAutomationInput): StudioAsset[] {
   ].join("\n");
 
   return [
-    createAsset("storyboard", `Storyboard • ${title}`, storyboard),
-    createAsset("shotList", `Shot List • ${title}`, shotList),
+    createAsset("storyboard", `Storyboard â€¢ ${title}`, storyboard),
+    createAsset("shotList", `Shot List â€¢ ${title}`, shotList),
   ];
 }
 
@@ -281,7 +334,7 @@ function buildMusic(input: StudioAutomationInput): StudioAsset[] {
   const title = titleFromPrompt(input.masterPrompt);
 
   const content = [
-    `# ${title} — Music Lab`,
+    `# ${title} â€” Music Lab`,
     ``,
     `## Sonic Direction`,
     `- Overall feeling: ${input.visualStyle}`,
@@ -300,7 +353,7 @@ function buildMusic(input: StudioAutomationInput): StudioAsset[] {
     `- Leave room for dialogue or visual emphasis when needed`,
   ].join("\n");
 
-  return [createAsset("productionPack", `Music Direction • ${title}`, content)];
+  return [createAsset("productionPack", `Music Direction â€¢ ${title}`, content)];
 }
 
 function buildRender(input: StudioAutomationInput): StudioAsset[] {
@@ -324,14 +377,14 @@ function buildRender(input: StudioAutomationInput): StudioAsset[] {
     `}`,
   ].join("\n");
 
-  return [createAsset("renderHandoff", `Render Handoff • ${title}`, content)];
+  return [createAsset("renderHandoff", `Render Handoff â€¢ ${title}`, content)];
 }
 
 function buildOps(input: StudioAutomationInput): StudioAsset[] {
   const title = titleFromPrompt(input.masterPrompt);
 
   const runbook = [
-    `# ${title} — Producer Ops Runbook`,
+    `# ${title} â€” Producer Ops Runbook`,
     ``,
     `## Deliverables`,
     `- Concept brief`,
@@ -351,7 +404,7 @@ function buildOps(input: StudioAutomationInput): StudioAsset[] {
   ].join("\n");
 
   const screening = [
-    `# ${title} — Review / Screening Packet`,
+    `# ${title} â€” Review / Screening Packet`,
     ``,
     `## Review Lens`,
     `- Is the concept easy to explain?`,
@@ -360,12 +413,12 @@ function buildOps(input: StudioAutomationInput): StudioAsset[] {
     `- Does the project feel shippable, not just brainstormed?`,
     ``,
     `## Final Output Goal`,
-    `Prompt in ? project packet out with writing, directing, music, render, and producer readiness all visible in one place.`,
+    `Prompt in â†’ project packet out with writing, directing, music, render, and producer readiness all visible in one place.`,
   ].join("\n");
 
   return [
-    createAsset("productionRunbook", `Producer Runbook • ${title}`, runbook),
-    createAsset("screeningPacket", `Screening Packet • ${title}`, screening),
+    createAsset("productionRunbook", `Producer Runbook â€¢ ${title}`, runbook),
+    createAsset("screeningPacket", `Screening Packet â€¢ ${title}`, screening),
   ];
 }
 
@@ -402,4 +455,140 @@ export function generateFullStudioPipeline(
     render: buildRender(input),
     ops: buildOps(input),
   };
+}
+
+function newestFirst<T extends { ts?: number }>(items: T[]) {
+  return [...items].sort((a, b) => Number(b.ts || 0) - Number(a.ts || 0));
+}
+
+export function splitAssetsByRoom(assets: StudioAsset[]): FinalProjectPacket["rooms"] {
+  const newest = newestFirst(assets);
+  return {
+    home: newest.filter((asset) => getRoomKinds("home").includes(asset.kind)),
+    writing: newest.filter((asset) => getRoomKinds("writing").includes(asset.kind)),
+    director: newest.filter((asset) => getRoomKinds("director").includes(asset.kind)),
+    music: newest.filter((asset) => getRoomKinds("music").includes(asset.kind)),
+    render: newest.filter((asset) => getRoomKinds("render").includes(asset.kind)),
+    ops: newest.filter((asset) => getRoomKinds("ops").includes(asset.kind)),
+  };
+}
+
+export function getMissingRooms(assets: StudioAsset[]): StudioRoomKey[] {
+  const rooms = splitAssetsByRoom(assets);
+  const order: StudioRoomKey[] = ["home", "writing", "director", "music", "render", "ops"];
+  return order.filter((room) => rooms[room].length === 0);
+}
+
+export function flattenRoomAssets(packet: StudioAutomationOutput): StudioAsset[] {
+  return newestFirst([
+    ...packet.home,
+    ...packet.writing,
+    ...packet.director,
+    ...packet.music,
+    ...packet.render,
+    ...packet.ops,
+  ]);
+}
+
+export function assembleFinalProjectPacket(input: StudioAutomationInput): FinalProjectPacket {
+  const rooms = input.existingAssets?.length
+    ? splitAssetsByRoom(input.existingAssets)
+    : generateFullStudioPipeline(input);
+
+  const latestByRoom: Record<string, string | null> = {
+    home: rooms.home[0]?.title || null,
+    writing: rooms.writing[0]?.title || null,
+    director: rooms.director[0]?.title || null,
+    music: rooms.music[0]?.title || null,
+    render: rooms.render[0]?.title || null,
+    ops: rooms.ops[0]?.title || null,
+  };
+
+  const assetsFlat = [
+    ...rooms.home,
+    ...rooms.writing,
+    ...rooms.director,
+    ...rooms.music,
+    ...rooms.render,
+    ...rooms.ops,
+  ];
+
+  return {
+    title: titleFromPrompt(input.masterPrompt),
+    projectType: input.projectType,
+    productionType: input.productionType,
+    visualStyle: input.visualStyle,
+    releaseTarget: input.releaseTarget,
+    budgetBand: input.budgetBand,
+    scopeLevel: input.scopeLevel,
+    masterPrompt: input.masterPrompt,
+    generatedAt: Date.now(),
+    rooms,
+    summary: {
+      totalAssets: assetsFlat.length,
+      latestByRoom,
+      missingRooms: getMissingRooms(assetsFlat),
+    },
+  };
+}
+
+export function finalProjectPacketToMarkdown(packet: FinalProjectPacket): string {
+  const roomOrder: StudioRoomKey[] = ["home", "writing", "director", "music", "render", "ops"];
+  const roomLabels: Record<StudioRoomKey, string> = {
+    home: "Studio Home",
+    writing: "Writing Room",
+    director: "Director Room",
+    music: "Music Lab",
+    render: "Render Lab",
+    ops: "Producer Ops",
+  };
+
+  const lines: string[] = [
+    `# ${packet.title}`,
+    ``,
+    `## Summary`,
+    `- Project type: ${packet.projectType}`,
+    `- Production type: ${packet.productionType}`,
+    `- Visual style: ${packet.visualStyle}`,
+    `- Release target: ${packet.releaseTarget}`,
+    `- Budget band: ${packet.budgetBand}`,
+    `- Scope level: ${packet.scopeLevel}`,
+    `- Total assets: ${packet.summary.totalAssets}`,
+    `- Missing rooms: ${packet.summary.missingRooms.length ? packet.summary.missingRooms.join(", ") : "none"}`,
+    ``,
+    `## Master Prompt`,
+    packet.masterPrompt || "No prompt supplied.",
+    ``,
+  ];
+
+  for (const room of roomOrder) {
+    lines.push(`## ${roomLabels[room]}`);
+    const assets = packet.rooms[room];
+    if (!assets.length) {
+      lines.push(`No assets yet.`, ``);
+      continue;
+    }
+    for (const asset of assets) {
+      lines.push(`### ${asset.title}`);
+      lines.push(`- Kind: ${asset.kind}`);
+      lines.push(`- Timestamp: ${new Date(asset.ts).toLocaleString()}`);
+      lines.push(``);
+      lines.push(asset.content);
+      lines.push(``);
+    }
+  }
+
+  return lines.join("\n");
+}
+
+export function downloadTextFile(filename: string, text: string, mime = "text/plain") {
+  const blob = new Blob([text], { type: mime });
+  const href = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = href;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(href);
 }

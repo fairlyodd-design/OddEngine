@@ -303,7 +303,7 @@ export default function Calendar({ onNavigate }: { onNavigate?: (id: string) => 
                 <div className="small">Selected day</div>
                 <div className="h mt-1">{selected}</div>
               </div>
-              <div className="row wrap">
+              <div className="row wrap" style={{ gap: 10 }}>
                 <button className="tabBtn" onClick={() => openNew(selected)}>+ Add</button>
                 <button className="tabBtn" onClick={() => { setSelected(todayStr); setCursor(startOfMonth(new Date())); }}>Jump to today</button>
               </div>
@@ -324,7 +324,7 @@ export default function Calendar({ onNavigate }: { onNavigate?: (id: string) => 
                         {ev.notes && <div className="small mt-2" style={{ opacity: 0.9 }}>{ev.notes}</div>}
                         {ev.panelId && <div className="small mt-2" style={{ opacity: 0.85 }}>Panel link: <b>{ev.panelId}</b></div>}
                       </div>
-                      <div className="row wrap">
+                      <div className="row wrap" style={{ gap: 10 }}>
                         {ev.panelId && !!onNavigate && (
                           <button className="tabBtn" onClick={() => onNavigate(normalizePanelId(ev.panelId || ""))}>Open panel</button>
                         )}

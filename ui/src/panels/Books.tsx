@@ -795,6 +795,11 @@ export default function Books() {
                       project.id === activeProject.id
                         ? "1px solid rgba(255,255,255,0.28)"
                         : "1px solid transparent",
+                    padding: 12,
+                    minHeight: 96,
+                    display: "grid",
+                    alignContent: "start",
+                    gap: 6,
                   }}
                   onClick={() => setActiveId(project.id)}
                 >
@@ -829,7 +834,7 @@ export default function Books() {
 
         <div style={{ display: "grid", gap: 12 }}>
           <div className="card softCard">
-            <div className="row wrap">
+            <div className="row wrap" style={{ gap: 10 }}>
               {ROOM_META.map((room) => (
                 <button
                   key={room.key}
@@ -994,7 +999,12 @@ export default function Books() {
               </div>
             </div>
 
-            <div className="mt-3" style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
+            <div className="mt-3" style={{
+    display: "grid",
+    gap: 12,
+    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+    alignItems: "start",
+  }}>
               <div className="card softCard">
                 <div className="small shellEyebrow">PROJECT CORE</div>
                 <div className="small mt-2"><b>Title:</b> {activeProject.title}</div>
@@ -1129,7 +1139,7 @@ export default function Books() {
                     placeholder="http://127.0.0.1:8899"
                   />
 
-                  <div className="row wrap">
+                  <div className="row wrap" style={{ gap: 10 }}>
                     <button className="tabBtn active" disabled={renderBusy} onClick={() => void submitRenderJob()}>
                       {renderBusy ? "Submitting…" : "Create render from latest handoff"}
                     </button>
@@ -1153,7 +1163,12 @@ export default function Books() {
                     <b>Last sync:</b> {lastRenderSyncAt ? new Date(lastRenderSyncAt).toLocaleString() : "No sync yet"}
                   </div>
 
-                  <div style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
+                  <div style={{
+    display: "grid",
+    gap: 12,
+    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+    alignItems: "start",
+  }}>
                     <div className="card softCard">
                       <div className="small shellEyebrow">QUEUE</div>
                       {!renderJobs.length ? (

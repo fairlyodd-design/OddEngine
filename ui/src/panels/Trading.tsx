@@ -956,7 +956,7 @@ function ContractDrawer({
               <div className="drawerStat"><span className="small">OSI</span><b style={{ fontSize: 12 }}>{contract.osiSymbol || "—"}</b></div>
             </div>
             <div className="small">Feed updated: {formatTimestamp(chain?.feedUpdated)}</div>
-            <div className="row wrap">
+            <div className="row wrap" style={{ gap: 10 }}>
               <button onClick={onFetchGreeks}>Refresh greeks</button>
               <button onClick={onOpenPublic}>Open on Public</button>
             </div>
@@ -979,7 +979,7 @@ function ContractDrawer({
               <div className="small"><b>Quick read:</b></div>
               <div className="small mt-2">Δ tells you directional sensitivity. Γ tells you how fast delta changes. Θ is daily decay pressure. V shows sensitivity to IV change. ρ is usually minor for short-dated contracts. IV spikes can juice premium even if price stalls.</div>
             </div>
-            <div className="row wrap">
+            <div className="row wrap" style={{ gap: 10 }}>
               <span className="badge">Δ {formatGreek(greeks.delta)}</span>
               <span className="badge">Γ {formatGreek(greeks.gamma)}</span>
               <span className="badge">Θ {formatGreek(greeks.theta)}</span>
@@ -1717,7 +1717,7 @@ export default function Trading() {
           {!chain && <div className="small mt-3">No chain loaded yet. Hit <b>Scan symbol</b> to pull Public chain data into charts and the contracts table.</div>}
           {chain && (
             <div className="grid mt-4">
-              <div className="row wrap">
+              <div className="row wrap" style={{ gap: 10 }}>
                 <span className="badge good">{chain.symbol}</span>
                 {chain.companyName && <span className="badge">{chain.companyName}</span>}
                 {chain.spot !== null && <span className="badge warn">Spot {formatMoney(chain.spot)}</span>}
