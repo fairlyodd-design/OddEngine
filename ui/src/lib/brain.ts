@@ -172,7 +172,7 @@ export const PANEL_META: PanelMeta[] = [
   { id:"GroceryMeals", icon:"🛒", title:"Grocery Meals", sub:"Meal planning + coupon lane", section:"CORE PANELS", assistantName:"Savings Chef", assistantRole:"Meal planner + grocery savings helper", description:"Turns meal plans into grocery lists and keeps a live coupon lane open.", quickPrompts:["Build a cheaper weekly meal plan.","What should I buy this week?","How can I save more on groceries?"], storageKeys:["oddengine:groceryMeals:v1"], nextSteps:["Plan meals first.","Use pantry-aware lists.","Refresh the coupon lane before shopping."], quickActionIds:["grocery:build-list","grocery:coupon-lane"], actions:[{ id:"brain", label:"Open Brain", kind:"navigate", panelId:"Brain" }] },
   { id:"DailyChores", icon:"🧹", title:"Daily Chores", sub:"Household + outdoor + animals", section:"CORE PANELS", assistantName:"House Ops", assistantRole:"Daily task coordinator", description:"Keeps house, outdoor, and animal care tasks in one calm command center.", quickPrompts:["What chores matter most today?","Build me a quick house reset list.","What animal care tasks are still open?"], storageKeys:["oddengine:dailyChores:v1"], nextSteps:["Start with the house reset lane.","Handle outdoor checks before evening.","Close animal care tasks before end of day."], actions:[{ id:"home", label:"Open Home", kind:"navigate", panelId:"Home" }] },
   { id:"Entertainment", icon:"🎬", title:"Family Entertainment", sub:"Music + movies + streaming", section:"CORE PANELS", assistantName:"Entertainment DJ", assistantRole:"Family music/movie launcher", description:"Keeps your streaming services one click away and opens playback in a separate window.", quickPrompts:["Open our music.","Put on a movie.","Add a new streaming service."], storageKeys:["oddengine:entertainment:v1"], nextSteps:["Keep your services list updated.","Flip DRM services to External if playback fails.","Use this panel for family night quick launches."], quickActionIds:["entertainment:open-spotify","entertainment:open-youtube","entertainment:open-netflix"], actions:[{ id:"homie", label:"Open Homie", kind:"navigate", panelId:"Homie" }] },
-  { id:"Books", icon:"✍️", title:"Writers Lounge", sub:"Books vault + AI writing assistant", section:"CORE PANELS", assistantName:"Homie (Writer)", assistantRole:"Creative co-writer + ship coach", description:"A creator studio for your books: chapters, drafts, notes, plus an embedded AI writing assistant (local-first).", quickPrompts:["Start a new book idea.","Outline my next chapter (3 options).","Write the next scene with a strong hook."], storageKeys:["oddengine:books:v1","oddengine:writers:chat:v1"], nextSteps:["Schedule 30-min writing blocks in Calendar.","Keep chapters short and punchy.","Use AI to generate options, then pick the best and polish."], quickActionIds:["books:add","books:copy-active"], actions:[{ id:"homie", label:"Open Homie", kind:"navigate", panelId:"Homie" },{ id:"calendar", label:"Open Calendar", kind:"navigate", panelId:"Calendar" }] },
+  { id:"Books", icon:"✍️", title:"Studio", sub:"AI creation pipeline + working copies", section:"CORE PANELS", assistantName:"Homie (Studio)", assistantRole:"Prompt-to-project creative operator", description:"FairlyOdd Studio inside the larger FairlyOdd OS: one prompt into songs, books, cartoons, videos, render jobs, and producer-ready working packets.", quickPrompts:["Start a new studio project from one prompt.","Turn this idea into a finished creative pipeline.","Build writing, director, music, and render lanes for this concept."], storageKeys:["oddengine:books:v1","oddengine:writers:chat:v1"], nextSteps:["Start from one master prompt.","Let the AI build writing, director, music, and render lanes.","Use Producer Ops to package the final working copy."], quickActionIds:["books:add","books:copy-active"], actions:[{ id:"homie", label:"Open Homie", kind:"navigate", panelId:"Homie" },{ id:"calendar", label:"Open Calendar", kind:"navigate", panelId:"Calendar" }] },
   { id:"RoutineLauncher", icon:"🚀", title:"Routine Launcher", sub:"One-button OS routines", section:"CORE PANELS", assistantName:"Routine Operator", assistantRole:"Applies global sets + launches panel sequences", description:"Applies a global layout set (like Morning Routine) and opens a chosen sequence of panels in one click.", quickPrompts:["Apply my Morning Routine.","Launch my trading-to-grow routine.","Build a new routine set."], storageKeys:["oddengine:routines:v1","oddengine:godglobalsets:v1"], nextSteps:["Save layouts into a global set.","Create a routine with a set + panel sequence.","Launch in windows for true multi-panel cockpit."], quickActionIds:["routine:apply-set","routine:launch"], actions:[{ id:"brain", label:"Open Brain", kind:"navigate", panelId:"Brain" }] },
   { id:"Calendar", icon:"📅", title:"Calendar", sub:"Schedule + reminders", section:"CORE PANELS", assistantName:"Calendar Buddy", assistantRole:"Schedule + tie-ins", description:"Month view calendar with local events and deep links into panels.", quickPrompts:["What's on today?","Add a reminder for this week.","Show upcoming events."], storageKeys:["oddengine:calendar:v1"], nextSteps:["Add key reminders (bills, routines, grow flips).","Link events to panels for one-click jumping.","Review upcoming before morning routines."], actions:[{ id:"routine", label:"Open Routine Launcher", kind:"navigate", panelId:"RoutineLauncher" }] },
   { id:"Preferences", icon:"⚙️", title:"Preferences", sub:"Defaults + saved settings", section:"OS", assistantName:"Setup Assistant", assistantRole:"Defaults + safe settings helper", description:"Explains settings and recommends better defaults for your workflow.", quickPrompts:["What settings should I tighten up?","How should I tune defaults?","What preferences are worth changing?"], storageKeys:["oddengine:prefs:v1"], nextSteps:["Use panel defaults to reduce setup friction.","Keep AI defaults consistent.","Export or screenshot your preferred config."] },
@@ -802,8 +802,8 @@ export const QUICK_ACTIONS = [
   { id: "entertainment:open-spotify", label: "Play Spotify", panelId: "Entertainment", description: "Open Spotify Web Player in a separate window." },
   { id: "entertainment:open-youtube", label: "Play YouTube", panelId: "Entertainment", description: "Open YouTube in a separate window." },
   { id: "entertainment:open-netflix", label: "Open Netflix", panelId: "Entertainment", description: "Open Netflix (external by default for DRM reliability)." },
-  { id: "books:add", label: "Add book", panelId: "Books", description: "Create a new book entry in Books Vault." },
-  { id: "books:copy-active", label: "Copy active book", panelId: "Books", description: "Copy the active book JSON to clipboard." },
+  { id: "books:add", label: "New Studio Project", panelId: "Books", description: "Create a new Studio project entry." },
+  { id: "books:copy-active", label: "Copy active project", panelId: "Books", description: "Copy the active Studio project JSON to clipboard." },
   { id: "routine:apply-set", label: "Apply routine set", panelId: "RoutineLauncher", description: "Apply a global set (like Morning Routine) across panels." },
   { id: "routine:launch", label: "Launch routine", panelId: "RoutineLauncher", description: "Launch a routine: apply set + open the chosen panel sequence." },
   { id: "panel:dev", label: "Open Dev", panelId: "DevEngine", description: "Jump to Dev Engine." },
@@ -905,14 +905,14 @@ function runSingleQuickAction(actionId: string): QuickActionResult {
       const list = loadJSON<any[]>(KEY, []);
       const book = {
         id: `b_${Math.random().toString(36).slice(2, 9)}_${Date.now().toString(36)}`,
-        title: "Untitled Book",
+        title: "Untitled Studio Project",
         status: "Idea",
         chapters: [],
         updatedAt: Date.now(),
       };
       saveJSON(KEY, [book, ...list]);
       saveJSON(ACTIVE, book.id);
-      return { ok: true, message: "Added a new book.", panelId: "Books" };
+      return { ok: true, message: "Added a new Studio project.", panelId: "Books" };
     }
 
     if (actionId === "books:copy-active") {
@@ -921,9 +921,9 @@ function runSingleQuickAction(actionId: string): QuickActionResult {
       const list = loadJSON<any[]>(KEY, []);
       const activeId = loadJSON<string>(ACTIVE, "");
       const active = list.find((b) => b.id === activeId) || list[0];
-      if (!active) return { ok: false, message: "No books found to copy.", panelId: "Books" };
+      if (!active) return { ok: false, message: "No Studio projects found to copy.", panelId: "Books" };
       try { (navigator as any)?.clipboard?.writeText(JSON.stringify(active, null, 2)); } catch {}
-      return { ok: true, message: "Copied active book JSON.", panelId: "Books" };
+      return { ok: true, message: "Copied active Studio project JSON.", panelId: "Books" };
     }
 
     if (actionId === "routine:apply-set" || actionId === "routine:launch") {
@@ -1633,3 +1633,4 @@ export function buildInboxSummary() {
     operatorFeed: buildOperatorFeed(8),
   };
 }
+
