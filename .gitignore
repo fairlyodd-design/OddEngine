@@ -5,7 +5,3 @@ ui/dist/
 *.log
 .env
 .env.*
-backend_scaffold/jobs/
-backend_scaffold/outputs/
-backend_scaffold/package-lock.json
-backend_scaffold/data/render-job.seed.json

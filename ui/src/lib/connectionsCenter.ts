@@ -185,6 +185,6 @@ export function buildConnectionsMarkdown(saved: SavedConnections) {
     lines.push("");
   }
 
-  return lines.join("
-");
+  return lines.join("\\n");
 }
+

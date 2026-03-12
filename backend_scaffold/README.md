@@ -1,45 +1,89 @@
-# OddEngine v10.24.62 — Local Render Backend Scaffold
+# Grocery Deals Proxy Scaffold
 
-This is the local backend seam for **FairlyOdd Studio / Render Lab**.
-
-It does **not** natively render full movies, cartoons, or music videos yet.
-What it does right now is give OddEngine a real local queue target so the UI can:
-
-- create render jobs
-- poll job status
-- inspect the queue
-- import finished outputs
-- hand off later to real workers/providers
-
-## Default URL
-
-`http://127.0.0.1:8899`
+This folder contains a lightweight local proxy for the OddEngine Grocery panel.
 
 ## Endpoints
 
 - `GET /health`
-- `GET /render/providers`
-- `GET /render/jobs`
-- `POST /render/jobs`
-- `GET /render/jobs/:id`
+- `GET /providers`
+- `GET /grocery/deals?q=chicken&stores=Walmart,Smith's/Kroger&provider=seed`
 
-## What happens on job creation
+## Available providers
 
-When you `POST /render/jobs`, the scaffold:
+- `seed` → local seed JSON for immediate testing
+- `mock-coupons` → mock coupon engine with stronger grocery-deal style examples
 
-1. writes a queued job JSON file under `backend_scaffold/jobs/`
-2. simulates status movement from `queued` → `processing` → `completed`
-3. writes a placeholder output file under `backend_scaffold/outputs/`
-4. returns that output path on the completed job
+## Run
 
-## Run on Windows
+```bash
+npm run grocery-proxy
+```
 
-Double-click:
+Or on Windows:
 
-`RUN_RENDER_BACKEND_WINDOWS.bat`
+```text
+RUN_GROCERY_PROXY_WINDOWS.bat
+```
 
-Or from terminal:
+## Default URL
 
-```powershell
-cd backend_scaffold
-npm run start
+```text
+http://127.0.0.1:8787
+```
+
+## Switch provider
+
+Use a query parameter from the UI or API:
+
+```text
+/grocery/deals?q=cheap%20week&stores=Walmart&provider=mock-coupons
+```
+
+Or set an environment variable before launch:
+
+```text
+GROCERY_PROXY_PROVIDER=mock-coupons
+```
+
+## Expected response shape
+
+```json
+{
+  "updatedAt": "2026-03-09T12:00:00Z",
+  "provider": "seed",
+  "providerLabel": "Seed data",
+  "stores": ["Walmart", "Smith's/Kroger"],
+  "query": "cheap week",
+  "deals": [
+    {
+      "title": "Chicken thighs digital coupon",
+      "link": "https://example.com/deal/1",
+      "source": "Smith's",
+      "publishedAt": "2026-03-09",
+      "summary": "Save $2 on family pack chicken thighs",
+      "score": 82
+    }
+  ]
+}
+```
+
+## Next upgrade path
+
+- add real provider connectors under `providers/`
+- keep the same payload contract so the UI keeps working
+- add rate limits, caching, and store-specific parsers later
+
+
+## Store starter lanes
+
+The proxy now ships with starter connectors for Walmart, Smith's/Kroger, Albertsons/Vons, Costco, Target, Amazon Fresh, and Sam's Club. These are starter connectors, not authenticated live scrapers. Use them to test the UI flow, ranking, and route logic before wiring real provider credentials or scraper logic.
+
+
+## Cannabis local proxy
+
+Run `npm run cannabis-proxy` and use `http://127.0.0.1:8797` in the Cannabis panel.
+
+Routes:
+- `GET /health`
+- `GET /cannabis/providers`
+- `GET /cannabis/deals?provider=seed-las-vegas&q=vegas`

@@ -575,7 +575,7 @@ useEffect(() => { if (!state.couponFeed.length) refreshCoupons(); }, []);
               { label: "Add grocery run", onClick: () => { const d = prompt("Date (YYYY-MM-DD)", fmtDate(new Date())); if(!d) return; addQuickEvent({ title: "Grocery run", panelId: "GroceryMeals", date: d, notes: `Basket goal: ${state.basketGoal || "—"}` }); pushNotif({ title: "Grocery", body: "Added grocery run to Calendar.", tags: ["GroceryMeals"], level: "good" as any }); } },
               { label: "Add meal prep session", onClick: () => { const d = prompt("Date (YYYY-MM-DD)", fmtDate(new Date())); if(!d) return; addQuickEvent({ title: "Meal prep", panelId: "GroceryMeals", date: d, notes: "Prep proteins + chop veg + portion snacks." }); pushNotif({ title: "Grocery", body: "Added meal prep to Calendar.", tags: ["GroceryMeals"], level: "good" as any }); } },
             ]}
-          /><div className="card softCard mt-4"><div className="small shellEyebrow">GROCERY SETUP</div><div className="small mt-2"><b>Status:</b> {grocerySetup.ready ? "Ready" : "Needs setup"}</div><div className="small mt-2"><b>Completion:</b> {grocerySetup.completionPercent}%</div><div className="small mt-2"><b>Missing:</b> {buildMissingInputsLabel(grocerySetup)}</div><div className="note mt-3">Configure grocery provider base URL, ZIP code, and optional store credentials in Preferences → Connections & Secrets Center.</div></div>
+          />
         }
       />
 
@@ -1095,3 +1095,4 @@ useEffect(() => { if (!state.couponFeed.length) refreshCoupons(); }, []);
     </div>
   );
 }
+

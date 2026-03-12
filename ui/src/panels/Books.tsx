@@ -808,18 +808,17 @@ export default function Books() {
         style={{
           display: "grid",
           gap: 12,
-
-      <div className="card softCard mt-4">
-        <div className="small shellEyebrow">STUDIO SETUP</div>
-        <div className="small mt-2"><b>Status:</b> {studioSetup.ready ? "Ready" : "Needs setup"}</div>
-        <div className="small mt-2"><b>Completion:</b> {studioSetup.completionPercent}%</div>
-        <div className="small mt-2"><b>Missing:</b> {buildMissingInputsLabel(studioSetup)}</div>
-        <div className="note mt-3">Configure render base URL and provider inputs in Preferences → Connections & Secrets Center.</div>
-      </div>
           gridTemplateColumns: "minmax(260px, 320px) minmax(0, 1fr)",
           alignItems: "start",
         }}
       >
+        <div className="card softCard mt-4">
+          <div className="small shellEyebrow">STUDIO SETUP</div>
+          <div className="small mt-2"><b>Status:</b> {studioSetup.ready ? "Ready" : "Needs setup"}</div>
+          <div className="small mt-2"><b>Completion:</b> {studioSetup.completionPercent}%</div>
+          <div className="small mt-2"><b>Missing:</b> {buildMissingInputsLabel(studioSetup)}</div>
+          <div className="note mt-3">Configure render base URL and provider inputs in Preferences - Connections &amp; Secrets Center.</div>
+        </div>
         <div style={{ display: "grid", gap: 12 }}>
           <div className="card softCard">
             <div className="cluster wrap spread">
@@ -915,8 +914,7 @@ export default function Books() {
                 gap: 12,
                 gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
                 alignItems: "start",
-              }}
-            >
+              }}>
               <div className="card softCard">
                 <div className="small shellEyebrow">MASTER PROMPT</div>
                 <textarea
@@ -979,8 +977,7 @@ export default function Books() {
                 gap: 12,
                 gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
                 alignItems: "start",
-              }}
-            >
+              }}>
 
               <div className="card softCard">
                 <div className="small shellEyebrow">IDEA / CLIENT INTAKE</div>
@@ -1247,8 +1244,7 @@ export default function Books() {
                 gap: 12,
                 gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
                 alignItems: "start",
-              }}
-            >
+              }}>
               <div className="card softCard">
                 <div className="small shellEyebrow">READINESS + BLOCKERS</div>
                 <div className="small mt-2"><b>Score:</b> {readiness?.readinessScore ?? 0}</div>
@@ -1326,8 +1322,7 @@ export default function Books() {
                       gap: 12,
                       gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
                       alignItems: "start",
-                    }}
-                  >
+                    }}>
                     <div className="card softCard">
                       <div className="small shellEyebrow">QUEUE</div>
                       {!renderJobs.length ? (
@@ -1419,8 +1414,7 @@ export default function Books() {
                 gap: 12,
                 gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
                 alignItems: "start",
-              }}
-            >
+              }}>
               <div className="card softCard">
                 <div className="small shellEyebrow">OUTPUT VAULT</div>
                 <div className="small mt-2"><b>Latest render output:</b> {latestCompletedRender?.title || "None yet"}</div>
@@ -1487,4 +1481,8 @@ export default function Books() {
     </div>
   );
 }
+
+
+
+
 

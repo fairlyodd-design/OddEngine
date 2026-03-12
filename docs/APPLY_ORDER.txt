@@ -1,14 +1,6 @@
-1. Apply this pack into your repo.
-2. Build the UI to verify helper imports are clean.
-3. Merge `ui/src/lib/osCompletion.ts`.
-4. Wire the Home panel using `docs/HOME_V10.24.83_OS_COMPLETION_MERGE_GUIDE.md`.
-5. Wire the Preferences panel using `docs/PREFERENCES_V10.24.83_OS_COMPLETION_MERGE_GUIDE.md`.
-6. Run the build again.
-7. Smoke test:
-   - Home shows setup health and onboarding board
-   - Preferences shows setup coverage + missing connections
-   - Central connection state still works
-8. Commit and push.
-
-Recommended commit:
-`v10.24.83 os completion sweep`
+1. Extract zip
+2. Run APPLY_V10.24.82_COMPLETE_WHOLE_WINDOWS.ps1
+3. Build UI
+4. Open Preferences and enter connections
+5. Check Studio and Grocery setup cards
+6. Commit and push if good

@@ -17,28 +17,20 @@ export type StudioRoomKey =
 export type StudioAssetKind =
   | "story"
   | "song"
-  | "character"
   | "storyboard"
-  | "cartoonBible"
-  | "videoTreatment"
   | "shotList"
-  | "productionPack"
+  | "videoTreatment"
   | "featureOutline"
-  | "episodeGuide"
-  | "animationPlan"
-  | "castingPack"
-  | "artPromptPack"
+  | "productionPack"
   | "productionRunbook"
-  | "pitchDeck"
   | "oneSheet"
-  | "trailerBrief"
   | "renderHandoff"
-  | "screeningPacket"
-  | "renderJob";
+  | "renderJob"
+  | "screeningPacket";
 
 export type StudioAsset = {
   id: string;
-  kind: StudioAssetKind;
+  kind: StudioAssetKind | string;
   title: string;
   content: string;
   ts: number;
@@ -97,10 +89,11 @@ function clean(text: string) {
   return String(text || "").trim().replace(/\s+/g, " ");
 }
 
-export function titleFromPrompt(prompt: string, fallback = "Untitled Studio Project") {
+function titleFromPrompt(prompt: string, fallback = "Untitled Studio Project") {
   const text = clean(prompt);
   if (!text) return fallback;
-  return text.split(" ").slice(0, 8).join(" ").replace(/[.,:;!?]+$/g, "");
+  const words = text.split(" ").slice(0, 8).join(" ");
+  return words.replace(/[.,:;!?]+$/g, "");
 }
 
 export function inferStudioProjectType(writerMode: string): StudioProjectType {
@@ -108,7 +101,9 @@ export function inferStudioProjectType(writerMode: string): StudioProjectType {
   if (value === "song") return "song";
   if (value === "cartoon") return "cartoon";
   if (value === "video" || value === "movie") return "video";
-  return "book";
+  if (value === "music video") return "music video";
+  if (value === "story" || value === "book") return "book";
+  return "other";
 }
 
 export function mapProjectTypeToProductionType(projectType: StudioProjectType) {
@@ -128,6 +123,16 @@ export function mapProjectTypeToProductionType(projectType: StudioProjectType) {
   }
 }
 
+function createAsset(kind: StudioAssetKind, title: string, content: string): StudioAsset {
+  return {
+    id: uid(),
+    kind,
+    title,
+    content,
+    ts: Date.now(),
+  };
+}
+
 export function getRoomKinds(room: StudioRoomKey): StudioAssetKind[] {
   switch (room) {
     case "home":
@@ -145,16 +150,6 @@ export function getRoomKinds(room: StudioRoomKey): StudioAssetKind[] {
     default:
       return [];
   }
-}
-
-function createAsset(kind: StudioAssetKind, title: string, content: string): StudioAsset {
-  return {
-    id: uid(),
-    kind,
-    title,
-    content,
-    ts: Date.now(),
-  };
 }
 
 function projectLens(projectType: StudioProjectType) {
@@ -464,12 +459,12 @@ function newestFirst<T extends { ts?: number }>(items: T[]) {
 export function splitAssetsByRoom(assets: StudioAsset[]): FinalProjectPacket["rooms"] {
   const newest = newestFirst(assets);
   return {
-    home: newest.filter((asset) => getRoomKinds("home").includes(asset.kind)),
-    writing: newest.filter((asset) => getRoomKinds("writing").includes(asset.kind)),
-    director: newest.filter((asset) => getRoomKinds("director").includes(asset.kind)),
-    music: newest.filter((asset) => getRoomKinds("music").includes(asset.kind)),
-    render: newest.filter((asset) => getRoomKinds("render").includes(asset.kind)),
-    ops: newest.filter((asset) => getRoomKinds("ops").includes(asset.kind)),
+    home: newest.filter((asset) => getRoomKinds("home").includes(asset.kind as StudioAssetKind)),
+    writing: newest.filter((asset) => getRoomKinds("writing").includes(asset.kind as StudioAssetKind)),
+    director: newest.filter((asset) => getRoomKinds("director").includes(asset.kind as StudioAssetKind)),
+    music: newest.filter((asset) => getRoomKinds("music").includes(asset.kind as StudioAssetKind)),
+    render: newest.filter((asset) => getRoomKinds("render").includes(asset.kind as StudioAssetKind)),
+    ops: newest.filter((asset) => getRoomKinds("ops").includes(asset.kind as StudioAssetKind)),
   };
 }
 
