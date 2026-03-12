@@ -1,132 +1,109 @@
-export type ConnectionFieldType = "text" | "password" | "apiKey" | "url" | "email" | "token";
+export type ConnectionFieldType = "text" | "password" | "url" | "email" | "textarea" | "number";
 
 export type ConnectionField = {
   key: string;
   label: string;
   type: ConnectionFieldType;
   placeholder?: string;
-  required?: boolean;
-  secret?: boolean;
+  help?: string;
 };
 
-export type ConnectionServiceId =
-  | "studio.render"
-  | "studio.externalVideo"
-  | "grocery.providers"
-  | "trading.broker"
-  | "calendar.primary"
-  | "money.providers"
-  | "entertainment.accounts";
-
 export type ConnectionService = {
-  id: ConnectionServiceId;
+  id: string;
   title: string;
-  section: "Studio" | "Household" | "Finance" | "Calendar" | "Entertainment";
-  description: string;
+  sub: string;
   fields: ConnectionField[];
 };
 
-export type SavedConnectionValues = Record<string, string>;
-export type SavedConnections = Record<string, SavedConnectionValues>;
+export type SavedConnections = Record<string, Record<string, string>>;
 
-export const CONNECTIONS_STORAGE_KEY = "oddengine:connectionsCenter:v1";
+const KEY = "oddengine:connections:center:v1";
 
 export const CONNECTION_SERVICES: ConnectionService[] = [
   {
-    id: "studio.render",
-    title: "Studio Render Providers",
-    section: "Studio",
-    description: "Render bridge base URL, provider account names, and external render credentials for Studio.",
+    id: "studio",
+    title: "Studio",
+    sub: "Render providers, external creative tools, output webhooks.",
     fields: [
-      { key: "renderBaseUrl", label: "Render Base URL", type: "url", placeholder: "http://127.0.0.1:8899", required: true },
-      { key: "providerName", label: "Default Provider Name", type: "text", placeholder: "local-worker" },
-      { key: "providerApiKey", label: "Provider API Key", type: "apiKey", secret: true },
-      { key: "providerAccount", label: "Provider Account / Email", type: "email", secret: true },
+      { key: "renderProviderUser", label: "Render provider username", type: "text", placeholder: "username" },
+      { key: "renderProviderPassword", label: "Render provider password", type: "password", placeholder: "password" },
+      { key: "renderApiKey", label: "Render API key", type: "password", placeholder: "api key" },
+      { key: "renderWebhook", label: "Render webhook URL", type: "url", placeholder: "https://..." },
+      { key: "outputFolder", label: "Output folder path", type: "text", placeholder: "C:\\OddEngine\\outputs" },
     ],
   },
   {
-    id: "studio.externalVideo",
-    title: "Studio External Video Tools",
-    section: "Studio",
-    description: "Optional external video or AI media tools for finishing work beyond the local render seam.",
+    id: "grocery",
+    title: "Grocery",
+    sub: "Store accounts, coupon providers, and pickup/delivery settings.",
     fields: [
-      { key: "toolName", label: "Primary Tool", type: "text", placeholder: "Runway / Pika / local bridge" },
-      { key: "toolBaseUrl", label: "Tool Base URL", type: "url" },
-      { key: "toolToken", label: "Access Token", type: "token", secret: true },
-      { key: "workspaceId", label: "Workspace / Project ID", type: "text", secret: true },
+      { key: "defaultZip", label: "Default ZIP", type: "text", placeholder: "89101" },
+      { key: "walmartUser", label: "Walmart username/email", type: "email", placeholder: "name@example.com" },
+      { key: "walmartPassword", label: "Walmart password", type: "password", placeholder: "password" },
+      { key: "krogerUser", label: "Kroger username/email", type: "email", placeholder: "name@example.com" },
+      { key: "krogerPassword", label: "Kroger password", type: "password", placeholder: "password" },
+      { key: "couponApiKey", label: "Coupon/deals API key", type: "password", placeholder: "api key" },
     ],
   },
   {
-    id: "grocery.providers",
-    title: "Grocery Providers",
-    section: "Household",
-    description: "Store login and provider settings used for grocery, coupons, and shopping trips.",
+    id: "trading",
+    title: "Trading",
+    sub: "Broker credentials, market data, and scanner provider inputs.",
     fields: [
-      { key: "preferredStores", label: "Preferred Stores", type: "text", placeholder: "Smith's, Walmart, Costco" },
-      { key: "pickupZip", label: "Pickup / Delivery ZIP", type: "text" },
-      { key: "providerEmail", label: "Provider Email", type: "email", secret: true },
-      { key: "providerPassword", label: "Provider Password", type: "password", secret: true },
-      { key: "providerApiKey", label: "Provider API Key", type: "apiKey", secret: true },
+      { key: "brokerUser", label: "Broker username", type: "text", placeholder: "username" },
+      { key: "brokerPassword", label: "Broker password", type: "password", placeholder: "password" },
+      { key: "brokerApiKey", label: "Broker API key", type: "password", placeholder: "api key" },
+      { key: "brokerSecret", label: "Broker secret", type: "password", placeholder: "secret" },
+      { key: "marketDataKey", label: "Market data API key", type: "password", placeholder: "api key" },
     ],
   },
   {
-    id: "trading.broker",
-    title: "Trading / Broker Integrations",
-    section: "Finance",
-    description: "Broker account usernames, API tokens, and market data hooks for trading-related panels.",
+    id: "calendar",
+    title: "Calendar",
+    sub: "Calendar sync and scheduling tokens.",
     fields: [
-      { key: "brokerName", label: "Broker Name", type: "text", placeholder: "Tradier / Public / IBKR" },
-      { key: "accountId", label: "Account ID", type: "text", secret: true },
-      { key: "username", label: "Username / Email", type: "email", secret: true },
-      { key: "password", label: "Password", type: "password", secret: true },
-      { key: "apiKey", label: "API Key", type: "apiKey", secret: true },
-      { key: "apiSecret", label: "API Secret", type: "token", secret: true },
+      { key: "calendarEmail", label: "Calendar account email", type: "email", placeholder: "name@example.com" },
+      { key: "calendarToken", label: "Calendar access token", type: "password", placeholder: "token" },
+      { key: "calendarRefreshToken", label: "Calendar refresh token", type: "password", placeholder: "refresh token" },
     ],
   },
   {
-    id: "calendar.primary",
-    title: "Calendar and Scheduling",
-    section: "Calendar",
-    description: "Primary calendar auth values, sync URLs, and scheduling hooks.",
+    id: "money",
+    title: "Money & Budget",
+    sub: "Finance providers, net-worth sources, and budgeting inputs.",
     fields: [
-      { key: "calendarName", label: "Primary Calendar", type: "text", placeholder: "Family Calendar" },
-      { key: "calendarEmail", label: "Calendar Email", type: "email", secret: true },
-      { key: "calendarToken", label: "Access Token", type: "token", secret: true },
-      { key: "webhookUrl", label: "Webhook URL", type: "url", secret: true },
+      { key: "financeApiKey", label: "Finance API key", type: "password", placeholder: "api key" },
+      { key: "plaidClientId", label: "Plaid client ID", type: "text", placeholder: "client id" },
+      { key: "plaidSecret", label: "Plaid secret", type: "password", placeholder: "secret" },
+      { key: "zillowEmail", label: "Zillow/account email", type: "email", placeholder: "name@example.com" },
     ],
   },
   {
-    id: "money.providers",
-    title: "Money / Budget Providers",
-    section: "Finance",
-    description: "Finance app provider values for accounts, budgets, loans, and net worth data.",
+    id: "entertainment",
+    title: "Entertainment",
+    sub: "Streaming/service credentials and media providers.",
     fields: [
-      { key: "providerName", label: "Provider Name", type: "text", placeholder: "Plaid / Coinbase / Zillow-style feed" },
-      { key: "username", label: "Username / Email", type: "email", secret: true },
-      { key: "password", label: "Password", type: "password", secret: true },
-      { key: "apiKey", label: "API Key", type: "apiKey", secret: true },
-      { key: "accountScope", label: "Account Scope", type: "text", placeholder: "Checking, cards, investments" },
+      { key: "spotifyUser", label: "Spotify email/username", type: "email", placeholder: "name@example.com" },
+      { key: "spotifyToken", label: "Spotify token", type: "password", placeholder: "token" },
+      { key: "youtubeApiKey", label: "YouTube API key", type: "password", placeholder: "api key" },
     ],
   },
   {
-    id: "entertainment.accounts",
-    title: "Entertainment Accounts",
-    section: "Entertainment",
-    description: "Streaming, music, and media service account values for the Entertainment panel.",
+    id: "cameras",
+    title: "Cameras & Security",
+    sub: "Camera endpoints and local bridge details.",
     fields: [
-      { key: "serviceName", label: "Service Name", type: "text", placeholder: "Spotify / YouTube / Plex" },
-      { key: "username", label: "Username / Email", type: "email", secret: true },
-      { key: "password", label: "Password", type: "password", secret: true },
-      { key: "accessToken", label: "Access Token", type: "token", secret: true },
+      { key: "cameraBaseUrl", label: "Camera base URL", type: "url", placeholder: "http://127.0.0.1:8080" },
+      { key: "cameraUser", label: "Camera username", type: "text", placeholder: "username" },
+      { key: "cameraPassword", label: "Camera password", type: "password", placeholder: "password" },
     ],
   },
 ];
 
 export function loadConnections(): SavedConnections {
   try {
-    const raw = localStorage.getItem(CONNECTIONS_STORAGE_KEY);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw);
+    const raw = localStorage.getItem(KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
     return parsed && typeof parsed === "object" ? parsed : {};
   } catch {
     return {};
@@ -134,70 +111,73 @@ export function loadConnections(): SavedConnections {
 }
 
 export function saveConnections(next: SavedConnections) {
-  localStorage.setItem(CONNECTIONS_STORAGE_KEY, JSON.stringify(next));
+  localStorage.setItem(KEY, JSON.stringify(next));
 }
 
 export function updateConnectionValues(
-  connections: SavedConnections,
+  current: SavedConnections,
   serviceId: string,
-  patch: SavedConnectionValues,
+  patch: Record<string, string>,
 ): SavedConnections {
   return {
-    ...connections,
+    ...current,
     [serviceId]: {
-      ...(connections[serviceId] || {}),
+      ...(current[serviceId] || {}),
       ...patch,
     },
   };
 }
 
-export function maskSecret(value: string) {
-  const text = String(value || "");
-  if (!text) return "";
-  if (text.length <= 4) return "••••";
-  return `${"•".repeat(Math.max(4, text.length - 4))}${text.slice(-4)}`;
+export function maskSecret(value: string, visible = false) {
+  if (visible) return value || "";
+  if (!value) return "";
+  if (value.length <= 4) return "•".repeat(value.length);
+  return `${"•".repeat(Math.max(4, value.length - 4))}${value.slice(-4)}`;
 }
 
-export function getServiceById(serviceId: string) {
-  return CONNECTION_SERVICES.find((service) => service.id === serviceId) || null;
-}
+export function buildConnectionsSummary(saved: SavedConnections) {
+  const services = CONNECTION_SERVICES.map((service) => {
+    const values = saved[service.id] || {};
+    const filled = service.fields.filter((field) => String(values[field.key] || "").trim()).length;
+    return {
+      id: service.id,
+      title: service.title,
+      sub: service.sub,
+      filled,
+      total: service.fields.length,
+      ready: filled > 0,
+    };
+  });
 
-export function getServiceCompletion(service: ConnectionService, values: SavedConnectionValues) {
-  const required = service.fields.filter((field) => field.required);
-  const complete = required.filter((field) => String(values?.[field.key] || "").trim()).length;
+  const filledServices = services.filter((service) => service.ready).length;
+  const totalServices = services.length;
+  const readiness = totalServices ? Math.round((filledServices / totalServices) * 100) : 0;
+
   return {
-    required: required.length,
-    complete,
-    percent: required.length ? Math.round((complete / required.length) * 100) : 100,
+    services,
+    filledServices,
+    totalServices,
+    readiness,
   };
 }
 
-export function buildConnectionsSummary(connections: SavedConnections) {
-  return CONNECTION_SERVICES.map((service) => ({
-    service,
-    values: connections[service.id] || {},
-    completion: getServiceCompletion(service, connections[service.id] || {}),
-  }));
-}
-
-export function buildConnectionsMarkdown(connections: SavedConnections) {
+export function buildConnectionsMarkdown(saved: SavedConnections) {
   const lines: string[] = [
-    "# FairlyOdd OS Connections Center",
+    "# OddEngine Connections & Secrets Summary",
     "",
-    "This summary shows configured services and setup completeness without exposing secret values.",
+    "_Local-only setup summary. Do not commit real secrets to GitHub._",
     "",
   ];
 
-  for (const item of buildConnectionsSummary(connections)) {
-    lines.push(`## ${item.service.title}`);
-    lines.push(`- Section: ${item.service.section}`);
-    lines.push(`- Completion: ${item.completion.complete}/${item.completion.required} required fields`);
-    lines.push(`- Description: ${item.service.description}`);
+  for (const service of CONNECTION_SERVICES) {
+    const values = saved[service.id] || {};
+    lines.push(`## ${service.title}`);
+    lines.push(service.sub);
     lines.push("");
-    for (const field of item.service.fields) {
-      const raw = String(item.values[field.key] || "");
-      const display = field.secret ? maskSecret(raw) : raw || "—";
-      lines.push(`- ${field.label}: ${display || "—"}`);
+    for (const field of service.fields) {
+      const raw = String(values[field.key] || "").trim();
+      const value = field.type === "password" ? maskSecret(raw) : raw || "(empty)";
+      lines.push(`- **${field.label}:** ${value}`);
     }
     lines.push("");
   }
