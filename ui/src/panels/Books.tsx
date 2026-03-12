@@ -17,6 +17,7 @@ import {
   markRenderWatched,
   type RenderJob,
 } from "../lib/renderWorkerBridge";
+import { buildPanelConnectionStatus, buildMissingInputsLabel } from "../lib/panelConnections";
 import {
   WORKFLOW_STAGES,
   ROOM_LABELS,
@@ -389,6 +390,8 @@ export default function Books() {
     () => renderJobs.find((job) => job.id === activeRenderJobId) || renderJobs[0] || null,
     [renderJobs, activeRenderJobId]
   );
+
+  const studioSetup = useMemo(() => buildPanelConnectionStatus("Books"), []);
 
   const readiness = useMemo(() => {
     if (!activeProject) return null;
@@ -805,6 +808,14 @@ export default function Books() {
         style={{
           display: "grid",
           gap: 12,
+
+      <div className="card softCard mt-4">
+        <div className="small shellEyebrow">STUDIO SETUP</div>
+        <div className="small mt-2"><b>Status:</b> {studioSetup.ready ? "Ready" : "Needs setup"}</div>
+        <div className="small mt-2"><b>Completion:</b> {studioSetup.completionPercent}%</div>
+        <div className="small mt-2"><b>Missing:</b> {buildMissingInputsLabel(studioSetup)}</div>
+        <div className="note mt-3">Configure render base URL and provider inputs in Preferences → Connections & Secrets Center.</div>
+      </div>
           gridTemplateColumns: "minmax(260px, 320px) minmax(0, 1fr)",
           alignItems: "start",
         }}

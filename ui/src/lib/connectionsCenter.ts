@@ -25,11 +25,12 @@ export const CONNECTION_SERVICES: ConnectionService[] = [
     title: "Studio",
     sub: "Render providers, external creative tools, output webhooks.",
     fields: [
+      { key: "renderBaseUrl", label: "Render base URL", type: "url", placeholder: "http://127.0.0.1:8899" },
       { key: "renderProviderUser", label: "Render provider username", type: "text", placeholder: "username" },
       { key: "renderProviderPassword", label: "Render provider password", type: "password", placeholder: "password" },
       { key: "renderApiKey", label: "Render API key", type: "password", placeholder: "api key" },
       { key: "renderWebhook", label: "Render webhook URL", type: "url", placeholder: "https://..." },
-      { key: "outputFolder", label: "Output folder path", type: "text", placeholder: "C:\\OddEngine\\outputs" },
+      { key: "outputFolder", label: "Output folder path", type: "text", placeholder: "C:\OddEngine\outputs" },
     ],
   },
   {
@@ -37,6 +38,7 @@ export const CONNECTION_SERVICES: ConnectionService[] = [
     title: "Grocery",
     sub: "Store accounts, coupon providers, and pickup/delivery settings.",
     fields: [
+      { key: "groceryBaseUrl", label: "Grocery provider base URL", type: "url", placeholder: "http://127.0.0.1:8787" },
       { key: "defaultZip", label: "Default ZIP", type: "text", placeholder: "89101" },
       { key: "walmartUser", label: "Walmart username/email", type: "email", placeholder: "name@example.com" },
       { key: "walmartPassword", label: "Walmart password", type: "password", placeholder: "password" },
@@ -63,6 +65,7 @@ export const CONNECTION_SERVICES: ConnectionService[] = [
     sub: "Calendar sync and scheduling tokens.",
     fields: [
       { key: "calendarEmail", label: "Calendar account email", type: "email", placeholder: "name@example.com" },
+      { key: "calendarId", label: "Calendar ID", type: "text", placeholder: "primary" },
       { key: "calendarToken", label: "Calendar access token", type: "password", placeholder: "token" },
       { key: "calendarRefreshToken", label: "Calendar refresh token", type: "password", placeholder: "refresh token" },
     ],
@@ -182,5 +185,6 @@ export function buildConnectionsMarkdown(saved: SavedConnections) {
     lines.push("");
   }
 
-  return lines.join("\n");
+  return lines.join("
+");
 }
