@@ -30,6 +30,19 @@ import {
   type RoomReviewStatus,
   type ReviewBoardState,
 } from "../lib/studioReviewBoard";
+import {
+  INTAKE_PRESETS,
+  buildCreativeBriefFromIntake,
+  buildScopeDefinitionFromIntake,
+  createIntakeSnapshot,
+  intakeSnapshotToMarkdown,
+  toLineItems,
+  type BriefApprovalState,
+  type CreativeBrief,
+  type IntakeSnapshot,
+  type ScopeDefinition,
+  type StudioIntake,
+} from "../lib/studioIntake";
 
 type WriterMode = "story" | "song" | "cartoon" | "video" | "movie";
 type VisualStyle =
@@ -100,6 +113,7 @@ type StudioProject = {
 
   studioAssets: ProjectAsset[];
   reviewBoard: ReviewBoardState;
+  intakeSnapshot: IntakeSnapshot;
   snapshots: StudioSnapshot[];
   publishTitle: string;
   publishSubtitle: string;
@@ -275,6 +289,7 @@ function createBlankProject(seed?: Partial<StudioProject>): StudioProject {
     renderBaseUrl: seed?.renderBaseUrl || "http://127.0.0.1:8899",
     studioAssets: seed?.studioAssets || [],
     reviewBoard,
+    intakeSnapshot: seed?.intakeSnapshot || createIntakeSnapshot(INTAKE_PRESETS.blank.intake),
     snapshots: seed?.snapshots || [],
     publishTitle: seed?.publishTitle || seed?.title || "Untitled Studio Project",
     publishSubtitle: seed?.publishSubtitle || "",
@@ -322,6 +337,14 @@ function coerceProject(raw: any): StudioProject {
     renderBaseUrl: String(raw?.renderBaseUrl || "http://127.0.0.1:8899"),
     studioAssets: Array.isArray(raw?.studioAssets) ? raw.studioAssets : [],
     reviewBoard,
+    intakeSnapshot: raw?.intakeSnapshot
+      ? createIntakeSnapshot(
+          raw.intakeSnapshot.intake || INTAKE_PRESETS.blank.intake,
+          raw.intakeSnapshot.brief || {},
+          raw.intakeSnapshot.scope || {},
+          (raw.intakeSnapshot.approvalState || "pending brief") as BriefApprovalState
+        )
+      : createIntakeSnapshot(INTAKE_PRESETS.blank.intake),
     snapshots: Array.isArray(raw?.snapshots) ? raw.snapshots : [],
     publishTitle: String(raw?.publishTitle || raw?.title || "Untitled Studio Project"),
     publishSubtitle: String(raw?.publishSubtitle || ""),
@@ -423,6 +446,83 @@ export default function Books() {
     });
   };
 
+
+
+  const updateIntakeSnapshot = (patch: Partial<IntakeSnapshot>) => {
+    if (!activeProject) return;
+    updateActiveProject({
+      intakeSnapshot: {
+        ...activeProject.intakeSnapshot,
+        ...patch,
+        intake: {
+          ...activeProject.intakeSnapshot.intake,
+          ...(patch.intake || {}),
+        },
+        brief: {
+          ...activeProject.intakeSnapshot.brief,
+          ...(patch.brief || {}),
+        },
+        scope: {
+          ...activeProject.intakeSnapshot.scope,
+          ...(patch.scope || {}),
+        },
+        createdAt: Date.now(),
+      },
+    });
+  };
+
+  const rebuildBriefFromIntake = () => {
+    if (!activeProject) return;
+    const intake = activeProject.intakeSnapshot.intake;
+    updateActiveProject({
+      intakeSnapshot: createIntakeSnapshot(
+        intake,
+        activeProject.intakeSnapshot.brief,
+        activeProject.intakeSnapshot.scope,
+        activeProject.intakeSnapshot.approvalState
+      ),
+    });
+  };
+
+  const createProjectFromIntake = () => {
+    if (!activeProject) return;
+    const intake = activeProject.intakeSnapshot.intake;
+    const snapshot = createIntakeSnapshot(
+      intake,
+      activeProject.intakeSnapshot.brief,
+      activeProject.intakeSnapshot.scope,
+      activeProject.intakeSnapshot.approvalState
+    );
+    const projectName = intake.projectName || activeProject.title;
+    const prompt = [
+      intake.goal,
+      snapshot.brief.oneLineObjective,
+      intake.references,
+      intake.audience ? `Audience: ${intake.audience}` : "",
+    ]
+      .filter(Boolean)
+      .join(" • ");
+    updateActiveProject({
+      intakeSnapshot: snapshot,
+      title: projectName,
+      publishTitle: projectName,
+      masterPrompt: prompt || activeProject.masterPrompt,
+      logline: snapshot.brief.oneLineObjective,
+      publishSummary: snapshot.brief.oneLineObjective,
+      notes: [
+        `Client / owner: ${intake.clientOwner || "—"}`,
+        `Contact: ${intake.contact || "—"}`,
+        `Deadline: ${intake.deadline || "—"}`,
+        `Budget: ${intake.budget || "—"}`,
+        `Included: ${snapshot.scope.included.join(", ") || "—"}`,
+        `Excluded: ${snapshot.scope.excluded.join(", ") || "—"}`,
+      ].join("\n"),
+      reviewBoard: {
+        ...activeProject.reviewBoard,
+        stage: "Idea",
+      },
+    });
+  };
   const prependAssetsToActiveProject = (assets: ProjectAsset[]) => {
     if (!activeProject || !assets.length) return;
     updateActiveProject({
@@ -870,6 +970,189 @@ export default function Books() {
                 alignItems: "start",
               }}
             >
+
+              <div className="card softCard">
+                <div className="small shellEyebrow">IDEA / CLIENT INTAKE</div>
+                <div className="sub mt-2">
+                  Capture the ask, turn it into a brief, and launch a Studio-ready project without re-explaining the idea later.
+                </div>
+                <div className="mt-3" style={{ display: "grid", gap: 10 }}>
+                  <label className="small">
+                    Project name
+                    <input
+                      className="input mt-2"
+                      value={activeProject.intakeSnapshot.intake.projectName}
+                      onChange={(e) => updateIntakeSnapshot({ intake: { projectName: e.target.value } as Partial<StudioIntake> })}
+                    />
+                  </label>
+                  <label className="small">
+                    Client / owner
+                    <input
+                      className="input mt-2"
+                      value={activeProject.intakeSnapshot.intake.clientOwner}
+                      onChange={(e) => updateIntakeSnapshot({ intake: { clientOwner: e.target.value } as Partial<StudioIntake> })}
+                    />
+                  </label>
+                  <label className="small">
+                    Contact
+                    <input
+                      className="input mt-2"
+                      value={activeProject.intakeSnapshot.intake.contact}
+                      onChange={(e) => updateIntakeSnapshot({ intake: { contact: e.target.value } as Partial<StudioIntake> })}
+                    />
+                  </label>
+                  <label className="small">
+                    Goal
+                    <textarea
+                      className="input mt-2"
+                      rows={3}
+                      value={activeProject.intakeSnapshot.intake.goal}
+                      onChange={(e) => updateIntakeSnapshot({ intake: { goal: e.target.value } as Partial<StudioIntake> })}
+                    />
+                  </label>
+                  <label className="small">
+                    Audience
+                    <input
+                      className="input mt-2"
+                      value={activeProject.intakeSnapshot.intake.audience}
+                      onChange={(e) => updateIntakeSnapshot({ intake: { audience: e.target.value } as Partial<StudioIntake> })}
+                    />
+                  </label>
+                  <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))" }}>
+                    <label className="small">
+                      Deadline
+                      <input
+                        className="input mt-2"
+                        value={activeProject.intakeSnapshot.intake.deadline}
+                        onChange={(e) => updateIntakeSnapshot({ intake: { deadline: e.target.value } as Partial<StudioIntake> })}
+                      />
+                    </label>
+                    <label className="small">
+                      Budget
+                      <input
+                        className="input mt-2"
+                        value={activeProject.intakeSnapshot.intake.budget}
+                        onChange={(e) => updateIntakeSnapshot({ intake: { budget: e.target.value } as Partial<StudioIntake> })}
+                      />
+                    </label>
+                  </div>
+                  <label className="small">
+                    References / inspiration
+                    <textarea
+                      className="input mt-2"
+                      rows={3}
+                      value={activeProject.intakeSnapshot.intake.references}
+                      onChange={(e) => updateIntakeSnapshot({ intake: { references: e.target.value } as Partial<StudioIntake> })}
+                    />
+                  </label>
+                </div>
+                <div className="row wrap mt-3" style={{ gap: 8 }}>
+                  <button className="tabBtn active" onClick={rebuildBriefFromIntake}>Build brief from intake</button>
+                  <button className="tabBtn" onClick={createProjectFromIntake}>Create project from intake</button>
+                  <button
+                    className="tabBtn"
+                    onClick={async () => {
+                      await copyText(intakeSnapshotToMarkdown(activeProject.intakeSnapshot));
+                      setPacketCopiedState("md");
+                    }}
+                  >
+                    Copy brief markdown
+                  </button>
+                  <button
+                    className="tabBtn"
+                    onClick={() =>
+                      downloadTextFile(
+                        `${titleFromPrompt(activeProject.intakeSnapshot.intake.projectName || activeProject.title)}-brief.json`,
+                        JSON.stringify(activeProject.intakeSnapshot, null, 2),
+                        "application/json"
+                      )
+                    }
+                  >
+                    Export brief JSON
+                  </button>
+                </div>
+              </div>
+
+              <div className="card softCard">
+                <div className="small shellEyebrow">CREATIVE BRIEF</div>
+                <div className="small mt-2"><b>Approval:</b> {activeProject.intakeSnapshot.approvalState}</div>
+                <div className="row wrap mt-3" style={{ gap: 8 }}>
+                  {(["pending brief", "approved brief", "revision requested"] as BriefApprovalState[]).map((status) => (
+                    <button
+                      key={status}
+                      className={`tabBtn ${activeProject.intakeSnapshot.approvalState === status ? "active" : ""}`}
+                      onClick={() => updateIntakeSnapshot({ approvalState: status })}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
+                <label className="small mt-3" style={{ display: "block" }}>
+                  One-line objective
+                  <textarea
+                    className="input mt-2"
+                    rows={2}
+                    value={activeProject.intakeSnapshot.brief.oneLineObjective}
+                    onChange={(e) => updateIntakeSnapshot({ brief: { oneLineObjective: e.target.value } as Partial<CreativeBrief> })}
+                  />
+                </label>
+                <label className="small mt-3" style={{ display: "block" }}>
+                  Deliverables (one per line)
+                  <textarea
+                    className="input mt-2"
+                    rows={4}
+                    value={activeProject.intakeSnapshot.brief.deliverables.join("\\n")}
+                    onChange={(e) => updateIntakeSnapshot({ brief: { deliverables: toLineItems(e.target.value) } as Partial<CreativeBrief> })}
+                  />
+                </label>
+                <label className="small mt-3" style={{ display: "block" }}>
+                  Tone / style
+                  <input
+                    className="input mt-2"
+                    value={activeProject.intakeSnapshot.brief.toneStyle}
+                    onChange={(e) => updateIntakeSnapshot({ brief: { toneStyle: e.target.value } as Partial<CreativeBrief> })}
+                  />
+                </label>
+                <label className="small mt-3" style={{ display: "block" }}>
+                  Success criteria (one per line)
+                  <textarea
+                    className="input mt-2"
+                    rows={4}
+                    value={activeProject.intakeSnapshot.brief.successCriteria.join("\\n")}
+                    onChange={(e) => updateIntakeSnapshot({ brief: { successCriteria: toLineItems(e.target.value) } as Partial<CreativeBrief> })}
+                  />
+                </label>
+                <label className="small mt-3" style={{ display: "block" }}>
+                  Included scope (one per line)
+                  <textarea
+                    className="input mt-2"
+                    rows={3}
+                    value={activeProject.intakeSnapshot.scope.included.join("\\n")}
+                    onChange={(e) => updateIntakeSnapshot({ scope: { included: toLineItems(e.target.value) } as Partial<ScopeDefinition> })}
+                  />
+                </label>
+                <label className="small mt-3" style={{ display: "block" }}>
+                  Not included (one per line)
+                  <textarea
+                    className="input mt-2"
+                    rows={3}
+                    value={activeProject.intakeSnapshot.scope.excluded.join("\\n")}
+                    onChange={(e) => updateIntakeSnapshot({ scope: { excluded: toLineItems(e.target.value) } as Partial<ScopeDefinition> })}
+                  />
+                </label>
+                <label className="small mt-3" style={{ display: "block" }}>
+                  Dependencies / blockers (one per line)
+                  <textarea
+                    className="input mt-2"
+                    rows={3}
+                    value={[...activeProject.intakeSnapshot.scope.dependencies, ...activeProject.intakeSnapshot.scope.blockers].join("\\n")}
+                    onChange={(e) => {
+                      const lines = toLineItems(e.target.value);
+                      updateIntakeSnapshot({ scope: { dependencies: lines, blockers: [] } as Partial<ScopeDefinition> });
+                    }}
+                  />
+                </label>
+              </div>
               <div className="card softCard">
                 <div className="small shellEyebrow">REVIEW BOARD</div>
                 <div className="small mt-2"><b>Current room:</b> {ROOM_LABELS[studioRoom]}</div>
@@ -1193,3 +1476,4 @@ export default function Books() {
     </div>
   );
 }
+
