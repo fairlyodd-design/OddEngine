@@ -1,0 +1,6 @@
+1. Run APPLY_V10.24.82_GLOBAL_PANEL_INPUT_WIRING_WINDOWS.ps1
+2. Build the UI
+3. Merge the helper into Preferences using the guide
+4. Merge panel status cards into Books / GroceryMeals / Trading / Calendar / Money / Entertainment
+5. Build again
+6. Commit and push

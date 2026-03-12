@@ -1,0 +1,9 @@
+/* Preview of utilities appended by the patcher */
+.panelStack { display:grid; gap:12px; align-items:start; }
+.panelSection { display:grid; gap:10px; align-items:start; }
+.panelGridAuto { display:grid; gap:12px; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); align-items:start; }
+.panelGridWide { display:grid; gap:12px; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); align-items:start; }
+.panelGridShell { display:grid; gap:12px; grid-template-columns:minmax(260px, 320px) minmax(0, 1fr); align-items:start; }
+.panelActionRow { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+.panelPreview { white-space:pre-wrap; word-break:break-word; line-height:1.45; padding:14px; max-height:360px; overflow:auto; }
+.panelMetaStrip { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }

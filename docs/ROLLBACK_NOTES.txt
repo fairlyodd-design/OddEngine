@@ -1,0 +1,4 @@
+Rollback options:
+- Use git restore on changed files before committing.
+- Or switch back to the previous branch/commit if you already committed.
+- The patcher only touches files under ui/src plus the main UI stylesheet.
