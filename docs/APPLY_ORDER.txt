@@ -1,6 +1,14 @@
-1. Run APPLY_V10.24.82_GLOBAL_PANEL_INPUT_WIRING_WINDOWS.ps1
-2. Build the UI
-3. Merge the helper into Preferences using the guide
-4. Merge panel status cards into Books / GroceryMeals / Trading / Calendar / Money / Entertainment
-5. Build again
-6. Commit and push
+1. Apply this pack into your repo.
+2. Build the UI to verify helper imports are clean.
+3. Merge `ui/src/lib/osCompletion.ts`.
+4. Wire the Home panel using `docs/HOME_V10.24.83_OS_COMPLETION_MERGE_GUIDE.md`.
+5. Wire the Preferences panel using `docs/PREFERENCES_V10.24.83_OS_COMPLETION_MERGE_GUIDE.md`.
+6. Run the build again.
+7. Smoke test:
+   - Home shows setup health and onboarding board
+   - Preferences shows setup coverage + missing connections
+   - Central connection state still works
+8. Commit and push.
+
+Recommended commit:
+`v10.24.83 os completion sweep`
