@@ -3,28 +3,16 @@ import { isDesktop, oddApi } from "../lib/odd";
 import { PanelHeader } from "../components/PanelHeader";
 import ActionMenu from "../components/ActionMenu";
 import { PanelScheduleCard } from "../components/PanelScheduleCard";
-
-type DevIssue = {
-  id: string;
-  title: string;
-  severity: "error" | "warn" | "info";
-  explanation?: string;
-  recommendedPlaybooks?: string[];
-  evidence?: string;
-};
-
-type DevSnapshot = {
-  ok: boolean;
-  runningCount: number;
-  runs: Array<{ id: string; cmd: string; args: string[]; cwd: string; startedAt: number }>;
-  lastExit?: { id: string; code: number; ts: number } | null;
-  tail: Array<{ ts: number; type: string; id?: string; text: string }>;
-  issues: DevIssue[];
-  playbooks?: Array<{ id: string; name: string; safe: boolean; description: string }>;
-};
+import {
+  buildHomieDesktopSummary,
+  getHomieDesktopActions,
+  getHomieDesktopState,
+  runHomieDesktopAction,
+  type HomieDesktopAction,
+} from "../lib/homieDesktopControl";
 
 type Props = {
-  onNavigate: (panelId: string) => void;
+  onNavigate?: (panelId: string) => void;
   activePanelId?: string;
   onOpenHowTo?: () => void;
 };
@@ -36,35 +24,34 @@ type ChatMsg = {
   ts: number;
 };
 
+type VoiceState = "idle" | "listening" | "processing" | "speaking" | "muted";
+type VisionState = "off" | "ready";
+
 const LS_CHAT = "oddengine:homie:chat:v1";
 const LS_SETTINGS = "oddengine:homie:settings:v1";
-const LS_AUTOFIX = "oddengine:homie:autofix:v1";
 const LS_TARGET = "oddengine:homie:targetProject:v1";
-const PREFS_KEY = "oddengine:prefs:v1";
-
 
 const DEFAULT_SYSTEM =
-  "You are Homie👊, the built-in assistant for OddEngine.\n" +
-  "- Be short, clear, and practical.\n" +
-  "- When suggesting commands, prefer PowerShell on Windows.\n" +
-  "- Ask before running anything that writes/deletes files.\n" +
-  "- If the user shows an error, explain it in plain English then give the safest fix steps.";
+  "You are Homie, the onboard assistant for FairlyOdd OS.\n" +
+  "- Be short, kind, and practical.\n" +
+  "- Prefer PowerShell on Windows when giving commands.\n" +
+  "- Keep actions safe and reversible.\n" +
+  "- If the user is on Desktop, help them operate the OS with confidence.";
 
-function uid(){
+function uid() {
   return Math.random().toString(16).slice(2) + Date.now().toString(16);
 }
 
 function loadJSON<T>(key: string, fallback: T): T {
   try {
-    const v = localStorage.getItem(key);
-    if (!v) return fallback;
-    return JSON.parse(v) as T;
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : fallback;
   } catch {
     return fallback;
   }
 }
 
-function saveJSON(key: string, val: any) {
+function saveJSON(key: string, val: unknown) {
   try {
     localStorage.setItem(key, JSON.stringify(val));
   } catch {
@@ -74,60 +61,70 @@ function saveJSON(key: string, val: any) {
 
 export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props) {
   const desktop = isDesktop();
-
-  const [devSnap, setDevSnap] = useState<DevSnapshot | null>(null);
+  const [tab, setTab] = useState<"ai" | "ops" | "guide">("ai");
   const [targetProject, setTargetProject] = useState<string>(() => {
-    try{ return localStorage.getItem(LS_TARGET) || localStorage.getItem("oddengine:dev:projectDir") || ""; }catch(e){ return ""; }
+    try {
+      return localStorage.getItem(LS_TARGET) || localStorage.getItem("oddengine:dev:projectDir") || "";
+    } catch {
+      return "";
+    }
   });
-  const [autoFixEnabled, setAutoFixEnabled] = useState<boolean>(() => {
-  const stored:any = loadJSON(LS_AUTOFIX, null as any);
-  if(stored && typeof stored.enabled === "boolean") return stored.enabled;
-  const prefs:any = loadJSON(PREFS_KEY, null as any);
-  return !!prefs?.desktop?.autoRunSafeFixes;
-});
-  const [confirmPb, setConfirmPb] = useState<{ id: string; name: string; description: string; safe: boolean } | null>(null);
-  const [autoCountdown, setAutoCountdown] = useState<number>(0);
-  const [autoPb, setAutoPb] = useState<{ playbookId: string; reason: string } | null>(null);
-  const [tab, setTab] = useState<"ai" | "guide">("ai");
 
-  // Settings
-  const [model, setModel] = useState(() => loadJSON(LS_SETTINGS, { model: "llama3.1:8b", temperature: 0.2, includeContext: true, system: DEFAULT_SYSTEM }).model);
-  const [temperature, setTemperature] = useState(() => loadJSON(LS_SETTINGS, { model: "llama3.1:8b", temperature: 0.2, includeContext: true, system: DEFAULT_SYSTEM }).temperature);
-  const [includeContext, setIncludeContext] = useState(() => loadJSON(LS_SETTINGS, { model: "llama3.1:8b", temperature: 0.2, includeContext: true, system: DEFAULT_SYSTEM }).includeContext);
-  const [systemPrompt, setSystemPrompt] = useState(() => loadJSON(LS_SETTINGS, { model: "llama3.1:8b", temperature: 0.2, includeContext: true, system: DEFAULT_SYSTEM }).system);
+  const [model, setModel] = useState(() =>
+    loadJSON(LS_SETTINGS, { model: "llama3.1:8b", temperature: 0.2, includeContext: true, system: DEFAULT_SYSTEM }).model,
+  );
+  const [temperature, setTemperature] = useState(() =>
+    loadJSON(LS_SETTINGS, { model: "llama3.1:8b", temperature: 0.2, includeContext: true, system: DEFAULT_SYSTEM }).temperature,
+  );
+  const [includeContext, setIncludeContext] = useState(() =>
+    loadJSON(LS_SETTINGS, { model: "llama3.1:8b", temperature: 0.2, includeContext: true, system: DEFAULT_SYSTEM }).includeContext,
+  );
+  const [systemPrompt, setSystemPrompt] = useState(() =>
+    loadJSON(LS_SETTINGS, { model: "llama3.1:8b", temperature: 0.2, includeContext: true, system: DEFAULT_SYSTEM }).system,
+  );
+
+  const [checking, setChecking] = useState(false);
+  const [ollamaRunning, setOllamaRunning] = useState<boolean | null>(null);
+  const [ollamaModels, setOllamaModels] = useState<string[]>([]);
+  const [ollamaError, setOllamaError] = useState("");
+
+  const [messages, setMessages] = useState<ChatMsg[]>(() => loadJSON(LS_CHAT, []));
+  const [input, setInput] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [desktopMsg, setDesktopMsg] = useState("");
+  const [voiceState, setVoiceState] = useState<VoiceState>("idle");
+  const [visionState, setVisionState] = useState<VisionState>("off");
+  const chatRef = useRef<HTMLDivElement | null>(null);
+
+  const desktopState = useMemo(() => getHomieDesktopState(), [desktopMsg, tab]);
+  const desktopSummary = useMemo(() => buildHomieDesktopSummary(), [desktopMsg, tab]);
+  const desktopActions = useMemo(() => getHomieDesktopActions(), []);
 
   useEffect(() => {
     saveJSON(LS_SETTINGS, { model, temperature, includeContext, system: systemPrompt });
   }, [model, temperature, includeContext, systemPrompt]);
 
   useEffect(() => {
-    saveJSON(LS_AUTOFIX, { enabled: autoFixEnabled });
-  }, [autoFixEnabled]);
+    saveJSON(LS_CHAT, messages.slice(-80));
+  }, [messages]);
 
   useEffect(() => {
-    try{ localStorage.setItem(LS_TARGET, targetProject || ""); }catch(e){}
+    try {
+      localStorage.setItem(LS_TARGET, targetProject || "");
+    } catch {
+      // ignore
+    }
   }, [targetProject]);
 
-  // If target project isn't set yet, default to the OddEngine folder (dev mode).
   useEffect(() => {
-    if(!desktop) return;
-    if(targetProject) return;
-    (async () => {
-      try{
-        const info = await oddApi().getSystemInfo();
-        if(info && info.ok && !info.packaged && info.cwd){
-          setTargetProject(info.cwd);
-          try{ localStorage.setItem("oddengine:dev:projectDir", info.cwd); }catch(e){}
-        }
-      }catch(e){}
-    })();
-  }, [desktop, targetProject]);
+    if (!chatRef.current) return;
+    chatRef.current.scrollTop = chatRef.current.scrollHeight;
+  }, [messages, busy]);
 
-  // Ollama status
-  const [checking, setChecking] = useState(false);
-  const [ollamaRunning, setOllamaRunning] = useState<boolean | null>(null);
-  const [ollamaModels, setOllamaModels] = useState<string[]>([]);
-  const [ollamaError, setOllamaError] = useState<string>("");
+  useEffect(() => {
+    setVoiceState(desktopState.micMuted ? "muted" : "idle");
+    setVisionState(desktopState.cameraEnabled ? "ready" : "off");
+  }, [desktopState.micMuted, desktopState.cameraEnabled]);
 
   async function checkOllama() {
     if (!desktop) return;
@@ -152,21 +149,6 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
     }
   }
 
-  // Chat
-  const [messages, setMessages] = useState<ChatMsg[]>(() => loadJSON<ChatMsg[]>(LS_CHAT, []));
-  const [input, setInput] = useState("");
-  const [busy, setBusy] = useState(false);
-  const chatRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    saveJSON(LS_CHAT, messages.slice(-80));
-  }, [messages]);
-
-  useEffect(() => {
-    if (!chatRef.current) return;
-    chatRef.current.scrollTop = chatRef.current.scrollHeight;
-  }, [messages, busy]);
-
   function resetChat() {
     setMessages([]);
     saveJSON(LS_CHAT, []);
@@ -177,61 +159,22 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
     setTab("ai");
   }
 
-  
-  async function refreshDevSnapshot() {
-    if (!desktop) return;
-    try{
-      const r = await oddApi().getDevSnapshot({ limit: 260 } as any);
-      if (r && r.ok) setDevSnap(r as any);
-    }catch(e){}
-  }
-
   async function pickTargetProject() {
     if (!desktop) return;
-    try{
-      const r = await oddApi().pickDirectory({ title: "Pick target project folder" } as any);
-      if (r && r.ok && r.path) setTargetProject(r.path);
-    }catch(e){}
+    try {
+      const r = await oddApi().pickDirectory?.({ title: "Pick target project folder" } as any);
+      if (r && (r as any).ok && (r as any).path) setTargetProject((r as any).path);
+    } catch {
+      // ignore
+    }
   }
 
-  async function requestPlaybookRun(pbId: string) {
-    if (!desktop) return;
-    const pb = (devSnap?.playbooks || []).find((p) => p.id === pbId);
-    const cwd = targetProject || (devSnap?.runs?.[0]?.cwd || "");
-    if (!cwd) {
-      setMessages((prev) => [...prev, { id: uid(), role: "assistant", content: "⚠️ No target project selected. Click **Pick Project** in Homie.", ts: Date.now() }]);
-      return;
-    }
-    if (!pb) {
-      setMessages((prev) => [...prev, { id: uid(), role: "assistant", content: `⚠️ Unknown playbook: ${pbId}`, ts: Date.now() }]);
-      return;
-    }
-    setConfirmPb({ id: pb.id, name: pb.name, description: pb.description, safe: !!pb.safe });
-  }
-
-  async function runConfirmedPlaybook() {
-    if(!desktop || !confirmPb) return;
-    const cwd = targetProject || (devSnap?.runs?.[0]?.cwd || "");
-    if (!cwd) return;
-    const ok = window.confirm(`Run playbook: ${confirmPb.name}\n\nTarget: ${cwd}\n\nThis will modify files in that folder.`);
-    if(!ok){ setConfirmPb(null); return; }
-    try{
-      const r = await oddApi().runPlaybook({ playbookId: confirmPb.id, cwd } as any);
-      setMessages((prev) => [...prev, { id: uid(), role: "assistant", content: `✅ Running playbook **${confirmPb.name}** on\n${cwd}\n\nWatch DevEngine logs for progress.`, ts: Date.now() }]);
-    }catch(e:any){
-      setMessages((prev) => [...prev, { id: uid(), role: "assistant", content: `⚠️ Failed to start playbook: ${String(e)}`, ts: Date.now() }]);
-    }finally{
-      setConfirmPb(null);
-      setAutoCountdown(0);
-      setAutoPb(null);
-    }
-  }
-async function send() {
+  async function send() {
     const text = input.trim();
     if (!text || busy) return;
 
     const ctx = includeContext
-      ? `\n\n[OddEngine Context]\nHost: ${window.location.hostname}\nActive panel: ${activePanelId || "(unknown)"}\nTime: ${new Date().toISOString()}\n`
+      ? `\n\n[FairlyOdd OS Context]\nActive panel: ${activePanelId || "(unknown)"}\nDesktop: ${desktop ? "yes" : "no"}\nTime: ${new Date().toISOString()}\n`
       : "";
 
     const userMsg: ChatMsg = { id: uid(), role: "user", content: text + ctx, ts: Date.now() };
@@ -240,355 +183,268 @@ async function send() {
     setInput("");
 
     if (!desktop) {
-      setMessages((prev) => [...prev, { id: uid(), role: "assistant", content: "AI chat needs **Desktop mode** (Electron) so Homie can talk to your local Ollama safely.\n\nRun: **npm run dev:desktop** (or build the EXE) and try again.", ts: Date.now() }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: uid(),
+          role: "assistant",
+          content:
+            "Homie chat needs Desktop mode so I can safely talk to local Ollama. Run `npm run dev:desktop` and try again.",
+          ts: Date.now(),
+        },
+      ]);
       return;
     }
 
     setBusy(true);
+    setVoiceState("processing");
     try {
-      const payload = {
+      const r = await oddApi().homieChat({
         model,
         temperature,
         system: systemPrompt,
-        messages: next
-          .filter((m) => m.role !== "system")
-          .map((m) => ({ role: m.role, content: m.content }))
-      };
+        messages: next.filter((m) => m.role !== "system").map((m) => ({ role: m.role, content: m.content })),
+      } as any);
 
-      const r = await oddApi().homieChat(payload as any);
       if (!r.ok) {
-        const err = r.error || "Homie request failed";
-        setMessages((prev) => [...prev, { id: uid(), role: "assistant", content: `⚠️ ${err}\n\nIf you haven't installed Ollama yet:\n1) Install Ollama\n2) Run: **ollama pull ${model}**\n3) Confirm server is up (localhost:11434) then hit **Check Ollama**.`, ts: Date.now() }]);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: uid(),
+            role: "assistant",
+            content:
+              `⚠️ ${r.error || "Homie request failed"}\n\n` +
+              `Check Ollama, then try again. If needed: \`ollama pull ${model}\`.`,
+            ts: Date.now(),
+          },
+        ]);
       } else {
-        setMessages((prev) => [...prev, { id: uid(), role: "assistant", content: (r.reply || "").trim() || "(no reply)", ts: Date.now() }]);
+        setMessages((prev) => [
+          ...prev,
+          { id: uid(), role: "assistant", content: (r.reply || "").trim() || "(no reply)", ts: Date.now() },
+        ]);
       }
     } catch (e: any) {
       setMessages((prev) => [...prev, { id: uid(), role: "assistant", content: `⚠️ ${String(e)}`, ts: Date.now() }]);
     } finally {
       setBusy(false);
+      setVoiceState(getHomieDesktopState().micMuted ? "muted" : "idle");
     }
   }
 
+  async function runDesktopAction(action: HomieDesktopAction) {
+    const res = await runHomieDesktopAction(action.id, { onNavigate });
+    setDesktopMsg(res.message);
+    const nextState = getHomieDesktopState();
+    setVoiceState(nextState.micMuted ? "muted" : "idle");
+    setVisionState(nextState.cameraEnabled ? "ready" : "off");
+  }
+
   const guide = useMemo(
-    () =>
-      [
-        {
-          title: "Where do I start?",
-          body:
-            "Start in **OddBrain** (health + integrity), then **Dev Engine** to pick a project and run builds/logs.\n\nIf you want generators, use **Autopilot** (web-safe export) or Desktop mode for writing files."
-        },
-        {
-          title: "Desktop vs Web",
-          body:
-            "• **Web (npm run dev:web)**: safe UI-only mode. No disk writes.\n• **Desktop (npm run dev:desktop)**: Electron enabled (logs/files/plugins/emulators).\n\nHomie AI runs in **Desktop mode** using **local Ollama** on 127.0.0.1."
-        },
-        {
-          title: "Install Ollama (local AI)",
-          body:
-            "1) Install Ollama for Windows\n2) In PowerShell: **ollama --version**\n3) Pull a model: **ollama pull llama3.1:8b** (or pick a smaller one)\n4) Keep Ollama running (it hosts on **127.0.0.1:11434**)"
-        },
-        {
-          title: "Safety rule",
-          body:
-            "Homie will **ask before** running destructive actions. If you want, you can paste logs/errors and Homie will explain + propose the safest fix steps."
-        }
-      ],
-    []
+    () => [
+      {
+        title: "What Homie does",
+        body:
+          "Homie is your onboard OS assistant. He can help with Studio, Grocery, Budget, and local dev tasks, while staying local-first in Desktop mode.",
+      },
+      {
+        title: "Desktop control",
+        body:
+          "In Desktop mode, Homie can open panels, reveal output folders, open packet folders, and help operate the OS without hunting through menus.",
+      },
+      {
+        title: "Voice + vision roadmap",
+        body:
+          "Voice and camera controls are staged in a safe, opt-in way. Use Preferences as the setup hub, and keep mic/camera off until you want them.",
+      },
+    ],
+    [],
   );
 
   return (
-    <div className="page" style={{ maxWidth: 1100, margin: "0 auto" }}>
+    <div style={{ display: "grid", gap: 16 }}>
       <PanelHeader
         panelId="Homie"
-        title="Homie 👊"
-        subtitle="Dev buddy + local AI helper (Desktop mode)"
+        title="Homie Command Deck"
+        subtitle="Your onboard AI assistant, desktop helper, and calm command station."
         badges={[
           { label: desktop ? "Desktop" : "Web", tone: desktop ? "good" : "warn" },
-          { label: ollamaRunning === null ? "Ollama: ?" : ollamaRunning ? "Ollama: running" : "Ollama: off", tone: ollamaRunning ? "good" : ollamaRunning === false ? "bad" : "muted" },
-          { label: (devSnap?.runningCount || 0) > 0 ? `DevEngine: running (${devSnap?.runningCount || 0})` : "DevEngine: idle", tone: (devSnap?.runningCount || 0) > 0 ? "warn" : "muted" },
+          { label: ollamaRunning ? "Ollama running" : "Ollama idle", tone: ollamaRunning ? "good" : "muted" },
+          { label: `Voice: ${voiceState}`, tone: voiceState === "muted" ? "warn" : "muted" },
+          { label: `Vision: ${visionState}`, tone: visionState === "ready" ? "good" : "muted" },
         ]}
         rightSlot={
           <ActionMenu
+            title="Homie tools"
             items={[
-              { label: "Open DevEngine", onClick: () => onNavigate?.("DevEngine") },
-              { label: "Open Calendar", onClick: () => onNavigate?.("Calendar") },
+              { label: "Open Studio", onClick: () => onNavigate?.("Books") },
+              { label: "Open Preferences", onClick: () => onNavigate?.("Preferences") },
+              { label: "Check Ollama", onClick: () => checkOllama(), disabled: !desktop },
               { label: "Pick Project", onClick: () => pickTargetProject(), disabled: !desktop },
-              { label: "Refresh Dev Snapshot", onClick: () => refreshDevSnapshot(), disabled: !desktop },
-              { label: checking ? "Checking Ollama…" : "Check Ollama", onClick: () => checkOllama(), disabled: !desktop || checking },
-              { label: "Reset chat", onClick: () => resetChat(), tone: "danger" },
+              { label: "How to Use", onClick: () => onOpenHowTo?.() },
             ]}
           />
         }
       />
 
-      <div className="creativeHeroBand homieHeroBand">
-        <div className="creativeHeroCard">
-          <div className="small shellEyebrow">WORLD / HOMIE</div>
-          <div className="creativeHeroTitle">Homie Command Deck</div>
-          <div className="creativeHeroSub">Your built-in dev buddy, local AI helper, and calm fix-it command station.</div>
-        </div>
-        <div className="creativeMetricStrip">
-          <div className="creativeMetricCard"><div className="small shellEyebrow">MODE</div><div className="h">{desktop ? "Desktop" : "Web"}</div></div>
-          <div className="creativeMetricCard"><div className="small shellEyebrow">OLLAMA</div><div className="h">{ollamaRunning === null ? "?" : ollamaRunning ? "Running" : "Offline"}</div></div>
-          <div className="creativeMetricCard"><div className="small shellEyebrow">RUNS</div><div className="h">{devSnap?.runningCount || 0}</div></div>
-          <div className="creativeMetricCard"><div className="small shellEyebrow">TARGET</div><div className="h">{targetProject ? "Linked" : "Unset"}</div></div>
-        </div>
+      <div className="row wrap" style={{ gap: 10 }}>
+        <button className={`tabBtn ${tab === "ai" ? "active" : ""}`} onClick={() => setTab("ai")}>AI</button>
+        <button className={`tabBtn ${tab === "ops" ? "active" : ""}`} onClick={() => setTab("ops")}>Desktop Control</button>
+        <button className={`tabBtn ${tab === "guide" ? "active" : ""}`} onClick={() => setTab("guide")}>Guide</button>
       </div>
 
-      <div className="tabs" style={{ marginBottom: 10 }}>
-        <button className={"tabBtn " + (tab === "ai" ? "active" : "")} onClick={() => setTab("ai")}>AI</button>
-        <button className={"tabBtn " + (tab === "guide" ? "active" : "")} onClick={() => setTab("guide")}>Guide</button>
-        <button className="tabBtn" onClick={() => onOpenHowTo?.()} title="How to Use (F1)">ℹ</button>
-      </div>
-
-      {tab === "ai" && (
+      {tab === "ai" ? (
         <>
-          <div className="grid2" style={{ alignItems: "start", marginTop: 8 }}>
-            <PanelScheduleCard
-              panelId="Homie"
-              title="Dev schedule"
-              subtitle="Quick-add build / backup / review reminders."
-              onNavigate={onNavigate}
-              presets={[
-                { label: "+ Build", title: "Build OddEngine", time: "20:00" },
-                { label: "+ Backup", title: "Backup project zip", time: "20:20" },
-                { label: "+ Review", title: "Review errors + next tasks", time: "20:40" },
-              ]}
-            />
+          <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))" }}>
             <div className="card softCard">
-              <div className="h">Quick actions</div>
-              <div className="sub">Common moves Homie helps with.</div>
-              <div className="row" style={{ marginTop: 10, gap: 8, flexWrap: "wrap" }}>
-                <button className="tabBtn" onClick={() => addQuick("Check my logs and tell me the safest fix.")}>Diagnose logs</button>
-                <button className="tabBtn" onClick={() => addQuick("Give me the exact Windows commands to run next.")}>Commands</button>
-                <button className="tabBtn" onClick={() => addQuick("Package the next build zip cleanly.")}>Ship zip</button>
-                <button className="tabBtn active" onClick={() => onNavigate?.("DevEngine")}>DevEngine</button>
+              <div className="small shellEyebrow">Quick actions</div>
+              <div className="sub mt-2">Common things Homie can help with.</div>
+              <div className="row wrap mt-3" style={{ gap: 8 }}>
+                <button className="tabBtn" onClick={() => addQuick("Check my local logs and tell me the safest next step.")}>Diagnose</button>
+                <button className="tabBtn" onClick={() => addQuick("Give me the exact PowerShell commands to run next.")}>Commands</button>
+                <button className="tabBtn" onClick={() => addQuick("Summarize what still needs setup in this OS.")}>OS setup</button>
+                <button className="tabBtn" onClick={() => onNavigate?.("Books")}>Open Studio</button>
+              </div>
+            </div>
+
+            <div className="card softCard">
+              <div className="small shellEyebrow">Status</div>
+              <div className="small mt-2"><b>Target project:</b> {targetProject || "(not set)"}</div>
+              <div className="small mt-2"><b>Models:</b> {ollamaModels.length ? ollamaModels.join(", ") : "(none detected yet)"}</div>
+              {ollamaError ? <div className="note mt-3">{ollamaError}</div> : null}
+              <div className="row wrap mt-3" style={{ gap: 8 }}>
+                <button className="tabBtn" onClick={() => checkOllama()} disabled={!desktop || checking}>{checking ? "Checking…" : "Check Ollama"}</button>
+                <button className="tabBtn" onClick={() => pickTargetProject()} disabled={!desktop}>Pick Project</button>
+                <button className="tabBtn" onClick={() => resetChat()}>Reset Chat</button>
               </div>
             </div>
           </div>
 
-          <div className="card" style={{ marginTop: 12 }}>
-            <div className="row" style={{ justifyContent: "space-between" }}>
-              <div>
-                <div style={{ fontWeight: 700 }}>Homie AI Status</div>
-                <div className="small">Uses local Ollama on 127.0.0.1 (no cloud required)</div>
-              </div>
-              <div className="row">
-                <span className={"badge " + (ollamaRunning ? "good" : ollamaRunning === false ? "bad" : "")}>{ollamaRunning === null ? "Unknown" : ollamaRunning ? "Ollama Running" : "Not Running"}</span>
-                <button onClick={checkOllama} disabled={!desktop || checking}>{checking ? "Checking…" : "Check Ollama"}</button>
-              </div>
-            </div>
-            {!desktop && (
-              <div className="small" style={{ marginTop: 10 }}>
-                ⚠️ You are in **Web mode**. AI chat needs **Desktop mode**.
-              </div>
-            )}
-            {ollamaError && (
-              <div className="small" style={{ marginTop: 10, color: "#fbbf24" }}>
-                {ollamaError}
-              </div>
-            )}
-            {!!ollamaModels.length && (
-              <div className="small" style={{ marginTop: 10 }}>
-                Detected models: {ollamaModels.slice(0, 6).join(", ")}{ollamaModels.length > 6 ? "…" : ""}
-              </div>
-            )}
-          </div>
-
-
-          <div className="card" style={{ marginTop: 12 }}>
-            <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start" }}>
-              <div>
-                <div style={{ fontWeight: 700 }}>Dev Engine Awareness</div>
-                <div className="small">Homie can read DevEngine status + recent logs, detect common errors, and suggest safe fixes.</div>
-              </div>
-              <div className="row">
-                <span className={"badge " + ((devSnap?.runningCount || 0) > 0 ? "warn" : "good")}>
-                  {(devSnap?.runningCount || 0) > 0 ? `Running (${devSnap?.runningCount || 0})` : "Idle"}
-                </span>
-                <button onClick={refreshDevSnapshot} disabled={!desktop}>Refresh</button>
-              </div>
-            </div>
-
-            <div className="row" style={{ marginTop: 10, gap: 10, flexWrap: "wrap" }}>
-              <div className="small" style={{ opacity: 0.9 }}>
-                <b>Target Project:</b>{" "}
-                <span style={{ opacity: 0.9 }}>{targetProject ? targetProject : "(not set)"}</span>
-              </div>
-              <button onClick={pickTargetProject} disabled={!desktop}>Pick Project</button>
-              <label className="row small" style={{ gap: 8, cursor: "pointer" }}>
-                <input
-                  type="checkbox"
-                  checked={autoFixEnabled}
-                  onChange={(e) => setAutoFixEnabled(e.target.checked)}
-                />
-                Auto-run safe fixes (with confirm)
-              </label>
-            </div>
-
-            {autoPb && autoCountdown > 0 && (
-              <div className="small" style={{ marginTop: 10, padding: 10, borderRadius: 10, border: "1px solid rgba(255,255,255,0.12)" }}>
-                ⚙️ <b>Auto-fix detected:</b> {autoPb.reason} → will suggest a safe fix in <b>{autoCountdown}s</b>.
-                <button style={{ marginLeft: 10 }} onClick={() => { setAutoPb(null); setAutoCountdown(0); }}>Cancel</button>
-              </div>
-            )}
-
-            {devSnap?.issues && devSnap.issues.length > 0 ? (
-              <div style={{ marginTop: 12 }}>
-                <div style={{ fontWeight: 700, marginBottom: 8 }}>Detected Issues</div>
-                {devSnap.issues.slice(0, 4).map((iss) => (
-                  <div key={iss.id} style={{ padding: 10, borderRadius: 12, border: "1px solid rgba(255,255,255,0.10)", marginBottom: 10 }}>
-                    <div className="row" style={{ justifyContent: "space-between" }}>
-                      <div>
-                        <div style={{ fontWeight: 700 }}>{iss.title}</div>
-                        <div className="small" style={{ opacity: 0.9, marginTop: 4 }}>{iss.explanation}</div>
-                      </div>
-                      <span className={"badge " + (iss.severity === "error" ? "bad" : iss.severity === "warn" ? "warn" : "good")}>
-                        {iss.severity.toUpperCase()}
-                      </span>
-                    </div>
-                    {!!(iss.recommendedPlaybooks && iss.recommendedPlaybooks.length) && (
-                      <div className="row" style={{ marginTop: 10, gap: 8, flexWrap: "wrap" }}>
-                        {(iss.recommendedPlaybooks || []).map((pbId) => {
-                          const pb = (devSnap.playbooks || []).find((p) => p.id === pbId);
-                          return (
-                            <button key={pbId} onClick={() => requestPlaybookRun(pbId)} disabled={!desktop}>
-                              Run: {pb ? pb.name : pbId}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
+          <div className="card softCard">
+            <div className="small shellEyebrow">Homie AI Chat</div>
+            <div ref={chatRef} style={{ marginTop: 12, maxHeight: 340, overflow: "auto", display: "grid", gap: 10 }}>
+              {messages.length === 0 ? (
+                <div className="small">No messages yet. Ask Homie something practical.</div>
+              ) : (
+                messages.map((m) => (
+                  <div key={m.id} className="card softCard">
+                    <div className="small shellEyebrow">{m.role.toUpperCase()}</div>
+                    <div className="small mt-2" style={{ whiteSpace: "pre-wrap", lineHeight: 1.45 }}>{m.content}</div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="small" style={{ marginTop: 12, opacity: 0.8 }}>
-                No issues detected in the last log window.
-              </div>
-            )}
-
-            {confirmPb && (
-              <div style={{ marginTop: 12, padding: 12, borderRadius: 12, border: "1px solid rgba(59,130,246,0.35)", background: "rgba(59,130,246,0.08)" }}>
-                <div style={{ fontWeight: 700 }}>Confirm playbook</div>
-                <div className="small" style={{ marginTop: 6 }}>
-                  <b>{confirmPb.name}</b> — {confirmPb.description}
-                </div>
-                <div className="small" style={{ marginTop: 6 }}>
-                  Target: <code>{targetProject || devSnap?.runs?.[0]?.cwd || "(not set)"}</code>
-                </div>
-                <div className="row" style={{ marginTop: 10, gap: 8 }}>
-                  <button onClick={runConfirmedPlaybook} disabled={!desktop}>Run</button>
-                  <button onClick={() => setConfirmPb(null)}>Cancel</button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="card" style={{ marginTop: 12 }}>
-            <div className="row">
-              <div style={{ flex: 1 }}>
-                <div className="small">Model</div>
-                <input value={model} onChange={(e) => setModel(e.target.value)} placeholder="llama3.1:8b" />
-              </div>
-              <div style={{ width: 160 }}>
-                <div className="small">Temp</div>
-                <input
-                  type="number"
-                  min={0}
-                  max={1}
-                  step={0.05}
-                  value={temperature}
-                  onChange={(e) => setTemperature(Number(e.target.value))}
-                />
-              </div>
-              <div style={{ width: 220 }}>
-                <div className="small">Context</div>
-                <select value={includeContext ? "on" : "off"} onChange={(e) => setIncludeContext(e.target.value === "on")}> 
-                  <option value="on">Include panel/host</option>
-                  <option value="off">No context</option>
-                </select>
-              </div>
-            </div>
-            <div className="small" style={{ marginTop: 8 }}>System prompt (controls Homie’s behavior)</div>
-            <textarea value={systemPrompt} onChange={(e) => setSystemPrompt(e.target.value)} rows={4} />
-          </div>
-
-
-          <div className="card" style={{ marginTop: 12 }}>
-            <div className="row" style={{ justifyContent: "space-between" }}>
-              <div style={{ fontWeight: 700 }}>Chat</div>
-              <div className="row">
-                <button onClick={() => addQuick("Run a quick health check for OddEngine. If you propose fixes, ask before running them.")}>Health Check</button>
-                <button onClick={() => addQuick("Explain this error in plain English and give the safest fix steps.\n\nPASTE ERROR HERE:")}>Explain Error</button>
-                <button onClick={resetChat} disabled={busy}>Clear</button>
-              </div>
-            </div>
-
-            <div ref={chatRef} className="chatWrap" style={{ marginTop: 12 }}>
-              {messages.length === 0 && (
-                <div className="small">No messages yet. Try: “Explain this error…” or “How do I build the EXE?”</div>
+                ))
               )}
-              {messages.map((m) => (
-                <div key={m.id} className="chatRow" style={{ justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
-                  <div className={"bubble " + (m.role === "user" ? "user" : "assistant")}>
-                    {m.content}
-                    <div className="chatMeta">{m.role} • {new Date(m.ts).toLocaleString()}</div>
+              {busy ? <div className="small">Homie is thinking…</div> : null}
+            </div>
+
+            <div className="mt-3" style={{ display: "grid", gap: 10 }}>
+              <textarea
+                className="input"
+                rows={4}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask Homie for the next safest action, commands, or setup help."
+              />
+              <div className="row wrap" style={{ gap: 8 }}>
+                <button className="tabBtn active" onClick={() => send()} disabled={busy || !input.trim()}>{busy ? "Sending…" : "Send"}</button>
+                <label className="small" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <input type="checkbox" checked={includeContext} onChange={(e) => setIncludeContext(e.target.checked)} />
+                  Include active panel context
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}>
+            <div className="card softCard">
+              <div className="small shellEyebrow">Model</div>
+              <input className="input mt-2" value={model} onChange={(e) => setModel(e.target.value)} />
+              <div className="small mt-3">Temperature</div>
+              <input className="input mt-2" type="number" step="0.1" min="0" max="1.5" value={temperature} onChange={(e) => setTemperature(Number(e.target.value))} />
+            </div>
+            <div className="card softCard">
+              <div className="small shellEyebrow">System Prompt</div>
+              <textarea className="input mt-2" rows={8} value={systemPrompt} onChange={(e) => setSystemPrompt(e.target.value)} />
+            </div>
+          </div>
+        </>
+      ) : null}
+
+      {tab === "ops" ? (
+        <>
+          <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}>
+            <div className="card softCard">
+              <div className="small shellEyebrow">Desktop state</div>
+              <div className="small mt-2"><b>Desktop:</b> {desktopSummary.desktop ? "Yes" : "No"}</div>
+              <div className="small mt-2"><b>Mic:</b> {desktopSummary.mic}</div>
+              <div className="small mt-2"><b>Camera:</b> {desktopSummary.camera}</div>
+              <div className="small mt-2"><b>Output folder:</b> {desktopSummary.outputFolderReady ? "Ready" : "Not set"}</div>
+              <div className="small mt-2"><b>Output file:</b> {desktopSummary.outputFileReady ? "Ready" : "Not set"}</div>
+              <div className="small mt-2"><b>Packet folder:</b> {desktopSummary.packetFolderReady ? "Ready" : "Not set"}</div>
+              {desktopMsg ? <div className="note mt-3">{desktopMsg}</div> : null}
+            </div>
+
+            <div className="card softCard">
+              <div className="small shellEyebrow">Suggested next actions</div>
+              <div className="small mt-2">
+                {!desktopSummary.desktop
+                  ? "Switch to Desktop mode to unlock file and folder actions."
+                  : !desktopSummary.outputFolderReady
+                  ? "Generate or import a Studio output so Homie can open the output folder."
+                  : !desktopSummary.packetFolderReady
+                  ? "Export a packet so Homie can open the packet folder."
+                  : "Homie desktop control is ready."}
+              </div>
+            </div>
+          </div>
+
+          <div className="card softCard">
+            <div className="small shellEyebrow">Desktop actions</div>
+            <div className="sub mt-2">Panel jumps, output folders, and local control actions.</div>
+            <div className="mt-3" style={{ display: "grid", gap: 10 }}>
+              {desktopActions.map((action) => (
+                <div key={action.id} className="card softCard">
+                  <div className="cluster wrap spread">
+                    <div>
+                      <div className="small"><b>{action.label}</b></div>
+                      <div className="small mt-2">{action.description}</div>
+                    </div>
+                    <button
+                      className="tabBtn"
+                      onClick={() => runDesktopAction(action)}
+                      disabled={!!action.requiresDesktop && !desktop}
+                    >
+                      Run
+                    </button>
                   </div>
                 </div>
               ))}
-              {busy && (
-                <div className="chatRow"><div className="bubble assistant">Thinking…</div></div>
-              )}
-            </div>
-
-            <div className="row" style={{ marginTop: 12, alignItems: "flex-end" }}>
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                rows={3}
-                placeholder="Ask Homie…"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-                    e.preventDefault();
-                    send();
-                  }
-                }}
-              />
-              <button onClick={send} disabled={busy} style={{ width: 140 }}>
-                {busy ? "Sending…" : "Send (Ctrl+Enter)"}
-              </button>
-            </div>
-
-            <div className="small" style={{ marginTop: 8 }}>
-              Tip: Paste your console log, Vite errors, or build output and Homie will translate it + suggest fixes.
             </div>
           </div>
+
+          <PanelScheduleCard
+            panelId="Homie"
+            title="Homie reminders"
+            subtitle="Quick-add follow-up actions and OS check-ins."
+            presets={[
+              { label: "+ Check render status", title: "Check render status", offsetDays: 0 },
+              { label: "+ Preferences sweep", title: "Preferences sweep", offsetDays: 1 },
+              { label: "+ Grocery budget review", title: "Grocery budget review", offsetDays: 2 },
+            ]}
+            onNavigate={onNavigate}
+          />
         </>
-      )}
+      ) : null}
 
-      {tab === "guide" && (
-        <>
-          <div className="card" style={{ marginTop: 12 }}>
-            <div style={{ fontWeight: 700 }}>Quick links</div>
-            <div className="row" style={{ marginTop: 10, flexWrap: "wrap" }}>
-              <button onClick={() => onNavigate("OddBrain")}>Open OddBrain</button>
-              <button onClick={() => onNavigate("DevEngine")}>Open Dev Engine</button>
-              <button onClick={() => onNavigate("Autopilot")}>Open Autopilot</button>
-              <button onClick={() => onNavigate("Security")}>Open Security</button>
+      {tab === "guide" ? (
+        <div style={{ display: "grid", gap: 12 }}>
+          {guide.map((item) => (
+            <div key={item.title} className="card softCard">
+              <div className="small shellEyebrow">{item.title}</div>
+              <div className="small mt-2" style={{ whiteSpace: "pre-wrap", lineHeight: 1.45 }}>{item.body}</div>
             </div>
-          </div>
-
-          <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
-            {guide.map((g) => (
-              <div key={g.title} className="card">
-                <div style={{ fontWeight: 800 }}>{g.title}</div>
-                <div style={{ marginTop: 8, whiteSpace: "pre-wrap", lineHeight: 1.35 }}>{g.body}</div>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }
