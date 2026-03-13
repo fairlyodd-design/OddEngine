@@ -1,141 +1,96 @@
-import { CONNECTION_SERVICES, loadConnections, type SavedConnections } from "./connectionsCenter";
+import { CONNECTION_SERVICES, loadConnections } from "./connectionsCenter";
 
 export type PanelConnectionStatus = {
-  panelId: string;
-  title: string;
+  serviceId: string;
+  label: string;
   ready: boolean;
-  missingFields: string[];
-  readyServices: string[];
-  missingServices: string[];
   completionPercent: number;
-  summary: string;
+  requiredCount: number;
+  savedCount: number;
+  missing: string[];
+  values: Record<string, string>;
 };
 
-type PanelRequirement = {
-  panelId: string;
-  title: string;
-  services: Array<{
-    serviceId: string;
-    requiredFields: string[];
-    optional?: boolean;
-  }>;
-};
-
-export const PANEL_REQUIREMENTS: PanelRequirement[] = [
-  {
-    panelId: "Books",
-    title: "Studio",
-    services: [
-      { serviceId: "studio", requiredFields: ["renderBaseUrl"] },
-    ],
-  },
-  {
-    panelId: "GroceryMeals",
-    title: "Grocery",
-    services: [
-      { serviceId: "grocery", requiredFields: ["groceryBaseUrl", "defaultZip"] },
-    ],
-  },
-  {
-    panelId: "Trading",
-    title: "Trading",
-    services: [
-      { serviceId: "trading", requiredFields: ["marketDataKey"], optional: true },
-    ],
-  },
-  {
-    panelId: "Calendar",
-    title: "Calendar",
-    services: [
-      { serviceId: "calendar", requiredFields: ["calendarId"], optional: true },
-    ],
-  },
-  {
-    panelId: "Money",
-    title: "Money",
-    services: [
-      { serviceId: "money", requiredFields: [], optional: true },
-    ],
-  },
-  {
-    panelId: "Entertainment",
-    title: "Entertainment",
-    services: [
-      { serviceId: "entertainment", requiredFields: [], optional: true },
-    ],
-  },
-  {
-    panelId: "Cameras",
-    title: "Cameras & Security",
-    services: [
-      { serviceId: "cameras", requiredFields: ["cameraBaseUrl"], optional: true },
-    ],
-  },
-];
-
-function getConnection(serviceId: string, saved = loadConnections()) {
-  return saved[serviceId] || null;
+function norm(value: unknown) {
+  return String(value ?? "").trim();
 }
 
-export function getValue(serviceId: string, fieldKey: string, saved = loadConnections()) {
-  return getConnection(serviceId, saved)?.[fieldKey] || "";
+function findService(serviceId: string) {
+  const list: any[] = Array.isArray(CONNECTION_SERVICES) ? CONNECTION_SERVICES : [];
+  return (
+    list.find((service) => String(service?.id || "").toLowerCase() === serviceId.toLowerCase()) ||
+    null
+  );
 }
 
-export function getMissingFieldsForService(serviceId: string, requiredFields: string[], saved = loadConnections()) {
-  return requiredFields.filter((fieldKey) => !String(getValue(serviceId, fieldKey, saved)).trim());
+function getServiceFieldKeys(service: any): string[] {
+  const fields = Array.isArray(service?.fields) ? service.fields : [];
+  return fields
+    .map((field: any) => String(field?.key || field?.id || "").trim())
+    .filter(Boolean);
 }
 
-export function buildPanelConnectionStatus(panelId: string, saved = loadConnections()): PanelConnectionStatus {
-  const requirement = PANEL_REQUIREMENTS.find((item) => item.panelId === panelId);
-  if (!requirement) {
-    return {
-      panelId,
-      title: panelId,
-      ready: true,
-      missingFields: [],
-      readyServices: [],
-      missingServices: [],
-      completionPercent: 100,
-      summary: "No setup requirements registered.",
-    };
-  }
+function getServiceLabel(serviceId: string, service: any) {
+  return String(service?.label || service?.title || serviceId).trim();
+}
 
-  const missingFields: string[] = [];
-  const readyServices: string[] = [];
-  const missingServices: string[] = [];
+function readServiceValues(serviceId: string): Record<string, string> {
+  const saved: any = typeof loadConnections === "function" ? loadConnections() : {};
+  const bucket = saved?.[serviceId];
+  const rawValues = bucket?.values ?? bucket ?? {};
+  const output: Record<string, string> = {};
 
-  for (const serviceReq of requirement.services) {
-    const missing = getMissingFieldsForService(serviceReq.serviceId, serviceReq.requiredFields, saved);
-    const hasConnection = !!getConnection(serviceReq.serviceId, saved);
-    if (!missing.length && (hasConnection || !serviceReq.requiredFields.length || serviceReq.optional)) {
-      readyServices.push(serviceReq.serviceId);
-    } else {
-      missingServices.push(serviceReq.serviceId);
-      for (const field of missing) missingFields.push(`${serviceReq.serviceId}:${field}`);
-    }
-  }
+  Object.keys(rawValues || {}).forEach((key) => {
+    output[key] = norm(rawValues[key]);
+  });
 
-  const total = Math.max(requirement.services.length, 1);
-  const completionPercent = Math.round((readyServices.length / total) * 100);
+  return output;
+}
+
+export function buildPanelConnectionStatus(
+  serviceId: string,
+  requiredKeys?: string[],
+): PanelConnectionStatus {
+  const service = findService(serviceId);
+  const values = readServiceValues(serviceId);
+
+  const required = Array.isArray(requiredKeys) && requiredKeys.length
+    ? requiredKeys.map((key) => String(key).trim()).filter(Boolean)
+    : getServiceFieldKeys(service);
+
+  const uniqueRequired = Array.from(new Set(required));
+  const missing = uniqueRequired.filter((key) => !norm(values[key]));
+  const savedCount = uniqueRequired.filter((key) => norm(values[key])).length;
+  const requiredCount = uniqueRequired.length;
+
+  const completionPercent =
+    requiredCount > 0 ? Math.round((savedCount / requiredCount) * 100) : 100;
 
   return {
-    panelId,
-    title: requirement.title,
-    ready: missingServices.length === 0,
-    missingFields,
-    readyServices,
-    missingServices,
+    serviceId,
+    label: getServiceLabel(serviceId, service),
+    ready: missing.length === 0,
     completionPercent,
-    summary: missingServices.length === 0 ? "Setup looks ready." : `Missing setup for ${missingServices.join(", ")}.`,
+    requiredCount,
+    savedCount,
+    missing,
+    values,
   };
 }
 
-export function summarizeAllPanelStatuses(saved = loadConnections()) {
-  return PANEL_REQUIREMENTS.map((item) => buildPanelConnectionStatus(item.panelId, saved));
+export function buildMissingInputsLabel(
+  status: Pick<PanelConnectionStatus, "ready" | "missing">,
+) {
+  if (status.ready || !status.missing.length) return "None";
+  return status.missing.join(", ");
 }
 
-export function buildMissingInputsLabel(status: PanelConnectionStatus) {
-  if (!status.missingFields.length) return "All required inputs saved.";
-  const labels = status.missingFields.map((item) => item.split(":")[1]);
-  return Array.from(new Set(labels)).join(", ");
+export function buildPanelConnectionSummary(status: PanelConnectionStatus) {
+  return {
+    title: status.label,
+    state: status.ready ? "Ready" : "Needs setup",
+    detail: status.ready
+      ? `${status.savedCount}/${status.requiredCount} required inputs saved.`
+      : `${status.savedCount}/${status.requiredCount} required inputs saved. Missing: ${buildMissingInputsLabel(status)}.`,
+  };
 }

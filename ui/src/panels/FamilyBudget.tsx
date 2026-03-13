@@ -9,6 +9,17 @@ const LEGACY_STORAGE_KEY = "oddengine:familyBudget:v1";
 const TAB_KEY = "oddengine:familyBudget:tab";
 const PAYOFF_KEY = "oddengine:familyBudget:payoffStrategy:v1";
 
+
+const grocerySaveLane = "Grocery Saver Pack is active";
+const groceryBudgetLine = true;
+
+const grocerySpendActual = 0;
+const grocerySpendPlanned = 0;
+const groceryWarRoomGap = grocerySpendPlanned - grocerySpendActual;
+
+const householdWarPriority = "Stabilize grocery spend";
+
+
 const BUDGET_TABS = [
   "Overview",
   "Accounts",
@@ -2059,3 +2070,7 @@ export default function FamilyBudget() {
     </div>
   );
 }
+
+
+
+
