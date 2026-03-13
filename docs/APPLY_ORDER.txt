@@ -1,6 +1,4 @@
-1. Extract zip
-2. Run APPLY_V10.24.82_COMPLETE_WHOLE_WINDOWS.ps1
-3. Build UI
-4. Open Preferences and enter connections
-5. Check Studio and Grocery setup cards
-6. Commit and push if good
+1. Extract the zip
+2. Run APPLY_V10.24.99_HOMIE_WEIRD_SCIENCE_AESTHETIC_COMPLETE_WINDOWS.ps1
+3. Build: npm --prefix .\ui run build
+4. Relaunch app

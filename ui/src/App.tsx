@@ -49,6 +49,8 @@ const MarketMap = lazy(() => import("./panels/MarketMap"));
 const TimeMachine = lazy(() => import("./panels/TimeMachine"));
 const FiftyTo1K = lazy(() => import("./panels/FiftyTo1K"));
 const OptionsSniperTerminal = lazy(() => import("./panels/OptionsSniperTerminal"));
+const VegasPokerFeed = lazy(() => import("./panels/VegasPokerFeed"));
+const VegasPokerCashPromos = lazy(() => import("./panels/VegasPokerCashPromos"));
 
 function PanelLoading({ panelId }: { panelId: string }) {
   const meta = getPanelMeta(panelId);
@@ -96,6 +98,8 @@ function renderPanel(id: string, setActive: (id: string) => void, activeId: stri
     case "TimeMachine": return <TimeMachine />;
     case "FiftyTo1K": return <FiftyTo1K />;
     case "OptionsSniperTerminal": return <OptionsSniperTerminal />;
+    case "VegasPokerFeed": return <VegasPokerFeed />;
+    case "VegasPokerCashPromos": return <VegasPokerCashPromos />;
     default: return <div className="card">Unknown panel</div>;
   }
 }

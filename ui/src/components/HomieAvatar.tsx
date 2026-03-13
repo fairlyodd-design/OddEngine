@@ -1,56 +1,115 @@
-import React from "react";
-import type { HomieEmotion } from "../lib/homieRealLifeCore";
+import React, { useMemo } from "react";
+import { getHomieTheme, type HomieMood } from "../lib/homieWeirdScienceAesthetic";
 
-type Props = {
-  emotion?: HomieEmotion;
-  speaking?: boolean;
-  listening?: boolean;
-  cameraEnabled?: boolean;
-  micEnabled?: boolean;
+export type HomieAvatarProps = {
+  mood?: HomieMood;
+  speakingLevel?: number;
+  size?: number;
 };
 
-function accent(emotion: HomieEmotion) {
-  switch (emotion) {
-    case "happy":
-      return "#93ff9b";
-    case "concerned":
-      return "#ffca7a";
-    case "focused":
-      return "#8ec5ff";
-    case "speaking":
-      return "#9cf6ff";
-    case "listening":
-      return "#8bffd7";
-    default:
-      return "#7de4ff";
-  }
+function clamp(num: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, num));
 }
 
-export default function HomieAvatar({ emotion = "idle", speaking, listening, cameraEnabled, micEnabled }: Props) {
-  const color = accent(emotion);
+export default function HomieAvatar({
+  mood = "warm",
+  speakingLevel = 0,
+  size = 320,
+}: HomieAvatarProps) {
+  const theme = getHomieTheme(mood);
+  const talkOpen = clamp(speakingLevel, 0, 1) * 10;
+  const breath = useMemo(() => (mood === "thinking" ? 1.02 : 1), [mood]);
+
   return (
-    <div style={{ position: "relative", width: 280, height: 380, margin: "0 auto" }}>
-      <style>{`
-        @keyframes homieFloat { 0%,100% { transform: translateY(0px);} 50% { transform: translateY(3px);} }
-        @keyframes homieBlink { 0%,46%,52%,100% { transform: scaleY(1);} 48%,50% { transform: scaleY(0.16);} }
-      `}</style>
-      <div style={{ position: "absolute", bottom: 18, left: 56, width: 168, height: 22, borderRadius: 999, background: "rgba(0,0,0,0.22)", filter: "blur(8px)" }} />
-      <div style={{ position: "absolute", inset: 0, animation: "homieFloat 4.4s ease-in-out infinite" }}>
-        <div style={{ position: "absolute", top: 18, left: 84, width: 112, height: 112, borderRadius: 999, background: "linear-gradient(180deg,#f7f8fb,#dfe5f2)", border: `4px solid ${color}`, boxShadow: `0 0 26px ${color}33` }}>
-          <div style={{ position: "absolute", top: 28, left: 18, right: 18, height: 30, borderRadius: 999, background: "linear-gradient(180deg,#7de4ff,#4a72ff)" }} />
-          <div style={{ position: "absolute", top: 37, left: 34, width: 18, height: 9, borderRadius: 999, background: "#ecfaff", animation: "homieBlink 5.4s infinite" }} />
-          <div style={{ position: "absolute", top: 37, right: 34, width: 18, height: 9, borderRadius: 999, background: "#ecfaff", animation: "homieBlink 5.4s infinite" }} />
-          <div style={{ position: "absolute", bottom: 20, left: 44, width: speaking ? 28 : 18, height: speaking ? 14 : 6, borderRadius: 999, background: "rgba(15,24,44,0.55)", transition: "all 90ms linear" }} />
-        </div>
-        <div style={{ position: "absolute", top: 128, left: 74, width: 132, height: 136, borderRadius: 28, background: "linear-gradient(180deg,#1b2744,#101726)", border: `4px solid ${color}` }} />
-        <div style={{ position: "absolute", top: 142, left: 44, width: 24, height: 112, borderRadius: 999, background: "#1b2744", border: `3px solid ${color}` }} />
-        <div style={{ position: "absolute", top: 142, right: 44, width: 24, height: 112, borderRadius: 999, background: "#1b2744", border: `3px solid ${color}` }} />
-        <div style={{ position: "absolute", top: 248, left: 102, width: 22, height: 100, borderRadius: 999, background: "#1b2744", border: `3px solid ${color}` }} />
-        <div style={{ position: "absolute", top: 248, right: 102, width: 22, height: 100, borderRadius: 999, background: "#1b2744", border: `3px solid ${color}` }} />
-        {micEnabled ? <div style={{ position: "absolute", top: 8, left: 14, padding: "6px 10px", borderRadius: 12, background: "rgba(20,28,46,0.78)", color: color, fontSize: 11, fontWeight: 800 }}>MIC</div> : null}
-        {cameraEnabled ? <div style={{ position: "absolute", top: 8, right: 14, padding: "6px 10px", borderRadius: 12, background: "rgba(20,28,46,0.78)", color: color, fontSize: 11, fontWeight: 800 }}>CAM</div> : null}
-        {listening ? <div style={{ position: "absolute", top: 150, right: -2, width: 12, height: 12, borderRadius: 999, background: color, boxShadow: `0 0 18px ${color}` }} /> : null}
+    <div
+      style={{
+        width: size,
+        maxWidth: "100%",
+        aspectRatio: "1 / 1.15",
+        position: "relative",
+        margin: "0 auto",
+        filter: `drop-shadow(${theme.avatarGlow})`,
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          inset: "8% 10% 0 10%",
+          borderRadius: 40,
+          background:
+            "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))",
+          border: `1px solid ${theme.cardBorder}`,
+          ...theme.overlayStyle,
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          bottom: 24,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: "56%",
+          height: "8%",
+          borderRadius: 999,
+          background: "rgba(0,0,0,0.32)",
+          filter: "blur(14px)",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: "17%",
+          transform: `translateX(-50%) scale(${breath})`,
+          width: "36%",
+          height: "26%",
+          borderRadius: "45% 45% 42% 42%",
+          background: "linear-gradient(180deg, #ffd6bc, #f0b99e)",
+          border: "2px solid rgba(255,255,255,0.15)",
+        }}
+      >
+        <div style={{ position: "absolute", top: "33%", left: "23%", width: "18%", height: "8%", borderRadius: 999, background: "#262626" }} />
+        <div style={{ position: "absolute", top: "33%", right: "23%", width: "18%", height: "8%", borderRadius: 999, background: "#262626" }} />
+        <div style={{ position: "absolute", top: "58%", left: "50%", transform: "translateX(-50%)", width: "22%", height: 6 + talkOpen, borderRadius: 999, background: "#7a3a3a" }} />
       </div>
+      <div
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: "41%",
+          transform: "translateX(-50%)",
+          width: "28%",
+          height: "26%",
+          borderRadius: 28,
+          background: "linear-gradient(180deg, #324255, #202b38)",
+          border: `2px solid ${theme.cardBorder}`,
+        }}
+      />
+      <div style={{ position: "absolute", left: "24%", top: "46%", width: "12%", height: "7%", borderRadius: 999, background: "#324255", transform: "rotate(28deg)" }} />
+      <div style={{ position: "absolute", right: "24%", top: "46%", width: "12%", height: "7%", borderRadius: 999, background: "#324255", transform: "rotate(-28deg)" }} />
+      <div style={{ position: "absolute", left: "38%", top: "66%", width: "7%", height: "16%", borderRadius: 999, background: "#202b38" }} />
+      <div style={{ position: "absolute", right: "38%", top: "66%", width: "7%", height: "16%", borderRadius: 999, background: "#202b38" }} />
+      <div
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: "11%",
+          transform: "translateX(-50%)",
+          width: "42%",
+          height: "10%",
+          borderRadius: "80% 80% 30% 30%",
+          background: "linear-gradient(180deg, rgba(60,48,44,0.95), rgba(35,28,26,0.98))",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          borderRadius: 40,
+          boxShadow: `inset 0 0 0 1px ${theme.cardBorder}, inset 0 0 80px rgba(255,255,255,0.03)`,
+          pointerEvents: "none",
+        }}
+      />
     </div>
   );
 }
