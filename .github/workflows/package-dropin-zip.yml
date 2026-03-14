@@ -1,0 +1,48 @@
+name: Package Drop-In Zip
+
+on:
+  workflow_dispatch:
+    inputs:
+      artifact_name:
+        description: Optional artifact name override (without .zip)
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  package-zip:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Compute artifact names
+        shell: bash
+        run: |
+          SAFE_REF="${GITHUB_REF_NAME//\//-}"
+          SHORT_SHA="${GITHUB_SHA::7}"
+          if [ -n "${{ inputs.artifact_name }}" ]; then
+            BASE_NAME="${{ inputs.artifact_name }}"
+          else
+            BASE_NAME="OddEngine-${SAFE_REF}-${SHORT_SHA}"
+          fi
+          echo "BASE_NAME=$BASE_NAME" >> "$GITHUB_ENV"
+          echo "ZIP_PATH=$RUNNER_TEMP/$BASE_NAME.zip" >> "$GITHUB_ENV"
+
+      - name: Build tracked-files zip
+        shell: bash
+        run: |
+          git archive --format=zip --output "$ZIP_PATH" HEAD
+          ls -lh "$ZIP_PATH"
+
+      - name: Upload zip artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: ${{ env.BASE_NAME }}
+          path: ${{ env.ZIP_PATH }}
+          retention-days: 14
+          if-no-files-found: error

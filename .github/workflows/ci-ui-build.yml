@@ -1,0 +1,47 @@
+name: CI - UI Build
+
+on:
+  push:
+    branches:
+      - main
+      - recovery/render-worker-bridge-pass
+    paths:
+      - 'ui/**'
+      - '.github/workflows/ci-ui-build.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'ui/**'
+      - '.github/workflows/ci-ui-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-ui-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-ui:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ui
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Install UI dependencies
+        run: npm ci
+
+      - name: Build UI
+        run: npm run build
