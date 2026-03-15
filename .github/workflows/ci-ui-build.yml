@@ -41,7 +41,10 @@ jobs:
           cache-dependency-path: ui/package-lock.json
 
       - name: Install UI dependencies
-        run: npm ci
+  run: npm ci --include=dev
 
-      - name: Build UI
-        run: npm run build
+- name: Verify Vite exists
+  run: ls -la node_modules/vite/bin
+
+- name: Build UI
+  run: npm run build
