@@ -1,0 +1,317 @@
+[
+  {
+    "id": "AutonomousScannerPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "CapitalFlowPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "ExecutionEnginePanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "FiftyTo1K",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 4
+  },
+  {
+    "id": "GalacticMarketSimulatorPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "GalacticSimulator",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "HolographicMarketMapPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "InstitutionalTraderPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "MarketBrainPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "MarketGraph",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "MarketGraph3DPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "MarketGraphPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": false,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "MarketIntelligencePanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "MarketMap",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 4
+  },
+  {
+    "id": "MarketTimeMachinePanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "MiningRadarPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "NeuralStrategyPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "OpportunityRadarPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "OptionsSaaS",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 24
+  },
+  {
+    "id": "OptionsSniper",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 4
+  },
+  {
+    "id": "OptionsSniperTerminal",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 4
+  },
+  {
+    "id": "OrderFlowRadarPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "PortfolioAIPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "RiskGuardianPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "SimulatorPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "StrategyEvolutionLab",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "StrategyEvolutionPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "StrategyLabPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "TimeMachine",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 4
+  },
+  {
+    "id": "TradeIdeasPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "TradePlannerPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "TradeProbabilityPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "Trading",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 74
+  },
+  {
+    "id": "TradingDeskPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": true,
+    "brainMentionCount": 2
+  },
+  {
+    "id": "TradingPanel",
+    "hasFile": true,
+    "inAppRegistry": true,
+    "loadableByApp": true,
+    "inBrainRaw": true,
+    "inBrainPublic": false,
+    "brainMentionCount": 2
+  }
+]

@@ -1,0 +1,1608 @@
+{
+  "generatedAt": "2026-03-15T02:50:28.199Z",
+  "repoRoot": "C:\\OddEngine",
+  "counts": {
+    "panelFiles": 78,
+    "appRegistryEntries": 78,
+    "appRegistryKeys": 78,
+    "appLoadableIds": 78,
+    "appSwitchCases": 0,
+    "brainRawIds": 89,
+    "brainPublicIds": 82,
+    "brainMentionedPanels": 78,
+    "tradingPanels": 35
+  },
+  "panelFiles": [
+    {
+      "file": "aBooks.tsx",
+      "id": "aBooks"
+    },
+    {
+      "file": "AgentsPanel.tsx",
+      "id": "AgentsPanel"
+    },
+    {
+      "file": "AutonomousScannerPanel.tsx",
+      "id": "AutonomousScannerPanel"
+    },
+    {
+      "file": "Autopilot.tsx",
+      "id": "Autopilot"
+    },
+    {
+      "file": "Books.tsx",
+      "id": "Books"
+    },
+    {
+      "file": "Brain.tsx",
+      "id": "Brain"
+    },
+    {
+      "file": "Builder.tsx",
+      "id": "Builder"
+    },
+    {
+      "file": "Calendar.tsx",
+      "id": "Calendar"
+    },
+    {
+      "file": "Cameras.tsx",
+      "id": "Cameras"
+    },
+    {
+      "file": "Cannabis.tsx",
+      "id": "Cannabis"
+    },
+    {
+      "file": "CapitalFlowPanel.tsx",
+      "id": "CapitalFlowPanel"
+    },
+    {
+      "file": "CryptoGames.tsx",
+      "id": "CryptoGames"
+    },
+    {
+      "file": "DailyChores.tsx",
+      "id": "DailyChores"
+    },
+    {
+      "file": "DevEngine.tsx",
+      "id": "DevEngine"
+    },
+    {
+      "file": "Entertainment.tsx",
+      "id": "Entertainment"
+    },
+    {
+      "file": "ExecutionEnginePanel.tsx",
+      "id": "ExecutionEnginePanel"
+    },
+    {
+      "file": "FamilyBudget.tsx",
+      "id": "FamilyBudget"
+    },
+    {
+      "file": "FamilyHealth.tsx",
+      "id": "FamilyHealth"
+    },
+    {
+      "file": "FiftyTo1K.tsx",
+      "id": "FiftyTo1K"
+    },
+    {
+      "file": "GalacticMarketSimulatorPanel.tsx",
+      "id": "GalacticMarketSimulatorPanel"
+    },
+    {
+      "file": "GalacticSimulator.tsx",
+      "id": "GalacticSimulator"
+    },
+    {
+      "file": "GroceryMeals.tsx",
+      "id": "GroceryMeals"
+    },
+    {
+      "file": "Grow.tsx",
+      "id": "Grow"
+    },
+    {
+      "file": "GrowControlPanel.tsx",
+      "id": "GrowControlPanel"
+    },
+    {
+      "file": "GrowPanel.tsx",
+      "id": "GrowPanel"
+    },
+    {
+      "file": "HappyHealthy.tsx",
+      "id": "HappyHealthy"
+    },
+    {
+      "file": "HolographicMarketMapPanel.tsx",
+      "id": "HolographicMarketMapPanel"
+    },
+    {
+      "file": "Home.tsx",
+      "id": "Home"
+    },
+    {
+      "file": "Homie.tsx",
+      "id": "Homie"
+    },
+    {
+      "file": "InsightsPanel.tsx",
+      "id": "InsightsPanel"
+    },
+    {
+      "file": "InstitutionalTraderPanel.tsx",
+      "id": "InstitutionalTraderPanel"
+    },
+    {
+      "file": "KernelMonitorPanel.tsx",
+      "id": "KernelMonitorPanel"
+    },
+    {
+      "file": "MarketBrainPanel.tsx",
+      "id": "MarketBrainPanel"
+    },
+    {
+      "file": "MarketGraph.tsx",
+      "id": "MarketGraph"
+    },
+    {
+      "file": "MarketGraph3DPanel.tsx",
+      "id": "MarketGraph3DPanel"
+    },
+    {
+      "file": "MarketGraphPanel.tsx",
+      "id": "MarketGraphPanel"
+    },
+    {
+      "file": "MarketIntelligencePanel.tsx",
+      "id": "MarketIntelligencePanel"
+    },
+    {
+      "file": "MarketMap.tsx",
+      "id": "MarketMap"
+    },
+    {
+      "file": "MarketTimeMachinePanel.tsx",
+      "id": "MarketTimeMachinePanel"
+    },
+    {
+      "file": "Mining.tsx",
+      "id": "Mining"
+    },
+    {
+      "file": "MiningRadarPanel.tsx",
+      "id": "MiningRadarPanel"
+    },
+    {
+      "file": "MissionControl.tsx",
+      "id": "MissionControl"
+    },
+    {
+      "file": "MissionControlPanel.tsx",
+      "id": "MissionControlPanel"
+    },
+    {
+      "file": "Money.tsx",
+      "id": "Money"
+    },
+    {
+      "file": "MoneyPanel.tsx",
+      "id": "MoneyPanel"
+    },
+    {
+      "file": "NeuralStrategyPanel.tsx",
+      "id": "NeuralStrategyPanel"
+    },
+    {
+      "file": "News.tsx",
+      "id": "News"
+    },
+    {
+      "file": "OddBrain.tsx",
+      "id": "OddBrain"
+    },
+    {
+      "file": "OperatorPanel.tsx",
+      "id": "OperatorPanel"
+    },
+    {
+      "file": "OpportunityRadarPanel.tsx",
+      "id": "OpportunityRadarPanel"
+    },
+    {
+      "file": "OptionsSaaS.tsx",
+      "id": "OptionsSaaS"
+    },
+    {
+      "file": "OptionsSniper.tsx",
+      "id": "OptionsSniper"
+    },
+    {
+      "file": "OptionsSniperTerminal.tsx",
+      "id": "OptionsSniperTerminal"
+    },
+    {
+      "file": "OrderFlowRadarPanel.tsx",
+      "id": "OrderFlowRadarPanel"
+    },
+    {
+      "file": "PluginManagerPanel.tsx",
+      "id": "PluginManagerPanel"
+    },
+    {
+      "file": "Plugins.tsx",
+      "id": "Plugins"
+    },
+    {
+      "file": "PortfolioAIPanel.tsx",
+      "id": "PortfolioAIPanel"
+    },
+    {
+      "file": "Preferences.tsx",
+      "id": "Preferences"
+    },
+    {
+      "file": "RiskGuardianPanel.tsx",
+      "id": "RiskGuardianPanel"
+    },
+    {
+      "file": "RoutineLauncher.tsx",
+      "id": "RoutineLauncher"
+    },
+    {
+      "file": "Security.tsx",
+      "id": "Security"
+    },
+    {
+      "file": "SimulatorPanel.tsx",
+      "id": "SimulatorPanel"
+    },
+    {
+      "file": "SmartExitPanel.tsx",
+      "id": "SmartExitPanel"
+    },
+    {
+      "file": "StrategyEvolutionLab.tsx",
+      "id": "StrategyEvolutionLab"
+    },
+    {
+      "file": "StrategyEvolutionPanel.tsx",
+      "id": "StrategyEvolutionPanel"
+    },
+    {
+      "file": "StrategyLabPanel.tsx",
+      "id": "StrategyLabPanel"
+    },
+    {
+      "file": "TerminalMainPanel.tsx",
+      "id": "TerminalMainPanel"
+    },
+    {
+      "file": "TimeMachine.tsx",
+      "id": "TimeMachine"
+    },
+    {
+      "file": "TradeIdeasPanel.tsx",
+      "id": "TradeIdeasPanel"
+    },
+    {
+      "file": "TradePlannerPanel.tsx",
+      "id": "TradePlannerPanel"
+    },
+    {
+      "file": "TradeProbabilityPanel.tsx",
+      "id": "TradeProbabilityPanel"
+    },
+    {
+      "file": "Trading.tsx",
+      "id": "Trading"
+    },
+    {
+      "file": "TradingDeskPanel.tsx",
+      "id": "TradingDeskPanel"
+    },
+    {
+      "file": "TradingPanel.tsx",
+      "id": "TradingPanel"
+    },
+    {
+      "file": "VegasPokerCashPromos.tsx",
+      "id": "VegasPokerCashPromos"
+    },
+    {
+      "file": "VegasPokerFeed.tsx",
+      "id": "VegasPokerFeed"
+    },
+    {
+      "file": "WorkspacePanel.tsx",
+      "id": "WorkspacePanel"
+    },
+    {
+      "file": "WritingPanel.tsx",
+      "id": "WritingPanel"
+    }
+  ],
+  "appRegistry": [
+    {
+      "key": "aBooks",
+      "target": "aBooks",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "AgentsPanel",
+      "target": "AgentsPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "AutonomousScannerPanel",
+      "target": "AutonomousScannerPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "Autopilot",
+      "target": "Autopilot",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "Books",
+      "target": "Books",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "Brain",
+      "target": "Brain",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "Builder",
+      "target": "Builder",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "Calendar",
+      "target": "Calendar",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "Cameras",
+      "target": "Cameras",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "Cannabis",
+      "target": "Cannabis",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "CapitalFlowPanel",
+      "target": "CapitalFlowPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "CryptoGames",
+      "target": "CryptoGames",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "DailyChores",
+      "target": "DailyChores",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "DevEngine",
+      "target": "DevEngine",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "Entertainment",
+      "target": "Entertainment",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "ExecutionEnginePanel",
+      "target": "ExecutionEnginePanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "FamilyBudget",
+      "target": "FamilyBudget",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "FamilyHealth",
+      "target": "FamilyHealth",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "FiftyTo1K",
+      "target": "FiftyTo1K",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "GalacticMarketSimulatorPanel",
+      "target": "GalacticMarketSimulatorPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "GalacticSimulator",
+      "target": "GalacticSimulator",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "GroceryMeals",
+      "target": "GroceryMeals",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "Grow",
+      "target": "Grow",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "GrowControlPanel",
+      "target": "GrowControlPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "GrowPanel",
+      "target": "GrowPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "HappyHealthy",
+      "target": "HappyHealthy",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "HolographicMarketMapPanel",
+      "target": "HolographicMarketMapPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "Home",
+      "target": "Home",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "Homie",
+      "target": "Homie",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "InsightsPanel",
+      "target": "InsightsPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "InstitutionalTraderPanel",
+      "target": "InstitutionalTraderPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "KernelMonitorPanel",
+      "target": "KernelMonitorPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "MarketBrainPanel",
+      "target": "MarketBrainPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "MarketGraph",
+      "target": "MarketGraph",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "MarketGraph3DPanel",
+      "target": "MarketGraph3DPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "MarketGraphPanel",
+      "target": "MarketGraphPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "MarketIntelligencePanel",
+      "target": "MarketIntelligencePanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "MarketMap",
+      "target": "MarketMap",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "MarketTimeMachinePanel",
+      "target": "MarketTimeMachinePanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "Mining",
+      "target": "Mining",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "MiningRadarPanel",
+      "target": "MiningRadarPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "MissionControl",
+      "target": "MissionControl",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "MissionControlPanel",
+      "target": "MissionControlPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "Money",
+      "target": "Money",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "MoneyPanel",
+      "target": "MoneyPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "NeuralStrategyPanel",
+      "target": "NeuralStrategyPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "News",
+      "target": "News",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "OddBrain",
+      "target": "OddBrain",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "OperatorPanel",
+      "target": "OperatorPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "OpportunityRadarPanel",
+      "target": "OpportunityRadarPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "OptionsSaaS",
+      "target": "OptionsSaaS",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "OptionsSniper",
+      "target": "OptionsSniper",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "OptionsSniperTerminal",
+      "target": "OptionsSniperTerminal",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "OrderFlowRadarPanel",
+      "target": "OrderFlowRadarPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "PluginManagerPanel",
+      "target": "PluginManagerPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "Plugins",
+      "target": "Plugins",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "PortfolioAIPanel",
+      "target": "PortfolioAIPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "Preferences",
+      "target": "Preferences",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "RiskGuardianPanel",
+      "target": "RiskGuardianPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "RoutineLauncher",
+      "target": "RoutineLauncher",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "Security",
+      "target": "Security",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "SimulatorPanel",
+      "target": "SimulatorPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "SmartExitPanel",
+      "target": "SmartExitPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "StrategyEvolutionLab",
+      "target": "StrategyEvolutionLab",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "StrategyEvolutionPanel",
+      "target": "StrategyEvolutionPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "StrategyLabPanel",
+      "target": "StrategyLabPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "TerminalMainPanel",
+      "target": "TerminalMainPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "TimeMachine",
+      "target": "TimeMachine",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "TradeIdeasPanel",
+      "target": "TradeIdeasPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "TradePlannerPanel",
+      "target": "TradePlannerPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "TradeProbabilityPanel",
+      "target": "TradeProbabilityPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "Trading",
+      "target": "Trading",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "TradingDeskPanel",
+      "target": "TradingDeskPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "TradingPanel",
+      "target": "TradingPanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "VegasPokerCashPromos",
+      "target": "VegasPokerCashPromos",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "VegasPokerFeed",
+      "target": "VegasPokerFeed",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "WorkspacePanel",
+      "target": "WorkspacePanel",
+      "kind": "lazyPanel"
+    },
+    {
+      "key": "WritingPanel",
+      "target": "WritingPanel",
+      "kind": "lazyPanel"
+    }
+  ],
+  "appRegistryKeys": [
+    "aBooks",
+    "AgentsPanel",
+    "AutonomousScannerPanel",
+    "Autopilot",
+    "Books",
+    "Brain",
+    "Builder",
+    "Calendar",
+    "Cameras",
+    "Cannabis",
+    "CapitalFlowPanel",
+    "CryptoGames",
+    "DailyChores",
+    "DevEngine",
+    "Entertainment",
+    "ExecutionEnginePanel",
+    "FamilyBudget",
+    "FamilyHealth",
+    "FiftyTo1K",
+    "GalacticMarketSimulatorPanel",
+    "GalacticSimulator",
+    "GroceryMeals",
+    "Grow",
+    "GrowControlPanel",
+    "GrowPanel",
+    "HappyHealthy",
+    "HolographicMarketMapPanel",
+    "Home",
+    "Homie",
+    "InsightsPanel",
+    "InstitutionalTraderPanel",
+    "KernelMonitorPanel",
+    "MarketBrainPanel",
+    "MarketGraph",
+    "MarketGraph3DPanel",
+    "MarketGraphPanel",
+    "MarketIntelligencePanel",
+    "MarketMap",
+    "MarketTimeMachinePanel",
+    "Mining",
+    "MiningRadarPanel",
+    "MissionControl",
+    "MissionControlPanel",
+    "Money",
+    "MoneyPanel",
+    "NeuralStrategyPanel",
+    "News",
+    "OddBrain",
+    "OperatorPanel",
+    "OpportunityRadarPanel",
+    "OptionsSaaS",
+    "OptionsSniper",
+    "OptionsSniperTerminal",
+    "OrderFlowRadarPanel",
+    "PluginManagerPanel",
+    "Plugins",
+    "PortfolioAIPanel",
+    "Preferences",
+    "RiskGuardianPanel",
+    "RoutineLauncher",
+    "Security",
+    "SimulatorPanel",
+    "SmartExitPanel",
+    "StrategyEvolutionLab",
+    "StrategyEvolutionPanel",
+    "StrategyLabPanel",
+    "TerminalMainPanel",
+    "TimeMachine",
+    "TradeIdeasPanel",
+    "TradePlannerPanel",
+    "TradeProbabilityPanel",
+    "Trading",
+    "TradingDeskPanel",
+    "TradingPanel",
+    "VegasPokerCashPromos",
+    "VegasPokerFeed",
+    "WorkspacePanel",
+    "WritingPanel"
+  ],
+  "appRegistryTargets": [
+    "aBooks",
+    "AgentsPanel",
+    "AutonomousScannerPanel",
+    "Autopilot",
+    "Books",
+    "Brain",
+    "Builder",
+    "Calendar",
+    "Cameras",
+    "Cannabis",
+    "CapitalFlowPanel",
+    "CryptoGames",
+    "DailyChores",
+    "DevEngine",
+    "Entertainment",
+    "ExecutionEnginePanel",
+    "FamilyBudget",
+    "FamilyHealth",
+    "FiftyTo1K",
+    "GalacticMarketSimulatorPanel",
+    "GalacticSimulator",
+    "GroceryMeals",
+    "Grow",
+    "GrowControlPanel",
+    "GrowPanel",
+    "HappyHealthy",
+    "HolographicMarketMapPanel",
+    "Home",
+    "Homie",
+    "InsightsPanel",
+    "InstitutionalTraderPanel",
+    "KernelMonitorPanel",
+    "MarketBrainPanel",
+    "MarketGraph",
+    "MarketGraph3DPanel",
+    "MarketGraphPanel",
+    "MarketIntelligencePanel",
+    "MarketMap",
+    "MarketTimeMachinePanel",
+    "Mining",
+    "MiningRadarPanel",
+    "MissionControl",
+    "MissionControlPanel",
+    "Money",
+    "MoneyPanel",
+    "NeuralStrategyPanel",
+    "News",
+    "OddBrain",
+    "OperatorPanel",
+    "OpportunityRadarPanel",
+    "OptionsSaaS",
+    "OptionsSniper",
+    "OptionsSniperTerminal",
+    "OrderFlowRadarPanel",
+    "PluginManagerPanel",
+    "Plugins",
+    "PortfolioAIPanel",
+    "Preferences",
+    "RiskGuardianPanel",
+    "RoutineLauncher",
+    "Security",
+    "SimulatorPanel",
+    "SmartExitPanel",
+    "StrategyEvolutionLab",
+    "StrategyEvolutionPanel",
+    "StrategyLabPanel",
+    "TerminalMainPanel",
+    "TimeMachine",
+    "TradeIdeasPanel",
+    "TradePlannerPanel",
+    "TradeProbabilityPanel",
+    "Trading",
+    "TradingDeskPanel",
+    "TradingPanel",
+    "VegasPokerCashPromos",
+    "VegasPokerFeed",
+    "WorkspacePanel",
+    "WritingPanel"
+  ],
+  "appSwitchCases": [],
+  "appLoadableIds": [
+    "aBooks",
+    "AgentsPanel",
+    "AutonomousScannerPanel",
+    "Autopilot",
+    "Books",
+    "Brain",
+    "Builder",
+    "Calendar",
+    "Cameras",
+    "Cannabis",
+    "CapitalFlowPanel",
+    "CryptoGames",
+    "DailyChores",
+    "DevEngine",
+    "Entertainment",
+    "ExecutionEnginePanel",
+    "FamilyBudget",
+    "FamilyHealth",
+    "FiftyTo1K",
+    "GalacticMarketSimulatorPanel",
+    "GalacticSimulator",
+    "GroceryMeals",
+    "Grow",
+    "GrowControlPanel",
+    "GrowPanel",
+    "HappyHealthy",
+    "HolographicMarketMapPanel",
+    "Home",
+    "Homie",
+    "InsightsPanel",
+    "InstitutionalTraderPanel",
+    "KernelMonitorPanel",
+    "MarketBrainPanel",
+    "MarketGraph",
+    "MarketGraph3DPanel",
+    "MarketGraphPanel",
+    "MarketIntelligencePanel",
+    "MarketMap",
+    "MarketTimeMachinePanel",
+    "Mining",
+    "MiningRadarPanel",
+    "MissionControl",
+    "MissionControlPanel",
+    "Money",
+    "MoneyPanel",
+    "NeuralStrategyPanel",
+    "News",
+    "OddBrain",
+    "OperatorPanel",
+    "OpportunityRadarPanel",
+    "OptionsSaaS",
+    "OptionsSniper",
+    "OptionsSniperTerminal",
+    "OrderFlowRadarPanel",
+    "PluginManagerPanel",
+    "Plugins",
+    "PortfolioAIPanel",
+    "Preferences",
+    "RiskGuardianPanel",
+    "RoutineLauncher",
+    "Security",
+    "SimulatorPanel",
+    "SmartExitPanel",
+    "StrategyEvolutionLab",
+    "StrategyEvolutionPanel",
+    "StrategyLabPanel",
+    "TerminalMainPanel",
+    "TimeMachine",
+    "TradeIdeasPanel",
+    "TradePlannerPanel",
+    "TradeProbabilityPanel",
+    "Trading",
+    "TradingDeskPanel",
+    "TradingPanel",
+    "VegasPokerCashPromos",
+    "VegasPokerFeed",
+    "WorkspacePanel",
+    "WritingPanel"
+  ],
+  "brainRawIds": [
+    "aBooks",
+    "AgentsPanel",
+    "AutonomousScannerPanel",
+    "Autopilot",
+    "Books",
+    "brain",
+    "Brain",
+    "Builder",
+    "calendar",
+    "Calendar",
+    "Cameras",
+    "Cannabis",
+    "CapitalFlowPanel",
+    "CryptoGames",
+    "DailyChores",
+    "DevEngine",
+    "Entertainment",
+    "ExecutionEnginePanel",
+    "FamilyBudget",
+    "FamilyHealth",
+    "FiftyTo1K",
+    "GalacticMarketSimulatorPanel",
+    "GalacticSimulator",
+    "GroceryMeals",
+    "Grow",
+    "GrowControlPanel",
+    "GrowPanel",
+    "HappyHealthy",
+    "HolographicMarketMapPanel",
+    "home",
+    "Home",
+    "homie",
+    "Homie",
+    "InsightsPanel",
+    "InstitutionalTraderPanel",
+    "KernelMonitorPanel",
+    "MarketBrainPanel",
+    "MarketGraph",
+    "MarketGraph3DPanel",
+    "MarketGraphPanel",
+    "MarketIntelligencePanel",
+    "MarketMap",
+    "MarketTimeMachinePanel",
+    "Mining",
+    "MiningRadarPanel",
+    "MissionControl",
+    "MissionControlPanel",
+    "money",
+    "Money",
+    "MoneyPanel",
+    "NeuralStrategyPanel",
+    "News",
+    "OddBrain",
+    "OperatorPanel",
+    "OpportunityRadarPanel",
+    "OptionsSaaS",
+    "OptionsSniper",
+    "OptionsSniperTerminal",
+    "OrderFlowRadarPanel",
+    "payoff",
+    "PluginManagerPanel",
+    "Plugins",
+    "PortfolioAIPanel",
+    "Preferences",
+    "prefs",
+    "reports",
+    "RiskGuardianPanel",
+    "routine",
+    "RoutineLauncher",
+    "security",
+    "Security",
+    "SimulatorPanel",
+    "SmartExitPanel",
+    "StrategyEvolutionLab",
+    "StrategyEvolutionPanel",
+    "StrategyLabPanel",
+    "TerminalMainPanel",
+    "TimeMachine",
+    "TradeIdeasPanel",
+    "TradePlannerPanel",
+    "TradeProbabilityPanel",
+    "Trading",
+    "TradingDeskPanel",
+    "TradingPanel",
+    "vegas-feed",
+    "VegasPokerCashPromos",
+    "VegasPokerFeed",
+    "WorkspacePanel",
+    "WritingPanel"
+  ],
+  "brainHiddenIds": [],
+  "brainPublicIds": [
+    "AgentsPanel",
+    "AutonomousScannerPanel",
+    "Autopilot",
+    "Books",
+    "brain",
+    "Brain",
+    "Builder",
+    "calendar",
+    "Calendar",
+    "Cameras",
+    "Cannabis",
+    "CapitalFlowPanel",
+    "CryptoGames",
+    "DailyChores",
+    "DevEngine",
+    "Entertainment",
+    "ExecutionEnginePanel",
+    "FamilyBudget",
+    "FamilyHealth",
+    "FiftyTo1K",
+    "GalacticMarketSimulatorPanel",
+    "GalacticSimulator",
+    "GroceryMeals",
+    "Grow",
+    "GrowControlPanel",
+    "HappyHealthy",
+    "HolographicMarketMapPanel",
+    "home",
+    "Home",
+    "homie",
+    "Homie",
+    "InsightsPanel",
+    "InstitutionalTraderPanel",
+    "KernelMonitorPanel",
+    "MarketBrainPanel",
+    "MarketGraph",
+    "MarketGraph3DPanel",
+    "MarketIntelligencePanel",
+    "MarketMap",
+    "MarketTimeMachinePanel",
+    "Mining",
+    "MiningRadarPanel",
+    "money",
+    "Money",
+    "NeuralStrategyPanel",
+    "News",
+    "OddBrain",
+    "OperatorPanel",
+    "OpportunityRadarPanel",
+    "OptionsSaaS",
+    "OptionsSniper",
+    "OptionsSniperTerminal",
+    "OrderFlowRadarPanel",
+    "payoff",
+    "PluginManagerPanel",
+    "Plugins",
+    "PortfolioAIPanel",
+    "Preferences",
+    "prefs",
+    "reports",
+    "RiskGuardianPanel",
+    "routine",
+    "RoutineLauncher",
+    "security",
+    "Security",
+    "SimulatorPanel",
+    "SmartExitPanel",
+    "StrategyEvolutionLab",
+    "StrategyEvolutionPanel",
+    "StrategyLabPanel",
+    "TerminalMainPanel",
+    "TimeMachine",
+    "TradeIdeasPanel",
+    "TradePlannerPanel",
+    "TradeProbabilityPanel",
+    "Trading",
+    "TradingDeskPanel",
+    "vegas-feed",
+    "VegasPokerCashPromos",
+    "VegasPokerFeed",
+    "WorkspacePanel",
+    "WritingPanel"
+  ],
+  "canonicalOverrides": {
+    "MissionControl": "Brain",
+    "MissionControlPanel": "Brain",
+    "aBooks": "Books"
+  },
+  "aliasSamples": [
+    "budget",
+    "calendar",
+    "cash games",
+    "cash promos",
+    "chores",
+    "crypto",
+    "daily chores",
+    "family health",
+    "familybudget",
+    "games",
+    "grocery",
+    "health",
+    "healthy",
+    "heat map",
+    "house ops",
+    "household",
+    "local news",
+    "market map",
+    "meal planning",
+    "meals",
+    "medical",
+    "mission control",
+    "options",
+    "options sniper",
+    "planner",
+    "poker",
+    "poker promos",
+    "replay",
+    "saas",
+    "schedule",
+    "sniper",
+    "sniper terminal",
+    "terminal",
+    "time machine",
+    "tournaments",
+    "vegas poker",
+    "weather",
+    "wellness",
+    "zbd"
+  ],
+  "brainMentions": {
+    "aBooks": 12,
+    "AgentsPanel": 2,
+    "AutonomousScannerPanel": 2,
+    "Autopilot": 5,
+    "Books": 15,
+    "Brain": 125,
+    "Builder": 5,
+    "Calendar": 18,
+    "Cameras": 6,
+    "Cannabis": 9,
+    "CapitalFlowPanel": 2,
+    "CryptoGames": 6,
+    "DailyChores": 4,
+    "DevEngine": 10,
+    "Entertainment": 14,
+    "ExecutionEnginePanel": 2,
+    "FamilyBudget": 66,
+    "FamilyHealth": 28,
+    "FiftyTo1K": 4,
+    "GalacticMarketSimulatorPanel": 2,
+    "GalacticSimulator": 2,
+    "GroceryMeals": 28,
+    "Grow": 70,
+    "GrowControlPanel": 2,
+    "GrowPanel": 2,
+    "HappyHealthy": 8,
+    "HolographicMarketMapPanel": 2,
+    "Home": 9,
+    "Homie": 81,
+    "InsightsPanel": 2,
+    "InstitutionalTraderPanel": 2,
+    "KernelMonitorPanel": 2,
+    "MarketBrainPanel": 2,
+    "MarketGraph": 2,
+    "MarketGraph3DPanel": 2,
+    "MarketGraphPanel": 2,
+    "MarketIntelligencePanel": 2,
+    "MarketMap": 4,
+    "MarketTimeMachinePanel": 2,
+    "Mining": 16,
+    "MiningRadarPanel": 2,
+    "MissionControl": 5,
+    "MissionControlPanel": 3,
+    "Money": 32,
+    "MoneyPanel": 2,
+    "NeuralStrategyPanel": 2,
+    "News": 42,
+    "OddBrain": 15,
+    "OperatorPanel": 2,
+    "OpportunityRadarPanel": 2,
+    "OptionsSaaS": 24,
+    "OptionsSniper": 4,
+    "OptionsSniperTerminal": 4,
+    "OrderFlowRadarPanel": 2,
+    "PluginManagerPanel": 2,
+    "Plugins": 8,
+    "PortfolioAIPanel": 2,
+    "Preferences": 21,
+    "RiskGuardianPanel": 2,
+    "RoutineLauncher": 12,
+    "Security": 40,
+    "SimulatorPanel": 2,
+    "SmartExitPanel": 2,
+    "StrategyEvolutionLab": 2,
+    "StrategyEvolutionPanel": 2,
+    "StrategyLabPanel": 2,
+    "TerminalMainPanel": 2,
+    "TimeMachine": 4,
+    "TradeIdeasPanel": 2,
+    "TradePlannerPanel": 2,
+    "TradeProbabilityPanel": 2,
+    "Trading": 74,
+    "TradingDeskPanel": 2,
+    "TradingPanel": 2,
+    "VegasPokerCashPromos": 4,
+    "VegasPokerFeed": 6,
+    "WorkspacePanel": 2,
+    "WritingPanel": 2
+  },
+  "missingInAppRegistry": [],
+  "missingInAppLoadable": [],
+  "missingInBrainRaw": [],
+  "missingInBrainPublic": [
+    "aBooks",
+    "GrowPanel",
+    "MarketGraphPanel",
+    "MissionControl",
+    "MissionControlPanel",
+    "MoneyPanel",
+    "TradingPanel"
+  ],
+  "orphanRegistryKeys": [],
+  "orphanRegistryTargets": [],
+  "orphanBrainRaw": [
+    "brain",
+    "calendar",
+    "home",
+    "homie",
+    "money",
+    "payoff",
+    "prefs",
+    "reports",
+    "routine",
+    "security",
+    "vegas-feed"
+  ],
+  "tradingStatus": [
+    {
+      "id": "AutonomousScannerPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "CapitalFlowPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "ExecutionEnginePanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "FiftyTo1K",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 4
+    },
+    {
+      "id": "GalacticMarketSimulatorPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "GalacticSimulator",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "HolographicMarketMapPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "InstitutionalTraderPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "MarketBrainPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "MarketGraph",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "MarketGraph3DPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "MarketGraphPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": false,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "MarketIntelligencePanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "MarketMap",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 4
+    },
+    {
+      "id": "MarketTimeMachinePanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "MiningRadarPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "NeuralStrategyPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "OpportunityRadarPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "OptionsSaaS",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 24
+    },
+    {
+      "id": "OptionsSniper",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 4
+    },
+    {
+      "id": "OptionsSniperTerminal",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 4
+    },
+    {
+      "id": "OrderFlowRadarPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "PortfolioAIPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "RiskGuardianPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "SimulatorPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "StrategyEvolutionLab",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "StrategyEvolutionPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "StrategyLabPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "TimeMachine",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 4
+    },
+    {
+      "id": "TradeIdeasPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "TradePlannerPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "TradeProbabilityPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "Trading",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 74
+    },
+    {
+      "id": "TradingDeskPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": true,
+      "brainMentionCount": 2
+    },
+    {
+      "id": "TradingPanel",
+      "hasFile": true,
+      "inAppRegistry": true,
+      "loadableByApp": true,
+      "inBrainRaw": true,
+      "inBrainPublic": false,
+      "brainMentionCount": 2
+    }
+  ]
+}

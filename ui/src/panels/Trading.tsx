@@ -956,7 +956,7 @@ function ContractDrawer({
               <div className="drawerStat"><span className="small">OSI</span><b style={{ fontSize: 12 }}>{contract.osiSymbol || "—"}</b></div>
             </div>
             <div className="small">Feed updated: {formatTimestamp(chain?.feedUpdated)}</div>
-            <div className="row wrap" style={{ gap: 10 }}>
+            <div className="row wrap">
               <button onClick={onFetchGreeks}>Refresh greeks</button>
               <button onClick={onOpenPublic}>Open on Public</button>
             </div>
@@ -979,7 +979,7 @@ function ContractDrawer({
               <div className="small"><b>Quick read:</b></div>
               <div className="small mt-2">Δ tells you directional sensitivity. Γ tells you how fast delta changes. Θ is daily decay pressure. V shows sensitivity to IV change. ρ is usually minor for short-dated contracts. IV spikes can juice premium even if price stalls.</div>
             </div>
-            <div className="row wrap" style={{ gap: 10 }}>
+            <div className="row wrap">
               <span className="badge">Δ {formatGreek(greeks.delta)}</span>
               <span className="badge">Γ {formatGreek(greeks.gamma)}</span>
               <span className="badge">Θ {formatGreek(greeks.theta)}</span>
@@ -1509,12 +1509,12 @@ export default function Trading() {
   }
 
   return (
-    <div className="card tradingPanelRoot">
+    <div className="card tradingPanelRoot tradingHomeRoot">
       <div className="tradingHeroBar">
         <div>
           <div className="small shellEyebrow">TRADING DESK</div>
           <div className="tradingHeroTitle">Trading</div>
-          <div className="small tradingHeroSub">Public API mode + better expiration tabs + contract search + strike grouping + mobile-style calls/puts/detail/greeks drawer.</div>
+          <div className="small tradingHeroSub">Sharper command desk for chart, chain, and plan flow with cleaner workstation rhythm.</div>
         </div>
         <div className="row wrap tradingHeroBadges" style={{ justifyContent: "flex-end" }}>
           <span className={`badge ${inp.dataMode === "api" ? "good" : "warn"}`}>{inp.dataMode === "api" ? "Public API mode" : "Public website fallback"}</span>
@@ -1717,7 +1717,7 @@ export default function Trading() {
           {!chain && <div className="small mt-3">No chain loaded yet. Hit <b>Scan symbol</b> to pull Public chain data into charts and the contracts table.</div>}
           {chain && (
             <div className="grid mt-4">
-              <div className="row wrap" style={{ gap: 10 }}>
+              <div className="row wrap">
                 <span className="badge good">{chain.symbol}</span>
                 {chain.companyName && <span className="badge">{chain.companyName}</span>}
                 {chain.spot !== null && <span className="badge warn">Spot {formatMoney(chain.spot)}</span>}

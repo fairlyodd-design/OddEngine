@@ -1,0 +1,392 @@
+[
+  {
+    "key": "aBooks",
+    "target": "aBooks",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "AgentsPanel",
+    "target": "AgentsPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "AutonomousScannerPanel",
+    "target": "AutonomousScannerPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "Autopilot",
+    "target": "Autopilot",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "Books",
+    "target": "Books",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "Brain",
+    "target": "Brain",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "Builder",
+    "target": "Builder",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "Calendar",
+    "target": "Calendar",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "Cameras",
+    "target": "Cameras",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "Cannabis",
+    "target": "Cannabis",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "CapitalFlowPanel",
+    "target": "CapitalFlowPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "CryptoGames",
+    "target": "CryptoGames",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "DailyChores",
+    "target": "DailyChores",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "DevEngine",
+    "target": "DevEngine",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "Entertainment",
+    "target": "Entertainment",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "ExecutionEnginePanel",
+    "target": "ExecutionEnginePanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "FamilyBudget",
+    "target": "FamilyBudget",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "FamilyHealth",
+    "target": "FamilyHealth",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "FiftyTo1K",
+    "target": "FiftyTo1K",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "GalacticMarketSimulatorPanel",
+    "target": "GalacticMarketSimulatorPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "GalacticSimulator",
+    "target": "GalacticSimulator",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "GroceryMeals",
+    "target": "GroceryMeals",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "Grow",
+    "target": "Grow",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "GrowControlPanel",
+    "target": "GrowControlPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "GrowPanel",
+    "target": "GrowPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "HappyHealthy",
+    "target": "HappyHealthy",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "HolographicMarketMapPanel",
+    "target": "HolographicMarketMapPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "Home",
+    "target": "Home",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "Homie",
+    "target": "Homie",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "InsightsPanel",
+    "target": "InsightsPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "InstitutionalTraderPanel",
+    "target": "InstitutionalTraderPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "KernelMonitorPanel",
+    "target": "KernelMonitorPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "MarketBrainPanel",
+    "target": "MarketBrainPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "MarketGraph",
+    "target": "MarketGraph",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "MarketGraph3DPanel",
+    "target": "MarketGraph3DPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "MarketGraphPanel",
+    "target": "MarketGraphPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "MarketIntelligencePanel",
+    "target": "MarketIntelligencePanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "MarketMap",
+    "target": "MarketMap",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "MarketTimeMachinePanel",
+    "target": "MarketTimeMachinePanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "Mining",
+    "target": "Mining",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "MiningRadarPanel",
+    "target": "MiningRadarPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "MissionControl",
+    "target": "MissionControl",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "MissionControlPanel",
+    "target": "MissionControlPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "Money",
+    "target": "Money",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "MoneyPanel",
+    "target": "MoneyPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "NeuralStrategyPanel",
+    "target": "NeuralStrategyPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "News",
+    "target": "News",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "OddBrain",
+    "target": "OddBrain",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "OperatorPanel",
+    "target": "OperatorPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "OpportunityRadarPanel",
+    "target": "OpportunityRadarPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "OptionsSaaS",
+    "target": "OptionsSaaS",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "OptionsSniper",
+    "target": "OptionsSniper",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "OptionsSniperTerminal",
+    "target": "OptionsSniperTerminal",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "OrderFlowRadarPanel",
+    "target": "OrderFlowRadarPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "PluginManagerPanel",
+    "target": "PluginManagerPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "Plugins",
+    "target": "Plugins",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "PortfolioAIPanel",
+    "target": "PortfolioAIPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "Preferences",
+    "target": "Preferences",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "RiskGuardianPanel",
+    "target": "RiskGuardianPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "RoutineLauncher",
+    "target": "RoutineLauncher",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "Security",
+    "target": "Security",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "SimulatorPanel",
+    "target": "SimulatorPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "SmartExitPanel",
+    "target": "SmartExitPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "StrategyEvolutionLab",
+    "target": "StrategyEvolutionLab",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "StrategyEvolutionPanel",
+    "target": "StrategyEvolutionPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "StrategyLabPanel",
+    "target": "StrategyLabPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "TerminalMainPanel",
+    "target": "TerminalMainPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "TimeMachine",
+    "target": "TimeMachine",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "TradeIdeasPanel",
+    "target": "TradeIdeasPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "TradePlannerPanel",
+    "target": "TradePlannerPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "TradeProbabilityPanel",
+    "target": "TradeProbabilityPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "Trading",
+    "target": "Trading",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "TradingDeskPanel",
+    "target": "TradingDeskPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "TradingPanel",
+    "target": "TradingPanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "VegasPokerCashPromos",
+    "target": "VegasPokerCashPromos",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "VegasPokerFeed",
+    "target": "VegasPokerFeed",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "WorkspacePanel",
+    "target": "WorkspacePanel",
+    "kind": "lazyPanel"
+  },
+  {
+    "key": "WritingPanel",
+    "target": "WritingPanel",
+    "kind": "lazyPanel"
+  }
+]

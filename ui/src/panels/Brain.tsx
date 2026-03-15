@@ -207,7 +207,7 @@ export default function Brain({ onNavigate, activePanelId }: { onNavigate?: (pan
       {view === "overview" ? (
         <>
       <div className="card heroCard missionHero">
-        <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+        <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap" }}>
           <div>
             <div className="small shellEyebrow">MISSION CONTROL • AI OPERATOR</div>
             <div className="h">🧠 Brain Mission Control</div>

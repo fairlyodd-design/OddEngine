@@ -4,8 +4,13 @@ import CardFrame from "../components/CardFrame";
 import { isDesktop, oddApi } from "../lib/odd";
 import { PANEL_META, getActivity, getBrainNotes, getGoals, normalizePanelId, logActivity } from "../lib/brain";
 import { loadJSON, saveJSON } from "../lib/storage";
+import { loadPrefs } from "../lib/prefs";
+import { HOMIE_PRESENCE_EVENT, getHomieMissionReadiness, loadHomiePresence } from "../lib/homiePresence";
+import { HOMIE_WAKE_FLOW_EVENT, getWakeConversationReadiness, loadHomieWakeFlow } from "../lib/homieWakeFlow";
+import { HOMIE_COMPANION_EVENT, getCompanionSignals, loadHomieCompanion } from "../lib/homieCompanion";
 import { CALENDAR_EVENT, addQuickEvent, listUpcoming, focusCalendarDate, type CalEvent } from "../lib/calendarStore";
 import { PHOENIX_WATCHLIST, topPhoenixSignals } from "../lib/marketDataPhoenix";
+import { CROSS_OS_ACTION_GROUPS, type CrossOSQuickAction } from "../lib/crossOSQuickActions";
 
 const ENT_EVENT = "oddengine:entertainment-changed";
 const DONE_KEY = "oddengine:calendar:done:v1";
@@ -60,6 +65,7 @@ export default function Home({ onNavigate }: Props) {
   const [calTick, setCalTick] = useState(0);
   const [entTick, setEntTick] = useState(0);
   const [doneTick, setDoneTick] = useState(0);
+  const [homieTick, setHomieTick] = useState(0);
 
   useEffect(() => {
     let alive = true;
@@ -107,6 +113,28 @@ export default function Home({ onNavigate }: Props) {
       }
     };
   }, []);
+
+useEffect(() => {
+  const refresh = () => setHomieTick((x) => x + 1);
+  try {
+    window.addEventListener(HOMIE_PRESENCE_EVENT as any, refresh);
+    window.addEventListener(HOMIE_WAKE_FLOW_EVENT as any, refresh);
+    window.addEventListener(HOMIE_COMPANION_EVENT as any, refresh);
+    window.addEventListener("storage", refresh);
+  } catch {
+    // ignore
+  }
+  return () => {
+    try {
+      window.removeEventListener(HOMIE_PRESENCE_EVENT as any, refresh);
+      window.removeEventListener(HOMIE_WAKE_FLOW_EVENT as any, refresh);
+      window.removeEventListener(HOMIE_COMPANION_EVENT as any, refresh);
+      window.removeEventListener("storage", refresh);
+    } catch {
+      // ignore
+    }
+  };
+}, []);
 
   const missionsCount = useMemo(() => {
     // Missions are derived from stored state; keep it lightweight here.
@@ -335,6 +363,18 @@ export default function Home({ onNavigate }: Props) {
     return items.filter((p) => normalizePanelId(p.id) !== "Home").slice(0, 8);
   }, [pinned]);
 
+const homieSnapshot = useMemo(() => {
+  void homieTick;
+  const prefs = loadPrefs();
+  const presence = loadHomiePresence();
+  const wake = loadHomieWakeFlow();
+  const companion = loadHomieCompanion();
+  const mission = getHomieMissionReadiness(presence, prefs);
+  const conversation = getWakeConversationReadiness(wake, presence, prefs);
+  const signals = getCompanionSignals(companion, mission.readiness, conversation.readiness, "Home");
+  return { prefs, presence, wake, companion, mission, conversation, signals };
+}, [homieTick]);
+
   const [q, setQ] = useState("");
   const apps = useMemo(() => {
     const all = PANEL_META.filter((p) => !["Home"].includes(normalizePanelId(p.id)));
@@ -403,6 +443,15 @@ export default function Home({ onNavigate }: Props) {
       .map((item) => ({ ...item, meta: appMap.get(normalizePanelId(item.id)) }))
       .filter((item) => item.meta),
   }))), [appMap, activeSignal, nextTrading, top3Tasks, todayEvents, nextWriting, nextFamily]);
+
+  function runQuickAction(action: CrossOSQuickAction) {
+    try {
+      logActivity({ kind: "system", panelId: "Home", title: `Quick action → ${action.title}`, body: action.description || action.group });
+    } catch {
+      // ignore
+    }
+    onNavigate(action.panelId);
+  }
 
   return (
     <div className="panelRoot homeRoot">
@@ -551,6 +600,75 @@ export default function Home({ onNavigate }: Props) {
                   <div className="homeTickerPrice">${item.price.toFixed(2)}</div>
                   <div className="homeTickerMeta">{item.setup} • {item.confidence}% • {item.bias}</div>
                 </button>
+              ))}
+            </div>
+          </div>
+
+<div className="card homeOpsCard" style={{ marginTop: 14 }}>
+  <div className="homePulseHeader">
+    <div>
+      <div className="small shellEyebrow">HOMIE COMPANION</div>
+      <div className="h">Embodied companion check-in</div>
+    </div>
+    <span className="badge good">{homieSnapshot.signals.readiness}% ready</span>
+  </div>
+  <div className="sub">Keep the restored Home look, but let Homie feel alive, present, and in your corner with readiness, wake flow, and companion posture visible at a glance.</div>
+  <div className="homeHeroMetrics" style={{ marginTop: 12 }}>
+    <div className="homeHeroMetric">
+      <div className="homeHeroMetricLabel">Mission</div>
+      <div className="homeHeroMetricValue">{homieSnapshot.mission.readiness}%</div>
+      <div className="homeHeroMetricSub">{homieSnapshot.mission.readyCount}/{homieSnapshot.mission.total} checks ready</div>
+    </div>
+    <div className="homeHeroMetric">
+      <div className="homeHeroMetricLabel">Conversation</div>
+      <div className="homeHeroMetricValue">{homieSnapshot.conversation.readiness}%</div>
+      <div className="homeHeroMetricSub">Wake phrase: {homieSnapshot.wake.wakePhrase}</div>
+    </div>
+    <div className="homeHeroMetric">
+      <div className="homeHeroMetricLabel">Companion vibe</div>
+      <div className="homeHeroMetricValue">{homieSnapshot.companion.attitude}</div>
+      <div className="homeHeroMetricSub">{homieSnapshot.companion.signature}</div>
+    </div>
+  </div>
+  <div className="small mt-3" style={{ opacity: 0.9 }}>{homieSnapshot.signals.headline}</div>
+  <div className="small mt-2" style={{ opacity: 0.82 }}>{homieSnapshot.signals.body}</div>
+  <div className="cluster wrap mt-4">
+    <button className="tabBtn" onClick={() => onNavigate("Homie")}>Open Homie</button>
+    <button className="tabBtn" onClick={() => onNavigate("Preferences")}>Tune presence</button>
+  </div>
+</div>
+
+          <div className="card homeQuickActionsCard">
+            <div className="homePulseHeader">
+              <div>
+                <div className="small shellEyebrow">CROSS-OS</div>
+                <div className="h">Quick actions</div>
+              </div>
+              <button className="tabBtn" onClick={() => onNavigate("Homie")}>Open Homie</button>
+            </div>
+            <div className="sub">Move through Home, Family, Trading, and Studio with one tap from the heartbeat of the OS.</div>
+            <div className="homeQuickActionsGrid">
+              {CROSS_OS_ACTION_GROUPS.map((group) => (
+                <div key={group.id} className="homeQuickActionGroup">
+                  <div className="homeQuickActionGroupTop">
+                    <div>
+                      <div className="homeQuickActionEyebrow">{group.eyebrow}</div>
+                      <div className="homeQuickActionTitle">{group.title}</div>
+                    </div>
+                    <span className="badge">{group.actions.length} routes</span>
+                  </div>
+                  <div className="homeQuickActionButtons">
+                    {group.actions.map((action) => (
+                      <button key={action.id} className="homeQuickActionBtn" onClick={() => runQuickAction(action)}>
+                        <span className="homeQuickActionIcon">{action.icon}</span>
+                        <span className="homeQuickActionText">
+                          <span className="homeQuickActionLabel">{action.title}</span>
+                          <span className="homeQuickActionMeta">{action.description}</span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           </div>

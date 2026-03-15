@@ -1,0 +1,314 @@
+[
+  {
+    "file": "aBooks.tsx",
+    "id": "aBooks"
+  },
+  {
+    "file": "AgentsPanel.tsx",
+    "id": "AgentsPanel"
+  },
+  {
+    "file": "AutonomousScannerPanel.tsx",
+    "id": "AutonomousScannerPanel"
+  },
+  {
+    "file": "Autopilot.tsx",
+    "id": "Autopilot"
+  },
+  {
+    "file": "Books.tsx",
+    "id": "Books"
+  },
+  {
+    "file": "Brain.tsx",
+    "id": "Brain"
+  },
+  {
+    "file": "Builder.tsx",
+    "id": "Builder"
+  },
+  {
+    "file": "Calendar.tsx",
+    "id": "Calendar"
+  },
+  {
+    "file": "Cameras.tsx",
+    "id": "Cameras"
+  },
+  {
+    "file": "Cannabis.tsx",
+    "id": "Cannabis"
+  },
+  {
+    "file": "CapitalFlowPanel.tsx",
+    "id": "CapitalFlowPanel"
+  },
+  {
+    "file": "CryptoGames.tsx",
+    "id": "CryptoGames"
+  },
+  {
+    "file": "DailyChores.tsx",
+    "id": "DailyChores"
+  },
+  {
+    "file": "DevEngine.tsx",
+    "id": "DevEngine"
+  },
+  {
+    "file": "Entertainment.tsx",
+    "id": "Entertainment"
+  },
+  {
+    "file": "ExecutionEnginePanel.tsx",
+    "id": "ExecutionEnginePanel"
+  },
+  {
+    "file": "FamilyBudget.tsx",
+    "id": "FamilyBudget"
+  },
+  {
+    "file": "FamilyHealth.tsx",
+    "id": "FamilyHealth"
+  },
+  {
+    "file": "FiftyTo1K.tsx",
+    "id": "FiftyTo1K"
+  },
+  {
+    "file": "GalacticMarketSimulatorPanel.tsx",
+    "id": "GalacticMarketSimulatorPanel"
+  },
+  {
+    "file": "GalacticSimulator.tsx",
+    "id": "GalacticSimulator"
+  },
+  {
+    "file": "GroceryMeals.tsx",
+    "id": "GroceryMeals"
+  },
+  {
+    "file": "Grow.tsx",
+    "id": "Grow"
+  },
+  {
+    "file": "GrowControlPanel.tsx",
+    "id": "GrowControlPanel"
+  },
+  {
+    "file": "GrowPanel.tsx",
+    "id": "GrowPanel"
+  },
+  {
+    "file": "HappyHealthy.tsx",
+    "id": "HappyHealthy"
+  },
+  {
+    "file": "HolographicMarketMapPanel.tsx",
+    "id": "HolographicMarketMapPanel"
+  },
+  {
+    "file": "Home.tsx",
+    "id": "Home"
+  },
+  {
+    "file": "Homie.tsx",
+    "id": "Homie"
+  },
+  {
+    "file": "InsightsPanel.tsx",
+    "id": "InsightsPanel"
+  },
+  {
+    "file": "InstitutionalTraderPanel.tsx",
+    "id": "InstitutionalTraderPanel"
+  },
+  {
+    "file": "KernelMonitorPanel.tsx",
+    "id": "KernelMonitorPanel"
+  },
+  {
+    "file": "MarketBrainPanel.tsx",
+    "id": "MarketBrainPanel"
+  },
+  {
+    "file": "MarketGraph.tsx",
+    "id": "MarketGraph"
+  },
+  {
+    "file": "MarketGraph3DPanel.tsx",
+    "id": "MarketGraph3DPanel"
+  },
+  {
+    "file": "MarketGraphPanel.tsx",
+    "id": "MarketGraphPanel"
+  },
+  {
+    "file": "MarketIntelligencePanel.tsx",
+    "id": "MarketIntelligencePanel"
+  },
+  {
+    "file": "MarketMap.tsx",
+    "id": "MarketMap"
+  },
+  {
+    "file": "MarketTimeMachinePanel.tsx",
+    "id": "MarketTimeMachinePanel"
+  },
+  {
+    "file": "Mining.tsx",
+    "id": "Mining"
+  },
+  {
+    "file": "MiningRadarPanel.tsx",
+    "id": "MiningRadarPanel"
+  },
+  {
+    "file": "MissionControl.tsx",
+    "id": "MissionControl"
+  },
+  {
+    "file": "MissionControlPanel.tsx",
+    "id": "MissionControlPanel"
+  },
+  {
+    "file": "Money.tsx",
+    "id": "Money"
+  },
+  {
+    "file": "MoneyPanel.tsx",
+    "id": "MoneyPanel"
+  },
+  {
+    "file": "NeuralStrategyPanel.tsx",
+    "id": "NeuralStrategyPanel"
+  },
+  {
+    "file": "News.tsx",
+    "id": "News"
+  },
+  {
+    "file": "OddBrain.tsx",
+    "id": "OddBrain"
+  },
+  {
+    "file": "OperatorPanel.tsx",
+    "id": "OperatorPanel"
+  },
+  {
+    "file": "OpportunityRadarPanel.tsx",
+    "id": "OpportunityRadarPanel"
+  },
+  {
+    "file": "OptionsSaaS.tsx",
+    "id": "OptionsSaaS"
+  },
+  {
+    "file": "OptionsSniper.tsx",
+    "id": "OptionsSniper"
+  },
+  {
+    "file": "OptionsSniperTerminal.tsx",
+    "id": "OptionsSniperTerminal"
+  },
+  {
+    "file": "OrderFlowRadarPanel.tsx",
+    "id": "OrderFlowRadarPanel"
+  },
+  {
+    "file": "PluginManagerPanel.tsx",
+    "id": "PluginManagerPanel"
+  },
+  {
+    "file": "Plugins.tsx",
+    "id": "Plugins"
+  },
+  {
+    "file": "PortfolioAIPanel.tsx",
+    "id": "PortfolioAIPanel"
+  },
+  {
+    "file": "Preferences.tsx",
+    "id": "Preferences"
+  },
+  {
+    "file": "RiskGuardianPanel.tsx",
+    "id": "RiskGuardianPanel"
+  },
+  {
+    "file": "RoutineLauncher.tsx",
+    "id": "RoutineLauncher"
+  },
+  {
+    "file": "Security.tsx",
+    "id": "Security"
+  },
+  {
+    "file": "SimulatorPanel.tsx",
+    "id": "SimulatorPanel"
+  },
+  {
+    "file": "SmartExitPanel.tsx",
+    "id": "SmartExitPanel"
+  },
+  {
+    "file": "StrategyEvolutionLab.tsx",
+    "id": "StrategyEvolutionLab"
+  },
+  {
+    "file": "StrategyEvolutionPanel.tsx",
+    "id": "StrategyEvolutionPanel"
+  },
+  {
+    "file": "StrategyLabPanel.tsx",
+    "id": "StrategyLabPanel"
+  },
+  {
+    "file": "TerminalMainPanel.tsx",
+    "id": "TerminalMainPanel"
+  },
+  {
+    "file": "TimeMachine.tsx",
+    "id": "TimeMachine"
+  },
+  {
+    "file": "TradeIdeasPanel.tsx",
+    "id": "TradeIdeasPanel"
+  },
+  {
+    "file": "TradePlannerPanel.tsx",
+    "id": "TradePlannerPanel"
+  },
+  {
+    "file": "TradeProbabilityPanel.tsx",
+    "id": "TradeProbabilityPanel"
+  },
+  {
+    "file": "Trading.tsx",
+    "id": "Trading"
+  },
+  {
+    "file": "TradingDeskPanel.tsx",
+    "id": "TradingDeskPanel"
+  },
+  {
+    "file": "TradingPanel.tsx",
+    "id": "TradingPanel"
+  },
+  {
+    "file": "VegasPokerCashPromos.tsx",
+    "id": "VegasPokerCashPromos"
+  },
+  {
+    "file": "VegasPokerFeed.tsx",
+    "id": "VegasPokerFeed"
+  },
+  {
+    "file": "WorkspacePanel.tsx",
+    "id": "WorkspacePanel"
+  },
+  {
+    "file": "WritingPanel.tsx",
+    "id": "WritingPanel"
+  }
+]

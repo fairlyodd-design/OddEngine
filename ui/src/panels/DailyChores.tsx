@@ -51,7 +51,7 @@ function laneTone(openCount: number){
   return "good";
 }
 
-export default function DailyChores(){
+export default function DailyChores({ onNavigate }: { onNavigate?: (id: string) => void } = {}){
   const [state, setState] = useState<ChoreState>(() => ({ ...seed(), ...loadJSON(KEY, seed()) }));
   const [drafts, setDrafts] = useState({ household:"", outdoor:"", animals:"" });
   const persist = (next: ChoreState) => { setState(next); saveJSON(KEY, next); };
@@ -123,6 +123,22 @@ export default function DailyChores(){
           <div className="small shellEyebrow">HOUSEHOLD OPS CENTER</div>
           <div className="creativeHeroTitle">Daily Chores Command</div>
           <div className="creativeHeroSub">Run your inside, outside, and animal-care flow from one calm board with a daily focus, recurring loops, and quick-complete actions.</div>
+        </div>
+      </div>
+
+      <div className="card softCard familyCohesionCard">
+        <div className="familyCohesionTop">
+          <div>
+            <div className="small shellEyebrow">FAMILY FLOW</div>
+            <div className="familyCohesionTitle">Run the house without losing the rest of the day</div>
+            <div className="small familyCohesionSub">Tie chores into meals, budget, and calendar so the household lane feels like one operating system, not four separate checklists.</div>
+          </div>
+          <div className="familyRouteRow">
+            <button className="tabBtn" onClick={() => onNavigate?.("Home")}>Open Home</button>
+            <button className="tabBtn" onClick={() => onNavigate?.("GroceryMeals")}>Meals + Grocery</button>
+            <button className="tabBtn" onClick={() => onNavigate?.("FamilyBudget")}>Budget</button>
+            <button className="tabBtn" onClick={() => onNavigate?.("Calendar")}>Calendar</button>
+          </div>
         </div>
       </div>
 

@@ -3464,14 +3464,102 @@ button:hover:not(:disabled){ border-color: rgba(94,234,242,0.24); }
 video{ max-width:100%; }
 
 
-/* v10.24.68 Global Panel Spacing utilities */
-.panelStack { display:grid; gap:12px; align-items:start; }
-.panelSection { display:grid; gap:10px; align-items:start; }
-.panelGridAuto { display:grid; gap:12px; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); align-items:start; }
-.panelGridWide { display:grid; gap:12px; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); align-items:start; }
-.panelGridShell { display:grid; gap:12px; grid-template-columns:minmax(260px, 320px) minmax(0, 1fr); align-items:start; }
-.panelActionRow { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
-.panelPreview { white-space:pre-wrap; word-break:break-word; line-height:1.45; padding:14px; max-height:360px; overflow:auto; }
-.panelMetaStrip { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
-.panelCardTight { padding:12px; }
-.panelCardComfort { padding:14px; }
+/* v10.25.28 No And Then — Stability + Delight */
+
+:root{
+  --oe-soft-ease: cubic-bezier(.2,.75,.2,1);
+}
+.card,
+.softCard,
+.quickActionCard,
+.tabBtn,
+.navItem,
+button,
+.input,
+select,
+textarea{
+  transition: border-color 160ms var(--oe-soft-ease), background 160ms var(--oe-soft-ease), transform 140ms var(--oe-soft-ease), box-shadow 180ms var(--oe-soft-ease), filter 160ms var(--oe-soft-ease);
+}
+.card:hover,
+.softCard:hover,
+.quickActionCard:hover,
+.missionCard:hover,
+.timelineCard:hover,
+.homeAppTile:hover,
+.homeAppGridTile:hover,
+.tradingSectionCard:hover,
+.entTile:hover{
+  transform: translateY(-1px);
+}
+.card:focus-within,
+.softCard:focus-within,
+.quickActionCard:focus-within{
+  box-shadow: 0 0 0 1px rgba(94,234,242,0.10), 0 12px 26px rgba(0,0,0,0.22);
+}
+button:hover:not(:disabled),
+.tabBtn:hover,
+.navItem:hover{
+  filter: brightness(1.04) saturate(1.03);
+}
+.homieAgent,
+.lilHomieAgent,
+.homieBuddy,
+.homieBubble{
+  transition: transform 180ms var(--oe-soft-ease), opacity 180ms var(--oe-soft-ease), box-shadow 180ms var(--oe-soft-ease), border-color 180ms var(--oe-soft-ease), background 180ms var(--oe-soft-ease);
+}
+.homieBubble,
+.lilHomieBubble{
+  backdrop-filter: blur(16px);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.28);
+}
+.homieBubble .bubbleMsg:last-child,
+.lilHomieBubble .bubbleMsg:last-child{
+  color: rgba(255,255,255,0.96);
+}
+.emptyState,
+.panelEmptyState,
+.zeroState{
+  border: 1px dashed rgba(255,255,255,0.12);
+  background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.02));
+  border-radius: 16px;
+  padding: 14px;
+}
+.emptyStateTitle{
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+.emptyStateHint{
+  color: rgba(255,255,255,0.72);
+  font-size: 12px;
+}
+.homieDelightNote{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  border-radius:999px;
+  border:1px solid rgba(94,234,242,0.18);
+  background:rgba(94,234,242,0.08);
+  color:rgba(224,255,255,0.92);
+  font-size:12px;
+  font-weight:700;
+}
+.homieDelightNote::before{
+  content:"✦";
+  opacity:0.9;
+}
+@media (prefers-reduced-motion: reduce){
+  .card,
+  .softCard,
+  .quickActionCard,
+  .tabBtn,
+  .navItem,
+  button,
+  .homieAgent,
+  .lilHomieAgent,
+  .homieBuddy,
+  .homieBubble,
+  .lilHomieBubble{
+    transition:none !important;
+  }
+}

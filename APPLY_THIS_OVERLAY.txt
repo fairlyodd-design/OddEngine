@@ -1,0 +1,15 @@
+SAFE OVERLAY
+
+Copy these files into your existing C:\OddEngine tree and overwrite when prompted.
+
+Files included:
+- ui/src/lib/brain.ts
+- docs/HOMIE_COMPANION_BEHAVIOR.md
+- docs/current-state.md
+- RELEASE_LOG.md
+- BUILD_NOTES.txt
+- .oddengine_last_ui_version.txt
+
+Then run:
+cd C:\OddEngine
+npm --prefix .\ui run build

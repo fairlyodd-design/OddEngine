@@ -197,6 +197,21 @@ export default function Calendar({ onNavigate }: { onNavigate?: (id: string) => 
       <PanelHeader panelId="Calendar" title="Calendar" storagePrefix="oddengine:calendar" />
 
       <div className="calendarWrap panelBody">
+        <div className="card softCard familyCohesionCard" style={{ marginBottom: 12 }}>
+          <div className="familyCohesionTop">
+            <div>
+              <div className="small shellEyebrow">FAMILY FLOW</div>
+              <div className="familyCohesionTitle">Calendar is the glue for meals, chores, money, and routines</div>
+              <div className="small familyCohesionSub">Use the calendar to turn plans into blocks the household can actually follow.</div>
+            </div>
+            <div className="familyRouteRow">
+              <button className="tabBtn" onClick={() => onNavigate?.("Home")}>Open Home</button>
+              <button className="tabBtn" onClick={() => onNavigate?.("GroceryMeals")}>Meals + Grocery</button>
+              <button className="tabBtn" onClick={() => onNavigate?.("FamilyBudget")}>Budget</button>
+              <button className="tabBtn" onClick={() => onNavigate?.("RoutineLauncher")}>Routines</button>
+            </div>
+          </div>
+        </div>
         <div className="subCard glass productivityHeroCard">
           <div className="productivityHeroBar">
             <div>
@@ -303,7 +318,7 @@ export default function Calendar({ onNavigate }: { onNavigate?: (id: string) => 
                 <div className="small">Selected day</div>
                 <div className="h mt-1">{selected}</div>
               </div>
-              <div className="row wrap" style={{ gap: 10 }}>
+              <div className="row wrap">
                 <button className="tabBtn" onClick={() => openNew(selected)}>+ Add</button>
                 <button className="tabBtn" onClick={() => { setSelected(todayStr); setCursor(startOfMonth(new Date())); }}>Jump to today</button>
               </div>
@@ -324,7 +339,7 @@ export default function Calendar({ onNavigate }: { onNavigate?: (id: string) => 
                         {ev.notes && <div className="small mt-2" style={{ opacity: 0.9 }}>{ev.notes}</div>}
                         {ev.panelId && <div className="small mt-2" style={{ opacity: 0.85 }}>Panel link: <b>{ev.panelId}</b></div>}
                       </div>
-                      <div className="row wrap" style={{ gap: 10 }}>
+                      <div className="row wrap">
                         {ev.panelId && !!onNavigate && (
                           <button className="tabBtn" onClick={() => onNavigate(normalizePanelId(ev.panelId || ""))}>Open panel</button>
                         )}

@@ -1535,7 +1535,7 @@ Generate an art prompt pack from a saved asset to populate this export.`;
           </CardFrame>
 
           <CardFrame title="Tools" subtitle="Creative workflow shortcuts" storageKey="writers:tools" className="softCard" defaultCollapsed={false}>
-            <div className="row wrap" style={{ gap: 10 }}>
+            <div className="row wrap">
               <button className="tabBtn" onClick={() => onNavigate("Builder")}>🧱 Layout / Covers</button>
               <button className="tabBtn" onClick={() => onNavigate("Money")}>💵 Monetize / KDP</button>
               <button className="tabBtn" onClick={() => onNavigate("DevEngine")}>🧩 Assets / Builds</button>
@@ -1609,7 +1609,7 @@ Generate an art prompt pack from a saved asset to populate this export.`;
                       <div className="small" style={{ opacity: 0.9 }}>
                         Chapter: <b>{chapter?.title || "(none)"}</b> • <b>{wc}</b> words • ~{minutes} min read
                       </div>
-                      <div className="row wrap" style={{ gap: 10 }}>
+                      <div className="row wrap">
                         <button className="tabBtn" onClick={ensureChapter}>+ Ensure chapter</button>
                         <button className="tabBtn" onClick={copyActiveChapter} disabled={!chapter}>Copy chapter</button>
                       </div>
@@ -1705,7 +1705,7 @@ Generate an art prompt pack from a saved asset to populate this export.`;
                     <div className="note">
                       Export helpers. Everything is local-first. Copy markdown, or use Dev Engine later to export files.
                     </div>
-                    <div className="row wrap" style={{ gap: 10 }}>
+                    <div className="row wrap">
                       <button className="tabBtn" onClick={copyActiveChapter} disabled={!chapter}>Copy chapter markdown</button>
                       <button
                         className="tabBtn"
@@ -1741,7 +1741,7 @@ Generate an art prompt pack from a saved asset to populate this export.`;
                 <div className="h">Writers AI Studio</div>
                 <div className="sub">Prompt in. Full draft out. Then turn it into characters, storyboard beats, cartoon worldbuilding, and animated video direction.</div>
               </div>
-              <div className="row wrap" style={{ gap: 10 }}>
+              <div className="row wrap">
                 <button className="tabBtn" onClick={() => setChat([])}>Clear</button>
                 <button className="tabBtn" onClick={insertLastAssistantIntoDraft} disabled={!chapter}>Insert → draft</button>
               </div>
@@ -1838,7 +1838,7 @@ Generate an art prompt pack from a saved asset to populate this export.`;
                   <div className="h">Greenlight Studio</div>
                   <div className="sub">Turn the current idea into a launch-ready product lane: book, story, song, movie, music video, cartoon, or full series seed.</div>
                 </div>
-                <div className="row wrap" style={{ gap: 10 }}>
+                <div className="row wrap">
                   <button className="tabBtn" onClick={downloadPitchDeck}>Download pitch deck</button>
                   <button className="tabBtn" onClick={downloadOneSheet}>Download one-sheet</button>
                   <button className="tabBtn" onClick={downloadTrailerBrief}>Download trailer brief</button>
@@ -1872,7 +1872,7 @@ Generate an art prompt pack from a saved asset to populate this export.`;
                     <div className="small shellEyebrow">GO-TO-MARKET DOCS</div>
                     <div className="sub">Auto-generated commercial docs so the project feels ready to deploy, sell, pitch, or launch.</div>
                   </div>
-                  <div className="row wrap" style={{ gap: 10 }}>
+                  <div className="row wrap">
                     <button className="tabBtn" onClick={savePitchDeck}>Save pitch deck</button>
                     <button className="tabBtn" onClick={saveOneSheet}>Save one-sheet</button>
                     <button className="tabBtn" onClick={saveTrailerBrief}>Save trailer brief</button>
@@ -1892,7 +1892,7 @@ Generate an art prompt pack from a saved asset to populate this export.`;
                   <div className="h">Release Engine</div>
                   <div className="sub">Make the project a final finished ready-to-deploy product with launch docs, hooks, trailer logic, platform pitch, and monetization.</div>
                 </div>
-                <div className="row wrap" style={{ gap: 10 }}>
+                <div className="row wrap">
                   <button className="tabBtn" onClick={saveReleasePlan}>Save release plan</button>
                   <button className="tabBtn" onClick={saveMarketingHooks}>Save hooks</button>
                   <button className="tabBtn" onClick={savePlatformPitch}>Save platform pitch</button>
@@ -1921,7 +1921,7 @@ Generate an art prompt pack from a saved asset to populate this export.`;
                     <div className="small shellEyebrow">FINISHED READY-TO-DEPLOY PRODUCT</div>
                     <div className="sub">Export the final product packet for the current project lane.</div>
                   </div>
-                  <div className="row wrap" style={{ gap: 10 }}>
+                  <div className="row wrap">
                     <button className="tabBtn" onClick={downloadReleasePlan}>Download release plan</button>
                     <button className="tabBtn" onClick={downloadMarketingHooks}>Download hooks</button>
                     <button className="tabBtn" onClick={downloadPosterVariants}>Download poster variants</button>
@@ -1941,7 +1941,7 @@ Generate an art prompt pack from a saved asset to populate this export.`;
                   <div className="h">Render Pipeline Prep</div>
                   <div className="sub">Bridge the project into a watch-ready pipeline with scene batches, voiceover, soundtrack cues, continuity checks, and final assembly.</div>
                 </div>
-                <div className="row wrap" style={{ gap: 10 }}>
+                <div className="row wrap">
                   <button className="tabBtn" onClick={saveSceneBatchExporter}>Save scene batches</button>
                   <button className="tabBtn" onClick={saveVoiceoverPack}>Save voiceover pack</button>
                   <button className="tabBtn" onClick={saveSoundtrackCueSheet}>Save cue sheet</button>
@@ -1975,7 +1975,7 @@ Generate an art prompt pack from a saved asset to populate this export.`;
                   <div className="h">Final Video Handoff + Producer Ops</div>
                   <div className="sub">Package the project for the people who will actually finish, assemble, and release it.</div>
                 </div>
-                <div className="row wrap" style={{ gap: 10 }}>
+                <div className="row wrap">
                   <button className="tabBtn" onClick={saveProducerOpsBoard}>Save producer ops</button>
                   <button className="tabBtn" onClick={saveFinalVideoHandoff}>Save final video handoff</button>
                   <button className="tabBtn" onClick={downloadProducerOpsBoard}>Download producer ops</button>
@@ -1994,7 +1994,7 @@ Generate an art prompt pack from a saved asset to populate this export.`;
                   <div className="h">External Render Bridge</div>
                   <div className="sub">Prep provider settings, shot/image batches, audio exports, and a final assembly manifest for real outside render tools.</div>
                 </div>
-                <div className="row wrap" style={{ gap: 10 }}>
+                <div className="row wrap">
                   <button className="tabBtn" onClick={saveShotImagePromptBatch}>Save shot batch</button>
                   <button className="tabBtn" onClick={saveVoiceMusicAssetExport}>Save voice/music export</button>
                   <button className="tabBtn" onClick={saveFinalAssemblyManifest}>Save assembly manifest</button>
@@ -2045,7 +2045,7 @@ Generate an art prompt pack from a saved asset to populate this export.`;
                   <div className="h">OddEngine Internal Render Lab</div>
                   <div className="sub">Build internal scene queues, render jobs, and watch-deck manifests inside Writers, then preview a finished video URL here after an external or future local render completes.</div>
                 </div>
-                <div className="row wrap" style={{ gap: 10 }}>
+                <div className="row wrap">
                   <button className="tabBtn" onClick={saveInternalRenderJobJson}>Save internal render job</button>
                   <button className="tabBtn" onClick={saveSceneRenderQueue}>Save scene queue</button>
                   <button className="tabBtn" onClick={saveWatchDeckManifest}>Save watch deck</button>
@@ -2103,7 +2103,7 @@ Generate an art prompt pack from a saved asset to populate this export.`;
                   <div className="h">Studio Handoff Lab</div>
                   <div className="sub">Turn treatments into image prompts, storyboard cards, export checklists, and a music video production plan.</div>
                 </div>
-                <div className="row wrap" style={{ gap: 10 }}>
+                <div className="row wrap">
                   <button className="tabBtn" onClick={handoffImagePromptPack} disabled={!latestTreatmentAsset && !latestStoryboardAsset}>Image prompt handoff</button>
                   <button className="tabBtn" onClick={exportChecklist} disabled={!studioAssets.length}>Asset checklist export</button>
                   <button className="tabBtn" onClick={exportProductionPlanner}>Production planner</button>
@@ -2274,7 +2274,7 @@ Generate an art prompt pack from a saved asset to populate this export.`;
                   <div className="small shellEyebrow">FULL PROJECT PACKET</div>
                   <div className="sub">Director timeline, casting, beat map, style, and export checklist in one handoff packet.</div>
                 </div>
-                <div className="row wrap" style={{ gap: 10 }}><button className="tabBtn" onClick={exportFullProjectPacket}>Copy packet</button><button className="tabBtn" onClick={downloadProjectPacket}>Download packet</button></div>
+                <div className="row wrap"><button className="tabBtn" onClick={exportFullProjectPacket}>Copy packet</button><button className="tabBtn" onClick={downloadProjectPacket}>Download packet</button></div>
               </div>
               <pre className="writersPlannerPreview mt-3">{fullProjectPacket}</pre>
             </div>
