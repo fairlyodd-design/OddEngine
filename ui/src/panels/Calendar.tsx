@@ -197,21 +197,6 @@ export default function Calendar({ onNavigate }: { onNavigate?: (id: string) => 
       <PanelHeader panelId="Calendar" title="Calendar" storagePrefix="oddengine:calendar" />
 
       <div className="calendarWrap panelBody">
-        <div className="card softCard familyCohesionCard" style={{ marginBottom: 12 }}>
-          <div className="familyCohesionTop">
-            <div>
-              <div className="small shellEyebrow">FAMILY FLOW</div>
-              <div className="familyCohesionTitle">Calendar is the glue for meals, chores, money, and routines</div>
-              <div className="small familyCohesionSub">Use the calendar to turn plans into blocks the household can actually follow.</div>
-            </div>
-            <div className="familyRouteRow">
-              <button className="tabBtn" onClick={() => onNavigate?.("Home")}>Open Home</button>
-              <button className="tabBtn" onClick={() => onNavigate?.("GroceryMeals")}>Meals + Grocery</button>
-              <button className="tabBtn" onClick={() => onNavigate?.("FamilyBudget")}>Budget</button>
-              <button className="tabBtn" onClick={() => onNavigate?.("RoutineLauncher")}>Routines</button>
-            </div>
-          </div>
-        </div>
         <div className="subCard glass productivityHeroCard">
           <div className="productivityHeroBar">
             <div>

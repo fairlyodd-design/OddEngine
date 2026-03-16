@@ -4,9 +4,6 @@ import { DEFAULT_PREFS, loadPrefs, Prefs, savePrefs } from "../lib/prefs";
 import { oddApi } from "../lib/odd";
 import { installUpgradePack, isUpgradePackInstalled } from "../lib/plugins";
 import { getVoiceEngineBadges, loadVoiceEngineSnapshot, summarizeVoiceEngine, type VoiceEngineSnapshot } from "../lib/voice";
-import { HOMIE_PRESENCE_EVENT, enableHomieMissionControlBaseline, getHomieMissionReadiness, loadHomiePresence, patchHomiePresence } from "../lib/homiePresence";
-import { HOMIE_WAKE_FLOW_EVENT, enableWakeConversationBaseline, getWakeConversationReadiness, loadHomieWakeFlow, markAssistantTurn, markUserTurn, markWakeHeard, patchHomieWakeFlow } from "../lib/homieWakeFlow";
-import { HOMIE_COMPANION_EVENT, describeCompanion, loadHomieCompanion, patchHomieCompanion } from "../lib/homieCompanion";
 
 function summarizeBridgeHealth(snapshot: VoiceEngineSnapshot, fallbackUrl: string) {
   const message = snapshot.message || "";
@@ -78,7 +75,6 @@ export default function Preferences(){
   const [bridgeRunId, setBridgeRunId] = useState("");
   const [bridgeLog, setBridgeLog] = useState<string[]>([]);
   const [bridgeBusy, setBridgeBusy] = useState<"idle" | "saving" | "installing" | "starting" | "probing" | "opening">("idle");
-  const [homieTick, setHomieTick] = useState(0);
 
   async function launchCompanion(){
     if (!api.openWindow) return;
@@ -104,28 +100,6 @@ export default function Preferences(){
       window.removeEventListener("storage", refreshVoice as EventListener);
     };
   }, []);
-
-useEffect(() => {
-  const refresh = () => setHomieTick((x) => x + 1);
-  try {
-    window.addEventListener(HOMIE_PRESENCE_EVENT as any, refresh);
-    window.addEventListener(HOMIE_WAKE_FLOW_EVENT as any, refresh);
-    window.addEventListener(HOMIE_COMPANION_EVENT as any, refresh);
-    window.addEventListener("storage", refresh as EventListener);
-  } catch {
-    // ignore
-  }
-  return () => {
-    try {
-      window.removeEventListener(HOMIE_PRESENCE_EVENT as any, refresh);
-      window.removeEventListener(HOMIE_WAKE_FLOW_EVENT as any, refresh);
-      window.removeEventListener(HOMIE_COMPANION_EVENT as any, refresh);
-      window.removeEventListener("storage", refresh as EventListener);
-    } catch {
-      // ignore
-    }
-  };
-}, []);
 
   function applyPrefs(nextPrefs: Prefs, options?: { silent?: boolean; launchCompanion?: boolean }){
     savePrefs(nextPrefs);
@@ -401,16 +375,6 @@ useEffect(() => {
     setPrefs(p => ({...p, cannabis:{...p.cannabis, priceTiers:[...p.cannabis.priceTiers, t]}}));
     setNewTier("");
   }
-
-const homieSnapshot = useMemo(() => {
-  void homieTick;
-  const presence = loadHomiePresence();
-  const wake = loadHomieWakeFlow();
-  const companion = loadHomieCompanion();
-  const mission = getHomieMissionReadiness(presence, prefs);
-  const conversation = getWakeConversationReadiness(wake, presence, prefs);
-  return { presence, wake, companion, mission, conversation, companionCopy: describeCompanion(companion) };
-}, [homieTick, prefs]);
 
   const voiceSummary = summarizeVoiceEngine(voiceSnapshot);
   const bridgeHealth = summarizeBridgeHealth(voiceSnapshot, prefs.ai.homieExternalVoiceBaseUrl);
@@ -716,7 +680,7 @@ const homieSnapshot = useMemo(() => {
                 <div className="card pluginMiniWidget warn">
                   <div className="assistantSectionTitle">Homie room</div>
                   <div className="small" style={{ marginTop: 10 }}>Companion: <b>{prefs.ai.homieCompanionWindow ? 'On' : 'Off'}</b> • Skin: <b>{prefs.ai.homieAvatarSkin}</b></div>
-                  <div className="small" style={{ marginTop: 6 }}>Use the Homie mascot + companion window for the most lived-in, always-in-your-corner vibe.</div>
+                  <div className="small" style={{ marginTop: 6 }}>Use Lil Homie + companion window for the most lived-in room vibe.</div>
                   <div className="row" style={{ gap: 8, marginTop: 12, flexWrap: "wrap" }}>
                     <button className="tabBtn" onClick={() => applyPrefs({ ...prefs, ai: { ...prefs.ai, homieCompanionWindow: true, homieAvatarSkin: "lil-homie" } }, { silent: true, launchCompanion: true })}>Open Homie House</button>
                     <button className="tabBtn" onClick={() => void copyBridgeLaunchCommand()}>Copy launch command</button>
@@ -753,75 +717,6 @@ const homieSnapshot = useMemo(() => {
           );
         })()}
       </div>
-
-<div className="card" style={{ marginTop: 18 }}>
-  <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
-    <div>
-      <div className="h">👊 Homie embodied companion lane</div>
-      <div className="sub">New upgrades, same classic Preferences feel. Tune presence, wake flow, and companion posture without changing the baseline shell.</div>
-    </div>
-    <div className="cluster wrap">
-      <span className="badge good">Mission {homieSnapshot.mission.readiness}%</span>
-      <span className="badge">Conversation {homieSnapshot.conversation.readiness}%</span>
-    </div>
-  </div>
-  <div className="grid2" style={{ marginTop: 12 }}>
-    <div className="field">
-      <div className="small">Presence status</div>
-      <div className="sub" style={{ marginTop: 6 }}>{homieSnapshot.presence.statusNote}</div>
-      <div className="small" style={{ marginTop: 10 }}>Check-in style: <b>{homieSnapshot.presence.checkInStyle}</b> • Wake word: <b>{homieSnapshot.presence.wakeWordEnabled ? "On" : "Off"}</b> • Vision: <b>{homieSnapshot.presence.visionEnabled ? "On" : "Off"}</b></div>
-    </div>
-    <div className="field">
-      <div className="small">Companion voice</div>
-      <div className="sub" style={{ marginTop: 6 }}>{homieSnapshot.companionCopy.attitude}, {homieSnapshot.companionCopy.pace}, {homieSnapshot.companionCopy.checkIn}.</div>
-      <div className="small" style={{ marginTop: 10 }}>Signature: <b>{homieSnapshot.companion.signature}</b></div>
-    </div>
-  </div>
-  <div className="grid2" style={{ marginTop: 12 }}>
-    <label className="field">Companion attitude
-      <select value={homieSnapshot.companion.attitude} onChange={e => patchHomieCompanion({ attitude: e.target.value as any })}>
-        <option value="steady">Steady</option>
-        <option value="gentle">Gentle</option>
-        <option value="focused">Focused</option>
-        <option value="playful">Playful</option>
-      </select>
-    </label>
-    <label className="field">Companion proactivity
-      <select value={homieSnapshot.companion.proactivity} onChange={e => patchHomieCompanion({ proactivity: e.target.value as any })}>
-        <option value="quiet">Quiet</option>
-        <option value="balanced">Balanced</option>
-        <option value="on-it">On-it</option>
-      </select>
-    </label>
-    <label className="field">Check-in style
-      <select value={homieSnapshot.companion.checkInStyle} onChange={e => patchHomieCompanion({ checkInStyle: e.target.value as any })}>
-        <option value="light">Light</option>
-        <option value="supportive">Supportive</option>
-        <option value="direct">Direct</option>
-      </select>
-    </label>
-    <label className="field">Wake phrase
-      <input value={homieSnapshot.wake.wakePhrase} onChange={e => patchHomieWakeFlow({ wakePhrase: e.target.value })} placeholder="Hey Homie" />
-    </label>
-    <label className="field">Wake follow-up window (sec)
-      <input type="number" min={8} max={45} step={1} value={homieSnapshot.wake.followupWindowSec} onChange={e => patchHomieWakeFlow({ followupWindowSec: Math.max(8, Math.min(45, Number(e.target.value || 18))) })} />
-    </label>
-    <label className="field">Presence posture
-      <select value={homieSnapshot.presence.checkInStyle} onChange={e => patchHomiePresence({ checkInStyle: e.target.value as any })}>
-        <option value="gentle">Gentle</option>
-        <option value="balanced">Balanced</option>
-        <option value="active">Active</option>
-      </select>
-    </label>
-  </div>
-  <div className="cluster wrap" style={{ marginTop: 12 }}>
-    <button className="tabBtn" onClick={() => enableHomieMissionControlBaseline()}>Apply mission baseline</button>
-    <button className="tabBtn" onClick={() => enableWakeConversationBaseline()}>Apply wake baseline</button>
-    <button className="tabBtn" onClick={() => markWakeHeard()}>Simulate wake heard</button>
-    <button className="tabBtn" onClick={() => markUserTurn("Help me focus and keep this simple.")}>Simulate user turn</button>
-    <button className="tabBtn" onClick={() => markAssistantTurn("I've got you. Let's make the next move clean.")}>Simulate reply</button>
-  </div>
-</div>
 
       {/* AI */}
       <div className="card">
@@ -899,7 +794,7 @@ const homieSnapshot = useMemo(() => {
               <option value="true">On (roaming NPC)</option>
               <option value="false">Off</option>
             </select>
-            <div className="small" style={{ marginTop: 6 }}>Shows Homie as a living companion in the mascot spot so he can move around, check in, and answer questions without taking over the shell.</div>
+            <div className="small" style={{ marginTop: 6 }}>Shows a small Lil Homie that can walk around the screen, pop tips, and answer questions.</div>
           </label>
 
           <label className="field">Lil Homie render

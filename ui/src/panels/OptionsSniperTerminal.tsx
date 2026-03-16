@@ -173,9 +173,6 @@ export default function OptionsSniperTerminal() {
   const riskPerContract = Math.max(0, entry - stop) * 100;
   const rewardPerContract1 = Math.max(0, tp1 - entry) * 100;
   const rewardPerContract2 = Math.max(0, tp2 - entry) * 100;
-  const callCount = chainRaw.filter((c) => c.side === 'call').length;
-  const putCount = chainRaw.filter((c) => c.side === 'put').length;
-  const avgSpreadPct = contracts.length ? contracts.reduce((sum, contract) => sum + Number(contract.spreadPct || 0), 0) / contracts.length : 0;
   const workflow = buildSniperWorkflow({
     symbol: currentWatch.symbol,
     expiration,
@@ -250,29 +247,6 @@ export default function OptionsSniperTerminal() {
             <div className="sniperHeroValue sniperHeroValueSm">{activeTemplate.name}</div>
             <div className="sniperHeroSub">Stop {activeTemplate.stopPct}% · TP {activeTemplate.tp1Pct}/{activeTemplate.tp2Pct}%</div>
           </div>
-        </div>
-      </div>
-
-      <div className="sniperDensityStrip">
-        <div className="sniperDensityTile">
-          <div className="sniperDensityLabel">Chain size</div>
-          <div className="sniperDensityValue">{contracts.length}</div>
-          <div className="sniperDensitySub">{callCount} calls · {putCount} puts</div>
-        </div>
-        <div className="sniperDensityTile">
-          <div className="sniperDensityLabel">Average spread</div>
-          <div className="sniperDensityValue">{fmt(avgSpreadPct, 1)}%</div>
-          <div className="sniperDensitySub">Cleaner chains stay easier to execute</div>
-        </div>
-        <div className="sniperDensityTile">
-          <div className="sniperDensityLabel">Feed freshness</div>
-          <div className="sniperDensityValue">{feedUpdated ? 'Live' : 'Cached'}</div>
-          <div className="sniperDensitySub">{feedUpdated || sourceLabel}</div>
-        </div>
-        <div className="sniperDensityTile">
-          <div className="sniperDensityLabel">Ticket edge</div>
-          <div className="sniperDensityValue">{selected ? `${selected.probability}%` : '—'}</div>
-          <div className="sniperDensitySub">Best-contract probability readout</div>
         </div>
       </div>
 

@@ -617,7 +617,7 @@ function MetricCard({ label, value, sub }: { label: string; value: string; sub: 
   );
 }
 
-export default function FamilyBudget({ onNavigate }: { onNavigate?: (id: string) => void } = {}) {
+export default function FamilyBudget() {
   const [tab, setTab] = useState<BudgetTab>(() => loadJSON<BudgetTab>(TAB_KEY, "Overview"));
   const [state, setState] = useState<FamilyBudgetState>(() => {
     const next = loadJSON<FamilyBudgetState | null>(STORAGE_KEY, null);
@@ -1305,22 +1305,6 @@ export default function FamilyBudget({ onNavigate }: { onNavigate?: (id: string)
           <span className={`badge ${projectedFreeCash >= 0 ? "good" : "bad"}`}>{projectedFreeCash >= 0 ? "Free cash positive" : "Free cash negative"}</span>
           <span className="badge">Goal gap {money(goalGap, state.household.currency)}</span>
           {payoffFocus && <span className="badge warn">Payoff focus {payoffFocus.name}</span>}
-        </div>
-      </div>
-
-      <div className="card softCard familyCohesionCard familyBudgetCohesionCard">
-        <div className="familyCohesionTop">
-          <div>
-            <div className="small shellEyebrow">FAMILY FLOW</div>
-            <div className="familyCohesionTitle">Budget should steer meals, chores, and calendar rhythm</div>
-            <div className="small familyCohesionSub">Treat grocery wins, recurring chores, and calendar routines as real household runway levers instead of isolated panels.</div>
-          </div>
-          <div className="familyRouteRow">
-            <button className="tabBtn" onClick={() => onNavigate?.("Home")}>Open Home</button>
-            <button className="tabBtn" onClick={() => onNavigate?.("GroceryMeals")}>Meals + Grocery</button>
-            <button className="tabBtn" onClick={() => onNavigate?.("DailyChores")}>Chores</button>
-            <button className="tabBtn" onClick={() => onNavigate?.("Calendar")}>Calendar</button>
-          </div>
         </div>
       </div>
 

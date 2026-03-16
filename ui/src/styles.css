@@ -3464,102 +3464,60 @@ button:hover:not(:disabled){ border-color: rgba(94,234,242,0.24); }
 video{ max-width:100%; }
 
 
-/* v10.25.28 No And Then — Stability + Delight */
+/* v10.25.36 — Stability restore + Coinstore BTC/USDT Futures */
+.coinstorePanel{gap:12px;}
+.coinstoreHero,.coinstoreStat,.coinstoreGuardCard,.coinstoreIntelCard,.coinstoreSignalRow,.coinstoreMini{border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);border-radius:14px;}
+.coinstoreHero{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:14px 16px;}
+.coinstoreTitle{margin:4px 0 6px;}
+.coinstoreEyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.72;}
+.coinstoreHeroStats,.coinstoreTfRow,.coinstorePriceStrip,.coinstoreGuardGrid,.coinstoreKeysGrid,.coinstoreSectionHead,.coinstoreGridTwo{display:flex;gap:10px;flex-wrap:wrap;}
+.coinstoreHeroStats{align-items:stretch;}
+.coinstoreStat,.coinstoreMini,.coinstoreGuardCard{padding:10px 12px;display:flex;flex-direction:column;gap:4px;min-width:130px;}
+.coinstoreGridTwo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;}
+.coinstoreSectionHead{justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.coinstoreChartWrap{margin:12px 0 10px;}
+.coinstoreChart{width:100%;height:auto;display:block;}
+.coinstoreSignalList,.coinstoreIntelList{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+.coinstoreSignalRow{padding:10px 12px;display:flex;justify-content:space-between;gap:12px;align-items:center;}
+.coinstoreSignalValueWrap{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.coinstoreIntelCard{padding:10px 12px;}
+.coinstoreKeysGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+@media (max-width: 960px){.coinstoreGridTwo{grid-template-columns:1fr;}.coinstoreKeysGrid{grid-template-columns:1fr;}}
 
-:root{
-  --oe-soft-ease: cubic-bezier(.2,.75,.2,1);
+/* v10.25.36b — restore full frame styles + floating Homie + clean panel chrome */
+.homieBuddy{
+  right: 24px !important;
+  top: 22vh !important;
+  bottom: auto !important;
+  align-items: flex-start !important;
+  gap: 14px !important;
 }
-.card,
-.softCard,
-.quickActionCard,
-.tabBtn,
-.navItem,
-button,
-.input,
-select,
-textarea{
-  transition: border-color 160ms var(--oe-soft-ease), background 160ms var(--oe-soft-ease), transform 140ms var(--oe-soft-ease), box-shadow 180ms var(--oe-soft-ease), filter 160ms var(--oe-soft-ease);
+
+.homieBuddyPanel{
+  width: min(400px, calc(100vw - 120px)) !important;
+  max-height: min(74vh, 680px) !important;
 }
-.card:hover,
-.softCard:hover,
-.quickActionCard:hover,
-.missionCard:hover,
-.timelineCard:hover,
-.homeAppTile:hover,
-.homeAppGridTile:hover,
-.tradingSectionCard:hover,
-.entTile:hover{
-  transform: translateY(-1px);
-}
-.card:focus-within,
-.softCard:focus-within,
-.quickActionCard:focus-within{
-  box-shadow: 0 0 0 1px rgba(94,234,242,0.10), 0 12px 26px rgba(0,0,0,0.22);
-}
-button:hover:not(:disabled),
-.tabBtn:hover,
-.navItem:hover{
-  filter: brightness(1.04) saturate(1.03);
-}
-.homieAgent,
-.lilHomieAgent,
-.homieBuddy,
-.homieBubble{
-  transition: transform 180ms var(--oe-soft-ease), opacity 180ms var(--oe-soft-ease), box-shadow 180ms var(--oe-soft-ease), border-color 180ms var(--oe-soft-ease), background 180ms var(--oe-soft-ease);
-}
-.homieBubble,
-.lilHomieBubble{
-  backdrop-filter: blur(16px);
-  box-shadow: 0 14px 34px rgba(0,0,0,0.28);
-}
-.homieBubble .bubbleMsg:last-child,
-.lilHomieBubble .bubbleMsg:last-child{
-  color: rgba(255,255,255,0.96);
-}
-.emptyState,
-.panelEmptyState,
-.zeroState{
-  border: 1px dashed rgba(255,255,255,0.12);
-  background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.02));
-  border-radius: 16px;
-  padding: 14px;
-}
-.emptyStateTitle{
-  font-weight: 800;
-  margin-bottom: 6px;
-}
-.emptyStateHint{
-  color: rgba(255,255,255,0.72);
-  font-size: 12px;
-}
-.homieDelightNote{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:8px 12px;
-  border-radius:999px;
-  border:1px solid rgba(94,234,242,0.18);
-  background:rgba(94,234,242,0.08);
-  color:rgba(224,255,255,0.92);
-  font-size:12px;
-  font-weight:700;
-}
-.homieDelightNote::before{
-  content:"✦";
-  opacity:0.9;
-}
-@media (prefers-reduced-motion: reduce){
-  .card,
-  .softCard,
-  .quickActionCard,
-  .tabBtn,
-  .navItem,
-  button,
-  .homieAgent,
-  .lilHomieAgent,
-  .homieBuddy,
-  .homieBubble,
-  .lilHomieBubble{
-    transition:none !important;
+
+@media (max-width: 1100px){
+  .homieBuddy{
+    top: auto !important;
+    bottom: 18px !important;
   }
+}
+
+.godLayoutBar,
+.godCardControls,
+.widgetHeaderRight,
+.cardFrameActions,
+.cardActionMenu,
+.actionMenuAnchor{
+  display: none !important;
+}
+
+.widgetHeader{
+  padding-right: 0 !important;
+}
+
+.widgetHeaderLeft{
+  width: 100% !important;
 }

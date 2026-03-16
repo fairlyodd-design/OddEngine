@@ -330,22 +330,6 @@ useEffect(() => {
     <div>
       <PanelHeader panelId="RoutineLauncher" title="🚀 Routine Launcher" subtitle="Apply a global set + open a panel sequence in one click." />
 
-      <div className="card softCard familyCohesionCard" style={{ marginTop: 12, marginBottom: 14 }}>
-        <div className="familyCohesionTop">
-          <div>
-            <div className="small shellEyebrow">FAMILY FLOW</div>
-            <div className="familyCohesionTitle">Launch the house in repeatable rhythms</div>
-            <div className="small familyCohesionSub">Bundle meals, budget check-ins, chores, and calendar blocks into routines the household can actually reuse.</div>
-          </div>
-          <div className="familyRouteRow">
-            <button className="tabBtn" onClick={() => onNavigate?.("Home")}>Open Home</button>
-            <button className="tabBtn" onClick={() => onNavigate?.("GroceryMeals")}>Meals + Grocery</button>
-            <button className="tabBtn" onClick={() => onNavigate?.("FamilyBudget")}>Budget</button>
-            <button className="tabBtn" onClick={() => onNavigate?.("DailyChores")}>Chores</button>
-          </div>
-        </div>
-      </div>
-
       <div className="card productivityHeroCard" style={{ marginTop: 12 }}>
         <div className="productivityHeroBar">
           <div>

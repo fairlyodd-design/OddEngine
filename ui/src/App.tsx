@@ -5,7 +5,6 @@ import AssistantDock from "./components/AssistantDock";
 import ActivityRail from "./components/ActivityRail";
 import CommandBar from "./components/CommandBar";
 import HomieBuddy from "./components/HomieBuddy";
-import LilHomieAgent from "./components/LilHomieAgent";
 import CardGODMode from "./components/CardGODMode";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { startAutomationLoop } from "./lib/automation";
@@ -14,8 +13,6 @@ import { APP_VERSION } from "./lib/version";
 import { isDesktop, oddApi } from "./lib/odd";
 import { PANEL_META, buildAssistantInsight, buildMissions, getBrainNotes, getGoals, getPanelMeta, logActivity, normalizePanelId, readPanelContext } from "./lib/brain";
 import { loadPrefs } from "./lib/prefs";
-import { rememberPanelVisit } from "./lib/homieMemoryContext";
-import { pushHomiePulse } from "./lib/homieNotificationPulse";
 import fairlyOddLogo from "./assets/fairlyodd-logo.png";
 import osWallpaper from "./assets/os-wallpaper.png";
 
@@ -51,6 +48,7 @@ const MarketMap = lazy(() => import("./panels/MarketMap"));
 const TimeMachine = lazy(() => import("./panels/TimeMachine"));
 const FiftyTo1K = lazy(() => import("./panels/FiftyTo1K"));
 const OptionsSniperTerminal = lazy(() => import("./panels/OptionsSniperTerminal"));
+const CoinstoreBTCUSDTFutures = lazy(() => import("./panels/CoinstoreBTCUSDTFutures"));
 
 function PanelLoading({ panelId }: { panelId: string }) {
   const meta = getPanelMeta(panelId);
@@ -98,6 +96,7 @@ function renderPanel(id: string, setActive: (id: string) => void, activeId: stri
     case "TimeMachine": return <TimeMachine />;
     case "FiftyTo1K": return <FiftyTo1K />;
     case "OptionsSniperTerminal": return <OptionsSniperTerminal />;
+    case "CoinstoreBTCUSDTFutures": return <CoinstoreBTCUSDTFutures />;
     default: return <div className="card">Unknown panel</div>;
   }
 }
@@ -215,23 +214,6 @@ export default function App() {
   });
 
   type ShellMode = "expanded" | "compact";
-
-  useEffect(() => {
-    try {
-      rememberPanelVisit(active);
-      pushHomiePulse({
-        id: `visit-${Date.now()}-${active}`,
-        kind: "visit",
-        title: `Opened ${normalizePanelId(active)}`,
-        panelId: normalizePanelId(active),
-        body: `Recent workspace updated for ${normalizePanelId(active)}.`,
-        ts: Date.now(),
-      });
-    } catch {
-      // ignore
-    }
-  }, [active]);
-
   const [shellMode, setShellMode] = useState<ShellMode>(() => {
     try {
       const raw = localStorage.getItem("oddengine:shellMode");
@@ -561,7 +543,6 @@ export default function App() {
       </div>
 
       <ErrorBoundary panelId={activeId} label="AI inbox rail" onNavigate={setActive}><ActivityRail activePanelId={activeId} onNavigate={setActive} /></ErrorBoundary>
-      <LilHomieAgent activePanelId={activeId} onNavigate={setActive} />
       <HomieBuddy activePanelId={activeId} onNavigate={setActive} onOpenHowTo={() => setHelpOpen(true)} />
     </div>
   );

@@ -3,7 +3,6 @@ import { isDesktop, oddApi } from "../lib/odd";
 import { PanelHeader } from "../components/PanelHeader";
 import ActionMenu from "../components/ActionMenu";
 import { PanelScheduleCard } from "../components/PanelScheduleCard";
-import { getAndThenPlan, recentHomieRooms } from "../lib/homieAndThen";
 
 type DevIssue = {
   id: string;
@@ -297,9 +296,6 @@ async function send() {
     []
   );
 
-  const andThenPlan = useMemo(() => getAndThenPlan(activePanelId || "Homie"), [activePanelId]);
-  const recentRooms = useMemo(() => recentHomieRooms().slice(0, 4), [activePanelId, messages.length]);
-
   return (
     <div className="page" style={{ maxWidth: 1100, margin: "0 auto" }}>
       <PanelHeader
@@ -337,19 +333,6 @@ async function send() {
           <div className="creativeMetricCard"><div className="small shellEyebrow">RUNS</div><div className="h">{devSnap?.runningCount || 0}</div></div>
           <div className="creativeMetricCard"><div className="small shellEyebrow">TARGET</div><div className="h">{targetProject ? "Linked" : "Unset"}</div></div>
         </div>
-      </div>
-
-      <div className="card softCard homieAndThenCard" style={{ marginBottom: 10 }}>
-        <div className="small shellEyebrow">AND THEN?</div>
-        <div className="h" style={{ marginBottom: 4 }}>{andThenPlan.lead}</div>
-        <div className="sub" style={{ marginBottom: 10 }}>{andThenPlan.vibe}</div>
-        <div className="row wrap" style={{ gap: 8, marginBottom: 10 }}>
-          {andThenPlan.nextSteps.map((step) => (
-            <button key={step.panelId + step.label} className="tabBtn" onClick={() => onNavigate(step.panelId)} title={step.reason}>{step.label}</button>
-          ))}
-        </div>
-        <div className="small" style={{ opacity: 0.78 }}>Recent rooms: {recentRooms.join(" • ") || "Home • Homie"}</div>
-        {andThenPlan.easter ? <div className="small" style={{ opacity: 0.72, marginTop: 6 }}>{andThenPlan.easter}</div> : null}
       </div>
 
       <div className="tabs" style={{ marginBottom: 10 }}>

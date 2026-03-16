@@ -4,7 +4,6 @@ import { loadPrefs, savePrefs, type Prefs } from "../lib/prefs";
 import { oddApi } from "../lib/odd";
 import { CALENDAR_EVENT, listUpcoming } from "../lib/calendarStore";
 import { getPanelMeta, normalizePanelId } from "../lib/brain";
-import { getHomieIdleDelight, getHomiePanelDelight } from "../lib/homieDelight";
 import LilHomie3D from "./LilHomie3D";
 
 type BubbleMsg = { id: string; role: "system" | "user" | "assistant"; text: string; ts: number };
@@ -92,9 +91,7 @@ export default function LilHomieAgent({
   const [thinking, setThinking] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [input, setInput] = useState("");
-  const [msgs, setMsgs] = useState<BubbleMsg[]>(() => [{ id: nowId(), role: "system", text: "Yo 👊 I’m Homie. I’ll hang with you, keep things steady, and help with the next clean move.", ts: Date.now() }]);
-  const lastSaidRef = useRef<{ text: string; ts: number }>({ text: "", ts: 0 });
-  const lastIdleRef = useRef<number>(0);
+  const [msgs, setMsgs] = useState<BubbleMsg[]>(() => [{ id: nowId(), role: "system", text: "Yo 👊 I’m Lil Homie. Drag me, click me, or ask me anything.", ts: Date.now() }]);
 
   // Restore last position.
   useEffect(() => {
@@ -139,11 +136,7 @@ export default function LilHomieAgent({
   }
 
   function say(text: string, opts: { forceOpen?: boolean } = {}) {
-    const nowTs = Date.now();
-    const prev = lastSaidRef.current;
-    if (prev.text === text && nowTs - prev.ts < 90_000) return;
-    lastSaidRef.current = { text, ts: nowTs };
-    const msg: BubbleMsg = { id: nowId(), role: "assistant", text, ts: nowTs };
+    const msg: BubbleMsg = { id: nowId(), role: "assistant", text, ts: Date.now() };
     setMsgs((prev) => [...prev.slice(-14), msg]);
     if (opts.forceOpen) setOpen(true);
 
@@ -170,13 +163,13 @@ export default function LilHomieAgent({
 
   function systemTipFor(panelId: string) {
     const id = normalizePanelId(panelId);
-    if (id === "Trading") return "Trading looks ready. Want the next clean setup instead of the next noisy click?";
-    if (id === "Grow") return "Grow lane is up. We can keep it simple and consistent.";
-    if (id === "FamilyBudget") return "Budget mode. One calm money move helps the whole house.";
-    if (id === "Books") return "Studio’s open. Want to keep the creative lane moving?";
-    if (id === "Entertainment") return "Family lane is warm. Good time for an easy win together.";
-    if (id === "Home") return "Mission Control is steady. Pick one lane and I’ll help you move through it.";
-    return getHomiePanelDelight(id);
+    if (id === "Trading") return "Locked in. Want a quick scan + best-contract highlight? Hit the command bar: ‘Trading HUD go’.";
+    if (id === "Grow") return "Grow vibes. Add a ‘Feed’ or ‘Flip’ reminder to Calendar so you never miss a beat.";
+    if (id === "FamilyBudget") return "Budget mode. If you schedule bill due dates in Calendar, Home will warn you early.";
+    if (id === "Books") return "Writer’s Lounge time. Want me to outline the next chapter or punch up dialogue? Ask me in this bubble.";
+    if (id === "Entertainment") return "Family Night ready. Add a ‘Tonight: Family Night’ event so Mission Control stays live.";
+    if (id === "Home") return "Mission Control online. I can roam and nudge you when events are coming up.";
+    return "Need anything? I can open panels, focus the command bar, or help plan your next move.";
   }
 
   // Chatter on panel change.
@@ -361,7 +354,7 @@ export default function LilHomieAgent({
 
     setThinking(true);
     try {
-      const system = "You are Homie — a hype Fortnite-mascot assistant inside FairlyOdd OS. Be concise, friendly, and action-oriented. Give 1-3 bullet steps max.";
+      const system = "You are Lil Homie — a hype Fortnite-mascot assistant inside FairlyOdd OS. Be concise, friendly, and action-oriented. Give 1-3 bullet steps max.";
       const payload = {
         messages: [
           { role: "system", content: system },
@@ -405,7 +398,7 @@ export default function LilHomieAgent({
 
   return (
     <div className={`lilHomieAgent ${open ? "open" : ""} ${thinking ? "thinking" : ""} ${(lil3d && !threeFailed) ? "lil3d" : ""}`} ref={rootRef}>
-      <div className="lilHomieHitbox" onPointerDown={beginDrag} onClick={() => setOpen((v) => !v)} title="Homie (drag or click)">
+      <div className="lilHomieHitbox" onPointerDown={beginDrag} onClick={() => setOpen((v) => !v)} title="Lil Homie (drag or click)">
         <div className="lilAgentFlip" aria-hidden="true">
           <div className="homieLilBody lilAgentBody">
             {lil3d && !threeFailed ? (
@@ -417,7 +410,7 @@ export default function LilHomieAgent({
             ) : (
               <>
                 <div className="homieLilHead lilAgentHead">
-                  <img src={homieMascot} className="lilAgentHeadImg" alt="Homie" draggable={false} />
+                  <img src={homieMascot} className="lilAgentHeadImg" alt="Lil Homie" draggable={false} />
                 </div>
                 <div className="homieLilNeck" />
                 <div className="homieLilTorso">
@@ -431,14 +424,14 @@ export default function LilHomieAgent({
             )}
           </div>
         </div>
-        <div className="lilHomieName">Homie</div>
+        <div className="lilHomieName">Lil Homie</div>
       </div>
 
       {open && (
         <div className="lilHomieBubble" onClick={(e) => e.stopPropagation()}>
           <div className="row" style={{ justifyContent: "space-between", alignItems: "center", gap: 10 }}>
             <div>
-              <div className="h" style={{ fontSize: 14, marginBottom: 2 }}>🐦‍🔥 Homie</div>
+              <div className="h" style={{ fontSize: 14, marginBottom: 2 }}>🐦‍🔥 Lil Homie</div>
               <div className="small" style={{ opacity: 0.85 }}>Active: {activeMeta.icon} {activeMeta.title}</div>
             </div>
             <div className="row" style={{ gap: 8 }}>
@@ -471,7 +464,7 @@ export default function LilHomieAgent({
             <input
               className="lilHomieInput"
               value={input}
-              placeholder="Ask Homie…"
+              placeholder="Ask Lil Homie…"
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") askAi(input);

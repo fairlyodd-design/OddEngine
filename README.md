@@ -1,112 +1,161 @@
-# OddEngine v10.25.29 — Mainline Truth and Ship Pass
+# OddEngine v10.19.9 (Desktop + Web + Windows EXE build) — FairlyGOD Mode 👊🐦‍🔥
 
-OddEngine is the broader **FairlyOdd OS** for everyday life.
+This build includes everything from the v10.18.x line **plus** the FairlyGOD layout + routines stack:
 
-This repo now centers around five big lanes:
+- ✅ **“Never again” launcher guards**: auto-clears Vite cache on version change + preflight UI build before launch
 
-- **Home** — mission control / heartbeat
-- **Homie** — embodied AI companion
-- **Trading** — workstation
-- **Family** — grocery, budget, chores, calendar, routines
-- **Studio** — creative engine
+- ✅ **Homie AI chat** (Desktop-only) powered by **local Ollama** on `127.0.0.1:11434`
+- ✅ **Mission Control copilots + panel copilots** (top priority + next action + chips)
+- ✅ **Plugins** (Desktop-safe loading + “open panel” actions)
+- ✅ **Entertainment** (separate player window + Family Night mode)
+- ✅ **Books Vault** (track all in-progress books locally)
 
-## Current product direction
+## FairlyGOD Mode (all panels)
 
-### Home
-Home is the heartbeat of the OS. It should surface what matters most right now across family life, trading, studio work, and Homie context.
+- ✅ Every **card/box is shrinkable + movable** (no per-panel refactor needed)
+- ✅ **Snap grid + guides** (hold **Shift** to temporarily disable snap)
+- ✅ **Lock layout** toggle (prevents accidental dragging)
+- ✅ **Presets per panel** (save/apply)
+- ✅ **Reset panel layout** (one-click un-chaos)
+- ✅ **Panel-to-panel layout cloning**
+- ✅ **Global preset sets** (ex: “Morning Routine” applies across multiple panels)
+- ✅ **Routine Launcher** (apply a set + open a panel sequence in one click)
+- ✅ **Routine window auto-tiling** + one-click **Close Routine Windows**
+- ✅ **Multi-monitor routine presets** + **per-display window assignments**
 
-### Homie
-Homie is the onboard AI companion. Homie should feel:
-- warm
-- positive
-- helpful
-- truthful
-- grounded
-- family-safe
+---
 
-Homie should be present across the OS without becoming noisy or gimmicky.
+## Quick start (Windows)
 
-### Trading
-Trading should feel like a focused workstation, not a wall of duplicated panels. The public-facing trading shape is:
+### Web mode (runs in browser)
+1) Unzip
+2) Double-click `RUN_WINDOWS_WEB.bat`
+3) Open http://localhost:5173
 
-- **Trading Home**
-- **Charts + Graphs**
-- **Options Chains**
+> Note: Homie AI requires **Desktop mode**.
 
-Deeper trading tools can still exist underneath those top-level surfaces.
+### Desktop mode (Electron — enables disk writes/logs/adb/emulators/Homie AI)
+1) Unzip
+2) Double-click `RUN_WINDOWS_DESKTOP.bat`
 
-### Family
-The family-life side of the OS should feel connected:
+---
 
-- Grocery Meals
-- Family Budget
-- Daily Chores
-- Calendar
-- Routine Launcher
+## Homie AI (local Ollama)
 
-### Studio
-Studio is the all-in-one idea → product area inside the larger OS:
+Homie AI is designed to stay **local**:
+- Your prompts + context stay on your machine
+- OddEngine talks only to `127.0.0.1:11434`
+- No cloud keys required
 
-- Writing Room
-- Director Room
-- Music Lab
-- Render Lab
-- Producer Ops
-
-## Branch roles
-
-Use these branches consistently:
-
-- **main** = public/default branch and ship target
-- **recovery/render-worker-bridge-pass** = active forward branch
-- **checkpoint/recovery-ui-stable** = rollback / safety line
-
-## Known-good line before this ship pass
-
-The accepted polish line leading into this ship pass includes:
-
-- restored baseline look and feel
-- Homie mascot/presence improvements
-- Trading consolidation + polish
-- Family OS cohesion
-- Studio cohesion
-- Cross-OS quick actions
-- Homie memory/context + pulse
-- command/action/status dock
-- no-and-then stability/delight polish
-
-## Recommended ship flow
-
-1. Start from your real local `C:\OddEngine`
-2. Build locally
-3. Click through Home / Homie / Trading / Family / Studio
-4. Commit to `recovery/render-worker-bridge-pass`
-5. Push recovery
-6. Merge recovery into `main`
-7. Refresh `checkpoint/recovery-ui-stable` after ship
-
-## House docs
-
-- `OddEngine_WORKFLOW.md`
-- `docs/current-state.md`
-- `docs/V10.25.29_MAINLINE_TRUTH_AND_SHIP_PASS.md`
-- `docs/SHIP_CHECKLIST.md`
-
-## Build
-
+### Install Ollama
+1) Install Ollama for Windows
+2) In PowerShell:
 ```powershell
-cd C:\OddEngine
-npm --prefix .\ui run build
+ollama --version
+```
+3) Pull a model (examples):
+```powershell
+ollama pull llama3.1:8b
+# or smaller/faster
+ollama pull phi3:mini
+ollama pull mistral:7b
+```
+4) Keep Ollama running (it hosts on `127.0.0.1:11434`)
+
+### Use it
+- Open **Homie 👊** panel
+- Click **Check Ollama**
+- Pick your model name (must match what you pulled)
+- Chat normally
+
+Tip: Paste build logs and ask “Explain this error + safest fix steps”.
+
+---
+
+## Build a real Windows .EXE (Installer + Desktop shortcut)
+
+> Do this on Windows.
+
+1) Unzip
+2) In the project folder:
+```powershell
+npm install
+npm run dist:win
 ```
 
-## Run
+This produces:
+- `dist\OddEngine Setup *.exe` (NSIS installer) ✅ creates Desktop shortcut
+- `dist\OddEngine *.exe` (portable) (no auto-shortcut)
 
-```powershell
-.\RUN_WINDOWS_DESKTOP.bat
+---
+
+## If the Desktop app opens but shows a blank screen
+
+If DevTools shows errors like:
+- `Failed to load resource: net::ERR_FILE_NOT_FOUND index-*.js`
+- `Failed to load resource: net::ERR_FILE_NOT_FOUND index-*.css`
+
+That means the UI assets were built with an absolute base path (`/assets/...`) and Electron is loading the UI via `file://`.
+
+✅ Fix: make sure `ui/vite.config.ts` contains:
+
+```ts
+base: "./",
 ```
 
+Then rebuild:
+
 ```powershell
-.\RUN_WINDOWS_WEB.bat
+npm run build:ui
+npm run dist:win
 ```
 
-FairlyOdd OS for home.
+---
+
+## Grow section (bundled Grow OS)
+
+Desktop mode seeds the Grow OS bundle here:
+- `%APPDATA%\OddEngine\bundles\grow_os`
+
+In the **Grow** panel:
+- **Open bundle folder**
+- **Install deps** (runs `python -m pip install -r requirements.txt`)
+- **Launch Grow OS** (runs Streamlit on `http://127.0.0.1:8501`)
+
+If Python isn’t in PATH, set the **Python command** box to `py` or your full python path.
+
+---
+
+## PowerShell tip (don’t use `rmdir /s /q`)
+That syntax is **CMD**, not PowerShell. Use this in PowerShell instead:
+
+```powershell
+Remove-Item -Recurse -Force .\node_modules -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force .\ui\node_modules -ErrorAction SilentlyContinue
+Remove-Item -Force .\package-lock.json -ErrorAction SilentlyContinue
+Remove-Item -Force .\ui\package-lock.json -ErrorAction SilentlyContinue
+npm cache clean --force
+npm install
+```
+
+---
+
+## Autopilot generators
+- In **Desktop mode**: writes real files to disk automatically.
+- In **Web mode**: click **Export to Folder (Browser)** and choose a folder (Chrome/Edge on localhost supports this).
+
+
+## Family Budget v10.14.0
+
+- CSV mapping + import presets
+- Payoff planner (Avalanche / Snowball)
+- Backend snapshot sync bridge
+
+
+## New in v10.16.1
+- Shared AI Brain service with specialist copilots in each panel
+- Embedded assistant dock across the OS
+- Brain router with goals, notes, daily digest, and pinned memory
+- Global AI command bar + right-side AI inbox/activity rail
+- Upgraded Security, Money, and Options SaaS panels
+- AI defaults added to Preferences

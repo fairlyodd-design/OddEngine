@@ -1509,12 +1509,12 @@ export default function Trading() {
   }
 
   return (
-    <div className="card tradingPanelRoot tradingHomeRoot">
+    <div className="card tradingPanelRoot">
       <div className="tradingHeroBar">
         <div>
           <div className="small shellEyebrow">TRADING DESK</div>
           <div className="tradingHeroTitle">Trading</div>
-          <div className="small tradingHeroSub">Sharper command desk for chart, chain, and plan flow with cleaner workstation rhythm.</div>
+          <div className="small tradingHeroSub">Public API mode + better expiration tabs + contract search + strike grouping + mobile-style calls/puts/detail/greeks drawer.</div>
         </div>
         <div className="row wrap tradingHeroBadges" style={{ justifyContent: "flex-end" }}>
           <span className={`badge ${inp.dataMode === "api" ? "good" : "warn"}`}>{inp.dataMode === "api" ? "Public API mode" : "Public website fallback"}</span>
