@@ -1,1 +1,4 @@
-export const APP_VERSION = "10.25.44";\nexport const UI_VERSION = APP_VERSION;\nexport const VERSION = APP_VERSION;\nexport default APP_VERSION;\n
+export const APP_VERSION = "10.25.44a";
+export const UI_VERSION = APP_VERSION;
+export const VERSION = APP_VERSION;
+export default APP_VERSION;
