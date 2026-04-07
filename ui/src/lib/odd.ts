@@ -87,6 +87,19 @@ type Odd = {
     cwd?: string;
     appPath?: string;
   }>;
+  getRuntimeStats?: () => Promise<{
+    ok: boolean;
+    ts?: number;
+    cpuPercent?: number;
+    ramPercent?: number;
+    totalMem?: number;
+    freeMem?: number;
+    usedMem?: number;
+    host?: string;
+    platform?: string;
+    lanIpv4?: number;
+    error?: string;
+  }>;
 
   updateGrowBundle: () => Promise<{ ok: boolean; path?: string; updated?: boolean; version?: string | null; error?: string }>;
   growPlannerHandoff: (payload: any) => Promise<{ ok: boolean; path?: string; handoffPath?: string; roomsUpdated?: number; error?: string }>;
@@ -158,6 +171,7 @@ export function oddApi(): Odd {
   return {
     isDesktop: () => false,
     getSystemInfo: async () => ({ ok: false }),
+    getRuntimeStats: async () => ({ ok: false, error: "Not available in browser" }),
     updateGrowBundle: async () => ({ ok: false }),
     growPlannerHandoff: async () => ({ ok: false }),
     fetchText: async () => ({ ok: false, error: "Not available in browser" }),

@@ -33,6 +33,7 @@ contextBridge.exposeInMainWorld("__ODD__", {
 
   // system
   getSystemInfo: () => ipcRenderer.invoke("odd:getSystemInfo"),
+  getRuntimeStats: () => ipcRenderer.invoke("odd:getRuntimeStats"),
   updateGrowBundle: () => ipcRenderer.invoke("odd:updateGrowBundle"),
   growPlannerHandoff: (payload) => ipcRenderer.invoke("odd:growPlannerHandoff", payload || {}),
 
