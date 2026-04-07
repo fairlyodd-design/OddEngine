@@ -57,6 +57,13 @@ export default function Home({ onNavigate }: Props) {
   }, [now]);
 
   const [storage, setStorage] = useState<{ quota: number; usage: number } | null>(null);
+  const [runtime, setRuntime] = useState<{
+    cpuPercent: number;
+    ramPercent: number;
+    host: string;
+    platform: string;
+    lanIpv4: number;
+  } | null>(null);
   const [calTick, setCalTick] = useState(0);
   const [entTick, setEntTick] = useState(0);
   const [doneTick, setDoneTick] = useState(0);
@@ -65,6 +72,33 @@ export default function Home({ onNavigate }: Props) {
     let alive = true;
     getStorageEstimate().then((s) => alive && setStorage(s));
     const t = window.setInterval(() => getStorageEstimate().then((s) => alive && setStorage(s)), 15000);
+    return () => {
+      alive = false;
+      window.clearInterval(t);
+    };
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
+    async function pullRuntime() {
+      try {
+        const api = oddApi();
+        if (!isDesktop() || !api.getRuntimeStats) return;
+        const res: any = await api.getRuntimeStats();
+        if (!alive || !res?.ok) return;
+        setRuntime({
+          cpuPercent: Number(res.cpuPercent || 0),
+          ramPercent: Number(res.ramPercent || 0),
+          host: String(res.host || window.location.hostname || "local"),
+          platform: String(res.platform || ""),
+          lanIpv4: Number(res.lanIpv4 || 0),
+        });
+      } catch {
+        // ignore
+      }
+    }
+    pullRuntime();
+    const t = window.setInterval(pullRuntime, 5000);
     return () => {
       alive = false;
       window.clearInterval(t);
@@ -427,15 +461,15 @@ export default function Home({ onNavigate }: Props) {
             <div className="homeMeterRow mt-4">
               <div className="homeRing">
                 <div className="homeRingLabel">CPU</div>
-                <div className="homeRingValue">—</div>
+                <div className="homeRingValue">{runtime ? `${Math.max(0, Math.min(100, Math.round(runtime.cpuPercent)))}%` : "—"}</div>
               </div>
               <div className="homeRing">
                 <div className="homeRingLabel">RAM</div>
-                <div className="homeRingValue">—</div>
+                <div className="homeRingValue">{runtime ? `${Math.max(0, Math.min(100, Math.round(runtime.ramPercent)))}%` : "—"}</div>
               </div>
             </div>
             <div className="small mt-3" style={{ opacity: 0.85 }}>
-              (CPU/RAM live meters will hook into Desktop system stats next.)
+              {runtime ? `Host: ${runtime.host}${runtime.platform ? ` • ${runtime.platform}` : ""}` : "(CPU/RAM live meters unavailable in browser mode.)"}
             </div>
           </div>
 
@@ -457,7 +491,10 @@ export default function Home({ onNavigate }: Props) {
             <div className="h">Network</div>
             <div className="sub">LAN-first operator mode</div>
             <div className="small mt-4" style={{ opacity: 0.9 }}>
-              Host: <b>{window.location.hostname}</b>
+              Host: <b>{runtime?.host || window.location.hostname}</b>
+            </div>
+            <div className="small" style={{ opacity: 0.9 }}>
+              LAN IPv4 interfaces: <b>{runtime ? runtime.lanIpv4 : "—"}</b>
             </div>
             <div className="cluster wrap mt-4">
               <button className="tabBtn" onClick={() => onNavigate("Security")}>Open Security</button>
