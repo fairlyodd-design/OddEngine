@@ -1,0 +1,36 @@
+{
+  "id": "rj_mmzwl5a8_rr8qq0",
+  "title": "11h smoke review",
+  "kind": "video",
+  "provider": "odd-local-placeholder",
+  "prompt": "test",
+  "payload": {},
+  "status": "completed",
+  "progress": 1,
+  "createdAt": 1774071872000,
+  "updatedAt": 1774071875509,
+  "worker": {
+    "id": "local-placeholder-worker",
+    "name": "Local Placeholder Worker"
+  },
+  "output": {
+    "filename": "11h-smoke-review-rj_mmzwl5a8_rr8qq0.mp4",
+    "localPath": "/mnt/data/work11h/backend_scaffold/outputs/11h-smoke-review-rj_mmzwl5a8_rr8qq0.mp4",
+    "previewUrl": "/mnt/data/work11h/backend_scaffold/outputs/11h-smoke-review-rj_mmzwl5a8_rr8qq0.mp4",
+    "imported": false,
+    "importedAt": null,
+    "importedInto": null,
+    "watchedAt": null,
+    "review": {
+      "decision": "revise",
+      "note": "Needs tighter pacing in the middle.",
+      "reviewedAt": 1774071875509,
+      "reviewedBy": "Smoke Test",
+      "summary": "Needs a revision pass before sign-off."
+    }
+  },
+  "outputPath": "/mnt/data/work11h/backend_scaffold/outputs/11h-smoke-review-rj_mmzwl5a8_rr8qq0.mp4",
+  "outputUrl": "/mnt/data/work11h/backend_scaffold/outputs/11h-smoke-review-rj_mmzwl5a8_rr8qq0.mp4",
+  "completedAt": 1774071874803,
+  "workerMessage": "Review decision: revise • Needs tighter pacing in the middle."
+}

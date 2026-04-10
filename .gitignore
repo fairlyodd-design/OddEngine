@@ -5,3 +5,9 @@ ui/dist/
 *.log
 .env
 .env.*
+backend_scaffold/.venv/
+.venv/
+node_modules/
+backend_scaffold/outputs/
+*.wav
+*.mp3

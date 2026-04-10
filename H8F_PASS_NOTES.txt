@@ -1,0 +1,27 @@
+v10.26.20h8f_SharedRoutinesTriggerChainsAndOperatorAutomationsPass
+
+What this pass adds
+- Shared operator routines layer with local-first storage and eventing.
+- One-click multi-panel trigger chains from Home.
+- Home now exposes a coordinated routine deck with active routine state.
+- Homie now sees shared routines in context and can launch them from inside the panel.
+- Triggered routines publish into shared operator memory and queue panel actions where supported.
+
+Files added
+- ui/src/lib/operatorRoutines.ts
+
+Files changed
+- ui/src/panels/Home.tsx
+- ui/src/panels/Homie.tsx
+
+Routines included
+- Launch the day
+- Trading focus
+- Studio sprint
+- Money reset
+
+Behavior notes
+- Trading routine uses existing Trading AI actions where available.
+- Budget routine uses existing FamilyBudget AI actions where available.
+- Studio/Home/Homie steps publish into operator memory and activity even when a panel-specific action hook does not exist yet.
+- This is local-first and does not touch bridge-core logic.

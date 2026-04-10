@@ -1,0 +1,36 @@
+{
+  "id": "rj_mmzwle40_ains02",
+  "title": "11h smoke full",
+  "kind": "video",
+  "provider": "odd-local-placeholder",
+  "prompt": "test",
+  "payload": {},
+  "status": "completed",
+  "progress": 1,
+  "createdAt": 1774071883440,
+  "updatedAt": 1774071886951,
+  "worker": {
+    "id": "local-placeholder-worker",
+    "name": "Local Placeholder Worker"
+  },
+  "output": {
+    "filename": "11h-smoke-full-rj_mmzwle40_ains02.mp4",
+    "localPath": "/mnt/data/work11h/backend_scaffold/outputs/11h-smoke-full-rj_mmzwle40_ains02.mp4",
+    "previewUrl": "/mnt/data/work11h/backend_scaffold/outputs/11h-smoke-full-rj_mmzwle40_ains02.mp4",
+    "imported": true,
+    "importedAt": 1774071886945,
+    "importedInto": "Story Forge • Smoke",
+    "watchedAt": 1774071886948,
+    "review": {
+      "decision": "approved",
+      "note": "Feels ready for this pass.",
+      "reviewedAt": 1774071886951,
+      "reviewedBy": "Smoke Test",
+      "summary": "Approved for the current pass."
+    }
+  },
+  "outputPath": "/mnt/data/work11h/backend_scaffold/outputs/11h-smoke-full-rj_mmzwle40_ains02.mp4",
+  "outputUrl": "/mnt/data/work11h/backend_scaffold/outputs/11h-smoke-full-rj_mmzwle40_ains02.mp4",
+  "completedAt": 1774071886242,
+  "workerMessage": "Review decision: approved • Feels ready for this pass."
+}

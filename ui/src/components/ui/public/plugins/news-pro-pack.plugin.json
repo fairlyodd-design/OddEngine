@@ -1,0 +1,9 @@
+{
+  "id": "news-pro-pack",
+  "name": "News Pro Pack",
+  "version": "10.16.2",
+  "description": "Adds watch topics, briefing mode, impact radar, and bookmarking to the News panel.",
+  "actions": [
+    { "id": "panel_news", "label": "Open News", "type": "open_url", "payload": { "url": "/?panel=News" } }
+  ]
+}

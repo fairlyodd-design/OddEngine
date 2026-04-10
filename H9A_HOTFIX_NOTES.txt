@@ -1,0 +1,24 @@
+v10.26.20h9a_RuntimeCrashEliminationHotfix
+
+What this hotfix fixes
+- Removes duplicated leaked Trading helper functions that were injected into local chart/list helper scopes.
+- Eliminates the runtime TDZ crash path that surfaced as:
+  Cannot access 'selectedContract2' before initialization
+- Prevents Trading-only state from being referenced inside child helper components that do not own that state.
+
+What was swept
+- Trading.tsx duplicate helper leak cleanup
+- Books.tsx checked for Trading variable leakage
+- Home.tsx checked for selectedContract leakage
+- Homie.tsx checked for selectedContract leakage
+- FamilyBudget.tsx checked for selectedContract leakage
+
+Result
+- Only one canonical focusBestContractHUD helper remains in Trading.
+- Only one canonical copyPlanToClipboard helper remains in Trading.
+- No selectedContract references remain outside Trading.
+
+Install
+- Unzip over your current OddEngine folder.
+- Boot desktop.
+- Test Trading first, then Writers Lounge.

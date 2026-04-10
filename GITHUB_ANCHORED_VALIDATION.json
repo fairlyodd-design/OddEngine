@@ -1,0 +1,22 @@
+[
+  [
+    "ui/src/App.tsx",
+    true,
+    25307
+  ],
+  [
+    "ui/src/lib/brain.ts",
+    true,
+    100057
+  ],
+  [
+    "ui/src/panels/GroceryMeals.tsx",
+    true,
+    21672
+  ],
+  [
+    "ui/src/panels/Poker.tsx",
+    true,
+    8579
+  ]
+]

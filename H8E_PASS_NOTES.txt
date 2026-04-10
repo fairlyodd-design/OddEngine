@@ -1,0 +1,27 @@
+v10.26.20h8e_CrossPanelAutomationAndSharedOperatorMemoryPass
+
+What this pass adds
+- new shared operator memory store for Home, Homie, Trading, Writers Lounge, and Family Budget
+- Home now shows cross-panel shared operator memory inside the FairlyGOD deck
+- Homie now reads shared operator memory and includes it in contextual AI chat
+- Trading publishes live session/contract/trade context into shared operator memory
+- Writers Lounge publishes active project + stage context into shared operator memory
+- Family Budget publishes money snapshot + next move context into shared operator memory
+
+Files added
+- ui/src/lib/operatorMemory.ts
+
+Files changed
+- ui/src/panels/Home.tsx
+- ui/src/panels/Homie.tsx
+- ui/src/panels/Trading.tsx
+- ui/src/panels/Books.tsx
+- ui/src/panels/FamilyBudget.tsx
+
+Validation done here
+- syntax/bundle pass with esbuild for Home, Homie, Trading, Books, and FamilyBudget using externalized react/jsx-runtime/jszip
+
+Notes
+- local-first only
+- no bridge-core logic touched
+- no floating workspace logic touched

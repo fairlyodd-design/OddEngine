@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { memo, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { downloadTextFile } from "../lib/files";
 import { isDesktop, oddApi } from "../lib/odd";
 import { pushNotif } from "../lib/notifs";
@@ -172,6 +172,33 @@ type ChainLoadResult = {
   expirations: string[];
 };
 
+type TradingJournalEntry = {
+  id: string;
+  createdAt: number;
+  symbol: string;
+  setup: string;
+  bias: Input["bias"];
+  timeframe: Input["timeframe"];
+  contractLabel: string;
+  contractSymbol: string;
+  pnl: number;
+  notes: string;
+  worked: string;
+  didnt: string;
+  screenshotUrl: string;
+  score: number;
+};
+
+type TradingAlertHook = {
+  id: string;
+  symbol: string;
+  label: string;
+  minScore: number;
+  side: "all" | "call" | "put";
+  active: boolean;
+  firedAt: number | null;
+};
+
 type StrikeGroupSummary = {
   bucket: number;
   label: string;
@@ -185,6 +212,10 @@ type StrikeGroupSummary = {
 
 const KEY = "oddengine:trading:sniper:v4";
 const UI_KEY = "oddengine:trading:ui:v1";
+const JOURNAL_KEY = "oddengine:trading:journal:v1";
+const ALERT_HOOKS_KEY = "oddengine:trading:alertHooks:v1";
+const TRADING_EVENT = "oddengine:money-changed";
+
 const DEFAULTS: Input = {
   symbol: "SPY",
   chartSymbol: "AMEX:SPY",
@@ -239,6 +270,14 @@ function uniqSymbols(raw: string): string[] {
     out.push(s);
   }
   return out.slice(0, 18);
+}
+
+function safeId(prefix = "trade") {
+  return `${prefix}_${Math.random().toString(36).slice(2, 8)}_${Date.now().toString(36)}`;
+}
+
+function tradingMoney(n: number) {
+  return Number(n || 0).toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 2 });
 }
 
 function pickBest(contracts: PublicContract[], cfg: { maxAsk: number; minOi: number; targetSide: "call" | "put" | "all" }): PublicContract | null {
@@ -568,6 +607,8 @@ function TradingViewChart({ symbol, interval }: { symbol: string; interval: stri
   );
 }
 
+const StableTradingViewChart = memo(TradingViewChart);
+
 function OptionCurveChart({ chain, selectedKey }: { chain: PublicChainData | null; selectedKey: string | null }) {
   const all = useMemo(() => {
     if (!chain) return [] as PublicContract[];
@@ -649,6 +690,8 @@ function OptionCurveChart({ chain, selectedKey }: { chain: PublicChainData | nul
     </svg>
   );
 }
+
+const StableOptionCurveChart = memo(OptionCurveChart);
 
 function OiBarChart({ contracts, selectedKey }: { contracts: PublicContract[]; selectedKey: string | null }) {
   const rows = useMemo(() => contracts.filter((c) => c.openInterest !== null).slice(0, 16), [contracts]);
@@ -753,6 +796,8 @@ function OiBarChart({ contracts, selectedKey }: { contracts: PublicContract[]; s
   );
 }
 
+const StableOiBarChart = memo(OiBarChart);
+
 function DrawerList({ rows, selectedKey, onPick }: { rows: PublicContract[]; selectedKey: string | null; onPick: (key: string) => void }) {
   if (!rows.length) return <div className="small mt-4">No contracts in this tab yet.</div>;
   function focusBestContractHUD(){
@@ -853,6 +898,8 @@ function DrawerList({ rows, selectedKey, onPick }: { rows: PublicContract[]; sel
   );
 }
 
+const StableDrawerList = memo(DrawerList);
+
 function ContractDrawer({
   contract,
   chain,
@@ -912,7 +959,7 @@ function ContractDrawer({
   }
 
   return (
-    <div id="trading_drawer" className="card optionDrawer tradingSectionCard" style={{ minHeight: 320 }}>
+    <div id="trading_drawer" className="card optionDrawer tradingLaneCard tradingLaneDrawer" style={{ background: "rgba(8,12,18,0.35)", minHeight: 320 }}>
       <div className="cluster spread start">
         <div>
           <div style={{ fontWeight: 900, fontSize: 18 }}>Option drawer</div>
@@ -935,8 +982,8 @@ function ContractDrawer({
         <button className={drawerTab === "greeks" ? "tabBtn active" : "tabBtn"} onClick={() => setDrawerTab("greeks")}>Greeks</button>
       </div>
 
-      {drawerTab === "calls" && <DrawerList rows={callRows} selectedKey={contract?.key ?? null} onPick={onPickContract} />}
-      {drawerTab === "puts" && <DrawerList rows={putRows} selectedKey={contract?.key ?? null} onPick={onPickContract} />}
+      {drawerTab === "calls" && <StableDrawerList rows={callRows} selectedKey={contract?.key ?? null} onPick={onPickContract} />}
+      {drawerTab === "puts" && <StableDrawerList rows={putRows} selectedKey={contract?.key ?? null} onPick={onPickContract} />}
 
       {drawerTab === "detail" && (
         !contract ? <div className="small mt-5">Click a contract row to load quote, breakeven, and chain detail here.</div> : (
@@ -975,7 +1022,7 @@ function ContractDrawer({
               <div className="drawerStat"><span className="small">Rho</span><b>{formatGreek(greeks.rho)}</b></div>
               <div className="drawerStat"><span className="small">IV</span><b>{greeks.impliedVolatility !== null && greeks.impliedVolatility !== undefined ? `${(greeks.impliedVolatility * 100).toFixed(1)}%` : "—"}</b></div>
             </div>
-      <div className="card tradingMiniCard">
+      <div className="card" style={{ background: "rgba(15,22,34,0.45)" }}>
               <div className="small"><b>Quick read:</b></div>
               <div className="small mt-2">Δ tells you directional sensitivity. Γ tells you how fast delta changes. Θ is daily decay pressure. V shows sensitivity to IV change. ρ is usually minor for short-dated contracts. IV spikes can juice premium even if price stalls.</div>
             </div>
@@ -997,6 +1044,8 @@ function ContractDrawer({
 export default function Trading() {
   const [inp, setInp] = useState<Input>(() => loadJSON(KEY, DEFAULTS));
   const [chain, setChain] = useState<PublicChainData | null>(null);
+  const lastGoodChainRef = useRef<PublicChainData | null>(null);
+  const scanRequestRef = useRef(0);
   const [selectedContractKey, setSelectedContractKey] = useState<string | null>(() => loadJSON<string | null>(UI_KEY, null as any)?.selectedContractKey ?? null);
   const [loading, setLoading] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
@@ -1023,6 +1072,19 @@ export default function Trading() {
   const [ticketExitStop, setTicketExitStop] = useState<number | "">("");
   const [ticketTakeProfitPcts, setTicketTakeProfitPcts] = useState<number[]>([25, 50, 100]);
   const [ticketTpCustomPct, setTicketTpCustomPct] = useState<number>(35);
+  const [journalEntries, setJournalEntries] = useState<TradingJournalEntry[]>(() => {
+    const raw = loadJSON<any>(JOURNAL_KEY, [] as any);
+    return Array.isArray(raw) ? raw as TradingJournalEntry[] : [];
+  });
+  const [journalPnl, setJournalPnl] = useState<string>("");
+  const [journalNotes, setJournalNotes] = useState<string>("");
+  const [journalWorked, setJournalWorked] = useState<string>("");
+  const [journalDidnt, setJournalDidnt] = useState<string>("");
+  const [journalScreenshot, setJournalScreenshot] = useState<string>("");
+  const [alertHooks, setAlertHooks] = useState<TradingAlertHook[]>(() => {
+    const raw = loadJSON<any>(ALERT_HOOKS_KEY, [] as any);
+    return Array.isArray(raw) ? raw as TradingAlertHook[] : [];
+  });
 
   const computeEntryPx = (c: any) => {
     const ask = c?.ask ?? 0;
@@ -1065,6 +1127,24 @@ export default function Trading() {
     if (snapshot?.at && !lastScanAt) setLastScanAt(snapshot.at);
   }, []);
 
+  useEffect(() => {
+    saveJSON(JOURNAL_KEY, journalEntries);
+    try {
+      window.dispatchEvent(new CustomEvent(TRADING_EVENT, { detail: { source: "tradingJournal", count: journalEntries.length, ts: Date.now() } }));
+    } catch {}
+  }, [journalEntries]);
+
+  useEffect(() => {
+    saveJSON(ALERT_HOOKS_KEY, alertHooks);
+  }, [alertHooks]);
+
+  useEffect(() => {
+    const hasRows = !!(chain && (((chain as any).contracts?.length || 0) > 0 || chain.calls.length > 0 || chain.puts.length > 0));
+    if (hasRows) lastGoodChainRef.current = chain;
+  }, [chain]);
+
+  const displayChain = loading && lastGoodChainRef.current ? lastGoodChainRef.current : chain;
+
   const score = useMemo(() => {
     let s = 0.55 * inp.heat + 0.45 * inp.env;
     const trapCount = Object.values(inp.traps).filter(Boolean).length;
@@ -1086,7 +1166,7 @@ export default function Trading() {
     return "NO TRADE";
   }, [score]);
 
-  const allContracts = useMemo(() => chain ? [...chain.calls, ...chain.puts] : [], [chain]);
+  const allContracts = useMemo(() => displayChain ? [...displayChain.calls, ...displayChain.puts] : [], [displayChain]);
 
   const filteredContracts = useMemo(() => {
     const filtered = allContracts.filter((c) => {
@@ -1107,6 +1187,9 @@ export default function Trading() {
     return filteredContracts.filter((c) => Math.round(c.strike / size) * size === activeStrikeBucket);
   }, [filteredContracts, activeStrikeBucket, inp.strikeGrouping]);
 
+  const deferredFilteredContracts = useDeferredValue(filteredContracts);
+  const deferredVisibleContracts = useDeferredValue(visibleContracts);
+
   const selectedContract = useMemo(() => {
     return visibleContracts.find((c) => c.key === selectedContractKey)
       ?? filteredContracts.find((c) => c.key === selectedContractKey)
@@ -1121,18 +1204,37 @@ export default function Trading() {
     if (typeof ask === "number" && isFinite(ask)) setTicketLimit(ask);
   }, [selectedContractKey]);
 
+  useEffect(() => {
+    if (!alertHooks.length) return;
+    let changed = false;
+    const inferredSide = inp.bias === "bear" ? "put" : inp.bias === "bull" ? "call" : "all";
+    const next = alertHooks.map((hook) => {
+      if (!hook.active) return hook;
+      if (hook.symbol !== inp.symbol) return hook;
+      if (hook.firedAt && Date.now() - hook.firedAt < 10 * 60 * 1000) return hook;
+      const sideOk = hook.side === "all" || hook.side === inferredSide || hook.side === inp.targetSide;
+      if (score >= hook.minScore && sideOk) {
+        changed = true;
+        pushNotif({ title: "Trading alert", body: `${hook.symbol} is back in ${score}/100 territory — ${hook.label}.`, tags: ["Trading", "Alert"], level: "success" });
+        return { ...hook, firedAt: Date.now() };
+      }
+      return hook;
+    });
+    if (changed) setAlertHooks(next);
+  }, [alertHooks, inp.symbol, inp.targetSide, inp.bias, score]);
+
   const drawerCalls = useMemo(() => filteredContracts.filter((c) => c.side === "call").slice(0, 30), [filteredContracts]);
   const drawerPuts = useMemo(() => filteredContracts.filter((c) => c.side === "put").slice(0, 30), [filteredContracts]);
 
   const scannerSummary = useMemo(() => {
-    if (!chain) return null;
+    if (!displayChain) return null;
     const cfg = { maxAsk: inp.maxAsk, minOi: inp.minOi, targetSide: inp.targetSide };
     return {
-      bestCall: pickBest(chain.calls, cfg),
-      bestPut: pickBest(chain.puts, cfg),
-      contracts: chain.calls.length + chain.puts.length,
+      bestCall: pickBest(displayChain.calls, cfg),
+      bestPut: pickBest(displayChain.puts, cfg),
+      contracts: displayChain.calls.length + displayChain.puts.length,
     };
-  }, [chain, inp.maxAsk, inp.minOi, inp.targetSide]);
+  }, [displayChain, inp.maxAsk, inp.minOi, inp.targetSide]);
 
   const plan = useMemo(() => {
     const tf = inp.timeframe === "0dte" ? "0DTE" : "Weeklies";
@@ -1141,12 +1243,12 @@ export default function Trading() {
     const rec = tier === "NO TRADE" || permission === "NO TRADE" ? "NO TRADE" : `${tf} ${bias} ${inp.setup.replaceAll("_", " ")}`;
     const selectedGreekBlock = selectedContract ? [
       `Selected contract: ${selectedContract.symbol} ${selectedContract.side.toUpperCase()} ${selectedContract.strike}`,
-      `Expiry: ${selectedContract.expiration || chain?.expirationLabel || "—"}`,
+      `Expiry: ${selectedContract.expiration || displayChain?.expirationLabel || "—"}`,
       `Bid/ask/last: ${formatMoney(selectedContract.bid)} / ${formatMoney(selectedContract.ask)} / ${formatMoney(selectedContract.last)}`,
       `Breakeven: ${formatMoney(selectedContract.breakeven)} | To breakeven: ${formatPct(selectedContract.toBreakevenPct)}`,
       `OI/vol: ${selectedContract.openInterest ?? "—"} / ${selectedContract.volume ?? "—"}`,
       `Greeks: Δ ${formatGreek(selectedContract.greeks?.delta)} | Γ ${formatGreek(selectedContract.greeks?.gamma)} | Θ ${formatGreek(selectedContract.greeks?.theta)} | IV ${selectedContract.greeks?.impliedVolatility !== null && selectedContract.greeks?.impliedVolatility !== undefined ? `${(selectedContract.greeks.impliedVolatility * 100).toFixed(1)}%` : "—"}`,
-      `Data source: ${chain?.sourceMode === "public_api" ? "Public API real-time chain" : "Public website delayed chain"}`,
+      `Data source: ${displayChain?.sourceMode === "public_api" ? "Public API real-time chain" : "Public website delayed chain"}`,
       "",
     ] : [];
     return [
@@ -1178,7 +1280,61 @@ export default function Trading() {
       `Exits: scale 30–50% at +30–50%, trail remainder to next level.`,
       "",
     ].join("\n");
-  }, [chain?.expirationLabel, chain?.sourceMode, inp, permission, score, selectedContract, tier]);
+  }, [displayChain?.expirationLabel, displayChain?.sourceMode, inp, permission, score, selectedContract, tier]);
+
+  const journalStats = useMemo(() => {
+    const totalPnl = journalEntries.reduce((sum, entry) => sum + Number(entry.pnl || 0), 0);
+    const wins = journalEntries.filter((entry) => Number(entry.pnl || 0) > 0).length;
+    const losses = journalEntries.filter((entry) => Number(entry.pnl || 0) < 0).length;
+    const avgPnl = journalEntries.length ? totalPnl / journalEntries.length : 0;
+    return { totalPnl, wins, losses, avgPnl, count: journalEntries.length, winRate: journalEntries.length ? Math.round((wins / journalEntries.length) * 100) : 0 };
+  }, [journalEntries]);
+
+  const addJournalEntry = () => {
+    const entry: TradingJournalEntry = {
+      id: safeId("trade"),
+      createdAt: Date.now(),
+      symbol: inp.symbol,
+      setup: inp.setup.replaceAll("_", " "),
+      bias: inp.bias,
+      timeframe: inp.timeframe,
+      contractLabel: selectedContract ? formatPublicContractLabel(selectedContract.symbol) : (displayChain?.expirationLabel || "No contract selected"),
+      contractSymbol: selectedContract?.symbol || "",
+      pnl: Number(journalPnl || 0),
+      notes: journalNotes.trim() || inp.notes.trim(),
+      worked: journalWorked.trim(),
+      didnt: journalDidnt.trim(),
+      screenshotUrl: journalScreenshot.trim(),
+      score,
+    };
+    setJournalEntries((prev) => [entry, ...prev].slice(0, 80));
+    setJournalPnl("");
+    setJournalNotes("");
+    setJournalWorked("");
+    setJournalDidnt("");
+    setJournalScreenshot("");
+    pushNotif({ title: "Trading", body: `Journal saved for ${entry.symbol}.`, tags: ["Trading", "Journal"], level: "success" });
+  };
+
+  const removeJournalEntry = (id: string) => setJournalEntries((prev) => prev.filter((entry) => entry.id !== id));
+
+  const addAlertHook = () => {
+    const inferredSide = inp.bias === "bear" ? "put" : inp.bias === "bull" ? "call" : "all";
+    const hook: TradingAlertHook = {
+      id: safeId("alert"),
+      symbol: inp.symbol,
+      label: `${inp.setup.replaceAll("_", " ")} • ${inferredSide === "all" ? "either side" : inferredSide}`,
+      minScore: Math.max(40, score),
+      side: inferredSide,
+      active: true,
+      firedAt: null,
+    };
+    setAlertHooks((prev) => [hook, ...prev].slice(0, 20));
+    pushNotif({ title: "Trading", body: `Alert hook saved for ${hook.symbol}.`, tags: ["Trading", "Alert"], level: "success" });
+  };
+
+  const toggleAlertHook = (id: string) => setAlertHooks((prev) => prev.map((hook) => hook.id === id ? { ...hook, active: !hook.active } : hook));
+  const removeAlertHook = (id: string) => setAlertHooks((prev) => prev.filter((hook) => hook.id !== id));
 
   function handlePanelAction(envelope: PanelActionEnvelope) {
     try {
@@ -1303,10 +1459,12 @@ export default function Trading() {
   async function scanSymbol(symbolArg?: string, expirationArg?: string) {
     const symbol = (symbolArg || inp.symbol).trim().toUpperCase();
     if (!symbol) return;
+    const requestId = ++scanRequestRef.current;
     setLoading(true);
     setScanError(null);
     try {
       const result = inp.dataMode === "api" ? await loadChainApi(symbol, expirationArg) : await loadChainWebsite(symbol);
+      if (requestId !== scanRequestRef.current) return;
       setChain(result.chain);
       persistTradingSnapshot(result.chain);
       setExpirations(result.expirations);
@@ -1316,10 +1474,11 @@ export default function Trading() {
       setActiveStrikeBucket(null);
       patch({ symbol, chartSymbol: normalizePublicChartSymbol(symbol), selectedExpiration: nextExp });
     } catch (err) {
+      if (requestId !== scanRequestRef.current) return;
       setScanError(err instanceof Error ? err.message : String(err));
-      setChain(null);
+      if (!lastGoodChainRef.current) setChain(null);
     } finally {
-      setLoading(false);
+      if (requestId === scanRequestRef.current) setLoading(false);
     }
   }
 
@@ -1457,12 +1616,12 @@ export default function Trading() {
     return ((bestContract.ask - bestContract.bid) / Math.max(bestContract.ask, 0.01)) * 100;
   }, [bestContract]);
   const watchNarrative = useMemo(() => {
-    if (!chain) return "Load a chain to generate a FairlyOdd thesis card and attack plan.";
+    if (!displayChain) return "Load a chain to generate a FairlyOdd thesis card and attack plan.";
     const lead = spotlightContracts[0];
     const side = lead ? lead.side.toUpperCase() : "MIXED";
-    const exp = chain.expirationLabel || inp.selectedExpiration || "next expiry";
-    return `${chain.symbol || inp.symbol} is in ${tier} mode with ${filteredContracts.length} filtered contracts. ${lead ? `Best current fit is a ${side} ${lead.strike.toFixed(2)} into ${exp}.` : `Scan a cleaner chain for ${exp}.`}`;
-  }, [chain, filteredContracts.length, inp.selectedExpiration, inp.symbol, spotlightContracts, tier]);
+    const exp = displayChain.expirationLabel || inp.selectedExpiration || "next expiry";
+    return `${displayChain.symbol || inp.symbol} is in ${tier} mode with ${filteredContracts.length} filtered contracts. ${lead ? `Best current fit is a ${side} ${lead.strike.toFixed(2)} into ${exp}.` : `Scan a cleaner chain for ${exp}.`}`;
+  }, [displayChain, filteredContracts.length, inp.selectedExpiration, inp.symbol, spotlightContracts, tier]);
 
   useEffect(() => {
     if (!selectedContract?.osiSymbol || inp.dataMode !== "api") return;
@@ -1510,22 +1669,19 @@ export default function Trading() {
 
   return (
     <div className="card tradingPanelRoot">
-      <div className="tradingHeroBar">
+      <div className="cluster spread start">
         <div>
-          <div className="small shellEyebrow">TRADING DESK</div>
-          <div className="tradingHeroTitle">Trading</div>
-          <div className="small tradingHeroSub">Public API mode + better expiration tabs + contract search + strike grouping + mobile-style calls/puts/detail/greeks drawer.</div>
+          <div style={{ fontSize: 22, fontWeight: 800 }}>Trading</div>
+          <div className="small">Public API mode + better expiration tabs + contract search + strike grouping + mobile-style calls/puts/detail/greeks drawer.</div>
         </div>
-        <div className="row wrap tradingHeroBadges" style={{ justifyContent: "flex-end" }}>
+        <div className="row wrap" style={{ justifyContent: "flex-end" }}>
           <span className={`badge ${inp.dataMode === "api" ? "good" : "warn"}`}>{inp.dataMode === "api" ? "Public API mode" : "Public website fallback"}</span>
           <span className={`badge ${tier === "GREENLIGHT" ? "good" : tier === "NO TRADE" ? "bad" : "warn"}`}>{tier} • {score}</span>
-          <span className="badge">Symbol {chain?.symbol || inp.symbol}</span>
-          <span className="badge">{selectedContract ? `${selectedContract.side.toUpperCase()} ${selectedContract.strike.toFixed(2)}` : "No contract selected"}</span>
         </div>
       </div>
 
       <div className="quickActionGrid mt-5">
-      <div className="card spotlightCard tradingSpotlightCard" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "linear-gradient(135deg, rgba(255,80,190,0.10), rgba(0,210,255,0.06), rgba(255,200,80,0.06))" }}>
+      <div className="card spotlightCard" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "linear-gradient(135deg, rgba(255,80,190,0.10), rgba(0,210,255,0.06), rgba(255,200,80,0.06))" }}>
         <div className="small shellEyebrow">Trading HUD Wizard</div>
         <div className="cardTitle18 mt-1">Load chain → Pick contract → Build plan</div>
         <div className="cluster wrap mt-4">
@@ -1578,7 +1734,7 @@ export default function Trading() {
       </div>
 
       <div className="grid2 mt-5" style={{ alignItems: "stretch" }}>
-        <div id="trading_chart" className="card tradingSectionCard">
+        <div id="trading_chart" className="card tradingLaneCard tradingLaneChart" style={{ background: "rgba(8,12,18,0.35)" }}>
           <div className="cluster spread">
             <div>
               <div style={{ fontWeight: 900 }}>TradingView-style chart</div>
@@ -1611,11 +1767,11 @@ export default function Trading() {
             </div>
           </div>
           <div className="mt-4">
-            <TradingViewChart symbol={inp.chartSymbol} interval={inp.chartInterval} />
+            <StableTradingViewChart symbol={inp.chartSymbol} interval={inp.chartInterval} />
           </div>
         </div>
 
-        <div id="trading_source" className="card tradingSectionCard">
+        <div id="trading_source" className="card tradingLaneCard tradingLaneSource" style={{ background: "rgba(8,12,18,0.35)" }}>
           <div className="cluster spread start">
             <div>
               <div style={{ fontWeight: 900 }}>Public source + expiration flow</div>
@@ -1666,7 +1822,7 @@ export default function Trading() {
           )}
 
           {inp.dataMode === "api" && (
-            <div className="card tradingMiniCard mt-5">
+            <div className="card mt-5" style={{ background: "rgba(15,22,34,0.55)" }}>
               <div style={{ fontWeight: 800 }}>Public API key mode</div>
               <div className="small mt-1">Paste your secret key to mint a short-lived access token, then pull accountId + option expirations directly in Desktop mode.</div>
               <div className="mt-4">
@@ -1706,7 +1862,7 @@ export default function Trading() {
       </div>
 
       <div className="grid2 mt-5">
-        <div className="card tradingSectionCard">
+        <div className="card" style={{ background: "rgba(8,12,18,0.35)" }}>
           <div className="cluster spread start">
             <div>
               <div style={{ fontWeight: 900 }}>Scanner snapshot</div>
@@ -1733,7 +1889,7 @@ export default function Trading() {
 
         <ContractDrawer
           contract={selectedContract}
-          chain={chain}
+          chain={displayChain}
           drawerTab={drawerTab}
           setDrawerTab={setDrawerTab}
           callRows={drawerCalls}
@@ -1748,17 +1904,17 @@ export default function Trading() {
       </div>
 
       <div className="grid2 mt-5">
-        <div className="card tradingSectionCard">
+        <div className="card" style={{ background: "rgba(8,12,18,0.35)" }}>
           <div style={{ fontWeight: 900, marginBottom: 8 }}>Strike / premium curve</div>
-          <OptionCurveChart chain={chain} selectedKey={selectedContract?.key ?? null} />
+          <StableOptionCurveChart chain={displayChain} selectedKey={selectedContract?.key ?? null} />
         </div>
-        <div className="card tradingSectionCard">
+        <div className="card" style={{ background: "rgba(8,12,18,0.35)" }}>
           <div style={{ fontWeight: 900, marginBottom: 8 }}>Open interest bars</div>
-          <OiBarChart contracts={visibleContracts} selectedKey={selectedContract?.key ?? null} />
+          <StableOiBarChart contracts={deferredVisibleContracts} selectedKey={selectedContract?.key ?? null} />
         </div>
       </div>
 
-      <div id="trading_contracts" className="card tradingSectionCard mt-5">
+      <div id="trading_contracts" className="card mt-5 tradingLaneCard tradingLaneContracts" style={{ background: "rgba(8,12,18,0.35)" }}>
         <div className="cluster spread start">
           <div>
             <div style={{ fontWeight: 900 }}>Contracts</div>
@@ -1868,7 +2024,7 @@ export default function Trading() {
               </tr>
             </thead>
             <tbody>
-              {visibleContracts.map((c) => {
+              {deferredVisibleContracts.map((c) => {
                 const total = scanContractScore(c, { maxAsk: inp.maxAsk, minOi: inp.minOi, targetSide: inp.targetSide });
                 const selected = selectedContract?.key === c.key;
                 function focusBestContractHUD(){
@@ -1924,7 +2080,7 @@ export default function Trading() {
                   </tr>
                 );
               })}
-              {visibleContracts.length === 0 && (
+              {deferredVisibleContracts.length === 0 && (
                 <tr><td colSpan={12} className="small">No contracts matched your filters yet.</td></tr>
               )}
             </tbody>
@@ -1932,7 +2088,7 @@ export default function Trading() {
         </div>
       </div>
 
-      <div className="card tradingSectionCard mt-5">
+      <div className="card mt-5" style={{ background: "rgba(8,12,18,0.35)" }}>
         <div className="cluster spread">
           <div>
             <div style={{ fontWeight: 900 }}>Watchlist scan</div>
@@ -1946,7 +2102,7 @@ export default function Trading() {
         </div>
         <div className="grid2 mt-4">
           {watchlistRows.map((row) => (
-            <div key={row.symbol} className="card tradingMiniCard">
+            <div key={row.symbol} className="card" style={{ background: "rgba(15,22,34,0.45)" }}>
               <div className="cluster spread start">
                 <div>
                   <div style={{ fontWeight: 800 }}>{row.symbol}{row.companyName ? ` • ${row.companyName}` : ""}</div>
@@ -1969,7 +2125,7 @@ export default function Trading() {
       </div>
 
       <div className="tradingSplit mt-5">
-        <div className="card tradingSectionCard">
+        <div className="card" style={{ background: "rgba(8,12,18,0.35)" }}>
           <div className="row">
             <div style={{ flex: 1 }}>
               <label className="small">Symbol</label>
@@ -2039,7 +2195,7 @@ export default function Trading() {
           </div>
         </div>
 
-        <div id="trading_ticket" className="card tradingSectionCard">
+        <div id="trading_ticket" className="card tradingLaneCard tradingLaneTicket" style={{ background: "rgba(8,12,18,0.35)" }}>
           <div className="cluster spread start">
             <div>
               <div style={{ fontWeight: 900 }}>Order Ticket</div>
@@ -2412,7 +2568,104 @@ export default function Trading() {
           )}
         </div>
 
-        <div id="trading_plan" className="card tradingSectionCard">
+        <div id="trading_journal" className="card tradingLaneCard tradingLanePlan" style={{ background: "rgba(8,12,18,0.35)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+            <div>
+              <div style={{ fontWeight: 900 }}>Execution + Journal</div>
+              <div className="small mt-1">Tie real outcomes back to your setups so the panel learns what is actually paying you.</div>
+            </div>
+            <div className="cluster wrap">
+              <span className="badge good">P/L {tradingMoney(journalStats.totalPnl)}</span>
+              <span className="badge">{journalStats.count} entries</span>
+              <span className="badge warn">{journalStats.winRate}% wins</span>
+            </div>
+          </div>
+
+          <div className="homeMoneyGrid mt-4">
+            <div className="homeMoneyStat">
+              <div className="homeMoneyLabel">Current setup</div>
+              <div className="homeMoneyValue">{inp.symbol}</div>
+              <div className="small">{inp.setup.replaceAll("_", " ")} • {inp.timeframe.toUpperCase()} • {score}/100</div>
+            </div>
+            <div className="homeMoneyStat">
+              <div className="homeMoneyLabel">Average P/L</div>
+              <div className="homeMoneyValue">{tradingMoney(journalStats.avgPnl)}</div>
+              <div className="small">Wins {journalStats.wins} • Losses {journalStats.losses}</div>
+            </div>
+          </div>
+
+          <div className="grid2 mt-4">
+            <div>
+              <label className="small">P/L</label>
+              <input className="input mt-1" value={journalPnl} onChange={(e) => setJournalPnl(e.target.value)} placeholder="25 or -12.5" />
+            </div>
+            <div>
+              <label className="small">Screenshot / chart URL</label>
+              <input className="input mt-1" value={journalScreenshot} onChange={(e) => setJournalScreenshot(e.target.value)} placeholder="Optional link to screenshot or chart" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <label className="small">What worked</label>
+            <textarea rows={3} value={journalWorked} onChange={(e) => setJournalWorked(e.target.value)} placeholder="What confirmed the trade? What actually paid?" />
+          </div>
+          <div className="mt-4">
+            <label className="small">What did not work</label>
+            <textarea rows={3} value={journalDidnt} onChange={(e) => setJournalDidnt(e.target.value)} placeholder="Where did the setup slip, fake out, or become too thin?" />
+          </div>
+          <div className="mt-4">
+            <label className="small">Notes</label>
+            <textarea rows={4} value={journalNotes} onChange={(e) => setJournalNotes(e.target.value)} placeholder="Execution notes, emotions, timing, plan quality…" />
+          </div>
+
+          <div className="cluster wrap mt-4">
+            <button className="tabBtn" onClick={addJournalEntry}>Save journal entry</button>
+            <button className="tabBtn" onClick={addAlertHook}>Create alert hook</button>
+          </div>
+
+          <div className="homeTaskList mt-4">
+            {journalEntries.slice(0, 6).map((entry) => (
+              <div key={entry.id} className="homeTaskItem">
+                <div className="cluster spread">
+                  <div>
+                    <div style={{ fontWeight: 900 }}>{entry.symbol} • {entry.setup}</div>
+                    <div className="small">{new Date(entry.createdAt).toLocaleString()} • {entry.contractLabel}</div>
+                  </div>
+                  <div className={Number(entry.pnl) >= 0 ? "badge good" : "badge bad"}>{tradingMoney(entry.pnl)}</div>
+                </div>
+                {entry.worked ? <div className="small mt-2"><b>Worked:</b> {entry.worked}</div> : null}
+                {entry.didnt ? <div className="small mt-2"><b>Didn’t:</b> {entry.didnt}</div> : null}
+                {entry.notes ? <div className="small mt-2">{entry.notes}</div> : null}
+                <div className="cluster wrap mt-3">
+                  {entry.screenshotUrl ? <button className="tabBtn" onClick={() => openExternal(entry.screenshotUrl)}>Open screenshot</button> : null}
+                  <button className="tabBtn" onClick={() => removeJournalEntry(entry.id)}>Delete</button>
+                </div>
+              </div>
+            ))}
+            {!journalEntries.length ? <div className="small mt-3">No journal entries yet — save the first one right after a setup so Home can turn this into a money snapshot.</div> : null}
+          </div>
+
+          <div className="mt-5" style={{ fontWeight: 900 }}>Alert hooks</div>
+          <div className="homeTaskList mt-3">
+            {alertHooks.slice(0, 6).map((hook) => (
+              <div key={hook.id} className="homeTaskItem">
+                <div className="cluster spread">
+                  <div>
+                    <div style={{ fontWeight: 900 }}>{hook.symbol}</div>
+                    <div className="small">{hook.label} • trigger at {hook.minScore}/100</div>
+                  </div>
+                  <div className={hook.active ? "badge good" : "badge"}>{hook.active ? "Active" : "Paused"}</div>
+                </div>
+                <div className="cluster wrap mt-3">
+                  <button className="tabBtn" onClick={() => toggleAlertHook(hook.id)}>{hook.active ? "Pause" : "Resume"}</button>
+                  <button className="tabBtn" onClick={() => removeAlertHook(hook.id)}>Delete</button>
+                </div>
+              </div>
+            ))}
+            {!alertHooks.length ? <div className="small mt-3">No alert hooks yet — save one from a setup you want the scanner to call back out later.</div> : null}
+          </div>
+        </div>
+
+        <div id="trading_plan" className="card tradingLaneCard tradingLanePlan" style={{ background: "rgba(8,12,18,0.35)" }}>
           <div style={{ fontWeight: 900 }}>Plan Preview</div>
           <textarea className="mt-3" value={plan} readOnly rows={28} />
         </div>

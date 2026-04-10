@@ -1,0 +1,5 @@
+v10.26.20h12b2_HomeLiveInfoCells_FIXED_FULL_SOURCE
+- Exact replacement count in Home.tsx: 3
+- System status card now renders live CPU/RAM from runtime bridge and opens Dev Engine
+- Storage card now shows percent used and opens Builder
+- Network card now shows online/offline, host, IPs and opens Security

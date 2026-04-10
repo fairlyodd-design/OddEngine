@@ -1,0 +1,6 @@
+v10.26.20h11c_DataNormalizationPass_FULL_SOURCE
+- Full project baseline from uploaded design-system zip
+- GroceryMeals hardened with getItemName() normalization
+- Legacy persisted grocery state sanitized on load
+- ErrorBoundary resets on panel change
+- App.tsx global error/unhandled rejection guards added

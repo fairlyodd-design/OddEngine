@@ -1,0 +1,6 @@
+v10.26.20h12a_HomeRuntimeCellsAndNoCardButtons_FULL_SOURCE
+- Built from h12 money-mode stable baseline
+- Removed shrink / pin / move card overlay controls by turning CardGODMode into a no-op
+- Added desktop runtime stats IPC bridge (CPU, RAM, hostname, IPs)
+- Home CPU/RAM/Network cells now function with live desktop data
+- Storage cell kept intact

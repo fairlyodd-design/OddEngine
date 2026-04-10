@@ -1,0 +1,220 @@
+{
+  "id": "rj_mmzyhg55_47uiky",
+  "title": "Test Release Board Job",
+  "kind": "video",
+  "provider": "odd-local-placeholder",
+  "prompt": "test",
+  "payload": {},
+  "status": "completed",
+  "progress": 1,
+  "createdAt": 1774075058681,
+  "updatedAt": 1774075061720,
+  "worker": {
+    "id": "local-placeholder-worker",
+    "name": "Local Placeholder Worker"
+  },
+  "output": {
+    "filename": "test-release-board-job-rj_mmzyhg55_47uiky.mp4",
+    "localPath": "/mnt/data/work11k/backend_scaffold/outputs/test-release-board-job-rj_mmzyhg55_47uiky.mp4",
+    "previewUrl": "/mnt/data/work11k/backend_scaffold/outputs/test-release-board-job-rj_mmzyhg55_47uiky.mp4",
+    "imported": true,
+    "importedAt": 1774075061712,
+    "importedInto": "Story Forge",
+    "watchedAt": 1774075061713,
+    "review": {
+      "decision": "approved",
+      "note": "looks good",
+      "reviewedAt": 1774075061715,
+      "reviewedBy": "test",
+      "summary": "Approved for the current pass."
+    },
+    "nextPass": {
+      "sourceJobId": "rj_mmzyhg55_47uiky",
+      "sourceOutputTitle": "test-release-board-job-rj_mmzyhg55_47uiky.mp4",
+      "decision": "approved",
+      "createdAt": 1774075061715,
+      "checklist": [
+        "Lock test-release-board-job-rj_mmzyhg55_47uiky.mp4 as the approved current pass.",
+        "Export the final Story Forge packet and screening notes.",
+        "Review release / publish / share prep before shipping."
+      ],
+      "rerenderNotes": [
+        "looks good"
+      ],
+      "prepSummary": "Approved output is ready for finale / release prep.",
+      "packetTitle": "Finale Packet • test-release-board-job-rj_mmzyhg55_47uiky.mp4",
+      "readyForRender": false
+    },
+    "publishPacket": {
+      "title": "Publish Packet • Test",
+      "sourceJobId": "rj_mmzyhg55_47uiky",
+      "sourceOutputTitle": "Test Output",
+      "approvedAt": 1774075061717,
+      "publishSummary": "Test publish summary",
+      "finalAnswer": "Test final answer",
+      "screeningNotes": [
+        "A",
+        "B"
+      ],
+      "exportTargets": [
+        {
+          "label": "Screening cut",
+          "format": "mp4",
+          "destination": "Test",
+          "notes": "Main file"
+        },
+        {
+          "label": "Pitch packet",
+          "format": "pdf"
+        }
+      ],
+      "launchChecklist": [
+        "Step 1",
+        "Step 2"
+      ],
+      "releaseLane": "screening + release lane",
+      "readyToPublish": true
+    },
+    "releaseBoard": {
+      "title": "Release Board • Test",
+      "sourceJobId": "rj_mmzyhg55_47uiky",
+      "sourceOutputTitle": "Test Output",
+      "createdAt": 1774075061719,
+      "releaseSummary": "Test Release Board Job now has a live release board with platform checklists, teaser assets, metadata blocks, and tracked final output files.",
+      "releaseLane": "screening + release lane",
+      "platforms": [
+        {
+          "label": "Screening cut",
+          "status": "ready",
+          "checklist": [
+            "Freeze approved screening cut.",
+            "Export main file.",
+            "Check emotional landing and end card."
+          ],
+          "notes": "Main release lane."
+        },
+        {
+          "label": "Trailer / teaser",
+          "status": "planned",
+          "checklist": [
+            "Cut teaser from strongest beat.",
+            "Prep thumbnail / still.",
+            "Keep hook honest to approved pass."
+          ],
+          "notes": "Promo lane."
+        },
+        {
+          "label": "Pitch / package",
+          "status": "planned",
+          "checklist": [
+            "Export packet PDF.",
+            "Bundle final answer and screening notes.",
+            "Keep launch notes in one place."
+          ],
+          "notes": "Support lane."
+        }
+      ],
+      "teaserAssets": [
+        {
+          "title": "Hero teaser",
+          "format": "vertical mp4",
+          "destination": "Launch promo",
+          "hook": "Test final answer",
+          "notes": "Lead with strongest visual / emotional beat.",
+          "status": "ready"
+        },
+        {
+          "title": "Poster / still card",
+          "format": "png",
+          "destination": "Social / deck",
+          "hook": "Test final answer",
+          "notes": "One clean still with title / tag line.",
+          "status": "planned"
+        },
+        {
+          "title": "Trailer brief",
+          "format": "markdown",
+          "destination": "Video lane",
+          "hook": "Test final answer",
+          "notes": "Short teaser structure with end-card copy.",
+          "status": "planned"
+        }
+      ],
+      "metadataBlocks": [
+        {
+          "label": "Core metadata",
+          "items": [
+            {
+              "key": "Title",
+              "value": "Test Release Board Job"
+            },
+            {
+              "key": "Release lane",
+              "value": "screening + release lane"
+            },
+            {
+              "key": "Source output",
+              "value": "Test Output"
+            },
+            {
+              "key": "Approved at",
+              "value": "1774075061717"
+            }
+          ]
+        },
+        {
+          "label": "Answer metadata",
+          "items": [
+            {
+              "key": "Publish summary",
+              "value": "Test publish summary"
+            },
+            {
+              "key": "Final answer",
+              "value": "Test final answer"
+            },
+            {
+              "key": "Export target count",
+              "value": "2"
+            }
+          ]
+        }
+      ],
+      "finalOutputs": [
+        {
+          "label": "Screening cut",
+          "format": "mp4",
+          "filename": "test-release-board-job-screening-cut-rj_mmzyhg55_47uiky.mp4",
+          "localPath": "/mnt/data/work11k/backend_scaffold/outputs/test-release-board-job-screening-cut-rj_mmzyhg55_47uiky.mp4",
+          "previewUrl": "/mnt/data/work11k/backend_scaffold/outputs/test-release-board-job-screening-cut-rj_mmzyhg55_47uiky.mp4",
+          "status": "rendered",
+          "notes": "Main file"
+        },
+        {
+          "label": "Pitch packet",
+          "format": "pdf",
+          "filename": "test-release-board-job-pitch-packet-rj_mmzyhg55_47uiky.pdf",
+          "localPath": "/mnt/data/work11k/backend_scaffold/outputs/test-release-board-job-pitch-packet-rj_mmzyhg55_47uiky.pdf",
+          "previewUrl": "/mnt/data/work11k/backend_scaffold/outputs/test-release-board-job-pitch-packet-rj_mmzyhg55_47uiky.pdf",
+          "status": "rendered"
+        }
+      ],
+      "launchTracker": {
+        "phase": "release board staged",
+        "checklist": [
+          "Step 1",
+          "Step 2",
+          "Prep the first teaser asset before launch.",
+          "Lock metadata and final output filenames in one board."
+        ],
+        "completedCount": 0,
+        "totalCount": 4
+      },
+      "readyToLaunch": true
+    }
+  },
+  "outputPath": "/mnt/data/work11k/backend_scaffold/outputs/test-release-board-job-rj_mmzyhg55_47uiky.mp4",
+  "outputUrl": "/mnt/data/work11k/backend_scaffold/outputs/test-release-board-job-rj_mmzyhg55_47uiky.mp4",
+  "completedAt": 1774075061483,
+  "workerMessage": "Release board ready: Release Board • Test"
+}

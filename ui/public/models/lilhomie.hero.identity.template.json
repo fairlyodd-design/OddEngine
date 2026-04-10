@@ -1,0 +1,37 @@
+{
+  "displayName": "Lil Homie",
+  "faceTexture": "lilhomie.face.reference.png",
+  "references": {
+    "front": "references/front-face.png",
+    "side": "references/side-face.png",
+    "hoodie": "references/hoodie-look.png",
+    "cap": "references/cap-look.png"
+  },
+  "look": {
+    "hoodieStyle": "relaxed zip hoodie",
+    "capStyle": "soft curved-brim cap",
+    "bodyStyle": "compact game-companion silhouette",
+    "expression": "warm grounded helper",
+    "accessories": {
+      "beard": false,
+      "glasses": false
+    }
+  },
+  "palette": {
+    "hoodieCore": "#1f2430",
+    "hoodieTrim": "#24756b",
+    "hoodieGlow": "#54429e",
+    "cap": "#d4d6df",
+    "accent": "#111317",
+    "skin": "#e0cdbd",
+    "beard": "#5b3928",
+    "glasses": "#2b2b2f"
+  },
+  "animationIntent": {
+    "idle": "grounded presence with subtle breathing",
+    "talk": "supportive and expressive, small hand lead",
+    "listen": "leans in and feels attentive",
+    "walk": "compact and game-ready"
+  },
+  "notes": "Copy this file to lilhomie.hero.identity.json and customize it after you drop your real reference images into ui/public/models/references/. Optional accessories: beard + glasses."
+}

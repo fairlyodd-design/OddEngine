@@ -1,0 +1,17 @@
+- **
+- "Get ready to roll with the wildest tale of weed, rock 'n' roll, and rebellion in 90s Vegas"
+- "Escape reality with this surreal journey through the cannabis industry in 1990s Las Vegas"
+- "Join the counterculture movement that changed the face of Las Vegas forever"
+- **CAPTION:** "Get ready to roll with the wildest tale of weed, rock 'n' roll, and rebellion in 90s Vegas #MoonCoffee #90sVegas #CannabisCulture"
+- **HASHTAGS:**
+- * #MoonCoffee
+- * #90sVegas
+- * #CannabisCulture
+- * #Counterculture
+- * #LiteraryFiction
+- **THUMBNAIL BRIEF:** Create a thumbnail that captures the essence of the book's cover design, with bold colors and graphic elements. Think neon lights, palm trees, and a hint of rebellion.
+- **PUBLISH TARGETS:**
+- * YouTube Shorts: Publish a 60-second animated video showcasing the book's themes and tone.
+- * TikTok: Publish a series of short-form videos (15-30 seconds) highlighting key scenes and characters from the book.
+- **MONETIZATION ANGLE:** Offer a free e-book sample on Gumroad, with a link to purchase the full e-book. Use the promo script and hooks to drive traffic to the Gumroad page and encourage sales.
+- This production-ready Book is ready to be published and shared with the world!

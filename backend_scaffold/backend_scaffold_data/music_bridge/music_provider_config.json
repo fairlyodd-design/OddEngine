@@ -1,0 +1,14 @@
+{
+  "engine": "auto",
+  "fallbackEngine": "python-adapter",
+  "python": "python",
+  "adapterScript": "AUTO",
+  "musicgenScript": "AUTO",
+  "barkScript": "AUTO",
+  "command": "",
+  "externalApiUrl": "",
+  "externalApiToken": "",
+  "outputFormat": "wav",
+  "timeoutMs": 600000,
+  "saveOutputs": true
+}

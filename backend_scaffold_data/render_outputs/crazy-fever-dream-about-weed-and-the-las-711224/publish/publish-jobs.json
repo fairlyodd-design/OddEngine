@@ -1,0 +1,72 @@
+[
+  {
+    "id": "86ac2800-8ba1-4f06-ac7f-c9cc29651f00",
+    "sourceJobId": "711224d5-2f7a-4c88-8f28-dd5a88293d4d",
+    "title": "Crazy fever dream about weed and the las",
+    "contentType": "book",
+    "platform": "**",
+    "status": "ready",
+    "createdAt": 1775696314223,
+    "updatedAt": 1775696314223,
+    "url": "",
+    "log": [
+      "2026-04-09T00:58:34.223Z created from render job 711224d5-2f7a-4c88-8f28-dd5a88293d4d"
+    ]
+  },
+  {
+    "id": "28eb0187-dce4-492d-bf36-4b68165ab722",
+    "sourceJobId": "711224d5-2f7a-4c88-8f28-dd5a88293d4d",
+    "title": "Crazy fever dream about weed and the las",
+    "contentType": "book",
+    "platform": "* youtube shorts: publish a 60-second animated video showcasing the book's themes and tone.",
+    "status": "ready",
+    "createdAt": 1775696314223,
+    "updatedAt": 1775696314223,
+    "url": "",
+    "log": [
+      "2026-04-09T00:58:34.223Z created from render job 711224d5-2f7a-4c88-8f28-dd5a88293d4d"
+    ]
+  },
+  {
+    "id": "b5c46ca6-88fd-4f56-8c6b-bc810977ff92",
+    "sourceJobId": "711224d5-2f7a-4c88-8f28-dd5a88293d4d",
+    "title": "Crazy fever dream about weed and the las",
+    "contentType": "book",
+    "platform": "* tiktok: publish a series of short-form videos (15-30 seconds) highlighting key scenes and characters from the book.",
+    "status": "ready",
+    "createdAt": 1775696314224,
+    "updatedAt": 1775696314224,
+    "url": "",
+    "log": [
+      "2026-04-09T00:58:34.224Z created from render job 711224d5-2f7a-4c88-8f28-dd5a88293d4d"
+    ]
+  },
+  {
+    "id": "8979887b-a73a-4f35-ad43-f658dc3cef43",
+    "sourceJobId": "711224d5-2f7a-4c88-8f28-dd5a88293d4d",
+    "title": "Crazy fever dream about weed and the las",
+    "contentType": "book",
+    "platform": "**monetization angle:** offer a free e-book sample on gumroad, with a link to purchase the full e-book. use the promo script and hooks to drive traffic to the gumroad page and encourage sales.",
+    "status": "ready",
+    "createdAt": 1775696314224,
+    "updatedAt": 1775696314224,
+    "url": "",
+    "log": [
+      "2026-04-09T00:58:34.224Z created from render job 711224d5-2f7a-4c88-8f28-dd5a88293d4d"
+    ]
+  },
+  {
+    "id": "ce969fb5-91c2-4eee-96b2-c35bcfb23355",
+    "sourceJobId": "711224d5-2f7a-4c88-8f28-dd5a88293d4d",
+    "title": "Crazy fever dream about weed and the las",
+    "contentType": "book",
+    "platform": "this production-ready book is ready to be published and shared with the world!",
+    "status": "ready",
+    "createdAt": 1775696314224,
+    "updatedAt": 1775696314224,
+    "url": "",
+    "log": [
+      "2026-04-09T00:58:34.225Z created from render job 711224d5-2f7a-4c88-8f28-dd5a88293d4d"
+    ]
+  }
+]

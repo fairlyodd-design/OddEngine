@@ -1,0 +1,48 @@
+{
+  "rigName": "LilHomieHeroRig",
+  "expectedActions": ["Idle", "Walk", "Talk", "Listen"],
+  "expectedBones": [
+    "root",
+    "pelvis",
+    "spine",
+    "chest",
+    "neck",
+    "head",
+    "upper_arm.L",
+    "forearm.L",
+    "hand.L",
+    "upper_arm.R",
+    "forearm.R",
+    "hand.R",
+    "thigh.L",
+    "shin.L",
+    "foot.L",
+    "thigh.R",
+    "shin.R",
+    "foot.R"
+  ],
+  "shapeKeyAliases": {
+    "mouth": ["mouthOpen", "jawOpen", "viseme_aa", "viseme_oh", "viseme_ee"],
+    "blink": ["blink", "blinkLeft", "blinkRight"],
+    "smile": ["smile", "happy"],
+    "browUp": ["browUp", "BrowsUp"],
+    "browDown": ["browDown", "frown"],
+    "visemes": {
+      "sil": ["viseme_sil"],
+      "aa": ["viseme_aa"],
+      "ee": ["viseme_ee"],
+      "ih": ["viseme_ih"],
+      "oh": ["viseme_oh"],
+      "ou": ["viseme_ou"],
+      "fv": ["viseme_fv"],
+      "th": ["viseme_th"],
+      "bmp": ["viseme_bmp"]
+    }
+  },
+  "notes": [
+    "Export as glTF Binary (.glb).",
+    "Bake actions for Idle / Walk / Talk / Listen.",
+    "Keep the face mesh shape key names aligned with the runtime manifest aliases.",
+    "Optional but recommended: add smile / browUp / browDown expression keys for a more alive companion."
+  ]
+}

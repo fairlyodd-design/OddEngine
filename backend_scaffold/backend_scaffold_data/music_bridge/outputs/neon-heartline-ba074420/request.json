@@ -1,0 +1,14 @@
+{
+  "title": "Neon Heartline",
+  "prompt": "An emotional anthem about rising through the dark and building a brighter future.",
+  "genre": "cinematic pop",
+  "bpm": "112",
+  "key": "A minor",
+  "vibe": "emotional, triumphant, modern",
+  "vocalProfile": "male",
+  "mode": "song",
+  "lyrics": "Verse\nWe chase the signal through the dark tonight\nNeon Heartline in the distance, glowing neon bright\nAn emotional anthem about rising through the dark and building a brighte\nWe keep the fire alive, we keep the engine humming\n\nPre-Chorus\nHold the line, let the pressure rise\nEvery dream is a spark in disguise\n\nChorus\nNeon Heartline, we light it up\nTurn the low tide into enough\nFrom the silence into the flame\nWe build the future, we call your name\n\nVerse\nWe chase the signal through the dark tonight\nNeon Heartline in the distance, glowing neon bright\nAn emotional anthem about rising through the dark and building a brighte\nWe keep the fire alive, we keep the engine humming\n\nChorus\nNeon Heartline, we light it up\nTurn the low tide into enough\nFrom the silence into the flame\nWe build the future, we call your name\n\nBridge\nemotional, triumphant, modern hearts, steel nerves, midnight sky\nWe fall, we learn, we multiply\n\nChorus\nNeon Heartline, we light it up\nTurn the low tide into enough\nFrom the silence into the flame\nWe build the future, we call your name",
+  "arrangement": "Genre: cinematic pop\nBPM: 112\nKey: A minor\nVibe: emotional, triumphant, modern\nMode: song\nVocal profile: male\nChorus strength: 80%\nLength target: 150s\nStructure: intro → verse → pre-chorus → chorus → verse → chorus → bridge → chorus → outro",
+  "renderBrief": "Produce a full song in the style lane of cinematic pop.\nTarget BPM 112, key A minor, vibe emotional, triumphant, modern.\nVocal profile: male. Chorus strength 80%.\nBuild a release-ready master, 15s teaser, 30s hook cut, and cover art brief.",
+  "songLengthSec": 150
+}

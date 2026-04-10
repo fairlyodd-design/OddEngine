@@ -1,0 +1,12 @@
+v10.26.20h9a4_GroceryRecoveryAndPokerRestorePass
+
+What this recovery patch does:
+- restores Grocery Meals panel from the stable h8f baseline
+- restores App.tsx shell routing from the stable h8f baseline
+- restores brain.ts panel registry from the stable h8f baseline
+- adds a clean Poker panel so the sidebar and launcher stop dropping it
+
+Important:
+- the original Poker implementation was not present in the source baseline available in this environment
+- this pass restores Poker as a working local-first panel, but not necessarily your exact previous Poker feature set
+- Grocery Meals is restored from the last stable source available here

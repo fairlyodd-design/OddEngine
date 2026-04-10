@@ -1,0 +1,59 @@
+{
+  "name": "Lil Homie Hero Rig",
+  "lookLock": {
+    "hoodie": "charcoal grey pullover hoodie",
+    "cap": "light grey cap",
+    "face": "friendly emoji-inspired beard + glasses look",
+    "tone": "warm game-companion silhouette"
+  },
+  "bones": {
+    "minimum": [
+      "root",
+      "pelvis",
+      "spine",
+      "chest",
+      "neck",
+      "head",
+      "upper_arm.L",
+      "forearm.L",
+      "hand.L",
+      "upper_arm.R",
+      "forearm.R",
+      "hand.R",
+      "thigh.L",
+      "shin.L",
+      "foot.L",
+      "thigh.R",
+      "shin.R",
+      "foot.R"
+    ],
+    "recommendedExtras": ["toe.L", "toe.R", "clavicle.L", "clavicle.R"]
+  },
+  "shapeKeys": {
+    "required": ["blink", "mouthOpen"],
+    "recommended": [
+      "viseme_sil",
+      "viseme_aa",
+      "viseme_ee",
+      "viseme_ih",
+      "viseme_oh",
+      "viseme_ou",
+      "viseme_fv",
+      "viseme_th",
+      "viseme_bmp",
+      "smile",
+      "browUp",
+      "browDown"
+    ]
+  },
+  "actions": {
+    "idle": "soft breathing idle with subtle sway",
+    "walk": "compact forward-ready walk loop",
+    "talk": "upper-body talk loop with hand energy",
+    "listen": "still attentive loop with slight forward lean"
+  },
+  "export": {
+    "targetGlb": "ui/public/models/lilhomie.glb",
+    "targetManifest": "ui/public/models/lilhomie.manifest.json"
+  }
+}

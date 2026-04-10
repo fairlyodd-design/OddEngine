@@ -1,0 +1,86 @@
+[
+  {
+    "id": "a4f43de8-53b5-4484-bed0-922e0c6ebbe2",
+    "sourceJobId": "b7fa2d2f-b233-4313-82ed-77f0ac944259",
+    "title": "Crazy fever dream about weed and the las",
+    "contentType": "book",
+    "platform": "**",
+    "status": "ready",
+    "createdAt": 1775697015703,
+    "updatedAt": 1775697015703,
+    "url": "",
+    "log": [
+      "2026-04-09T01:10:15.703Z created from render job b7fa2d2f-b233-4313-82ed-77f0ac944259"
+    ]
+  },
+  {
+    "id": "c0dd7125-771f-4cf4-98e8-8bfd06eae427",
+    "sourceJobId": "b7fa2d2f-b233-4313-82ed-77f0ac944259",
+    "title": "Crazy fever dream about weed and the las",
+    "contentType": "book",
+    "platform": "* tiktok: publish a 60-second video showcasing the book's themes and tone.",
+    "status": "ready",
+    "createdAt": 1775697015703,
+    "updatedAt": 1775697015703,
+    "url": "",
+    "log": [
+      "2026-04-09T01:10:15.703Z created from render job b7fa2d2f-b233-4313-82ed-77f0ac944259"
+    ]
+  },
+  {
+    "id": "5aea80d2-9f6f-459d-a7a9-928555a20708",
+    "sourceJobId": "b7fa2d2f-b233-4313-82ed-77f0ac944259",
+    "title": "Crazy fever dream about weed and the las",
+    "contentType": "book",
+    "platform": "* youtube shorts: publish a 60-second video highlighting key scenes and characters from the book.",
+    "status": "ready",
+    "createdAt": 1775697015704,
+    "updatedAt": 1775697015704,
+    "url": "",
+    "log": [
+      "2026-04-09T01:10:15.704Z created from render job b7fa2d2f-b233-4313-82ed-77f0ac944259"
+    ]
+  },
+  {
+    "id": "b610ea56-2640-4de9-ab2e-f0499bd1b0b8",
+    "sourceJobId": "b7fa2d2f-b233-4313-82ed-77f0ac944259",
+    "title": "Crazy fever dream about weed and the las",
+    "contentType": "book",
+    "platform": "* gumroad: publish an excerpt from the manuscript, with a link to purchase the full e-book.",
+    "status": "ready",
+    "createdAt": 1775697015704,
+    "updatedAt": 1775697015704,
+    "url": "",
+    "log": [
+      "2026-04-09T01:10:15.704Z created from render job b7fa2d2f-b233-4313-82ed-77f0ac944259"
+    ]
+  },
+  {
+    "id": "bf66cb0b-af96-43d2-8c94-c36ee534c658",
+    "sourceJobId": "b7fa2d2f-b233-4313-82ed-77f0ac944259",
+    "title": "Crazy fever dream about weed and the las",
+    "contentType": "book",
+    "platform": "**monetization angle:** offer a limited-time discount on the e-book for customers who share their favorite quote or review of mooncoffee on social media using a branded hashtag. this will encourage engagement and drive sales.",
+    "status": "ready",
+    "createdAt": 1775697015705,
+    "updatedAt": 1775697015705,
+    "url": "",
+    "log": [
+      "2026-04-09T01:10:15.705Z created from render job b7fa2d2f-b233-4313-82ed-77f0ac944259"
+    ]
+  },
+  {
+    "id": "69aa268f-92fb-4f34-8c19-5e42bf190f50",
+    "sourceJobId": "b7fa2d2f-b233-4313-82ed-77f0ac944259",
+    "title": "Crazy fever dream about weed and the las",
+    "contentType": "book",
+    "platform": "this production-ready book is ready to be published and shared with the world!",
+    "status": "ready",
+    "createdAt": 1775697015705,
+    "updatedAt": 1775697015705,
+    "url": "",
+    "log": [
+      "2026-04-09T01:10:15.705Z created from render job b7fa2d2f-b233-4313-82ed-77f0ac944259"
+    ]
+  }
+]

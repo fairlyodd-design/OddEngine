@@ -1,0 +1,56 @@
+{
+  "id": "rj_mmzx9xe7_wxcbyi",
+  "title": "11i smoke render",
+  "kind": "video",
+  "provider": "odd-local-placeholder",
+  "prompt": "smoke",
+  "payload": {},
+  "status": "completed",
+  "progress": 1,
+  "createdAt": 1774073028175,
+  "updatedAt": 1774073032530,
+  "worker": {
+    "id": "local-placeholder-worker",
+    "name": "Local Placeholder Worker"
+  },
+  "output": {
+    "filename": "11i-smoke-render-rj_mmzx9xe7_wxcbyi.mp4",
+    "localPath": "/mnt/data/work11i/backend_scaffold/outputs/11i-smoke-render-rj_mmzx9xe7_wxcbyi.mp4",
+    "previewUrl": "/mnt/data/work11i/backend_scaffold/outputs/11i-smoke-render-rj_mmzx9xe7_wxcbyi.mp4",
+    "imported": true,
+    "importedAt": 1774073032487,
+    "importedInto": "11i smoke",
+    "watchedAt": 1774073032509,
+    "review": {
+      "decision": "rerender",
+      "note": "Tighten pacing and keep the emotional landing honest.",
+      "reviewedAt": 1774073032529,
+      "reviewedBy": "11i smoke",
+      "summary": "Needs another render pass."
+    },
+    "nextPass": {
+      "sourceJobId": "rj_mmzx9xe7_wxcbyi",
+      "sourceOutputTitle": "11i-smoke-render-rj_mmzx9xe7_wxcbyi.mp4",
+      "decision": "rerender",
+      "createdAt": 1774073032530,
+      "checklist": [
+        "Carry forward the strongest parts of 11i-smoke-render-rj_mmzx9xe7_wxcbyi.mp4.",
+        "Apply the re-render note directly inside the next render brief.",
+        "Stage a fresh Render Lab packet with the updated handoff notes.",
+        "Queue the next render only after the packet reads cleanly."
+      ],
+      "rerenderNotes": [
+        "Tighten pacing and keep the emotional landing honest.",
+        "Protect continuity, pacing, and emotional landing from the strongest current pass.",
+        "Keep the next render packet honest to the original project promise."
+      ],
+      "prepSummary": "Fresh re-render packet staged from 11i-smoke-render-rj_mmzx9xe7_wxcbyi.mp4.",
+      "packetTitle": "Re-render Packet • 11i-smoke-render-rj_mmzx9xe7_wxcbyi.mp4",
+      "readyForRender": true
+    }
+  },
+  "outputPath": "/mnt/data/work11i/backend_scaffold/outputs/11i-smoke-render-rj_mmzx9xe7_wxcbyi.mp4",
+  "outputUrl": "/mnt/data/work11i/backend_scaffold/outputs/11i-smoke-render-rj_mmzx9xe7_wxcbyi.mp4",
+  "completedAt": 1774073030977,
+  "workerMessage": "Review decision: rerender • Tighten pacing and keep the emotional landing honest. • Fresh re-render packet staged from 11i-smoke-render-rj_mmzx9xe7_wxcbyi.mp4."
+}

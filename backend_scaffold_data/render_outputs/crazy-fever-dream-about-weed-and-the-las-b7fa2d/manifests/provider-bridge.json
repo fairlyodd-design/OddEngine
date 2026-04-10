@@ -1,0 +1,26 @@
+{
+  "image": {
+    "enabled": true,
+    "mode": "webhook",
+    "endpoint": "",
+    "model": "",
+    "healthPath": "/health",
+    "timeoutMs": 30000
+  },
+  "audio": {
+    "enabled": false,
+    "mode": "stub",
+    "endpoint": "",
+    "model": "",
+    "healthPath": "/health",
+    "timeoutMs": 45000
+  },
+  "video": {
+    "enabled": false,
+    "mode": "stub",
+    "endpoint": "",
+    "model": "",
+    "healthPath": "/health",
+    "timeoutMs": 60000
+  }
+}

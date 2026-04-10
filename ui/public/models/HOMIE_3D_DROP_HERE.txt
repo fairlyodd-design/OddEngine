@@ -1,0 +1,3 @@
+Drop your rigged Homie GLB here as lilhomie.glb, or point the Homie panel at another local URL.
+Expected animation names: Idle, Walk, Talk.
+Optional mouth morphs: MouthOpen / JawOpen / viseme_aa.

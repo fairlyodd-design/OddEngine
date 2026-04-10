@@ -1,0 +1,23 @@
+{
+  "id": "example",
+  "name": "Example Plugin",
+  "version": "1.0.0",
+  "actions": [
+    {
+      "id": "gen_affiliate",
+      "label": "Generate Affiliate Microsite",
+      "type": "generate",
+      "payload": {
+        "type": "affiliate_site"
+      }
+    },
+    {
+      "id": "gen_dashboard",
+      "label": "Generate FairlyOdd Dashboard",
+      "type": "generate",
+      "payload": {
+        "type": "fairlyodd_dashboard"
+      }
+    }
+  ]
+}

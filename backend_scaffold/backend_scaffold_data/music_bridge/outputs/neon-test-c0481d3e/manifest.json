@@ -1,0 +1,14 @@
+{
+  "title": "Neon Test",
+  "runRoot": "/mnt/data/oddbg/src/backend_scaffold/backend_scaffold_data/music_bridge/outputs/neon-test-c0481d3e",
+  "files": [
+    "cover-art.svg",
+    "drums.wav",
+    "instrumental.wav",
+    "lyric-video.svg",
+    "main.wav",
+    "request.json",
+    "vocals.wav"
+  ],
+  "updatedAt": 1775706295108
+}

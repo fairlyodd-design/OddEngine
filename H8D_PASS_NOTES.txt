@@ -1,0 +1,26 @@
+v10.26.20h8d_PanelByPanelSetupWiringPass
+
+Panels wired in this pass:
+- Trading
+- Writers Lounge (Books panel)
+- Family Budget
+
+What changed:
+- Trading: session state lane, quick launch deck, next-best-trade card, local journal lane, lightweight paper-trade logging, stronger local state persistence.
+- Writers Lounge: prompt start box, production-stage controls, resumable output registry, quick export/final actions.
+- Family Budget: household snapshot, next-money-move card, cross-panel earnings signals from Trading + Studio, faster CSV import entrypoint.
+
+Cross-panel local keys introduced/read:
+- oddengine:trading:journal:v1
+- oddengine:trading:session:v1
+- oddengine:studio:outputs:v1
+
+Validation performed in container:
+- TypeScript transpile syntax check passed for:
+  - ui/src/panels/Trading.tsx
+  - ui/src/panels/Books.tsx
+  - ui/src/panels/FamilyBudget.tsx
+
+Notes:
+- This was built on top of the available h8c/h8b source tree in this chat environment.
+- No full Vite runtime verification was possible here because the full install/runtime environment was not reproduced in-container.

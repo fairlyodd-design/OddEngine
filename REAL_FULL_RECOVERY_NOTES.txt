@@ -1,0 +1,16 @@
+Full recovery source built from the last stable h8f baseline available in this chat environment.
+
+What this full zip is meant to solve:
+- restore Grocery Meals from the stable baseline
+- restore a working Poker panel into the app shell, panel metadata, and launcher
+- avoid the contaminated h9/h9a runtime-crash source branch
+
+Important honesty note:
+- this is a full-source recovery baseline, not a direct snapshot of the user's exact current live tree
+- Poker was not present in the available baseline, so this zip adds a clean local-first Poker panel rather than recovering the exact old Poker implementation
+
+Recommended install path:
+1. back up current C:\OddEngine
+2. replace the project with this full source zip
+3. npm install from the project root if needed
+4. run desktop again

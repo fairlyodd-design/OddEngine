@@ -1,0 +1,20 @@
+v10.26.20h9a6_GitHubAnchoredRecovery_FULL_SOURCE
+
+What this package is:
+- Full source zip built from the repaired local recovery tree in this chat environment.
+- Anchored against the public GitHub repo fairlyodd-design/OddEngine for shell/panel-registry validation.
+
+What I verified from GitHub:
+- The public repo still contains ui/, backend_scaffold/, voice_bridge/, and other core folders.
+- The public repo App.tsx includes GroceryMeals in the live panel registry.
+- The public repo tree still contains Vegas Poker-related files/scripts in the repository root.
+
+What this package keeps/fixes:
+- GroceryMeals kept in the simpler local-first hard-reset version from h9a5.
+- Poker panel kept present in source, routed in App.tsx, and listed in brain.ts metadata/search aliases.
+- Default pinned panels include Home, Trading, GroceryMeals, and Poker.
+
+Important honesty note:
+- This is NOT a byte-for-byte clone of GitHub main.
+- I could not directly clone the repo in this environment.
+- Instead, I used the public GitHub repo as the reference anchor and rebuilt a clean full-source zip from the working repaired tree already available in chat.

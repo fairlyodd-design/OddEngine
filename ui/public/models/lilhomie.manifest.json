@@ -1,0 +1,43 @@
+{
+  "scale": 0.62,
+  "position": [0, -0.2, 0],
+  "rotationY": 0,
+  "animationMap": {
+    "idle": ["Idle", "idle", "HeroIdle", "Breathing Idle", "Stand"],
+    "walk": ["Walk", "walk", "HeroWalk", "Run", "Move"],
+    "talk": ["Talk", "talk", "HeroTalk", "Speaking", "Chat"],
+    "listen": ["Listen", "listen", "HeroListen", "React", "FocusIdle"]
+  },
+  "morphMap": {
+    "mouth": ["mouthOpen", "jawOpen", "viseme_aa", "AA", "OH", "Jaw"],
+    "blink": ["blink", "Blink", "eyeClose", "EyesClosed", "blinkLeft", "blinkRight"],
+    "smile": ["smile", "Smile", "happy"],
+    "browUp": ["browUp", "BrowsUp", "eyebrowRaise"],
+    "browDown": ["browDown", "frown", "angry"]
+  },
+  "visemeMap": {
+    "sil": ["viseme_sil", "silence", "rest"],
+    "aa": ["viseme_aa", "AA", "jawOpen", "mouthOpen"],
+    "ee": ["viseme_ee", "EE"],
+    "ih": ["viseme_ih", "IH"],
+    "oh": ["viseme_oh", "OH"],
+    "ou": ["viseme_ou", "OU", "OO"],
+    "fv": ["viseme_fv", "FV"],
+    "th": ["viseme_th", "TH"],
+    "bmp": ["viseme_bmp", "BMP", "MM", "PP", "BB"]
+  },
+  "expressionMap": {
+    "idle": { "smile": 0.05, "browUp": 0.03, "browDown": 0.0 },
+    "talk": { "smile": 0.12, "browUp": 0.04, "browDown": 0.0 },
+    "listen": { "smile": 0.03, "browUp": 0.13, "browDown": 0.02 }
+  },
+  "blink": {
+    "intervalSeconds": 4.2,
+    "durationSeconds": 0.16
+  },
+  "notes": {
+    "look": "custom look lock from provided grey hoodie and emoji references",
+    "upgradePath": "Replace lilhomie.glb later with a Blender-exported custom character while keeping the same manifest keys.",
+    "heroRig": "v10.26.14t runtime can now drive visemes, blink timing, and expression morphs from a real Blender hero rig export."
+  }
+}

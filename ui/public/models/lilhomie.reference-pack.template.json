@@ -1,0 +1,29 @@
+{
+  "name": "Lil Homie Reference Pack",
+  "front": "ui/public/models/references/front-face.png",
+  "side": "ui/public/models/references/side-face.png",
+  "hoodie": "ui/public/models/references/hoodie-look.png",
+  "cap": "ui/public/models/references/cap-look.png",
+  "outputFaceTexture": "ui/public/models/lilhomie.face.reference.png",
+  "outputIdentity": "ui/public/models/lilhomie.hero.identity.json",
+  "palette": {
+    "hoodieCore": "#1f2430",
+    "hoodieTrim": "#24756b",
+    "hoodieGlow": "#54429e",
+    "cap": "#d4d6df",
+    "accent": "#111317",
+    "skin": "#e0cdbd",
+    "beard": "#5b3928",
+    "glasses": "#2b2b2f"
+  },
+  "look": {
+    "hoodieStyle": "relaxed zip hoodie",
+    "capStyle": "soft curved-brim cap",
+    "bodyStyle": "compact stylized hero",
+    "expression": "kind, grounded, alert",
+    "accessories": {
+      "beard": false,
+      "glasses": false
+    }
+  }
+}

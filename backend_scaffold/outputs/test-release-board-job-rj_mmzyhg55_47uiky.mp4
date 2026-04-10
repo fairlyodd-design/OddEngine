@@ -1,0 +1,9 @@
+OddEngine placeholder output
+jobId=rj_mmzyhg55_47uiky
+title=Test Release Board Job
+kind=video
+provider=odd-local-placeholder
+status=completed
+createdAt=1774075058681
+completedAt=1774075059883
+prompt=test

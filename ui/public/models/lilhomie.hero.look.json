@@ -1,0 +1,30 @@
+{
+  "name": "Lil Homie Custom Look Lock",
+  "vibe": "friendly game-companion with charcoal hoodie, silver cap, beard, and glasses",
+  "palette": {
+    "hoodieCore": "#4a4a48",
+    "hoodieTrim": "#5a5a58",
+    "hoodieGlow": "#6d6fa6",
+    "cap": "#d7d7d9",
+    "accent": "#2a2b31",
+    "skin": "#e0bea2",
+    "beard": "#6b3f2a",
+    "glasses": "#707070"
+  },
+  "silhouette": {
+    "head": "friendly oversized emoji-inspired face card",
+    "torso": "charcoal hoodie hero",
+    "hat": "soft cap with rounded brim",
+    "body": "compact stylized companion build"
+  },
+  "animationIntent": {
+    "idle": "steady grounded presence with subtle breathing",
+    "talk": "supportive and upbeat, friendly hand lead",
+    "listen": "leans in like a real companion",
+    "walk": "compact and game-ready"
+  },
+  "referencesLocked": {
+    "front": "fairlyoddemoji.png",
+    "hoodie": "grey hoodie.webp"
+  }
+}

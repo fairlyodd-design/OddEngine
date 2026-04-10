@@ -1,0 +1,366 @@
+[
+  {
+    "id": "b6fa4542-5a82-46fc-904c-2ced19a598c6",
+    "sourceJobId": "036fc05c-4644-4922-bb8d-b122161a888a",
+    "title": "Neon Heartline",
+    "contentType": "music",
+    "platform": "local",
+    "status": "ready",
+    "createdAt": 1775803652899,
+    "updatedAt": 1775803652899,
+    "url": "",
+    "log": [
+      "2026-04-10T06:47:32.899Z created from render job 036fc05c-4644-4922-bb8d-b122161a888a"
+    ]
+  },
+  {
+    "id": "e5a5fdea-6848-43ec-a4e0-f4fb1a76f803",
+    "sourceJobId": "036fc05c-4644-4922-bb8d-b122161a888a",
+    "title": "Neon Heartline",
+    "contentType": "music",
+    "platform": "gumroad",
+    "status": "ready",
+    "createdAt": 1775803652899,
+    "updatedAt": 1775803652899,
+    "url": "",
+    "log": [
+      "2026-04-10T06:47:32.899Z created from render job 036fc05c-4644-4922-bb8d-b122161a888a"
+    ]
+  },
+  {
+    "id": "593eb213-d050-4b78-907d-71048bd76b1d",
+    "sourceJobId": "036fc05c-4644-4922-bb8d-b122161a888a",
+    "title": "Neon Heartline",
+    "contentType": "music",
+    "platform": "instagram",
+    "status": "ready",
+    "createdAt": 1775803652898,
+    "updatedAt": 1775803652898,
+    "url": "",
+    "log": [
+      "2026-04-10T06:47:32.898Z created from render job 036fc05c-4644-4922-bb8d-b122161a888a"
+    ]
+  },
+  {
+    "id": "8e3f247b-6ba6-4a1f-b92f-1a86f6c3c3a5",
+    "sourceJobId": "036fc05c-4644-4922-bb8d-b122161a888a",
+    "title": "Neon Heartline",
+    "contentType": "music",
+    "platform": "tiktok",
+    "status": "ready",
+    "createdAt": 1775803652898,
+    "updatedAt": 1775803652898,
+    "url": "",
+    "log": [
+      "2026-04-10T06:47:32.898Z created from render job 036fc05c-4644-4922-bb8d-b122161a888a"
+    ]
+  },
+  {
+    "id": "d15a81c7-9164-4f48-8565-671a60187a5f",
+    "sourceJobId": "036fc05c-4644-4922-bb8d-b122161a888a",
+    "title": "Neon Heartline",
+    "contentType": "music",
+    "platform": "youtube",
+    "status": "ready",
+    "createdAt": 1775803652897,
+    "updatedAt": 1775803652897,
+    "url": "",
+    "log": [
+      "2026-04-10T06:47:32.897Z created from render job 036fc05c-4644-4922-bb8d-b122161a888a"
+    ]
+  },
+  {
+    "id": "f76d88bc-af9a-4083-ab7b-85eae9e253db",
+    "sourceJobId": "f69c46ba-56ab-4583-acc8-4617c418501c",
+    "title": "Neon Heartline",
+    "contentType": "music",
+    "platform": "local",
+    "status": "ready",
+    "createdAt": 1775791096823,
+    "updatedAt": 1775791096823,
+    "url": "",
+    "log": [
+      "2026-04-10T03:18:16.823Z created from render job f69c46ba-56ab-4583-acc8-4617c418501c"
+    ]
+  },
+  {
+    "id": "72893664-c69e-4553-b5eb-95d368a5afbf",
+    "sourceJobId": "f69c46ba-56ab-4583-acc8-4617c418501c",
+    "title": "Neon Heartline",
+    "contentType": "music",
+    "platform": "gumroad",
+    "status": "ready",
+    "createdAt": 1775791096823,
+    "updatedAt": 1775791096823,
+    "url": "",
+    "log": [
+      "2026-04-10T03:18:16.823Z created from render job f69c46ba-56ab-4583-acc8-4617c418501c"
+    ]
+  },
+  {
+    "id": "a14df4ed-6ddd-4a81-adba-75c2c69bcb82",
+    "sourceJobId": "f69c46ba-56ab-4583-acc8-4617c418501c",
+    "title": "Neon Heartline",
+    "contentType": "music",
+    "platform": "instagram",
+    "status": "ready",
+    "createdAt": 1775791096822,
+    "updatedAt": 1775791096822,
+    "url": "",
+    "log": [
+      "2026-04-10T03:18:16.822Z created from render job f69c46ba-56ab-4583-acc8-4617c418501c"
+    ]
+  },
+  {
+    "id": "06c5e73e-81fb-4154-a0ce-1c133d41c5eb",
+    "sourceJobId": "f69c46ba-56ab-4583-acc8-4617c418501c",
+    "title": "Neon Heartline",
+    "contentType": "music",
+    "platform": "tiktok",
+    "status": "ready",
+    "createdAt": 1775791096822,
+    "updatedAt": 1775791096822,
+    "url": "",
+    "log": [
+      "2026-04-10T03:18:16.822Z created from render job f69c46ba-56ab-4583-acc8-4617c418501c"
+    ]
+  },
+  {
+    "id": "1343f085-bd00-4833-8163-2adb094a8ced",
+    "sourceJobId": "f69c46ba-56ab-4583-acc8-4617c418501c",
+    "title": "Neon Heartline",
+    "contentType": "music",
+    "platform": "youtube",
+    "status": "ready",
+    "createdAt": 1775791096821,
+    "updatedAt": 1775791096821,
+    "url": "",
+    "log": [
+      "2026-04-10T03:18:16.821Z created from render job f69c46ba-56ab-4583-acc8-4617c418501c"
+    ]
+  },
+  {
+    "id": "6749c362-2467-4613-9619-45bd85eb706d",
+    "sourceJobId": "dea953db-91c4-4bff-a796-89c2a207b5ac",
+    "title": "Neon Heartline",
+    "contentType": "music",
+    "platform": "local",
+    "status": "ready",
+    "createdAt": 1775702869692,
+    "updatedAt": 1775702869692,
+    "url": "",
+    "log": [
+      "2026-04-09T02:47:49.692Z created from render job dea953db-91c4-4bff-a796-89c2a207b5ac"
+    ]
+  },
+  {
+    "id": "4a878fe7-e0e4-46f1-b9a3-2b63ca8b989f",
+    "sourceJobId": "dea953db-91c4-4bff-a796-89c2a207b5ac",
+    "title": "Neon Heartline",
+    "contentType": "music",
+    "platform": "gumroad",
+    "status": "ready",
+    "createdAt": 1775702869692,
+    "updatedAt": 1775702869692,
+    "url": "",
+    "log": [
+      "2026-04-09T02:47:49.692Z created from render job dea953db-91c4-4bff-a796-89c2a207b5ac"
+    ]
+  },
+  {
+    "id": "d9bad37f-c980-4ef2-b100-599e563032c6",
+    "sourceJobId": "dea953db-91c4-4bff-a796-89c2a207b5ac",
+    "title": "Neon Heartline",
+    "contentType": "music",
+    "platform": "instagram",
+    "status": "ready",
+    "createdAt": 1775702869692,
+    "updatedAt": 1775702869692,
+    "url": "",
+    "log": [
+      "2026-04-09T02:47:49.692Z created from render job dea953db-91c4-4bff-a796-89c2a207b5ac"
+    ]
+  },
+  {
+    "id": "6d477451-e3ed-48b2-9464-ba6b597664f8",
+    "sourceJobId": "dea953db-91c4-4bff-a796-89c2a207b5ac",
+    "title": "Neon Heartline",
+    "contentType": "music",
+    "platform": "tiktok",
+    "status": "ready",
+    "createdAt": 1775702869691,
+    "updatedAt": 1775702869691,
+    "url": "",
+    "log": [
+      "2026-04-09T02:47:49.691Z created from render job dea953db-91c4-4bff-a796-89c2a207b5ac"
+    ]
+  },
+  {
+    "id": "2b5749ae-3562-4b36-a68c-b98c3eeccb4d",
+    "sourceJobId": "dea953db-91c4-4bff-a796-89c2a207b5ac",
+    "title": "Neon Heartline",
+    "contentType": "music",
+    "platform": "youtube",
+    "status": "ready",
+    "createdAt": 1775702869691,
+    "updatedAt": 1775702869691,
+    "url": "",
+    "log": [
+      "2026-04-09T02:47:49.691Z created from render job dea953db-91c4-4bff-a796-89c2a207b5ac"
+    ]
+  },
+  {
+    "id": "b8568106-0189-45d9-88f1-51554feb711b",
+    "sourceJobId": "98e30e41-ed8f-4e01-8a69-87c06566a933",
+    "title": "Neon Heartline",
+    "contentType": "music",
+    "platform": "local",
+    "status": "ready",
+    "createdAt": 1775702281380,
+    "updatedAt": 1775702281380,
+    "url": "",
+    "log": [
+      "2026-04-09T02:38:01.380Z created from render job 98e30e41-ed8f-4e01-8a69-87c06566a933"
+    ]
+  },
+  {
+    "id": "8201f82d-2395-4851-ae2b-dd265b999c1b",
+    "sourceJobId": "98e30e41-ed8f-4e01-8a69-87c06566a933",
+    "title": "Neon Heartline",
+    "contentType": "music",
+    "platform": "gumroad",
+    "status": "ready",
+    "createdAt": 1775702281380,
+    "updatedAt": 1775702281380,
+    "url": "",
+    "log": [
+      "2026-04-09T02:38:01.380Z created from render job 98e30e41-ed8f-4e01-8a69-87c06566a933"
+    ]
+  },
+  {
+    "id": "9d4eb2cd-b034-4af7-b840-521a75653673",
+    "sourceJobId": "98e30e41-ed8f-4e01-8a69-87c06566a933",
+    "title": "Neon Heartline",
+    "contentType": "music",
+    "platform": "instagram",
+    "status": "ready",
+    "createdAt": 1775702281379,
+    "updatedAt": 1775702281379,
+    "url": "",
+    "log": [
+      "2026-04-09T02:38:01.379Z created from render job 98e30e41-ed8f-4e01-8a69-87c06566a933"
+    ]
+  },
+  {
+    "id": "f8f68fac-76ec-4c67-bc6b-bb5607516044",
+    "sourceJobId": "98e30e41-ed8f-4e01-8a69-87c06566a933",
+    "title": "Neon Heartline",
+    "contentType": "music",
+    "platform": "tiktok",
+    "status": "ready",
+    "createdAt": 1775702281379,
+    "updatedAt": 1775702281379,
+    "url": "",
+    "log": [
+      "2026-04-09T02:38:01.379Z created from render job 98e30e41-ed8f-4e01-8a69-87c06566a933"
+    ]
+  },
+  {
+    "id": "87cf66c1-b749-49de-9d05-6190c269b263",
+    "sourceJobId": "98e30e41-ed8f-4e01-8a69-87c06566a933",
+    "title": "Neon Heartline",
+    "contentType": "music",
+    "platform": "youtube",
+    "status": "ready",
+    "createdAt": 1775702281378,
+    "updatedAt": 1775702281378,
+    "url": "",
+    "log": [
+      "2026-04-09T02:38:01.378Z created from render job 98e30e41-ed8f-4e01-8a69-87c06566a933"
+    ]
+  },
+  {
+    "id": "574a97ea-b335-4c88-b5fe-5abc72d67e3c",
+    "sourceJobId": "1ab9c83d-0b85-4cb9-b5d7-1275f8eddfc7",
+    "title": "Crazy fever dream about weed and the las",
+    "contentType": "book",
+    "platform": "this production-ready book is ready to be published and shared with the world!",
+    "status": "ready",
+    "createdAt": 1775697658502,
+    "updatedAt": 1775697658502,
+    "url": "",
+    "log": [
+      "2026-04-09T01:20:58.502Z created from render job 1ab9c83d-0b85-4cb9-b5d7-1275f8eddfc7"
+    ]
+  },
+  {
+    "id": "ada8f51e-5648-4de8-8586-37ffff74fc55",
+    "sourceJobId": "1ab9c83d-0b85-4cb9-b5d7-1275f8eddfc7",
+    "title": "Crazy fever dream about weed and the las",
+    "contentType": "book",
+    "platform": "**monetization angle:** offer exclusive content and behind-the-scenes insights into the writing process for loyal readers who pre-order or purchase the book within the first week of launch.",
+    "status": "ready",
+    "createdAt": 1775697658501,
+    "updatedAt": 1775697658501,
+    "url": "",
+    "log": [
+      "2026-04-09T01:20:58.501Z created from render job 1ab9c83d-0b85-4cb9-b5d7-1275f8eddfc7"
+    ]
+  },
+  {
+    "id": "bb121199-05d5-4884-a1be-64bc0ca1073a",
+    "sourceJobId": "1ab9c83d-0b85-4cb9-b5d7-1275f8eddfc7",
+    "title": "Crazy fever dream about weed and the las",
+    "contentType": "book",
+    "platform": "* gumroad: publish an excerpt from the manuscript, with a link to purchase the full e-book",
+    "status": "ready",
+    "createdAt": 1775697658501,
+    "updatedAt": 1775697658501,
+    "url": "",
+    "log": [
+      "2026-04-09T01:20:58.501Z created from render job 1ab9c83d-0b85-4cb9-b5d7-1275f8eddfc7"
+    ]
+  },
+  {
+    "id": "cfd83d21-a374-4667-ba2c-9845bccfe07d",
+    "sourceJobId": "1ab9c83d-0b85-4cb9-b5d7-1275f8eddfc7",
+    "title": "Crazy fever dream about weed and the las",
+    "contentType": "book",
+    "platform": "* youtube: publish the final promo script (60-second format)",
+    "status": "ready",
+    "createdAt": 1775697658500,
+    "updatedAt": 1775697658500,
+    "url": "",
+    "log": [
+      "2026-04-09T01:20:58.500Z created from render job 1ab9c83d-0b85-4cb9-b5d7-1275f8eddfc7"
+    ]
+  },
+  {
+    "id": "86f43a16-03b4-4f8c-a88d-81dac0cfb183",
+    "sourceJobId": "1ab9c83d-0b85-4cb9-b5d7-1275f8eddfc7",
+    "title": "Crazy fever dream about weed and the las",
+    "contentType": "book",
+    "platform": "* tiktok: publish short hooks (3 x 15-second clips) to create buzz around the book",
+    "status": "ready",
+    "createdAt": 1775697658500,
+    "updatedAt": 1775697658500,
+    "url": "",
+    "log": [
+      "2026-04-09T01:20:58.500Z created from render job 1ab9c83d-0b85-4cb9-b5d7-1275f8eddfc7"
+    ]
+  },
+  {
+    "id": "e39b31a8-70f6-4725-b290-500aa6091cb2",
+    "sourceJobId": "1ab9c83d-0b85-4cb9-b5d7-1275f8eddfc7",
+    "title": "Crazy fever dream about weed and the las",
+    "contentType": "book",
+    "platform": "**",
+    "status": "ready",
+    "createdAt": 1775697658499,
+    "updatedAt": 1775697658499,
+    "url": "",
+    "log": [
+      "2026-04-09T01:20:58.499Z created from render job 1ab9c83d-0b85-4cb9-b5d7-1275f8eddfc7"
+    ]
+  }
+]

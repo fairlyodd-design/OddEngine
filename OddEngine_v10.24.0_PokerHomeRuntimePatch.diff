@@ -1,0 +1,309 @@
+--- /mnt/data/oddengine_v10240/ui/src/lib/brain.ts	2026-03-04 02:58:45.000000000 +0000
++++ /mnt/data/oddengine_patch/ui/src/lib/brain.ts	2026-04-08 03:21:09.344914808 +0000
+@@ -162,6 +162,7 @@
+   { id:"HappyHealthy", icon:"💚", title:"Happy Healthy", sub:"Wellness tracker", section:"CORE PANELS", assistantName:"Wellness Coach", assistantRole:"Pattern summary + check-in helper", description:"Summarizes trends and turns notes into cleaner wellness actions.", quickPrompts:["What patterns show up here?","What should I track next?","Turn this into a simple routine."], storageKeys:["oddengine:happyhealthy:v1"], nextSteps:["Log entries consistently.","Watch repeat triggers.","Use summaries before appointments."] },
+   { id:"Cannabis", icon:"🌿", title:"Cannabis", sub:"Events + bookmarks", section:"CORE PANELS", assistantName:"Cannabis Concierge", assistantRole:"Deals, favorites, and event organizer", description:"Ranks saved deals, compares options, and helps plan trips or runs.", quickPrompts:["What are my best saved deals?","Help me compare favorites.","What should I clean up here?"], storageKeys:["oddengine:cannabis:v3","oddengine:prefs:v1"], nextSteps:["Keep favorites tagged.","Use score + notes together.","Review events and bookmarks regularly."] },
+   { id:"Trading", icon:"🎯", title:"Trading", sub:"Options Sniper engine", section:"CORE PANELS", assistantName:"Trading Coach", assistantRole:"Setup ranking + risk coaching", description:"Summarizes setups, risk, and next trading actions from the panel state.", quickPrompts:["Summarize today’s setup.","What is the biggest risk here?","Rank the cleanest next move."], storageKeys:["oddengine:trading:sniper:v4","odd.trading.chainSnapshot"], nextSteps:["Write the thesis before entries.","Keep invalidation and size visible.","Use contract quality before impulse."], quickActionIds:["trading:safer-setup","trading:focus-best","trading:build-plan"], actions:[{ id:"homie", label:"Open Homie", kind:"navigate", panelId:"Homie" }] },
++  { id:"Poker", icon:"♠️", title:"Poker", sub:"Tables + study + bankroll lane", section:"CORE PANELS", assistantName:"Poker Coach", assistantRole:"Session prep + bankroll helper", description:"A safe placeholder shell for poker sessions, bankroll notes, and study workflows until the full panel returns.", quickPrompts:["What is my poker session plan today?","Show me my bankroll checklist.","What should I review after a session?"], storageKeys:["oddengine:poker:v1","oddengine:poker:notes:v1"], nextSteps:["Use this shell to restore visibility now.","Keep bankroll notes lightweight and clear.","Expand the panel later without touching the registry again."] },
+   { id:"Grow", icon:"🌱", title:"Grow", sub:"Grow OS hook", section:"CORE PANELS", assistantName:"Grow Coach", assistantRole:"Environment + stage coach", description:"Interprets readings, stage, and planner settings into next grow actions.", quickPrompts:["What matters most in this room?","What is drifting out of range?","Give me a simple next-step checklist."], storageKeys:["oddengine:grow:profile","oddengine:grow:readings","oddengine:grow:live:v2","oddengine:grow:planner:v1","oddengine:grow:demo:v1"], nextSteps:["Log readings often enough to see drift.","Tie environment to feed or stage changes.","Use a daily checklist during stage transitions."], quickActionIds:["grow:apply-targets","grow:save-reading","grow:load-planner-profile","grow:ac-infinity-preset"] },
+   { id:"Mining", icon:"⛏️", title:"Mining", sub:"Mining Radar hook", section:"CORE PANELS", assistantName:"Mining Radar", assistantRole:"Miner health + payout coach", description:"Summarizes miner uptime, pools, and payout health.", quickPrompts:["Which miner needs attention?","Do payouts look healthy?","What should I optimize next?"], storageKeys:["oddengine:mining:v1"], nextSteps:["Track payout gaps.","Keep miner notes and power visible.","Compare pools before switching."], actions:[{ id:"money", label:"Open Money", kind:"navigate", panelId:"Money" }] },
+   { id:"CryptoGames", icon:"🎮", title:"Crypto Games", sub:"Tracker (local)", section:"APPS", assistantName:"Game Scout", assistantRole:"Reward + device planner", description:"Helps rank games, wallets, and emulator paths.", quickPrompts:["What looks worth playing?","Which games need cleanup?","What is the easiest earning path?"], storageKeys:["oddengine:cryptoGames:v2","oddengine:cryptoGames:settings:v1"], nextSteps:["Track real rewards.","Keep emulator preference clear.","Cull low-value games quickly."] },
+--- /mnt/data/oddengine_v10240/ui/src/App.tsx	2026-03-04 07:36:57.000000000 +0000
++++ /mnt/data/oddengine_patch/ui/src/App.tsx	2026-04-08 03:21:09.345770945 +0000
+@@ -28,6 +28,7 @@
+ const Preferences = lazy(() => import("./panels/Preferences"));
+ const Brain = lazy(() => import("./panels/Brain"));
+ const Trading = lazy(() => import("./panels/Trading"));
++const Poker = lazy(() => import("./panels/Poker"));
+ const Grow = lazy(() => import("./panels/Grow"));
+ const Mining = lazy(() => import("./panels/Mining"));
+ const CryptoGames = lazy(() => import("./panels/CryptoGames"));
+@@ -76,6 +77,7 @@
+     case "RoutineLauncher": return <RoutineLauncher onNavigate={setActive} />;
+     case "Calendar": return <Calendar onNavigate={setActive} />;
+     case "Trading": return <Trading />;
++    case "Poker": return <Poker />;
+     case "Grow": return <Grow />;
+     case "Mining": return <Mining onNavigate={setActive} />;
+     case "CryptoGames": return <CryptoGames />;
+--- /mnt/data/oddengine_v10240/ui/src/lib/odd.ts	2026-03-04 18:13:45.000000000 +0000
++++ /mnt/data/oddengine_patch/ui/src/lib/odd.ts	2026-04-08 03:21:09.346555895 +0000
+@@ -88,6 +88,16 @@
+     appPath?: string;
+   }>;
+ 
++  getRuntimeStats: () => Promise<{
++    ok: boolean;
++    cpu?: { percentUsed: number; cores?: number };
++    memory?: { total: number; free: number; used: number; percentUsed: number };
++    network?: { hostname?: string; primaryIp?: string; interfaceName?: string };
++    storage?: { path?: string; total: number; free: number; used: number; percentUsed: number };
++    timestamp?: number;
++    error?: string;
++  }>;
++
+   updateGrowBundle: () => Promise<{ ok: boolean; path?: string; updated?: boolean; version?: string | null; error?: string }>;
+   growPlannerHandoff: (payload: any) => Promise<{ ok: boolean; path?: string; handoffPath?: string; roomsUpdated?: number; error?: string }>;
+ 
+@@ -158,6 +168,7 @@
+   return {
+     isDesktop: () => false,
+     getSystemInfo: async () => ({ ok: false }),
++    getRuntimeStats: async () => ({ ok: false, error: "Not available in browser" }),
+     updateGrowBundle: async () => ({ ok: false }),
+     growPlannerHandoff: async () => ({ ok: false }),
+     fetchText: async () => ({ ok: false, error: "Not available in browser" }),
+--- /mnt/data/oddengine_v10240/ui/src/panels/Home.tsx	2026-03-05 02:11:18.000000000 +0000
++++ /mnt/data/oddengine_patch/ui/src/panels/Home.tsx	2026-04-08 03:22:37.038453292 +0000
+@@ -56,6 +56,7 @@
+   }, [now]);
+ 
+   const [storage, setStorage] = useState<{ quota: number; usage: number } | null>(null);
++  const [runtime, setRuntime] = useState<any>(null);
+   const [calTick, setCalTick] = useState(0);
+   const [entTick, setEntTick] = useState(0);
+   const [doneTick, setDoneTick] = useState(0);
+@@ -70,6 +71,27 @@
+     };
+   }, []);
+ 
++
++  useEffect(() => {
++    if (!isDesktop() || !oddApi().getRuntimeStats) return;
++    let alive = true;
++    const api = oddApi();
++    const pull = async () => {
++      try {
++        const res = await api.getRuntimeStats();
++        if (alive && res?.ok) setRuntime(res);
++      } catch {
++        // ignore runtime polling failures
++      }
++    };
++    pull();
++    const t = window.setInterval(pull, 5000);
++    return () => {
++      alive = false;
++      window.clearInterval(t);
++    };
++  }, []);
++
+   useEffect(() => {
+     const onCal = () => setCalTick((x) => x + 1);
+     try {
+@@ -339,9 +361,15 @@
+     return list;
+   }, [q]);
+ 
+-  const quota = storage?.quota || 0;
+-  const usage = storage?.usage || 0;
+-  const pct = quota > 0 ? Math.min(100, Math.max(0, Math.round((usage / quota) * 100))) : 0;
++  const runtimeCpu = Number(runtime?.cpu?.percentUsed || 0);
++  const runtimeRam = Number(runtime?.memory?.percentUsed || 0);
++  const runtimeStorage = runtime?.storage || null;
++  const quota = Number(runtimeStorage?.total || storage?.quota || 0);
++  const usage = Number(runtimeStorage?.used || storage?.usage || 0);
++  const pct = Number(runtimeStorage?.percentUsed || (quota > 0 ? Math.min(100, Math.max(0, Math.round((usage / quota) * 100))) : 0));
++  const hostLabel = runtime?.network?.hostname || window.location.hostname || "localhost";
++  const primaryIp = runtime?.network?.primaryIp || "";
++  const interfaceName = runtime?.network?.interfaceName || "";
+ 
+   return (
+     <div className="panelRoot homeRoot">
+@@ -366,21 +394,21 @@
+             <div className="homeMeterRow mt-4">
+               <div className="homeRing">
+                 <div className="homeRingLabel">CPU</div>
+-                <div className="homeRingValue">—</div>
++                <div className="homeRingValue">{runtime ? `${runtimeCpu}%` : "—"}</div>
+               </div>
+               <div className="homeRing">
+                 <div className="homeRingLabel">RAM</div>
+-                <div className="homeRingValue">—</div>
++                <div className="homeRingValue">{runtime ? `${runtimeRam}%` : "—"}</div>
+               </div>
+             </div>
+             <div className="small mt-3" style={{ opacity: 0.85 }}>
+-              (CPU/RAM live meters will hook into Desktop system stats next.)
++              {isDesktop() ? "Live desktop runtime stats via Electron IPC." : "Browser mode uses limited local fallbacks."}
+             </div>
+           </div>
+ 
+           <div className="card homeWidget">
+             <div className="h">Storage</div>
+-            <div className="sub">Browser/Electron storage estimate</div>
++            <div className="sub">{runtimeStorage ? "Real disk usage for the local app drive" : "Browser/Electron storage estimate"}</div>
+             <div className="stack tight mt-4">
+               <div className="cluster spread">
+                 <div className="small">Used</div>
+@@ -389,6 +417,7 @@
+               <div className="homeBar" aria-label="Storage usage">
+                 <div className="homeBarFill" style={{ width: `${pct}%` }} />
+               </div>
++              {runtimeStorage?.path ? <div className="small mt-3" style={{ opacity: 0.85 }}>Drive: <b>{runtimeStorage.path}</b></div> : null}
+             </div>
+           </div>
+ 
+@@ -396,8 +425,9 @@
+             <div className="h">Network</div>
+             <div className="sub">LAN-first operator mode</div>
+             <div className="small mt-4" style={{ opacity: 0.9 }}>
+-              Host: <b>{window.location.hostname}</b>
++              Host: <b>{hostLabel}</b>{primaryIp ? <> • IP: <b>{primaryIp}</b></> : null}
+             </div>
++            {interfaceName ? <div className="small mt-2" style={{ opacity: 0.82 }}>Adapter: <b>{interfaceName}</b></div> : null}
+             <div className="cluster wrap mt-4">
+               <button className="tabBtn" onClick={() => onNavigate("Security")}>Open Security</button>
+               <button className="tabBtn" onClick={() => onNavigate("DevEngine")}>Open Dev Engine</button>
+--- /mnt/data/oddengine_v10240/electron/preload.cjs	2026-03-04 18:14:12.000000000 +0000
++++ /mnt/data/oddengine_patch/electron/preload.cjs	2026-04-08 03:21:09.347226006 +0000
+@@ -33,6 +33,7 @@
+ 
+   // system
+   getSystemInfo: () => ipcRenderer.invoke("odd:getSystemInfo"),
++  getRuntimeStats: () => ipcRenderer.invoke("odd:getRuntimeStats"),
+   updateGrowBundle: () => ipcRenderer.invoke("odd:updateGrowBundle"),
+   growPlannerHandoff: (payload) => ipcRenderer.invoke("odd:growPlannerHandoff", payload || {}),
+ 
+--- /mnt/data/oddengine_v10240/electron/main.cjs	2026-03-04 18:14:04.000000000 +0000
++++ /mnt/data/oddengine_patch/electron/main.cjs	2026-04-08 03:21:09.348069690 +0000
+@@ -1069,6 +1069,77 @@
+   }
+ });
+ 
++
++async function sampleCpuUsagePercent(sampleMs = 240){
++  const snap = () => {
++    const cpus = os.cpus() || [];
++    let idle = 0;
++    let total = 0;
++    for(const cpu of cpus){
++      const times = cpu && cpu.times ? cpu.times : {};
++      const cpuIdle = Number(times.idle || 0);
++      const cpuTotal = Object.values(times).reduce((sum, val) => sum + Number(val || 0), 0);
++      idle += cpuIdle;
++      total += cpuTotal;
++    }
++    return { idle, total, cores: cpus.length || 0 };
++  };
++  const a = snap();
++  await new Promise((resolve) => setTimeout(resolve, sampleMs));
++  const b = snap();
++  const idleDelta = Math.max(0, b.idle - a.idle);
++  const totalDelta = Math.max(1, b.total - a.total);
++  const percentUsed = Math.max(0, Math.min(100, Math.round((1 - (idleDelta / totalDelta)) * 100)));
++  return { percentUsed, cores: b.cores || a.cores || 0 };
++}
++
++function getMemoryStats(){
++  const total = Number(os.totalmem() || 0);
++  const free = Number(os.freemem() || 0);
++  const used = Math.max(0, total - free);
++  const percentUsed = total > 0 ? Math.max(0, Math.min(100, Math.round((used / total) * 100))) : 0;
++  return { total, free, used, percentUsed };
++}
++
++function getPrimaryNetworkStats(){
++  const hostname = os.hostname();
++  const nets = os.networkInterfaces ? os.networkInterfaces() : {};
++  let best = null;
++  for(const [name, list] of Object.entries(nets || {})){
++    for(const item of list || []){
++      const family = typeof item.family === "string" ? item.family : String(item.family || "");
++      if(item && !item.internal && family === "IPv4"){
++        const address = String(item.address || "").trim();
++        if(address){
++          best = { hostname, primaryIp: address, interfaceName: String(name || "") };
++          break;
++        }
++      }
++    }
++    if(best) break;
++  }
++  return best || { hostname, primaryIp: "", interfaceName: "" };
++}
++
++function getStorageStats(){
++  try{
++    const basePath = app.getPath("userData");
++    const rootPath = path.parse(basePath).root || basePath;
++    if(typeof fs.statfsSync !== "function"){
++      return { path: rootPath, total: 0, free: 0, used: 0, percentUsed: 0 };
++    }
++    const stat = fs.statfsSync(rootPath);
++    const blockSize = Number(stat.bsize || stat.frsize || 0);
++    const total = blockSize > 0 ? Number(stat.blocks || 0) * blockSize : 0;
++    const free = blockSize > 0 ? Number(stat.bavail || stat.bfree || 0) * blockSize : 0;
++    const used = Math.max(0, total - free);
++    const percentUsed = total > 0 ? Math.max(0, Math.min(100, Math.round((used / total) * 100))) : 0;
++    return { path: rootPath, total, free, used, percentUsed };
++  }catch(err){
++    return { path: "", total: 0, free: 0, used: 0, percentUsed: 0, error: String(err) };
++  }
++}
++
+ ipcMain.handle("odd:getSystemInfo", async () => {
+   const bundlesDir = path.join(app.getPath("userData"), "bundles");
+   ensureDir(bundlesDir);
+@@ -1076,6 +1147,18 @@
+   return { ok:true, userData: app.getPath("userData"), bundlesDir, growOsDir, appVersion: app.getVersion(), packaged: app.isPackaged, cwd: process.cwd(), appPath: app.getAppPath() };
+ });
+ 
++ipcMain.handle("odd:getRuntimeStats", async () => {
++  try{
++    const cpu = await sampleCpuUsagePercent(240);
++    const memory = getMemoryStats();
++    const network = getPrimaryNetworkStats();
++    const storage = getStorageStats();
++    return { ok:true, cpu, memory, network, storage, timestamp: Date.now() };
++  }catch(err){
++    return { ok:false, error:String(err), timestamp: Date.now() };
++  }
++});
++
+ ipcMain.handle("odd:growPlannerHandoff", async (_e, payload) => {
+   try{
+     return applyGrowPlannerHandoff(payload || {});
+--- /dev/null	2026-04-08 03:14:17.652682099 +0000
++++ /mnt/data/oddengine_patch/ui/src/panels/Poker.tsx	2026-04-08 03:21:09.346029170 +0000
+@@ -0,0 +1,40 @@
++import React from "react";
++import { PanelHeader } from "../components/PanelHeader";
++
++export default function Poker() {
++  return (
++    <div className="panelRoot">
++      <PanelHeader
++        panelId="Poker"
++        title="Poker"
++        subtitle="Safe restored shell for bankroll, sessions, and study"
++        storagePrefix="oddengine:poker"
++      />
++
++      <div className="grid cols-3">
++        <div className="card">
++          <div className="h">Poker panel restored</div>
++          <div className="sub">This puts Poker back into the registry and sidebar without touching any working panel flows.</div>
++          <div className="small mt-4" style={{ opacity: 0.88 }}>
++            Use this as the safe shell while the fuller Poker feature set gets added back in later.
++          </div>
++        </div>
++
++        <div className="card">
++          <div className="h">Session lane</div>
++          <div className="sub">Track table focus, stake, stop-loss, and quick notes here in a later pass.</div>
++          <div className="cluster wrap mt-4">
++            <span className="badge">♠️ Restored</span>
++            <span className="badge">💵 Bankroll-ready</span>
++            <span className="badge">🧠 Study-ready</span>
++          </div>
++        </div>
++
++        <div className="card">
++          <div className="h">Why this is safe</div>
++          <div className="sub">No rewrites. No sidebar overhaul. Just the missing panel added back into the same panel system the rest of the OS already uses.</div>
++        </div>
++      </div>
++    </div>
++  );
++}

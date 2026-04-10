@@ -1,0 +1,277 @@
+{
+  "id": "dea953db-91c4-4bff-a796-89c2a207b5ac",
+  "createdAt": 1775702869676,
+  "updatedAt": 1775702869694,
+  "status": "published",
+  "title": "Neon Heartline",
+  "type": "music",
+  "publishMode": "assisted",
+  "autoPublish": true,
+  "outputRoot": "neon-heartline-dea953",
+  "handoff": {
+    "generatedAt": 1775702220493,
+    "projectId": "5a28bf26fe81f19d6ff76308",
+    "title": "Neon Heartline",
+    "type": "music",
+    "finalOutput": "Release: Neon Heartline\n\nLyrics\nVerse\nWe chase the signal through the dark tonight\nNeon Heartline in the distance, glowing neon bright\nAn emotional anthem about rising through the dark and building a brighte\nWe keep the fire alive, we keep the engine humming\n\nPre-Chorus\nHold the line, let the pressure rise\nEvery dream is a spark in disguise\n\nChorus\nNeon Heartline, we light it up\nTurn the low tide into enough\nFrom the silence into the flame\nWe build the future, we call your name\n\nVerse\nWe chase the signal through the dark tonight\nNeon Heartline in the distance, glowing neon bright\nAn emotional anthem about rising through the dark and building a brighte\nWe keep the fire alive, we keep the engine humming\n\nChorus\nNeon Heartline, we light it up\nTurn the low tide into enough\nFrom the silence into the flame\nWe build the future, we call your name\n\nBridge\nemotional, triumphant, modern hearts, steel nerves, midnight sky\nWe fall, we learn, we multiply\n\nChorus\nNeon Heartline, we light it up\nTurn the low tide into enough\nFrom the silence into the flame\nWe build the future, we call your name\n\nArrangement\nGenre: cinematic pop\nBPM: 112\nKey: A minor\nVibe: emotional, triumphant, modern\nMode: song\nVocal profile: male\nChorus strength: 80%\nLength target: 150s\nStructure: intro → verse → pre-chorus → chorus → verse → chorus → bridge → chorus → outro\n\nRender Brief\nProduce a full song in the style lane of cinematic pop.\nTarget BPM 112, key A minor, vibe emotional, triumphant, modern.\nVocal profile: male. Chorus strength 80%.\nBuild a release-ready master, 15s teaser, 30s hook cut, and cover art brief.",
+    "artifactCount": 10,
+    "bundleName": "neon-heartline-music-pack",
+    "renderLab": {
+      "primaryBrief": "Produce a full song in the style lane of cinematic pop.\nTarget BPM 112, key A minor, vibe emotional, triumphant, modern.\nVocal profile: male. Chorus strength 80%.\nBuild a release-ready master, 15s teaser, 30s hook cut, and cover art brief.",
+      "visualBrief": "Create cover art and short-form visual loop for Neon Heartline.",
+      "audioBrief": "Create full mix, master, instrumental, acapella, and 15s/30s promo cuts for Neon Heartline.",
+      "videoBrief": "Create looping visualizer and vertical promo snippets for Neon Heartline.",
+      "script": "Verse\nWe chase the signal through the dark tonight\nNeon Heartline in the distance, glowing neon bright\nAn emotional anthem about rising through the dark and building a brighte\nWe keep the fire alive, we keep the engine humming\n\nPre-Chorus\nHold the line, let the pressure rise\nEvery dream is a spark in disguise\n\nChorus\nNeon Heartline, we light it up\nTurn the low tide into enough\nFrom the silence into the flame\nWe build the future, we call your name\n\nVerse\nWe chase the signal through the dark tonight\nNeon Heartline in the distance, glowing neon bright\nAn emotional anthem about rising through the dark and building a brighte\nWe keep the fire alive, we keep the engine humming\n\nChorus\nNeon Heartline, we light it up\nTurn the low tide into enough\nFrom the silence into the flame\nWe build the future, we call your name\n\nBridge\nemotional, triumphant, modern hearts, steel nerves, midnight sky\nWe fall, we learn, we multiply\n\nChorus\nNeon Heartline, we light it up\nTurn the low tide into enough\nFrom the silence into the flame\nWe build the future, we call your name",
+      "requestedAssets": [
+        "song-master.wav",
+        "instrumental.wav",
+        "acapella.wav",
+        "cover-art.png",
+        "vertical-teaser.mp4",
+        "lyric-video.mp4"
+      ]
+    },
+    "distribution": {
+      "hooks": [
+        "Neon Heartline — chorus hook for TikTok/Shorts",
+        "Neon Heartline — emotional 15 second teaser",
+        "Neon Heartline — punchy release-day callout"
+      ],
+      "captions": [
+        "New drop: Neon Heartline. Built inside FairlyOdd Music Lab.",
+        "Neon Heartline is live. Save it, share it, and run it back."
+      ],
+      "hashtags": [
+        "#newmusic",
+        "#oddengine",
+        "#indieartist",
+        "#musiclab",
+        "#release"
+      ],
+      "targets": [
+        "youtube",
+        "tiktok",
+        "instagram",
+        "gumroad",
+        "local"
+      ],
+      "checklist": [
+        "Master approved",
+        "Metadata completed",
+        "Cover art approved",
+        "Promo cuts exported",
+        "Publisher queue ready"
+      ],
+      "monetization": "Release single, short-form promo clips, lyric visualizer, Gumroad stem pack, and future subscription drops."
+    },
+    "music": {
+      "lyrics": "Verse\nWe chase the signal through the dark tonight\nNeon Heartline in the distance, glowing neon bright\nAn emotional anthem about rising through the dark and building a brighte\nWe keep the fire alive, we keep the engine humming\n\nPre-Chorus\nHold the line, let the pressure rise\nEvery dream is a spark in disguise\n\nChorus\nNeon Heartline, we light it up\nTurn the low tide into enough\nFrom the silence into the flame\nWe build the future, we call your name\n\nVerse\nWe chase the signal through the dark tonight\nNeon Heartline in the distance, glowing neon bright\nAn emotional anthem about rising through the dark and building a brighte\nWe keep the fire alive, we keep the engine humming\n\nChorus\nNeon Heartline, we light it up\nTurn the low tide into enough\nFrom the silence into the flame\nWe build the future, we call your name\n\nBridge\nemotional, triumphant, modern hearts, steel nerves, midnight sky\nWe fall, we learn, we multiply\n\nChorus\nNeon Heartline, we light it up\nTurn the low tide into enough\nFrom the silence into the flame\nWe build the future, we call your name",
+      "arrangement": "Genre: cinematic pop\nBPM: 112\nKey: A minor\nVibe: emotional, triumphant, modern\nMode: song\nVocal profile: male\nChorus strength: 80%\nLength target: 150s\nStructure: intro → verse → pre-chorus → chorus → verse → chorus → bridge → chorus → outro",
+      "bpm": "112",
+      "key": "A minor",
+      "vibe": "emotional, triumphant, modern",
+      "genre": "cinematic pop",
+      "vocalProfile": "male",
+      "chorusStrength": 80,
+      "structure": [
+        "intro",
+        "verse",
+        "pre-chorus",
+        "chorus",
+        "verse",
+        "chorus",
+        "bridge",
+        "chorus",
+        "outro"
+      ],
+      "songLengthSec": 150
+    }
+  },
+  "summary": {
+    "requestedAssets": [
+      "song-master.wav",
+      "instrumental.wav",
+      "acapella.wav",
+      "cover-art.png",
+      "vertical-teaser.mp4",
+      "lyric-video.mp4"
+    ],
+    "targets": [
+      "youtube",
+      "tiktok",
+      "instagram",
+      "gumroad",
+      "local"
+    ]
+  },
+  "providers": {
+    "image": {
+      "enabled": true,
+      "mode": "webhook",
+      "endpoint": "",
+      "model": "",
+      "healthPath": "/health",
+      "timeoutMs": 30000,
+      "workflow": "",
+      "voice": ""
+    },
+    "audio": {
+      "enabled": true,
+      "mode": "webhook",
+      "endpoint": "",
+      "model": "",
+      "healthPath": "/health",
+      "timeoutMs": 45000,
+      "workflow": "",
+      "voice": ""
+    },
+    "video": {
+      "enabled": true,
+      "mode": "webhook",
+      "endpoint": "",
+      "model": "",
+      "healthPath": "/health",
+      "timeoutMs": 60000,
+      "workflow": "",
+      "voice": ""
+    }
+  },
+  "workers": [
+    {
+      "id": "manifest",
+      "label": "Build studio manifest",
+      "kind": "packaging",
+      "status": "completed",
+      "outputs": [
+        "manifests/studio-handoff.json",
+        "manifests/render-plan.json",
+        "manifests/provider-bridge.json"
+      ],
+      "startedAt": 1775702869684,
+      "completedAt": 1775702869687
+    },
+    {
+      "id": "audio",
+      "label": "Audio / music worker",
+      "kind": "audio",
+      "status": "completed",
+      "outputs": [
+        "audio/lyrics.md",
+        "audio/production-notes.md",
+        "audio/cover-brief.md",
+        "provider/audio/audio-response.json"
+      ],
+      "startedAt": 1775702869687,
+      "completedAt": 1775702869688
+    },
+    {
+      "id": "social",
+      "label": "Social distribution worker",
+      "kind": "social",
+      "status": "completed",
+      "outputs": [
+        "social/captions.md",
+        "social/hooks.md",
+        "social/hashtags.txt",
+        "social/publish-plan.md"
+      ],
+      "startedAt": 1775702869689,
+      "completedAt": 1775702869690
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "cover-brief.md",
+      "path": "audio/cover-brief.md",
+      "bytes": 63,
+      "updatedAt": 1775702869688.8826
+    },
+    {
+      "name": "lyrics.md",
+      "path": "audio/lyrics.md",
+      "bytes": 1618,
+      "updatedAt": 1775702869687.8826
+    },
+    {
+      "name": "production-notes.md",
+      "path": "audio/production-notes.md",
+      "bytes": 91,
+      "updatedAt": 1775702869688.8826
+    },
+    {
+      "name": "provider-bridge.json",
+      "path": "manifests/provider-bridge.json",
+      "bytes": 566,
+      "updatedAt": 1775702869687.8826
+    },
+    {
+      "name": "render-plan.json",
+      "path": "manifests/render-plan.json",
+      "bytes": 939,
+      "updatedAt": 1775702869686.6616
+    },
+    {
+      "name": "studio-handoff.json",
+      "path": "manifests/studio-handoff.json",
+      "bytes": 6451,
+      "updatedAt": 1775702869686.6616
+    },
+    {
+      "name": "publish-handoff.json",
+      "path": "publish/publish-handoff.json",
+      "bytes": 145,
+      "updatedAt": 1775702869690.8828
+    },
+    {
+      "name": "publish-jobs.json",
+      "path": "publish/publish-jobs.json",
+      "bytes": 2096,
+      "updatedAt": 1775702869694.0298
+    },
+    {
+      "name": "release-summary.json",
+      "path": "publish/release-summary.json",
+      "bytes": 463,
+      "updatedAt": 1775702869690.8828
+    },
+    {
+      "name": "captions.md",
+      "path": "social/captions.md",
+      "bytes": 125,
+      "updatedAt": 1775702869689.8828
+    },
+    {
+      "name": "hashtags.txt",
+      "path": "social/hashtags.txt",
+      "bytes": 52,
+      "updatedAt": 1775702869689.8828
+    },
+    {
+      "name": "hooks.md",
+      "path": "social/hooks.md",
+      "bytes": 146,
+      "updatedAt": 1775702869689.8828
+    },
+    {
+      "name": "publish-plan.md",
+      "path": "social/publish-plan.md",
+      "bytes": 180,
+      "updatedAt": 1775702869689.8828
+    }
+  ],
+  "log": [
+    "2026-04-09T02:47:49.693Z assisted publish handoff prepared",
+    "2026-04-09T02:47:49.693Z 5 publish jobs prepared",
+    "2026-04-09T02:47:49.691Z release package assembled",
+    "2026-04-09T02:47:49.690Z all workers completed",
+    "2026-04-09T02:47:49.690Z worker complete: Social distribution worker",
+    "2026-04-09T02:47:49.689Z worker start: Social distribution worker",
+    "2026-04-09T02:47:49.688Z worker complete: Audio / music worker",
+    "2026-04-09T02:47:49.688Z provider bridge skipped: Audio / music worker (webhook)",
+    "2026-04-09T02:47:49.687Z worker start: Audio / music worker",
+    "2026-04-09T02:47:49.687Z worker complete: Build studio manifest",
+    "2026-04-09T02:47:49.684Z worker start: Build studio manifest",
+    "2026-04-09T02:47:49.684Z starting worker execution",
+    "2026-04-09T02:47:49.676Z received studio handoff"
+  ]
+}

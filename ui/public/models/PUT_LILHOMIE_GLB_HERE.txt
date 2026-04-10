@@ -1,0 +1,11 @@
+Drop your real rigged companion file here as: lilhomie.glb
+
+Recommended rig pipeline for this pass:
+- Rigged humanoid exported from Blender as glTF binary (.glb)
+- Animation clips: Idle, Walk, Talk, Listen
+- Optional morph targets: mouthOpen / jawOpen and blink / eyeClose
+- If your clip names differ, edit lilhomie.manifest.json instead of code
+
+Default live paths used by the app:
+- /models/lilhomie.glb
+- /models/lilhomie.manifest.json

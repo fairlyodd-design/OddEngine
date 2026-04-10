@@ -1,0 +1,35 @@
+{
+  "title": "Test Song",
+  "createdAt": 1775724547439,
+  "sourceRun": {
+    "title": "Test Song",
+    "runRoot": "/mnt/data/oe277/backend_scaffold/backend_scaffold_data/music_bridge/outputs/test-song-2f553b48",
+    "ts": 1775724546798,
+    "engine": "stub",
+    "files": [
+      "cover-art.svg",
+      "drums.wav",
+      "instrumental.wav",
+      "lyric-video.svg",
+      "main.wav",
+      "manifest.json",
+      "request.json",
+      "response.json",
+      "vocals.wav"
+    ]
+  },
+  "files": [
+    "cover-art.svg",
+    "lyric-video.svg",
+    "metadata.json",
+    "release-checklist.md",
+    "social-caption.txt",
+    "source-manifest.json",
+    "source-response.json",
+    "stems_drums.wav",
+    "stems_instrumental.wav",
+    "stems_vocals.wav",
+    "track.wav"
+  ],
+  "releaseRoot": "/mnt/data/oe277/backend_scaffold/backend_scaffold_data/music_bridge/final_releases/test-song-547403"
+}

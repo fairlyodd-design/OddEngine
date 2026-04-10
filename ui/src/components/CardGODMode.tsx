@@ -70,6 +70,25 @@ function deriveStableCardId(panelId: string, card: HTMLElement, index: number, u
   return id;
 }
 
+
+
+function isNestedInsideLockedArea(card: HTMLElement) {
+  return !!card.closest('[data-no-drag="true"], [data-no-snap="true"]');
+}
+
+function getManagedCards(root: HTMLElement, panelId: string) {
+  const tradingAllowedIds = new Set(["trading_chart", "trading_source", "trading_contracts", "trading_ticket", "trading_plan", "trading_drawer"]);
+  const all = Array.from(root.querySelectorAll<HTMLElement>(".card"));
+  return all
+    .filter((c) => !c.closest(".rail") && !c.closest(".activityRail"))
+    .filter((c) => !isNestedInsideLockedArea(c))
+    .filter((c) => {
+      if (panelId === "Trading") return tradingAllowedIds.has(c.id);
+      if (c.dataset.cardRoot === "true") return true;
+      if (c.id) return true;
+      return false;
+    });
+}
 // FairlyGOD Mode: make *all* panel cards shrinkable + movable, without
 // refactoring every panel file. DOM enhancer scoped to .panelMain.
 export default function CardGODMode({ panelId }: { panelId: string }) {
@@ -98,6 +117,23 @@ export default function CardGODMode({ panelId }: { panelId: string }) {
       ((loadJSON<GlobalSetsStore>(globalSetsKey, { sets: {} }) as GlobalSetsStore) || { sets: {} }) as GlobalSetsStore;
 
     const persistLayout = () => saveJSON(layoutKey, layout);
+
+    // Trading got noisy with old floating/card snapshots; reset once into a clean baseline.
+    const tradingHotfixKey = `oddengine:godlayout:trading-hotfix:v10.24.4`;
+    if (panelId === "Trading" && localStorage.getItem(tradingHotfixKey) !== "1") {
+      try {
+        localStorage.setItem(tradingHotfixKey, "1");
+        root.dataset.godReset = String(Date.now());
+      } catch {}
+    }
+
+    const dragScopeHotfixKey = `oddengine:godlayout:drag-scope-hotfix:v10.25.1:${panelId}`;
+    if (localStorage.getItem(dragScopeHotfixKey) !== "1") {
+      try {
+        localStorage.setItem(dragScopeHotfixKey, "1");
+        root.dataset.godReset = String(Date.now());
+      } catch {}
+    }
 
     // A small toolbar that lives at the top-right of each panel.
     // Provides: Grid toggle + Lock layout + Presets + Reset + Cross-panel cloning + Global preset sets.
@@ -313,9 +349,7 @@ export default function CardGODMode({ panelId }: { panelId: string }) {
               return;
             }
 
-            const cards = Array.from(root.querySelectorAll<HTMLElement>(".card")).filter(
-              (c) => !c.closest(".rail") && !c.closest(".activityRail")
-            );
+            const cards = getManagedCards(root, panelId);
             const used = new Set<string>();
             cards.forEach((card, idx) => {
               // Ensure stable id for layout keys (prevents drift when card order changes)
@@ -341,9 +375,7 @@ export default function CardGODMode({ panelId }: { panelId: string }) {
               return;
             }
 
-            const cards = Array.from(root.querySelectorAll<HTMLElement>(".card")).filter(
-              (c) => !c.closest(".rail") && !c.closest(".activityRail")
-            );
+            const cards = getManagedCards(root, panelId);
             const used = new Set<string>();
             const template: Persisted[] = cards.map((card, idx) => {
               // Ensure stable id for layout keys (prevents drift when card order changes)
@@ -360,9 +392,7 @@ export default function CardGODMode({ panelId }: { panelId: string }) {
             const current = (bar!.querySelector<HTMLSelectElement>('select[data-act="setSelect"]')?.value || "").trim();
             const setName = current || window.prompt("Set name?", "Morning Routine") || "";
             if (!setName) return;
-            const cards = Array.from(root.querySelectorAll<HTMLElement>(".card")).filter(
-              (c) => !c.closest(".rail") && !c.closest(".activityRail")
-            );
+            const cards = getManagedCards(root, panelId);
             const used = new Set<string>();
             const template: Persisted[] = cards.map((card, idx) => {
               // Ensure stable id for layout keys (prevents drift when card order changes)
@@ -388,9 +418,7 @@ export default function CardGODMode({ panelId }: { panelId: string }) {
               window.alert("That set doesn't have a layout for this panel yet. Use Save→Set from this panel first.");
               return;
             }
-            const cards = Array.from(root.querySelectorAll<HTMLElement>(".card")).filter(
-              (c) => !c.closest(".rail") && !c.closest(".activityRail")
-            );
+            const cards = getManagedCards(root, panelId);
             cards.forEach((card, idx) => {
               // Ensure stable id for layout keys (prevents drift when card order changes)
         deriveStableCardId(panelId, card, idx, usedIds);
@@ -487,9 +515,7 @@ export default function CardGODMode({ panelId }: { panelId: string }) {
 
     const applyCompactMode = () => {
       const keep = Math.max(1, Math.min(12, layout.compactKeep || 3));
-      const cards = Array.from(root.querySelectorAll<HTMLElement>(".card")).filter(
-        (c) => !c.closest(".rail") && !c.closest(".activityRail")
-      );
+      const cards = getManagedCards(root, panelId);
 
       // Smart compact mode: keep open
       //  - pinned cards
@@ -537,9 +563,7 @@ export default function CardGODMode({ panelId }: { panelId: string }) {
 
     const attach = () => {
       const usedIds = new Set<string>();
-      const cards = Array.from(root.querySelectorAll<HTMLElement>(".card"))
-        // Avoid injecting into nested rails/mini widgets that already have controls
-        .filter((c) => !c.closest(".rail") && !c.closest(".activityRail"));
+      const cards = getManagedCards(root, panelId);
 
       cards.forEach((card, idx) => {
         // Skip if already processed or if it's a CardFrame (it has its own controls)
@@ -569,31 +593,10 @@ export default function CardGODMode({ panelId }: { panelId: string }) {
         const computed = window.getComputedStyle(card);
         if (computed.position === "static") card.style.position = "relative";
 
+        // No floating overlay buttons. Interaction stays on the header only.
         const controls = document.createElement("div");
         controls.className = "godCardControls";
-        controls.innerHTML = `
-          <button class="godBtn godIconBtn" data-act="shrink" title="Shrink / collapse">—</button>
-          <button class="godBtn godIconBtn" data-act="move" title="Move / float">✥</button>
-          <button class="godBtn godBtnAccent godPinBtn godIconBtn" data-act="pin" title="Pin">📌</button>
-        `;
-
-        const widgetHeader = card.querySelector<HTMLElement>(".widgetHeader");
-        const panelChromeRow = card.querySelector<HTMLElement>(".panelChromeActions");
-        const headerRight = widgetHeader?.querySelector<HTMLElement>(".widgetHeaderRight");
-        if (panelChromeRow) {
-          controls.classList.add("godCardControlsInline", "godCardControlsHeader");
-          panelChromeRow.prepend(controls);
-        } else if (widgetHeader) {
-          const mount = headerRight || document.createElement("div");
-          if (!headerRight) {
-            mount.className = "widgetHeaderRight";
-            widgetHeader.appendChild(mount);
-          }
-          controls.classList.add("godCardControlsInline", "godCardControlsHeader");
-          mount.prepend(controls);
-        } else {
-          card.appendChild(controls);
-        }
+        controls.setAttribute("aria-hidden", "true");
 
         // QoL: double‑click the card header to collapse/expand (fast declutter).
         const headerToggleEl =
@@ -663,9 +666,6 @@ export default function CardGODMode({ panelId }: { panelId: string }) {
           const collapsed = card.classList.contains("godCollapsed");
           const floating = card.classList.contains("godFloating");
           const rect = card.getBoundingClientRect();
-          // If user is grabbing the native resize handle (bottom-right), don't start a drag.
-          const edge = 18;
-          if (e.clientX > rect.right - edge && e.clientY > rect.bottom - edge) return;
           const rootRect = root.getBoundingClientRect();
           const next: Persisted = {
             collapsed,
@@ -735,40 +735,12 @@ export default function CardGODMode({ panelId }: { panelId: string }) {
           persist();
         };
 
-        // Click handlers
-        controls.addEventListener("click", (e) => {
-          const target = e.target as HTMLElement;
-          const act = target.getAttribute("data-act");
-          if (!act) return;
-          e.preventDefault();
-          e.stopPropagation();
-          if (layout.locked && act === "move") return;
-          if (act === "shrink") {
-            const collapsed = !card.classList.contains("godCollapsed");
-            if (collapsed) card.classList.add("godCollapsed");
-            else card.classList.remove("godCollapsed");
-            persist();
-            applyPersisted();
-          }
-          if (act === "move") {
-            const floating = !card.classList.contains("godFloating");
-            if (floating) card.classList.add("godFloating");
-            else card.classList.remove("godFloating");
-            persist();
-            applyPersisted();
-          }
-          if (act === "pin") {
-            persisted.pinned = !persisted.pinned;
-            persist();
-            applyPersisted();
-          }
-        });
+        // Overlay controls removed on purpose to keep panels clean and non-blocking.
 
         // Track recent interaction so Smart Compact Mode can keep active cards open.
         let lastTouchAt = 0;
         card.addEventListener("pointerdown", (ev) => {
           const t = ev.target as HTMLElement;
-          if (t.closest(".godCardControls")) return;
           if (t.closest("button")) return;
           if (t.closest("input") || t.closest("textarea") || t.closest("select")) return;
           const now = Date.now();
@@ -782,35 +754,56 @@ export default function CardGODMode({ panelId }: { panelId: string }) {
           } catch {}
         });
 
-        // Drag start: click & drag anywhere on card header zone.
-        card.addEventListener("mousedown", (e) => {
-          if (!card.classList.contains("godFloating")) return;
-          if (layout.locked) return;
-          const target = e.target as HTMLElement;
-          if (target.closest("button")) return;
-          // don't interfere with text inputs
-          if (target.closest("input") || target.closest("textarea") || target.closest("select")) return;
-          const rect = card.getBoundingClientRect();
-          const rootRect = root.getBoundingClientRect();
-          drag = { sx: e.clientX, sy: e.clientY, x: rect.left - rootRect.left, y: rect.top - rootRect.top };
-          guides.gx.style.opacity = "1";
-          guides.gy.style.opacity = "1";
-          window.addEventListener("mousemove", onMove);
-          window.addEventListener("mouseup", onUp);
-        });
+        // Drag start: header-only. Starting a drag on a docked card auto-undocks it.
+        const dragHandle = headerToggleEl;
+        if (dragHandle) {
+          dragHandle.style.cursor = layout.locked ? "default" : "grab";
+          dragHandle.setAttribute("data-drag-handle", "true");
+          dragHandle.addEventListener("mousedown", (e) => {
+            if (layout.locked) return;
+            const target = e.target as HTMLElement;
+            if (target.closest("button, input, textarea, select, option, a, [contenteditable], [data-no-drag=\"true\"], [data-no-snap=\"true\"]")) return;
+            const rect = card.getBoundingClientRect();
+            const edge = 18;
+            if (e.clientX > rect.right - edge && e.clientY > rect.bottom - edge) return;
+            if (!card.classList.contains("godFloating")) {
+              const rootRect = root.getBoundingClientRect();
+              persisted.floating = true;
+              persisted.x = rect.left - rootRect.left;
+              persisted.y = rect.top - rootRect.top;
+              persisted.w = rect.width;
+              persisted.h = rect.height;
+              applyPersisted();
+            }
+            const rootRect = root.getBoundingClientRect();
+            const nextRect = card.getBoundingClientRect();
+            drag = { sx: e.clientX, sy: e.clientY, x: nextRect.left - rootRect.left, y: nextRect.top - rootRect.top };
+            guides.gx.style.opacity = "1";
+            guides.gy.style.opacity = "1";
+            window.addEventListener("mousemove", onMove);
+            window.addEventListener("mouseup", onUp);
+          });
+        }
 
-        // Persist size changes when user resizes.
+        // Persist size changes when user resizes, but throttle to avoid Trading chain thrash.
+        let resizePersistRaf = 0;
+        const scheduleResizePersist = () => {
+          if (resizePersistRaf) return;
+          resizePersistRaf = window.requestAnimationFrame(() => {
+            resizePersistRaf = 0;
+            if (layout.locked) return;
+            if (card.classList.contains("godCollapsed")) return;
+            if (card.classList.contains("godFloating")) {
+              persist();
+              return;
+            }
+            if (card.style.width || card.style.height) {
+              persist();
+            }
+          });
+        };
         const ro = new ResizeObserver(() => {
-          if (layout.locked) return;
-          if (card.classList.contains("godCollapsed")) return;
-          if (card.classList.contains("godFloating")) {
-            persist();
-            return;
-          }
-          // Docked: only persist when the user resized (inline width/height set).
-          if (card.style.width || card.style.height) {
-            persist();
-          }
+          scheduleResizePersist();
         });
         ro.observe(card);
 
@@ -875,9 +868,7 @@ export default function CardGODMode({ panelId }: { panelId: string }) {
 
           // Also capture a template layout by card order for cloning/sets.
           try {
-            const cards = Array.from(root.querySelectorAll<HTMLElement>(".card")).filter(
-              (c) => !c.closest(".rail") && !c.closest(".activityRail")
-            );
+            const cards = getManagedCards(root, panelId);
             const used = new Set<string>();
             const template: Persisted[] = cards.map((card, idx) => {
               // Ensure stable id for layout keys (prevents drift when card order changes)

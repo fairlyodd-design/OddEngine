@@ -1,0 +1,1 @@
+Added missing ui/src/lib/householdSavings.ts from the GitHub panel dependency so GroceryMeals can import and render.

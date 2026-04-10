@@ -1,0 +1,24 @@
+@echo off
+echo ========================================
+echo   ODDENGINE FULL SYSTEM BOOT 🚀
+echo ========================================
+
+REM Kill any old stuck processes (clean start)
+echo Cleaning old processes...
+taskkill /IM node.exe /F >nul 2>&1
+
+REM Start Backend
+echo Starting Backend...
+start cmd /k "cd /d C:\OddEngine\backend_scaffold && node render-backend.mjs"
+
+REM Small delay to let backend boot
+timeout /t 3 >nul
+
+REM Start Desktop (UI + Electron)
+echo Starting UI + Desktop...
+start cmd /k "cd /d C:\OddEngine && npm run dev:desktop"
+
+echo ========================================
+echo   SYSTEM BOOTED ✅
+echo ========================================
+pause

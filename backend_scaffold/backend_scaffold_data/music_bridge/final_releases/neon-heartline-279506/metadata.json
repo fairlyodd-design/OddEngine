@@ -1,0 +1,29 @@
+{
+  "title": "Neon Heartline",
+  "createdAt": 1775720279517,
+  "sourceRun": {
+    "title": "Neon Heartline",
+    "runRoot": "C:\\OddEngine\\backend_scaffold\\backend_scaffold_data\\music_bridge\\outputs\\neon-heartline-fa358b9c",
+    "ts": 1775720261629,
+    "engine": "python-adapter",
+    "files": [
+      "cover-art.svg",
+      "drums.wav",
+      "instrumental.wav",
+      "lyric-video.svg",
+      "main.wav",
+      "manifest.json",
+      "request.json",
+      "response.json",
+      "vocals.wav"
+    ]
+  },
+  "files": [
+    "cover-art.svg",
+    "lyric-video.svg",
+    "stems_drums.wav",
+    "stems_instrumental.wav",
+    "stems_vocals.wav",
+    "track.wav"
+  ]
+}

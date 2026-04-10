@@ -1,0 +1,40 @@
+{
+  "jobId": "711224d5-2f7a-4c88-8f28-dd5a88293d4d",
+  "title": "Crazy fever dream about weed and the las",
+  "type": "book",
+  "workers": [
+    {
+      "id": "manifest",
+      "label": "Build studio manifest",
+      "kind": "packaging",
+      "outputs": [
+        "manifests/studio-handoff.json",
+        "manifests/render-plan.json",
+        "manifests/provider-bridge.json"
+      ]
+    },
+    {
+      "id": "book",
+      "label": "Book worker",
+      "kind": "book",
+      "outputs": [
+        "book/manuscript.md",
+        "book/launch-blurb.md",
+        "book/distribution-checklist.md"
+      ]
+    },
+    {
+      "id": "social",
+      "label": "Social distribution worker",
+      "kind": "social",
+      "outputs": [
+        "social/captions.md",
+        "social/hooks.md",
+        "social/hashtags.txt",
+        "social/publish-plan.md"
+      ]
+    }
+  ],
+  "publishMode": "assisted",
+  "autoPublish": true
+}

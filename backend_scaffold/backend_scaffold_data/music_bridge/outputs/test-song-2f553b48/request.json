@@ -1,0 +1,18 @@
+{
+  "title": "Test Song",
+  "prompt": "A triumphant cinematic pop song that rises from darkness into hope.",
+  "bpm": 118,
+  "key": "A minor",
+  "vibe": "emotional, triumphant, modern",
+  "genre": "cinematic pop",
+  "lyrics": "",
+  "arrangement": "",
+  "songLengthSec": 150,
+  "sectionBars": {
+    "intro": 2,
+    "verse": 4,
+    "chorus": 4,
+    "outro": 2
+  },
+  "enableBarkOverlay": true
+}

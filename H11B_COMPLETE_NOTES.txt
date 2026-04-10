@@ -1,0 +1,5 @@
+v10.26.20h11b_GlobalPanelGuardrailsPass COMPLETE FULL SOURCE
+- Full project zip based on uploaded design-system baseline
+- GroceryMeals normalizeItems fixed to handle strings safely and avoid regex/parser issues
+- ErrorBoundary resets on panel change
+- App.tsx includes global error/unhandled rejection console guards

@@ -1,0 +1,21 @@
+v10.26.20h7e_HomieContinuousConversationAndPresencePass
+
+Built against the source zip available in this chat:
+OddEngine_v10.24.0_DesignSystemLayout_NoInlineSpacing.zip
+
+What was added:
+- Continuous conversation loop toggle for Homie
+- Auto-resume after replies
+- Barge-in toggle so user speech can interrupt TTS
+- External/local bridge auto-stop on silence (client-side silence watcher)
+- Spoken companion routing to local Ollama chat for non-command voice turns
+- Recent voice flow mini-log in Homie UI
+- Preferences controls for loop / auto-resume / barge-in / silence stop / max clip
+
+Main files changed:
+- ui/src/components/HomieBuddy.tsx
+- ui/src/lib/prefs.ts
+- ui/src/panels/Preferences.tsx
+
+Important note:
+This pass was prepared without the exact v10.26.20h7d source tree, so it is a best-effort drop-in built on the latest source bundle available in this conversation.

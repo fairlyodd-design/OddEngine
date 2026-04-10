@@ -1,0 +1,14 @@
+v10.26.20h11_CleanFoundationHomie
+
+What changed:
+- Reset App shell to a simpler clean-foundation layout
+- Removed right-side activity rail and global overlay clutter from shell
+- Kept left navigation + single main panel focus
+- Fixed Plugins.tsx JSX syntax error (extra closing </div>)
+- Added Poker panel back into app + brain registry
+- Seeded default pinned panels: Home, Trading, GroceryMeals, Poker, FamilyBudget, Homie
+- Kept baseline project structure intact for easier recovery
+
+Intent:
+This is a stabilization foundation, not a giant feature pile-on.
+The goal is one rail, one header, one active panel, less visual duplication.

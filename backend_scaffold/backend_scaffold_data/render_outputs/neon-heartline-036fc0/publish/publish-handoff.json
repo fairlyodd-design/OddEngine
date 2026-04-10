@@ -1,0 +1,11 @@
+{
+  "targets": [
+    "youtube",
+    "tiktok",
+    "instagram",
+    "gumroad",
+    "local"
+  ],
+  "publishMode": "assisted",
+  "status": "ready"
+}

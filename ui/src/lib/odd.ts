@@ -101,6 +101,16 @@ type Odd = {
     error?: string;
   }>;
 
+  getRuntimeStats: () => Promise<{
+    ok: boolean;
+    cpu?: { percentUsed: number; cores?: number };
+    memory?: { total: number; free: number; used: number; percentUsed: number };
+    network?: { hostname?: string; primaryIp?: string; interfaceName?: string };
+    storage?: { path?: string; total: number; free: number; used: number; percentUsed: number };
+    timestamp?: number;
+    error?: string;
+  }>;
+
   updateGrowBundle: () => Promise<{ ok: boolean; path?: string; updated?: boolean; version?: string | null; error?: string }>;
   growPlannerHandoff: (payload: any) => Promise<{ ok: boolean; path?: string; handoffPath?: string; roomsUpdated?: number; error?: string }>;
 

@@ -1,0 +1,35 @@
+v10.26.20h8c_HomePanelMasterSetupAndOperatorDashboardPass
+
+What this pass targets
+- Turns Home into a real operator command page instead of a mostly decorative launcher.
+- Preserves the current layout while wiring more of the cards to existing local/live OS state.
+
+Key changes
+- Mission Control summary card now pulls from top priorities and action recommendations.
+- Greeting card now uses the live Mission Control digest.
+- Search apps upgraded into a launcher for:
+  - panel routing
+  - command routing
+  - recent launches
+  - suggested actions
+- System Status now reflects:
+  - panel health average
+  - online/offline state
+  - voice engine/bridge readiness snapshot
+  - queue depth
+  - operator mode
+  - market session state
+- Storage now shows local artifact buckets in addition to browser/electron storage estimate.
+- Recent activity lane is more resume-oriented.
+- Added FairlyGOD operator deck on Home for:
+  - ask/route/brief flows
+  - action queue shortcuts
+  - next-step execution
+
+Files changed
+- ui/src/panels/Home.tsx
+
+Notes
+- Built from the source zip available in this chat environment, using the h8b drop-in as the base.
+- This pass is local-first and reuses existing Mission Control / Brain / voice snapshot infrastructure.
+- CPU/RAM remain routed to future desktop-stat plumbing; this pass focuses on real existing data that already lives in the app.

@@ -1,0 +1,19 @@
+v10.26.20h8b_OMNIVERSECinematicOperatorPolishPass
+
+Scope:
+- whole-shell cinematic polish layer
+- unified chrome / controls / cards / shells / tables / bubbles
+- stronger FairlyOdd + Phoenix visual language
+- panel/widget header refinement
+- improved global spacing rhythm + control feel
+
+Files changed:
+- ui/src/styles.css
+- ui/src/App.tsx
+- ui/src/components/PanelHeader.tsx
+- ui/src/components/CardFrame.tsx
+
+Notes:
+- This is a visual/system polish pass built on the available drop-in source in chat.
+- Focus is shell cohesion and premium operator feel without changing core routing/behavior.
+- Existing Homie/bridge behavior should remain untouched.

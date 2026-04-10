@@ -1,0 +1,12 @@
+{
+  "title": "FairlyOdd render seed",
+  "kind": "video",
+  "provider": "odd-local-placeholder",
+  "prompt": "Stylized teaser trailer placeholder output.",
+  "payload": {
+    "aspectRatio": "16:9",
+    "durationSec": 30,
+    "fps": 24,
+    "quality": "draft"
+  }
+}

@@ -1,0 +1,11 @@
+v10.26.20h11a_PanelStabilityLockPass
+
+What was fixed:
+- GroceryMeals now sanitizes persisted local state on load
+- legacy object-shaped grocery items are converted to safe strings
+- coupon feed entries are sanitized before use
+- persist() now re-sanitizes before saving
+- protects against item.toLowerCase runtime crashes from old saved data
+
+Main file changed:
+- ui/src/panels/GroceryMeals.tsx

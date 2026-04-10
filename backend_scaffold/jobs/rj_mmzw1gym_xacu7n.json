@@ -1,0 +1,28 @@
+{
+  "id": "rj_mmzw1gym_xacu7n",
+  "title": "11g smoke local",
+  "kind": "video",
+  "provider": "odd-local-placeholder",
+  "prompt": "queue smoke",
+  "payload": {},
+  "status": "completed",
+  "progress": 1,
+  "createdAt": 1774070954014,
+  "updatedAt": 1774070959282,
+  "worker": {
+    "id": "local-placeholder-worker",
+    "name": "Local Placeholder Worker"
+  },
+  "output": {
+    "filename": "11g-smoke-local-rj_mmzw1gym_xacu7n.mp4",
+    "localPath": "/mnt/data/work11g/backend_scaffold/outputs/11g-smoke-local-rj_mmzw1gym_xacu7n.mp4",
+    "previewUrl": "/mnt/data/work11g/backend_scaffold/outputs/11g-smoke-local-rj_mmzw1gym_xacu7n.mp4",
+    "imported": true,
+    "importedAt": 1774070959178,
+    "importedInto": "Story Forge • Smoke",
+    "watchedAt": 1774070959282
+  },
+  "outputPath": "/mnt/data/work11g/backend_scaffold/outputs/11g-smoke-local-rj_mmzw1gym_xacu7n.mp4",
+  "outputUrl": "/mnt/data/work11g/backend_scaffold/outputs/11g-smoke-local-rj_mmzw1gym_xacu7n.mp4",
+  "completedAt": 1774070956818
+}

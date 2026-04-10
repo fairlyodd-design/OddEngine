@@ -1,0 +1,23 @@
+v10.25.4b_InternalWidgetSortableZonesHotfix
+
+What changed
+- Added a reusable SortableWidgetZone component for inner widget reordering.
+- Handle-only drag for inner widgets.
+- Flow-based sortable zones only (no absolute-position inner widgets, no snap/magnet).
+- Placeholder appears while dragging.
+- Persisted order per panel/zone in localStorage.
+- Wired into:
+  - Home: left rail widgets, bottom row widgets
+  - Writers Lounge: left rail widgets
+
+Files changed
+- ui/src/components/SortableWidgetZone.tsx
+- ui/src/panels/Home.tsx
+- ui/src/panels/Books.tsx
+- ui/src/styles.css
+- ui/src/lib/version.ts
+- ui/package.json
+
+Notes
+- This patch was built from the available source bundle in the workspace: OddEngine_v10.24.0_DesignSystemLayout_NoInlineSpacing.zip.
+- I could not run a full Vite production build in this environment because the bundle does not include installable node_modules and internet access is disabled, so dependency restoration was not possible here.

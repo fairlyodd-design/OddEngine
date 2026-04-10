@@ -1,0 +1,70 @@
+{
+  "name": "oddengine-v10",
+  "private": true,
+  "version": "10.21.6",
+  "description": "OddEngine v10.21.6 \u2014 Homie mascot (transparent memoji) + new skin option + one-time migration",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "postinstall": "npm --prefix ui install",
+    "dev:web": "npm --prefix ui run dev",
+    "build:web": "npm --prefix ui run build",
+    "preview:web": "npm --prefix ui run preview",
+    "dev:desktop": "node scripts/dev-desktop.mjs",
+    "desktop": "electron .",
+    "build:ui": "npm --prefix ui run build",
+    "dist:win": "npm run build:ui && electron-builder --win nsis",
+    "dist:portable": "npm run build:ui && electron-builder --win portable",
+    "dist:all": "npm run build:ui && electron-builder --win nsis portable"
+  },
+  "devDependencies": {
+    "electron": "^30.5.1",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.fairlyodd.oddengine",
+    "productName": "OddEngine",
+    "asar": true,
+    "files": [
+      "electron/**/*",
+      "ui/dist/**/*",
+      "plugins/**/*",
+      "voice_bridge/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "grow_os",
+        "to": "grow_os",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "OddEngine"
+    }
+  }
+}

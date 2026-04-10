@@ -1,0 +1,14 @@
+{
+  "title": "Adapter Test",
+  "runRoot": "/mnt/data/oddbg/src/backend_scaffold/backend_scaffold_data/music_bridge/outputs/adapter-test-6e399152",
+  "files": [
+    "cover-art.svg",
+    "drums.wav",
+    "instrumental.wav",
+    "lyric-video.svg",
+    "main.wav",
+    "request.json",
+    "vocals.wav"
+  ],
+  "updatedAt": 1775706334027
+}

@@ -1,0 +1,76 @@
+{
+  "id": "rj_mmzxwhm4_yxgwe5",
+  "title": "11j smoke render",
+  "kind": "video",
+  "provider": "odd-local-placeholder",
+  "prompt": "11j smoke",
+  "payload": {},
+  "status": "completed",
+  "progress": 1,
+  "createdAt": 1774074080812,
+  "updatedAt": 1774074083933,
+  "worker": {
+    "id": "local-placeholder-worker",
+    "name": "Local Placeholder Worker"
+  },
+  "output": {
+    "filename": "11j-smoke-render-rj_mmzxwhm4_yxgwe5.mp4",
+    "localPath": "/mnt/data/work11j/backend_scaffold/outputs/11j-smoke-render-rj_mmzxwhm4_yxgwe5.mp4",
+    "previewUrl": "/mnt/data/work11j/backend_scaffold/outputs/11j-smoke-render-rj_mmzxwhm4_yxgwe5.mp4",
+    "imported": true,
+    "importedAt": 1774074083923,
+    "importedInto": "11j smoke",
+    "watchedAt": 1774074083927,
+    "review": {
+      "decision": "approved",
+      "note": "Looks ready",
+      "reviewedAt": 1774074083930,
+      "reviewedBy": "11j smoke",
+      "summary": "Approved for the current pass."
+    },
+    "nextPass": {
+      "sourceJobId": "rj_mmzxwhm4_yxgwe5",
+      "sourceOutputTitle": "11j-smoke-render-rj_mmzxwhm4_yxgwe5.mp4",
+      "decision": "approved",
+      "createdAt": 1774074083930,
+      "checklist": [
+        "Lock 11j-smoke-render-rj_mmzxwhm4_yxgwe5.mp4 as the approved current pass.",
+        "Export the final Story Forge packet and screening notes.",
+        "Review release / publish / share prep before shipping."
+      ],
+      "rerenderNotes": [
+        "Looks ready"
+      ],
+      "prepSummary": "Approved output is ready for finale / release prep.",
+      "packetTitle": "Finale Packet • 11j-smoke-render-rj_mmzxwhm4_yxgwe5.mp4",
+      "readyForRender": false
+    },
+    "publishPacket": {
+      "title": "Publish Packet • 11j smoke",
+      "sourceJobId": "rj_mmzxwhm4_yxgwe5",
+      "sourceOutputTitle": "11j smoke render",
+      "approvedAt": 1774074083931,
+      "publishSummary": "Ready to release.",
+      "finalAnswer": "This is the release answer.",
+      "screeningNotes": [
+        "Watch ending beat"
+      ],
+      "exportTargets": [
+        {
+          "label": "Screening cut",
+          "format": "mp4"
+        }
+      ],
+      "launchChecklist": [
+        "Export packet",
+        "Screen it"
+      ],
+      "releaseLane": "screening + release lane",
+      "readyToPublish": true
+    }
+  },
+  "outputPath": "/mnt/data/work11j/backend_scaffold/outputs/11j-smoke-render-rj_mmzxwhm4_yxgwe5.mp4",
+  "outputUrl": "/mnt/data/work11j/backend_scaffold/outputs/11j-smoke-render-rj_mmzxwhm4_yxgwe5.mp4",
+  "completedAt": 1774074083614,
+  "workerMessage": "Publish packet ready: Publish Packet • 11j smoke"
+}

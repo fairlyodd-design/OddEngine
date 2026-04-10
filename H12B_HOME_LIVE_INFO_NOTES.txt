@@ -1,0 +1,6 @@
+v10.26.20h12b_HomeLiveInfoCells_FULL_SOURCE
+- Built from h12a stable baseline
+- Home System status now renders live CPU/RAM values already available from runtime bridge
+- Home Network now renders online/offline, host, and IP addresses
+- Storage kept live and made clickable
+- CPU/RAM opens Dev Engine, Network opens Security, Storage opens Builder

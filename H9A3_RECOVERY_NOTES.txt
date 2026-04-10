@@ -1,0 +1,3 @@
+Reverts the critical shell and broken panels back to the last known stable h8f baseline available in this chat environment.
+Restored: App.tsx, brain.ts, commandCenter.ts, Home.tsx, Homie.tsx, Trading.tsx, Books.tsx, FamilyBudget.tsx, Preferences.tsx, Plugins.tsx, PanelHeader.tsx, CardFrame.tsx, styles.css
+Important: Poker panel was not present in the source baseline available in this environment, so it could not be restored in this package.

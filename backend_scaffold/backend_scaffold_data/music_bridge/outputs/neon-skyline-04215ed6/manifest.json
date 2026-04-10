@@ -1,0 +1,15 @@
+{
+  "title": "Neon Skyline",
+  "runRoot": "/mnt/data/oddengine_work/backend_scaffold/backend_scaffold_data/music_bridge/outputs/neon-skyline-04215ed6",
+  "files": [
+    "cover-art.svg",
+    "drums.wav",
+    "instrumental.wav",
+    "lyric-video.svg",
+    "main.wav",
+    "request.json",
+    "response.json",
+    "vocals.wav"
+  ],
+  "updatedAt": 1775707729645
+}

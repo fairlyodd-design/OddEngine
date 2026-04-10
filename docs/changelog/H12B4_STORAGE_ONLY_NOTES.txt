@@ -1,0 +1,4 @@
+v10.26.20h12b4_KeepCpuNetworkFixStorageOnly_FULL_SOURCE
+- Built from h12b2 where CPU/RAM and Network were already good
+- Only Storage was changed to use real desktop disk stats via Electron IPC
+- CPU/RAM and Network were intentionally left untouched to avoid regression

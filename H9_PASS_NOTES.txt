@@ -1,0 +1,18 @@
+v10.26.20h9_TrueSystemAuditAndFlawlessExecutionPass
+
+What this pass adds:
+- shared system truth layer for panel runtime health
+- local-first runtime status snapshots for Home, Trading, Writers Lounge, Family Budget, and Homie
+- panel interaction tracking for launch, chat, plan, routine, and CSV flows
+- Home now surfaces tracked system issues from the truth layer
+- Homie now watches panel health alongside operator memory
+
+Files added:
+- ui/src/lib/systemState.ts
+
+Files changed:
+- ui/src/panels/Home.tsx
+- ui/src/panels/Trading.tsx
+- ui/src/panels/Books.tsx
+- ui/src/panels/FamilyBudget.tsx
+- ui/src/panels/Homie.tsx

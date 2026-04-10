@@ -1,0 +1,29 @@
+{
+  "title": "Neon Test Release",
+  "createdAt": 1775706295221,
+  "sourceRun": {
+    "title": "Neon Test",
+    "runRoot": "/mnt/data/oddbg/src/backend_scaffold/backend_scaffold_data/music_bridge/outputs/neon-test-c0481d3e",
+    "ts": 1775706295064,
+    "engine": "stub",
+    "files": [
+      "cover-art.svg",
+      "drums.wav",
+      "instrumental.wav",
+      "lyric-video.svg",
+      "main.wav",
+      "manifest.json",
+      "request.json",
+      "response.json",
+      "vocals.wav"
+    ]
+  },
+  "files": [
+    "cover-art.svg",
+    "lyric-video.svg",
+    "stems_drums.wav",
+    "stems_instrumental.wav",
+    "stems_vocals.wav",
+    "track.wav"
+  ]
+}

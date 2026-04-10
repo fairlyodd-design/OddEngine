@@ -1,0 +1,37 @@
+{
+  "displayName": "Homie",
+  "faceTexture": "lilhomie.face.reference.png",
+  "references": {
+    "front": "references/front-face.png",
+    "side": "",
+    "hoodie": "references/hoodie-look.png",
+    "cap": "references/cap-look.png"
+  },
+  "look": {
+    "hoodieStyle": "charcoal pullover hoodie",
+    "capStyle": "soft light-grey curved-brim cap",
+    "bodyStyle": "friendly compact game-companion silhouette",
+    "expression": "warm excited helper with beard and glasses",
+    "accessories": {
+      "beard": true,
+      "glasses": true
+    }
+  },
+  "palette": {
+    "hoodieCore": "#4a4a48",
+    "hoodieTrim": "#5a5a58",
+    "hoodieGlow": "#6d6fa6",
+    "cap": "#d7d7d9",
+    "accent": "#2a2b31",
+    "skin": "#e0bea2",
+    "beard": "#6b3f2a",
+    "glasses": "#707070"
+  },
+  "animationIntent": {
+    "idle": "steady grounded presence with subtle breathing",
+    "talk": "supportive and upbeat, friendly hand lead",
+    "listen": "leans in like a real companion",
+    "walk": "compact and game-ready"
+  },
+  "notes": "Locked from provided references: grey hoodie + emoji beard/cap/glasses look."
+}

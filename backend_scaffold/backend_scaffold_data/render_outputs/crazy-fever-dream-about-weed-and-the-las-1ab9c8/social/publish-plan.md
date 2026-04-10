@@ -1,0 +1,9 @@
+Targets:
+- **
+- * TikTok: Publish short hooks (3 x 15-second clips) to create buzz around the book
+- * YouTube: Publish the final promo script (60-second format)
+- * Gumroad: Publish an excerpt from the manuscript, with a link to purchase the full e-book
+- **MONETIZATION ANGLE:** Offer exclusive content and behind-the-scenes insights into the writing process for loyal readers who pre-order or purchase the book within the first week of launch.
+- This production-ready Book is ready to be published and shared with the world!
+
+Monetization:

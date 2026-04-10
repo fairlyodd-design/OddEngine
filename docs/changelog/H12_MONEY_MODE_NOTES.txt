@@ -1,0 +1,5 @@
+v10.26.20h12_SystemPolishAndFlowPass_MoneyMode_FULL_SOURCE
+- Built from h11c2 stable full-source baseline
+- Home panel tuned for money mode with quick routes to Trading, Money, and Options SaaS
+- Homie default system prompt made money-mode aware
+- Low-risk polish pass intended to preserve current stability

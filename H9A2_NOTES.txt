@@ -1,0 +1,18 @@
+v10.26.20h9a2_RuntimeCrashRevertAndStabilityHotfix
+
+What this hotfix does
+- Reverts Trading.tsx to the last known stable pre-h9 version from h8f.
+- Reverts Books.tsx to the matching pre-h9 version from h8f.
+
+Why
+- The h9/h9a Trading panel source in this chat environment contained duplicated injected helper blocks inside child components and row render callbacks.
+- That corruption caused runtime initialization failures that surfaced as selectedContract/selectedContract2 crashes across Trading and collateral panel renders.
+
+What I validated
+- Trading.tsx transpiles successfully.
+- Books.tsx transpiles successfully.
+
+Install
+- Unzip over your current project.
+- Restart the desktop app.
+- Test Trading first, then Writers Lounge.

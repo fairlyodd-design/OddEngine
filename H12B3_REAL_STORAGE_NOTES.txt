@@ -1,0 +1,5 @@
+v10.26.20h12b3_HomeRealStorageStatsPass_FULL_SOURCE
+- Built from h12b2 baseline
+- Added Electron IPC bridge for real storage stats
+- Home Storage card now prefers real disk total/free/used stats on desktop
+- Falls back to browser storage estimate only if desktop stats are unavailable

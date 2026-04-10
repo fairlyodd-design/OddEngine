@@ -1,0 +1,16 @@
+v10.26.20h10_CleanGitHubBaselineRebuildPass
+
+Built from the clean design-system baseline source tree, then aligned to the public GitHub app structure.
+
+Included in this rebuild:
+- baseline App shell restored
+- baseline brain panel registry restored
+- GroceryMeals kept on the clean local-first implementation
+- Poker panel added back into App + brain metadata
+- default pinned panels seeded: Home, Trading, GroceryMeals, Poker
+
+Intent:
+- remove layered recovery clutter
+- restore one clean shell and one clean panel registry
+- keep Grocery functional
+- make Poker visible again

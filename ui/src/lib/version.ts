@@ -1,4 +1,2 @@
-export const APP_VERSION = "10.25.44a";
-export const UI_VERSION = APP_VERSION;
-export const VERSION = APP_VERSION;
-export default APP_VERSION;
+// Single source of truth for the UI version label.
+export const APP_VERSION = "10.27.0c";

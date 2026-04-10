@@ -1,0 +1,3 @@
+- Neon Heartline — chorus hook for TikTok/Shorts
+- Neon Heartline — emotional 15 second teaser
+- Neon Heartline — punchy release-day callout

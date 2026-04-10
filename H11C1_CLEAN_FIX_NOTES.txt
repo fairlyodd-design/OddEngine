@@ -1,0 +1,4 @@
+v10.26.20h11c1_GroceryRegexCleanFix_FULL_SOURCE
+- Full project zip from uploaded baseline
+- GroceryMeals.tsx normalizeItems regex fixed to valid JS regex: /[\n,\r]+/
+- This specifically fixes the unterminated regular expression / dynamic import failure

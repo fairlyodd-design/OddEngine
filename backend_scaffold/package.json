@@ -1,11 +1,12 @@
 {
-  "name": "oddengine-backend-scaffold",
+  "name": "backend_scaffold",
   "private": true,
-  "type": "module",
+  "version": "1.0.0",
   "scripts": {
-    "grocery-proxy": "node grocery-deals-proxy.mjs",
-    "grocery-proxy:mock": "node --env-file=.env grocery-deals-proxy.mjs",
-    "cannabis-proxy": "node cannabis-deals-proxy.mjs",
-    "cannabis-proxy:mock": "node --env-file=.env cannabis-deals-proxy.mjs"
+    "bark-wrapper": "node bark-wrapper.mjs",
+    "comfyui-wrapper": "node comfyui-wrapper.mjs",
+    "local-media-stack": "node render-backend.mjs",
+    "music-provider-bridge": "node music-provider-bridge.mjs",
+    "music-adapter-test": "python music_engines/musicgen_adapter.py --input backend_scaffold_data/music_bridge/sample_request.json --output backend_scaffold_data/music_bridge/sample_response.json"
   }
 }

@@ -1,0 +1,27 @@
+{
+  "glbPath": "ui/public/models/lilhomie.glb",
+  "manifestPath": "ui/public/models/lilhomie.manifest.json",
+  "rigName": "LilHomieHeroRig",
+  "faceMeshName": "LilHomieFace",
+  "expectedActions": ["Idle", "Walk", "Talk", "Listen"],
+  "expectedShapeKeys": [
+    "blink",
+    "viseme_sil",
+    "viseme_aa",
+    "viseme_ee",
+    "viseme_ih",
+    "viseme_oh",
+    "viseme_ou",
+    "viseme_fv",
+    "viseme_th",
+    "viseme_bmp",
+    "smile",
+    "browUp",
+    "browDown"
+  ],
+  "notes": [
+    "Run the hero rig setup helper first.",
+    "Tune weights manually after the auto setup if the shoulders or hoodie collapse.",
+    "Use the export bundle helper to write the sibling manifest after GLB export."
+  ]
+}

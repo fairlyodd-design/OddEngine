@@ -1,0 +1,66 @@
+{
+  "name": "homie-companion",
+  "private": true,
+  "version": "10.26.11z",
+  "description": "Homie Companion v10.26.11z",
+  "main": "electron/main.cjs",
+  "type": "module",
+  "scripts": {
+    "dev:renderer": "node ./node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5187 --strictPort",
+    "dev": "node scripts/dev.mjs",
+    "desktop": "electron .",
+    "build": "node ./node_modules/vite/bin/vite.js build",
+    "dist:portable": "npm run build && electron-builder --win portable",
+    "dist:win": "npm run build && electron-builder --win nsis",
+    "dev:desktop": "node scripts/dev.mjs"
+  },
+  "dependencies": {
+    "@pixiv/three-vrm": "^3.4.2",
+    "@react-three/drei": "^9.112.1",
+    "@react-three/fiber": "^8.17.10",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.169.0",
+    "zustand": "^4.5.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.8.1",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "electron": "^30.5.1",
+    "electron-builder": "^24.13.3",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.3"
+  },
+  "build": {
+    "appId": "com.fairlyodd.homiecompanion",
+    "productName": "Homie Companion",
+    "asar": true,
+    "files": [
+      "electron/**/*",
+      "dist/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist-electron"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "public/homie-icon.ico"
+    }
+  }
+}

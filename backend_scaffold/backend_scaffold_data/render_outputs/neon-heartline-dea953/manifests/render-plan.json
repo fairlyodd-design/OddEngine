@@ -1,0 +1,41 @@
+{
+  "jobId": "dea953db-91c4-4bff-a796-89c2a207b5ac",
+  "title": "Neon Heartline",
+  "type": "music",
+  "workers": [
+    {
+      "id": "manifest",
+      "label": "Build studio manifest",
+      "kind": "packaging",
+      "outputs": [
+        "manifests/studio-handoff.json",
+        "manifests/render-plan.json",
+        "manifests/provider-bridge.json"
+      ]
+    },
+    {
+      "id": "audio",
+      "label": "Audio / music worker",
+      "kind": "audio",
+      "outputs": [
+        "audio/lyrics.md",
+        "audio/production-notes.md",
+        "audio/cover-brief.md",
+        "provider/audio/audio-response.json"
+      ]
+    },
+    {
+      "id": "social",
+      "label": "Social distribution worker",
+      "kind": "social",
+      "outputs": [
+        "social/captions.md",
+        "social/hooks.md",
+        "social/hashtags.txt",
+        "social/publish-plan.md"
+      ]
+    }
+  ],
+  "publishMode": "assisted",
+  "autoPublish": true
+}

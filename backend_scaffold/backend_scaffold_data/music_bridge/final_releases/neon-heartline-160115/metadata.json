@@ -1,0 +1,18 @@
+{
+  "title": "Neon Heartline",
+  "createdAt": 1775705160126,
+  "sourceRun": {
+    "title": "Neon Heartline",
+    "runRoot": "C:\\OddEngine\\backend_scaffold\\backend_scaffold_data\\music_bridge\\outputs\\neon-heartline-59dcc562",
+    "ts": 1775705149970,
+    "engine": "stub"
+  },
+  "files": [
+    "cover-art.svg",
+    "lyric-video.svg",
+    "stems_drums.wav",
+    "stems_instrumental.wav",
+    "stems_vocals.wav",
+    "track.wav"
+  ]
+}

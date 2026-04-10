@@ -1,0 +1,5 @@
+v10.26.20h11c2_GroceryAndPluginsHardFix_FULL_SOURCE
+- Full project baseline used
+- GroceryMeals: safe normalizeItems regex, getItemName normalization, safe state load, safe buildList, safe estimateItemPrice
+- Plugins.tsx: removed stray closing </div> causing build crash at line ~282
+- CardGODMode.tsx: removed invalid reference to e inside persist() causing ReferenceError

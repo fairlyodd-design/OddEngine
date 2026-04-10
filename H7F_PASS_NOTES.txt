@@ -1,0 +1,20 @@
+v10.26.20h7f_HomieTurnTakingAndBargeInStabilityPass
+
+Included in this drop-in:
+- post-speech cooldown to reduce self-hear / echo loop behavior
+- adjustable voice input gate in Preferences
+- tightened continuous auto-resume timing
+- stronger voice state tracking: idle / listening / transcribing / thinking / speaking / cooldown
+- barge-in cleanup for interruptible TTS
+- external silence watcher now respects the input gate
+- includes prior Plugins.tsx syntax hotfix so desktop boot is not blocked by that parse error
+
+Files changed:
+- ui/src/components/HomieBuddy.tsx
+- ui/src/lib/prefs.ts
+- ui/src/panels/Preferences.tsx
+- ui/src/panels/Plugins.tsx
+
+Notes:
+- Built from the source tree available in this chat environment, not a verified direct clone of your exact live h7d folder.
+- This is behavior-first stabilization and should be tested with one full live conversation cycle after boot.

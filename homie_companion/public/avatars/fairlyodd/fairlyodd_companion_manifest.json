@@ -1,0 +1,64 @@
+{
+  "name": "FairlyOdd Emoji Companion Pack v10.25.xx Stage Polish",
+  "source_image": "fairlyoddemoji.png",
+  "canvas_size": {
+    "width": 384,
+    "height": 384
+  },
+  "anchor": {
+    "x": 0.5,
+    "y": 0.92,
+    "description": "bottom-center anchor for companion placement"
+  },
+  "focus": {
+    "sprite_height": 2.22,
+    "pose_y": -1.0,
+    "pose_z": 0.1,
+    "aura_scale": 1.015,
+    "aura_opacity": 0.045,
+    "floor_glow_y": -1.17
+  },
+  "blink": {
+    "enabled": true,
+    "min_interval_ms": 2800,
+    "max_interval_ms": 5400
+  },
+  "animations": {
+    "idle": {
+      "fps": 12,
+      "frame_count": 24,
+      "loop": true,
+      "sprite_sheet": {
+        "file": "fairlyodd_companion_idle_sheet.png",
+        "columns": 6,
+        "rows": 4,
+        "frame_width": 384,
+        "frame_height": 384
+      }
+    },
+    "talk": {
+      "fps": 14,
+      "frame_count": 16,
+      "loop": true,
+      "sprite_sheet": {
+        "file": "fairlyodd_companion_talk_sheet.png",
+        "columns": 4,
+        "rows": 4,
+        "frame_width": 384,
+        "frame_height": 384
+      }
+    },
+    "blink": {
+      "fps": 18,
+      "frame_count": 3,
+      "loop": false,
+      "sprite_sheet": {
+        "file": "fairlyodd_companion_blink_sheet.png",
+        "columns": 3,
+        "rows": 1,
+        "frame_width": 384,
+        "frame_height": 384
+      }
+    }
+  }
+}

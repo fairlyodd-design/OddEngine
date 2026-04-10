@@ -1,0 +1,79 @@
+{
+  "generatedAt": 1775702220493,
+  "projectId": "5a28bf26fe81f19d6ff76308",
+  "title": "Neon Heartline",
+  "type": "music",
+  "finalOutput": "Release: Neon Heartline\n\nLyrics\nVerse\nWe chase the signal through the dark tonight\nNeon Heartline in the distance, glowing neon bright\nAn emotional anthem about rising through the dark and building a brighte\nWe keep the fire alive, we keep the engine humming\n\nPre-Chorus\nHold the line, let the pressure rise\nEvery dream is a spark in disguise\n\nChorus\nNeon Heartline, we light it up\nTurn the low tide into enough\nFrom the silence into the flame\nWe build the future, we call your name\n\nVerse\nWe chase the signal through the dark tonight\nNeon Heartline in the distance, glowing neon bright\nAn emotional anthem about rising through the dark and building a brighte\nWe keep the fire alive, we keep the engine humming\n\nChorus\nNeon Heartline, we light it up\nTurn the low tide into enough\nFrom the silence into the flame\nWe build the future, we call your name\n\nBridge\nemotional, triumphant, modern hearts, steel nerves, midnight sky\nWe fall, we learn, we multiply\n\nChorus\nNeon Heartline, we light it up\nTurn the low tide into enough\nFrom the silence into the flame\nWe build the future, we call your name\n\nArrangement\nGenre: cinematic pop\nBPM: 112\nKey: A minor\nVibe: emotional, triumphant, modern\nMode: song\nVocal profile: male\nChorus strength: 80%\nLength target: 150s\nStructure: intro → verse → pre-chorus → chorus → verse → chorus → bridge → chorus → outro\n\nRender Brief\nProduce a full song in the style lane of cinematic pop.\nTarget BPM 112, key A minor, vibe emotional, triumphant, modern.\nVocal profile: male. Chorus strength 80%.\nBuild a release-ready master, 15s teaser, 30s hook cut, and cover art brief.",
+  "artifactCount": 10,
+  "bundleName": "neon-heartline-music-pack",
+  "renderLab": {
+    "primaryBrief": "Produce a full song in the style lane of cinematic pop.\nTarget BPM 112, key A minor, vibe emotional, triumphant, modern.\nVocal profile: male. Chorus strength 80%.\nBuild a release-ready master, 15s teaser, 30s hook cut, and cover art brief.",
+    "visualBrief": "Create cover art and short-form visual loop for Neon Heartline.",
+    "audioBrief": "Create full mix, master, instrumental, acapella, and 15s/30s promo cuts for Neon Heartline.",
+    "videoBrief": "Create looping visualizer and vertical promo snippets for Neon Heartline.",
+    "script": "Verse\nWe chase the signal through the dark tonight\nNeon Heartline in the distance, glowing neon bright\nAn emotional anthem about rising through the dark and building a brighte\nWe keep the fire alive, we keep the engine humming\n\nPre-Chorus\nHold the line, let the pressure rise\nEvery dream is a spark in disguise\n\nChorus\nNeon Heartline, we light it up\nTurn the low tide into enough\nFrom the silence into the flame\nWe build the future, we call your name\n\nVerse\nWe chase the signal through the dark tonight\nNeon Heartline in the distance, glowing neon bright\nAn emotional anthem about rising through the dark and building a brighte\nWe keep the fire alive, we keep the engine humming\n\nChorus\nNeon Heartline, we light it up\nTurn the low tide into enough\nFrom the silence into the flame\nWe build the future, we call your name\n\nBridge\nemotional, triumphant, modern hearts, steel nerves, midnight sky\nWe fall, we learn, we multiply\n\nChorus\nNeon Heartline, we light it up\nTurn the low tide into enough\nFrom the silence into the flame\nWe build the future, we call your name",
+    "requestedAssets": [
+      "song-master.wav",
+      "instrumental.wav",
+      "acapella.wav",
+      "cover-art.png",
+      "vertical-teaser.mp4",
+      "lyric-video.mp4"
+    ]
+  },
+  "distribution": {
+    "hooks": [
+      "Neon Heartline — chorus hook for TikTok/Shorts",
+      "Neon Heartline — emotional 15 second teaser",
+      "Neon Heartline — punchy release-day callout"
+    ],
+    "captions": [
+      "New drop: Neon Heartline. Built inside FairlyOdd Music Lab.",
+      "Neon Heartline is live. Save it, share it, and run it back."
+    ],
+    "hashtags": [
+      "#newmusic",
+      "#oddengine",
+      "#indieartist",
+      "#musiclab",
+      "#release"
+    ],
+    "targets": [
+      "youtube",
+      "tiktok",
+      "instagram",
+      "gumroad",
+      "local"
+    ],
+    "checklist": [
+      "Master approved",
+      "Metadata completed",
+      "Cover art approved",
+      "Promo cuts exported",
+      "Publisher queue ready"
+    ],
+    "monetization": "Release single, short-form promo clips, lyric visualizer, Gumroad stem pack, and future subscription drops."
+  },
+  "music": {
+    "lyrics": "Verse\nWe chase the signal through the dark tonight\nNeon Heartline in the distance, glowing neon bright\nAn emotional anthem about rising through the dark and building a brighte\nWe keep the fire alive, we keep the engine humming\n\nPre-Chorus\nHold the line, let the pressure rise\nEvery dream is a spark in disguise\n\nChorus\nNeon Heartline, we light it up\nTurn the low tide into enough\nFrom the silence into the flame\nWe build the future, we call your name\n\nVerse\nWe chase the signal through the dark tonight\nNeon Heartline in the distance, glowing neon bright\nAn emotional anthem about rising through the dark and building a brighte\nWe keep the fire alive, we keep the engine humming\n\nChorus\nNeon Heartline, we light it up\nTurn the low tide into enough\nFrom the silence into the flame\nWe build the future, we call your name\n\nBridge\nemotional, triumphant, modern hearts, steel nerves, midnight sky\nWe fall, we learn, we multiply\n\nChorus\nNeon Heartline, we light it up\nTurn the low tide into enough\nFrom the silence into the flame\nWe build the future, we call your name",
+    "arrangement": "Genre: cinematic pop\nBPM: 112\nKey: A minor\nVibe: emotional, triumphant, modern\nMode: song\nVocal profile: male\nChorus strength: 80%\nLength target: 150s\nStructure: intro → verse → pre-chorus → chorus → verse → chorus → bridge → chorus → outro",
+    "bpm": "112",
+    "key": "A minor",
+    "vibe": "emotional, triumphant, modern",
+    "genre": "cinematic pop",
+    "vocalProfile": "male",
+    "chorusStrength": 80,
+    "structure": [
+      "intro",
+      "verse",
+      "pre-chorus",
+      "chorus",
+      "verse",
+      "chorus",
+      "bridge",
+      "chorus",
+      "outro"
+    ],
+    "songLengthSec": 150
+  }
+}

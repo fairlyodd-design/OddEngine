@@ -1,0 +1,1 @@
+Adds artifact preview panel for outputs (video/audio/image/text).

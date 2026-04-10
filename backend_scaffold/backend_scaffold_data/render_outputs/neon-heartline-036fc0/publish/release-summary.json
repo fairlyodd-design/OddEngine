@@ -1,0 +1,23 @@
+{
+  "title": "Neon Heartline",
+  "type": "music",
+  "targets": [
+    "youtube",
+    "tiktok",
+    "instagram",
+    "gumroad",
+    "local"
+  ],
+  "artifacts": [
+    "manifests/studio-handoff.json",
+    "manifests/render-plan.json",
+    "manifests/provider-bridge.json",
+    "audio/lyrics.md",
+    "audio/production-notes.md",
+    "audio/cover-brief.md",
+    "social/captions.md",
+    "social/hooks.md",
+    "social/hashtags.txt",
+    "social/publish-plan.md"
+  ]
+}

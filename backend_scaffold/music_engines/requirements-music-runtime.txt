@@ -1,0 +1,11 @@
+# OddEngine local music runtime lock base
+# Install into backend_scaffold\music_runtime_env
+torch==2.3.1
+torchaudio==2.3.1
+transformers==4.41.2
+accelerate==0.31.0
+safetensors==0.4.3
+sentencepiece==0.2.0
+scipy==1.13.1
+soundfile==0.12.1
+numpy==1.26.4
