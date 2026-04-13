@@ -1,0 +1,15 @@
+v10.31.2_AnimationRenderLabBridgePass
+
+Included in this pass:
+- Animation Station render bridge with queueable animation render jobs
+- Scene-by-scene render status flow: queued -> rendering -> voice-ready -> visual-ready -> assembled
+- Final episode package assembly with output manifest, voice manifest, and assembly notes
+- Export for final episode package: txt / md / json
+- Builder / Render Lab panel now surfaces queued animation jobs from Writers Lounge
+- Version bump to 10.31.2
+
+Touched files:
+- ui/src/lib/writerEngine.ts
+- ui/src/panels/Books.tsx
+- ui/src/panels/Builder.tsx
+- ui/src/lib/version.ts

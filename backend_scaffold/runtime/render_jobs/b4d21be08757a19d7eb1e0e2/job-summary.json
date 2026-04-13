@@ -1,0 +1,110 @@
+{
+  "kind": "animation-episode",
+  "jobId": "b4d21be08757a19d7eb1e0e2",
+  "projectId": "ca44dd713285319d7eb1e0e1",
+  "projectTitle": "The Writing Room Wakes",
+  "outputDir": "render_lab/animation_jobs/the-writing-room-wakes",
+  "finalEpisodeFile": "render_lab/animation_jobs/the-writing-room-wakes/the-writing-room-wakes_final_episode.mp4",
+  "voiceModel": "llama3.1:8b",
+  "renderProfile": "1080p-series-balanced",
+  "scenes": [
+    {
+      "index": 0,
+      "sceneId": "ec5311cfc03a319d7eb1e0e1",
+      "sceneTitle": "Morning Routine",
+      "durationSec": 60,
+      "voiceText": "Good morning, writing room.,Nothing from you, as usual. Another day, another blank page.",
+      "voiceAssetFile": "render_lab/animation_jobs/the-writing-room-wakes/scene_01_morning-routine_voice.wav",
+      "outputFile": "render_lab/animation_jobs/the-writing-room-wakes/scene_01_morning-routine.mp4",
+      "visualPrompt": "Max sipping coffee, staring at a blank script",
+      "motionPrompt": "Slow zoom into Max's face",
+      "sfx": [
+        "coffee brew"
+      ],
+      "shotNotes": "Animate Morning Routine with Slow zoom into Max's face. Use visual prompt as frame guidance and keep continuity with [object Object].",
+      "cameraPlan": "Start wide, move to medium performance coverage, end on a detail or reaction for Morning Routine.",
+      "shots": [
+        "Shot A: Establish Morning Routine with Max sipping coffee, staring at a blank script.",
+        "Shot B: Push motion with Slow zoom into Max's face.",
+        "Shot C: Land on the strongest acting beat tied to coffee brew."
+      ]
+    },
+    {
+      "index": 1,
+      "sceneId": "fc08e99b74dd819d7eb1e0e1",
+      "sceneTitle": "The Writing Room Awakens",
+      "durationSec": 30,
+      "voiceText": "Ah, finally! You're talking to me.,Now we can get this show on the road. The writing room has come to life!",
+      "voiceAssetFile": "render_lab/animation_jobs/the-writing-room-wakes/scene_02_the-writing-room-awakens_voice.wav",
+      "outputFile": "render_lab/animation_jobs/the-writing-room-wakes/scene_02_the-writing-room-awakens.mp4",
+      "visualPrompt": "The writing room's walls crackle to life",
+      "motionPrompt": "Quick cut between Max looking confused and the writing room's lights flickering",
+      "sfx": [
+        "electricity zaps"
+      ],
+      "shotNotes": "Animate The Writing Room Awakens with Quick cut between Max looking confused and the writing room's lights flickering. Use visual prompt as frame guidance and keep continuity with [object Object].",
+      "cameraPlan": "Start wide, move to medium performance coverage, end on a detail or reaction for The Writing Room Awakens.",
+      "shots": [
+        "Shot A: Establish The Writing Room Awakens with The writing room's walls crackle to life.",
+        "Shot B: Push motion with Quick cut between Max looking confused and the writing room's lights flickering.",
+        "Shot C: Land on the strongest acting beat tied to electricity zaps."
+      ]
+    },
+    {
+      "index": 2,
+      "sceneId": "8ed54f3d1d7ef19d7eb1e0e1",
+      "sceneTitle": "Confronting Creativity",
+      "durationSec": 90,
+      "voiceText": "You're just a tool, but I'm the one who brings life!,Don't get too full of yourself. The lines between creator and creation blur.",
+      "voiceAssetFile": "render_lab/animation_jobs/the-writing-room-wakes/scene_03_confronting-creativity_voice.wav",
+      "outputFile": "render_lab/animation_jobs/the-writing-room-wakes/scene_03_confronting-creativity.mp4",
+      "visualPrompt": "Max and the writing room engaged in a heated discussion",
+      "motionPrompt": "Slow pan across Max's face, then to the writing room's walls",
+      "sfx": [
+        "argumentative murmurs"
+      ],
+      "shotNotes": "Animate Confronting Creativity with Slow pan across Max's face, then to the writing room's walls. Use visual prompt as frame guidance and keep continuity with [object Object].",
+      "cameraPlan": "Start wide, move to medium performance coverage, end on a detail or reaction for Confronting Creativity.",
+      "shots": [
+        "Shot A: Establish Confronting Creativity with Max and the writing room engaged in a heated discussion.",
+        "Shot B: Push motion with Slow pan across Max's face, then to the writing room's walls.",
+        "Shot C: Land on the strongest acting beat tied to argumentative murmurs."
+      ]
+    }
+  ],
+  "executionPlan": {
+    "voiceEngine": "python local_tts.py",
+    "renderer": "python local_scene_renderer.py",
+    "ffmpegPath": "ffmpeg",
+    "workDir": "render_lab/animation_jobs/the-writing-room-wakes",
+    "manifestFile": "render_lab/animation_jobs/the-writing-room-wakes/execution_manifest.json",
+    "windowsScript": {
+      "filename": "the-writing-room-wakes_episode_build.bat",
+      "content": "@echo off\nsetlocal\nmkdir \"render_lab/animation_jobs/the-writing-room-wakes\" 2>nul\npython local_tts.py --model \"llama3.1:8b\" --text \"Good morning, writing room.,Nothing from you, as usual. Another day, another blank page.\" --out \"render_lab/animation_jobs/the-writing-room-wakes/scene_01_morning-routine_voice.wav\" --scene \"01\"\npython local_tts.py --model \"llama3.1:8b\" --text \"Ah, finally! You're talking to me.,Now we can get this show on the road. The writing room has come to life!\" --out \"render_lab/animation_jobs/the-writing-room-wakes/scene_02_the-writing-room-awakens_voice.wav\" --scene \"02\"\npython local_tts.py --model \"llama3.1:8b\" --text \"You're just a tool, but I'm the one who brings life!,Don't get too full of yourself. The lines between creator and creation blur.\" --out \"render_lab/animation_jobs/the-writing-room-wakes/scene_03_confronting-creativity_voice.wav\" --scene \"03\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"01\" --visual \"Max sipping coffee, staring at a blank script\" --motion \"Slow zoom into Max's face\" --voice \"render_lab/animation_jobs/the-writing-room-wakes/scene_01_morning-routine_voice.wav\" --out \"render_lab/animation_jobs/the-writing-room-wakes/scene_01_morning-routine.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"02\" --visual \"The writing room's walls crackle to life\" --motion \"Quick cut between Max looking confused and the writing room's lights flickering\" --voice \"render_lab/animation_jobs/the-writing-room-wakes/scene_02_the-writing-room-awakens_voice.wav\" --out \"render_lab/animation_jobs/the-writing-room-wakes/scene_02_the-writing-room-awakens.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"03\" --visual \"Max and the writing room engaged in a heated discussion\" --motion \"Slow pan across Max's face, then to the writing room's walls\" --voice \"render_lab/animation_jobs/the-writing-room-wakes/scene_03_confronting-creativity_voice.wav\" --out \"render_lab/animation_jobs/the-writing-room-wakes/scene_03_confronting-creativity.mp4\"\npython build_concat_manifest.py --job \"b4d21be08757a19d7eb1e0e2\" --out \"render_lab/animation_jobs/the-writing-room-wakes/episode_concat.txt\"\nffmpeg -y -f concat -safe 0 -i \"render_lab/animation_jobs/the-writing-room-wakes/episode_concat.txt\" -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k \"render_lab/animation_jobs/the-writing-room-wakes/the-writing-room-wakes_final_episode.mp4\"\necho Episode build complete.\nendlocal"
+    },
+    "bashScript": {
+      "filename": "the-writing-room-wakes_episode_build.sh",
+      "content": "#!/usr/bin/env bash\nset -euo pipefail\nmkdir -p \"render_lab/animation_jobs/the-writing-room-wakes\"\npython local_tts.py --model \"llama3.1:8b\" --text \"Good morning, writing room.,Nothing from you, as usual. Another day, another blank page.\" --out \"render_lab/animation_jobs/the-writing-room-wakes/scene_01_morning-routine_voice.wav\" --scene \"01\"\npython local_tts.py --model \"llama3.1:8b\" --text \"Ah, finally! You're talking to me.,Now we can get this show on the road. The writing room has come to life!\" --out \"render_lab/animation_jobs/the-writing-room-wakes/scene_02_the-writing-room-awakens_voice.wav\" --scene \"02\"\npython local_tts.py --model \"llama3.1:8b\" --text \"You're just a tool, but I'm the one who brings life!,Don't get too full of yourself. The lines between creator and creation blur.\" --out \"render_lab/animation_jobs/the-writing-room-wakes/scene_03_confronting-creativity_voice.wav\" --scene \"03\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"01\" --visual \"Max sipping coffee, staring at a blank script\" --motion \"Slow zoom into Max's face\" --voice \"render_lab/animation_jobs/the-writing-room-wakes/scene_01_morning-routine_voice.wav\" --out \"render_lab/animation_jobs/the-writing-room-wakes/scene_01_morning-routine.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"02\" --visual \"The writing room's walls crackle to life\" --motion \"Quick cut between Max looking confused and the writing room's lights flickering\" --voice \"render_lab/animation_jobs/the-writing-room-wakes/scene_02_the-writing-room-awakens_voice.wav\" --out \"render_lab/animation_jobs/the-writing-room-wakes/scene_02_the-writing-room-awakens.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"03\" --visual \"Max and the writing room engaged in a heated discussion\" --motion \"Slow pan across Max's face, then to the writing room's walls\" --voice \"render_lab/animation_jobs/the-writing-room-wakes/scene_03_confronting-creativity_voice.wav\" --out \"render_lab/animation_jobs/the-writing-room-wakes/scene_03_confronting-creativity.mp4\"\npython build_concat_manifest.py --job \"b4d21be08757a19d7eb1e0e2\" --out \"render_lab/animation_jobs/the-writing-room-wakes/episode_concat.txt\"\nffmpeg -y -f concat -safe 0 -i \"render_lab/animation_jobs/the-writing-room-wakes/episode_concat.txt\" -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k \"render_lab/animation_jobs/the-writing-room-wakes/the-writing-room-wakes_final_episode.mp4\"\necho 'Episode build complete.'"
+    },
+    "voiceCommands": [
+      "python local_tts.py --model \"llama3.1:8b\" --text \"Good morning, writing room.,Nothing from you, as usual. Another day, another blank page.\" --out \"render_lab/animation_jobs/the-writing-room-wakes/scene_01_morning-routine_voice.wav\" --scene \"01\"",
+      "python local_tts.py --model \"llama3.1:8b\" --text \"Ah, finally! You're talking to me.,Now we can get this show on the road. The writing room has come to life!\" --out \"render_lab/animation_jobs/the-writing-room-wakes/scene_02_the-writing-room-awakens_voice.wav\" --scene \"02\"",
+      "python local_tts.py --model \"llama3.1:8b\" --text \"You're just a tool, but I'm the one who brings life!,Don't get too full of yourself. The lines between creator and creation blur.\" --out \"render_lab/animation_jobs/the-writing-room-wakes/scene_03_confronting-creativity_voice.wav\" --scene \"03\""
+    ],
+    "renderCommands": [
+      "python local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"01\" --visual \"Max sipping coffee, staring at a blank script\" --motion \"Slow zoom into Max's face\" --voice \"render_lab/animation_jobs/the-writing-room-wakes/scene_01_morning-routine_voice.wav\" --out \"render_lab/animation_jobs/the-writing-room-wakes/scene_01_morning-routine.mp4\"",
+      "python local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"02\" --visual \"The writing room's walls crackle to life\" --motion \"Quick cut between Max looking confused and the writing room's lights flickering\" --voice \"render_lab/animation_jobs/the-writing-room-wakes/scene_02_the-writing-room-awakens_voice.wav\" --out \"render_lab/animation_jobs/the-writing-room-wakes/scene_02_the-writing-room-awakens.mp4\"",
+      "python local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"03\" --visual \"Max and the writing room engaged in a heated discussion\" --motion \"Slow pan across Max's face, then to the writing room's walls\" --voice \"render_lab/animation_jobs/the-writing-room-wakes/scene_03_confronting-creativity_voice.wav\" --out \"render_lab/animation_jobs/the-writing-room-wakes/scene_03_confronting-creativity.mp4\""
+    ],
+    "ffmpegCommands": [
+      "python build_concat_manifest.py --job \"b4d21be08757a19d7eb1e0e2\" --out \"render_lab/animation_jobs/the-writing-room-wakes/episode_concat.txt\"",
+      "ffmpeg -y -f concat -safe 0 -i \"render_lab/animation_jobs/the-writing-room-wakes/episode_concat.txt\" -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k \"render_lab/animation_jobs/the-writing-room-wakes/the-writing-room-wakes_final_episode.mp4\""
+    ],
+    "executionNotes": [
+      "Run voice generation first so every scene gets a concrete WAV asset.",
+      "Run the renderer second so each scene produces its own MP4 file in the job output directory.",
+      "Run the ffmpeg concat build last to assemble the final episode from the rendered scene clips."
+    ],
+    "generatedAt": 1775947079960
+  }
+}

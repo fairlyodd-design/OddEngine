@@ -1,6 +1,6 @@
 import { loadJSON, saveJSON } from "./storage";
 
-type DetectedEmulator = {
+export type DetectedEmulator = {
   id: string;
   name: string;
   kind: string;
@@ -8,7 +8,7 @@ type DetectedEmulator = {
   notes?: string;
 };
 
-type DetectedPlugin = {
+export type DetectedPlugin = {
   id: string;
   name: string;
   version: string;
@@ -17,143 +17,50 @@ type DetectedPlugin = {
   actions?: any[];
 };
 
-type HomieChatMsg = { role: "system" | "user" | "assistant"; content: string };
+export type HomieChatMsg = {
+  role: "system" | "user" | "assistant" | string;
+  content: string;
+};
 
-type Odd = {
+export type Odd = {
   isDesktop: () => boolean;
-
-  // windowing (Desktop + browser fallback)
-  openWindow?: (opts: {
-    title?: string;
-    /** Optional full URL. If omitted, panel + query will be used. */
-    url?: string;
-    /** Optional panel name to open inside OddEngine. */
-    panel?: string;
-    /** Query params appended to the URL */
-    query?: Record<string, string>;
-    /** Optional routine id for routine window tracking (Desktop). */
-    routineId?: string;
-    /** Optional per-window-type persistence key for bounds (size/position). */
-    windowType?: string;
-    /** Alias of windowType (back-compat). */
-    persistKey?: string;
-    /** Optional x/y position (Desktop only). */
-    x?: number;
-    y?: number;
-    width?: number;
-    height?: number;
-    alwaysOnTop?: boolean;
-    frame?: boolean;
-    transparent?: boolean;
-    skipTaskbar?: boolean;
-    resizable?: boolean;
-  }) => Promise<{ ok: boolean; error?: string }>;
-
-  /** Tiles (auto-stacks) routine windows on the desktop. */
-  tileRoutineWindows?: (payload: { routineId: string; style?: "grid" | "left-main" | "hero"; preset?: string; assignments?: Record<string,string> }) => Promise<{ ok: boolean; error?: string; count?: number; cols?: number; rows?: number; style?: string; preset?: string }>;
-
-  /** Closes all windows opened for a routine (clean shutdown). */
-  closeRoutineWindows?: (payload: { routineId: string }) => Promise<{ ok: boolean; error?: string; closed?: number }>;
-
-  /** Lists available desktop displays (Desktop only). */
-  getDisplays?: () => Promise<{ ok: boolean; error?: string; displays?: Array<{ id: string; bounds: any; workArea: any; scaleFactor?: number; isPrimary?: boolean; label?: string }> }>;
-
-  /** Dedicated player window for non-DRM streaming (Desktop). Persists size/position. */
-  openEntertainmentPlayer?: (opts: {
-    url: string;
-    title?: string;
-    serviceId?: string;
-    width?: number;
-    height?: number;
-  }) => Promise<{ ok: boolean; error?: string; reused?: boolean }>;
-
-  /** Focus (and show) the entertainment player if it exists. */
-  focusEntertainmentPlayer?: () => Promise<{ ok: boolean; shown?: boolean; hasLast?: boolean; last?: any; error?: string }>;
-
-  /** Returns last opened entertainment URL/title, if any (Desktop). */
-  getEntertainmentLast?: () => Promise<{ ok: boolean; last?: any; error?: string }>;
-
-  /** Clears persisted desktop window bounds (popouts), if supported. */
-  resetWindowBounds?: () => Promise<{ ok: boolean; error?: string; cleared?: number }>;
-
-  // system
-  getSystemInfo: () => Promise<{
-    ok: boolean;
-    userData?: string;
-    bundlesDir?: string;
-    growOsDir?: string;
-    appVersion?: string;
-    packaged?: boolean;
-    cwd?: string;
-    appPath?: string;
-  }>;
-  getRuntimeStats?: () => Promise<{
-    ok: boolean;
-    ts?: number;
-    cpuPercent?: number;
-    ramPercent?: number;
-    totalMem?: number;
-    freeMem?: number;
-    usedMem?: number;
-    host?: string;
-    platform?: string;
-    lanIpv4?: number;
-    error?: string;
-  }>;
-
-  getRuntimeStats: () => Promise<{
-    ok: boolean;
-    cpu?: { percentUsed: number; cores?: number };
-    memory?: { total: number; free: number; used: number; percentUsed: number };
-    network?: { hostname?: string; primaryIp?: string; interfaceName?: string };
-    storage?: { path?: string; total: number; free: number; used: number; percentUsed: number };
-    timestamp?: number;
-    error?: string;
-  }>;
-
-  updateGrowBundle: () => Promise<{ ok: boolean; path?: string; updated?: boolean; version?: string | null; error?: string }>;
-  growPlannerHandoff: (payload: any) => Promise<{ ok: boolean; path?: string; handoffPath?: string; roomsUpdated?: number; error?: string }>;
-
-  // network (Desktop only)
-  fetchText: (payload: { url: string; method?: string; headers?: Record<string,string>; body?: string; timeoutMs?: number; maxBytes?: number; }) => Promise<{ ok: boolean; status?: number; text?: string; error?: string }>; 
-
-  // filesystem / shell
-  pickDirectory: (opts?: any) => Promise<{ ok: boolean; path?: string }>;
-  pickFile: (opts?: any) => Promise<{ ok: boolean; path?: string }>;
+  openWindow: (opts: any) => Promise<any>;
+  tileRoutineWindows: (payload: any) => Promise<any>;
+  closeRoutineWindows: (payload: any) => Promise<any>;
+  getDisplays: () => Promise<any>;
+  openEntertainmentPlayer: (opts: any) => Promise<any>;
+  focusEntertainmentPlayer: () => Promise<any>;
+  getEntertainmentLast: () => Promise<any>;
+  resetWindowBounds: () => Promise<any>;
+  getSystemInfo: () => Promise<any>;
+  getRuntimeStats: () => Promise<any>;
+  updateGrowBundle: () => Promise<any>;
+  growPlannerHandoff: (payload: any) => Promise<any>;
+  fetchText: (payload: any) => Promise<any>;
+  pickDirectory: (opts?: any) => Promise<any>;
+  pickFile: (opts?: any) => Promise<any>;
   openPath: (p: string) => Promise<any>;
-  openExternal?: (url: string) => Promise<any>;
-
-  // generators / commands
+  openExternal: (url: string) => Promise<any>;
+  shellOpenPath: (p: string) => Promise<any>;
   generate: (payload: any) => Promise<any>;
   run: (payload: any) => Promise<any>;
   stopRun: (id: string) => Promise<any>;
   tcpPing: (payload: any) => Promise<any>;
   onRunOutput: (cb: (msg: any) => void) => () => void;
-
-  // dev snapshot / playbooks
-  getDevSnapshot: (opts?: { limit?: number }) => Promise<any>;
-  runPlaybook: (payload: { playbookId: string; cwd: string }) => Promise<any>;
-
-  // plugins
+  getDevSnapshot: (opts?: any) => Promise<any>;
+  runPlaybook: (payload: any) => Promise<any>;
   listPlugins: () => Promise<{ ok: boolean; plugins: DetectedPlugin[]; pluginDir?: string }>;
-  openPluginsFolder: () => Promise<{ ok: boolean; path?: string }>;
-
-  // emulators
-  detectEmulators: () => Promise<{
-    ok: boolean;
-    emulators: DetectedEmulator[];
-    adbPath?: string | null;
-    sdkRoot?: string | null;
-  }>;
+  openPluginsFolder: () => Promise<any>;
+  detectEmulators: () => Promise<any>;
   emuAction: (payload: any) => Promise<any>;
-
-  // Homie AI (Desktop-only; calls local Ollama)
-  homieCheck: () => Promise<{ ok: boolean; running?: boolean; models?: string[]; error?: string }>;
-  homieChat: (payload: { messages: HomieChatMsg[]; model?: string; system?: string; temperature?: number }) => Promise<{ ok: boolean; reply?: string; model?: string; error?: string }>;
-
-  // External/local voice bridge (Desktop-only; optional local HTTP service)
-  voiceBridgeProbe?: (payload: { baseUrl: string; timeoutMs?: number }) => Promise<{ ok: boolean; status?: string; model?: string; version?: string; detail?: string; error?: string }>;
-  voiceBridgeTranscribe?: (payload: { baseUrl: string; timeoutMs?: number; mimeType?: string; audioBase64: string }) => Promise<{ ok: boolean; text?: string; model?: string; detail?: string; error?: string }>;
+  homieCheck: () => Promise<any>;
+  homieChat: (payload: { messages: HomieChatMsg[]; model?: string; system?: string; temperature?: number } | any) => Promise<any>;
+  voiceBridgeProbe: (payload: any) => Promise<any>;
+  voiceBridgeTranscribe: (payload: any) => Promise<any>;
+  vaultGet: () => Promise<any>;
+  vaultSet: (next: any) => Promise<any>;
+  vaultStatus: () => Promise<any>;
+  [key: string]: any;
 };
 
 declare global {
@@ -166,17 +73,38 @@ export function isDesktop(): boolean {
   return !!(window.__ODD__ && window.__ODD__.isDesktop && window.__ODD__.isDesktop());
 }
 
-export function oddApi(): Odd {
-  // Desktop: real API from preload.
-  if (window.__ODD__) return window.__ODD__;
+function buildUrl(panel?: string, query?: Record<string, string>) {
+  const u = new URL(window.location.href);
+  if (panel) u.searchParams.set("panel", panel);
+  if (query) Object.entries(query).forEach(([k, v]) => u.searchParams.set(k, v));
+  return u.toString();
+}
 
-  // Browser/dev fallback: keep the UI from crashing.
-  const buildUrl = (panel?: string, query?: Record<string, string>) => {
-    const u = new URL(window.location.href);
-    if (panel) u.searchParams.set("panel", panel);
-    if (query) Object.entries(query).forEach(([k, v]) => u.searchParams.set(k, v));
-    return u.toString();
-  };
+export function oddApi(): Odd {
+  if (window.__ODD__) {
+    return {
+      ...window.__ODD__,
+      openWindow: window.__ODD__.openWindow || (async () => ({ ok: false, error: "Not available" })),
+      tileRoutineWindows: window.__ODD__.tileRoutineWindows || (async () => ({ ok: false, error: "Not available" })),
+      closeRoutineWindows: window.__ODD__.closeRoutineWindows || (async () => ({ ok: false, error: "Not available" })),
+      getDisplays: window.__ODD__.getDisplays || (async () => ({ ok: false, displays: [] })),
+      openEntertainmentPlayer: window.__ODD__.openEntertainmentPlayer || (async () => ({ ok: false, error: "Not available" })),
+      focusEntertainmentPlayer: window.__ODD__.focusEntertainmentPlayer || (async () => ({ ok: false, shown: false })),
+      getEntertainmentLast: window.__ODD__.getEntertainmentLast || (async () => ({ ok: false })),
+      resetWindowBounds: window.__ODD__.resetWindowBounds || (async () => ({ ok: false, error: "Not available" })),
+      getRuntimeStats: window.__ODD__.getRuntimeStats || (async () => ({ ok: false, error: "Not available" })),
+      updateGrowBundle: window.__ODD__.updateGrowBundle || (async () => ({ ok: false, error: "Not available" })),
+      growPlannerHandoff: window.__ODD__.growPlannerHandoff || (async () => ({ ok: false, error: "Not available" })),
+      openExternal: window.__ODD__.openExternal || (async () => ({ ok: false, error: "Not available" })),
+      shellOpenPath: window.__ODD__.shellOpenPath || (async () => ({ ok: false, error: "Not available" })),
+      homieChat: window.__ODD__.homieChat || (async () => ({ ok: false, reply: "" })),
+      voiceBridgeProbe: window.__ODD__.voiceBridgeProbe || (async () => ({ ok: false, error: "Not available" })),
+      voiceBridgeTranscribe: window.__ODD__.voiceBridgeTranscribe || (async () => ({ ok: false, error: "Not available" })),
+      vaultGet: window.__ODD__.vaultGet || (async () => ({ ok: false, error: "Not available" })),
+      vaultSet: window.__ODD__.vaultSet || (async () => ({ ok: false, error: "Not available" })),
+      vaultStatus: window.__ODD__.vaultStatus || (async () => ({ ok: false, error: "Not available" })),
+    };
+  }
 
   return {
     isDesktop: () => false,
@@ -191,11 +119,12 @@ export function oddApi(): Odd {
     openExternal: async (url: string) => {
       try {
         window.open(url, "_blank", "noopener,noreferrer");
-        return { ok: true } as any;
-      } catch (e: any) {
-        return { ok: false, error: String(e) } as any;
+        return { ok: true };
+      } catch (error: any) {
+        return { ok: false, error: String(error?.message || error) };
       }
     },
+    shellOpenPath: async () => ({ ok: false, error: "Not available in browser" }),
     generate: async () => ({ ok: false }),
     run: async () => ({ ok: false }),
     stopRun: async () => ({ ok: false }),
@@ -208,35 +137,39 @@ export function oddApi(): Odd {
     detectEmulators: async () => ({ ok: false, emulators: [] }),
     emuAction: async () => ({ ok: false }),
     homieCheck: async () => ({ ok: false }),
-    homieChat: async () => ({ ok: false }),
+    homieChat: async () => ({ ok: false, reply: "" }),
     voiceBridgeProbe: async () => ({ ok: false, error: "Not available in browser" }),
     voiceBridgeTranscribe: async () => ({ ok: false, error: "Not available in browser" }),
-    tileRoutineWindows: async () => ({ ok: false, error: "Not available in browser" } as any),
-    closeRoutineWindows: async () => ({ ok: false, error: "Not available in browser" } as any),
-    openWindow: async (opts) => {
+    vaultGet: async () => ({ ok: false, error: "Not available in browser" }),
+    vaultSet: async () => ({ ok: false, error: "Not available in browser" }),
+    vaultStatus: async () => ({ ok: false, error: "Not available in browser" }),
+    openWindow: async (opts: any) => {
       try {
-        const url = opts?.url || buildUrl(opts?.panel, opts?.query);
+        const url = String(opts?.url || buildUrl(opts?.panel, opts?.query));
         window.open(url, "_blank", "noopener,noreferrer");
         return { ok: true };
-      } catch (e: any) {
-        return { ok: false, error: String(e) };
+      } catch (error: any) {
+        return { ok: false, error: String(error?.message || error) };
       }
     },
-    openEntertainmentPlayer: async (opts) => {
+    openEntertainmentPlayer: async (opts: any) => {
       try {
         const url = String(opts?.url || "");
-        const w = Number((opts as any)?.width || loadJSON("oddengine:entertainment:player:w", 1280));
-        const h = Number((opts as any)?.height || loadJSON("oddengine:entertainment:player:h", 820));
+        const w = Number(opts?.width || loadJSON("oddengine:entertainment:player:w", 1280));
+        const h = Number(opts?.height || loadJSON("oddengine:entertainment:player:h", 820));
         saveJSON("oddengine:entertainment:player:w", w);
         saveJSON("oddengine:entertainment:player:h", h);
         window.open(url, "_blank", `noopener,noreferrer,width=${w},height=${h}`);
-        return { ok: true } as any;
-      } catch (e: any) {
-        return { ok: false, error: String(e) } as any;
+        return { ok: true };
+      } catch (error: any) {
+        return { ok: false, error: String(error?.message || error) };
       }
     },
-    focusEntertainmentPlayer: async () => ({ ok: false, shown: false } as any),
-    getEntertainmentLast: async () => ({ ok: false } as any),
-    resetWindowBounds: async () => ({ ok: false, error: "Not available in browser" } as any),
+    focusEntertainmentPlayer: async () => ({ ok: false, shown: false }),
+    getEntertainmentLast: async () => ({ ok: false }),
+    resetWindowBounds: async () => ({ ok: false, error: "Not available in browser" }),
+    getDisplays: async () => ({ ok: false, displays: [] }),
+    tileRoutineWindows: async () => ({ ok: false, error: "Not available in browser" }),
+    closeRoutineWindows: async () => ({ ok: false, error: "Not available in browser" }),
   };
 }

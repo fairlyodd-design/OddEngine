@@ -1,3 +1,4 @@
+
 export type CoinstoreCandle = {
   ts: number;
   open: number;
@@ -84,6 +85,28 @@ export type MacroIntel = {
   bullets: string[];
   warnings: string[];
   scorecards: { label: string; value: string; tone: Tone }[];
+};
+
+export type PhoenixCoachCue = {
+  key: string;
+  label: string;
+  detail: string;
+  tone: Tone;
+};
+
+export type HeikinAshiSvg = {
+  bodies: Array<{
+    x: number;
+    width: number;
+    wickHighY: number;
+    wickLowY: number;
+    bodyY: number;
+    bodyH: number;
+    bullish: boolean;
+  }>;
+  ema9: string;
+  ema21: string;
+  vwapLine: string;
 };
 
 export const COINSTORE_KEYS_STORAGE = "oddengine:coinstore:futures:keys:v1";
@@ -599,4 +622,174 @@ export function buildMacroIntel(
       },
     ],
   };
+}
+
+function clamp(n: number, lo: number, hi: number) {
+  return Math.max(lo, Math.min(hi, n));
+}
+
+function buildLinePath(values: number[], width: number, valueToY: (v: number) => number) {
+  if (!values.length) return "";
+  return values.map((value, index) => {
+    const x = (index / Math.max(1, values.length - 1)) * width;
+    const y = valueToY(value);
+    return `${index === 0 ? "M" : "L"} ${x.toFixed(1)} ${y.toFixed(1)}`;
+  }).join(" ");
+}
+
+type HaCandle = {
+  ts: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+};
+
+function buildHeikinAshiCandles(candles: CoinstoreCandle[]): HaCandle[] {
+  if (!candles.length) return [];
+  const out: HaCandle[] = [];
+  let prevHaOpen = (candles[0].open + candles[0].close) / 2;
+  let prevHaClose = (candles[0].open + candles[0].high + candles[0].low + candles[0].close) / 4;
+
+  candles.forEach((candle, index) => {
+    const haClose = (candle.open + candle.high + candle.low + candle.close) / 4;
+    const haOpen = index === 0 ? prevHaOpen : (prevHaOpen + prevHaClose) / 2;
+    const haHigh = Math.max(candle.high, haOpen, haClose);
+    const haLow = Math.min(candle.low, haOpen, haClose);
+    out.push({
+      ts: candle.ts,
+      open: haOpen,
+      high: haHigh,
+      low: haLow,
+      close: haClose,
+      volume: candle.volume,
+    });
+    prevHaOpen = haOpen;
+    prevHaClose = haClose;
+  });
+  return out;
+}
+
+export function buildHeikinAshiSvg(candles: CoinstoreCandle[], width = 780, height = 240): HeikinAshiSvg {
+  const rows = candles.length ? candles : seedMockCandles(70670, "5m");
+  const ha = buildHeikinAshiCandles(rows);
+  const haCloses = ha.map((c) => c.close);
+  const ema9Series = ema(haCloses, 9);
+  const ema21Series = ema(haCloses, 21);
+  const vwapValue = vwap(rows);
+  const allValues = [
+    ...ha.map((c) => c.high),
+    ...ha.map((c) => c.low),
+    ...ema9Series,
+    ...ema21Series,
+    vwapValue,
+  ].filter((v) => Number.isFinite(v));
+
+  const min = Math.min(...allValues);
+  const max = Math.max(...allValues);
+  const range = Math.max(1, max - min);
+  const padTop = 10;
+  const padBottom = 10;
+  const usableHeight = Math.max(20, height - padTop - padBottom);
+
+  const valueToY = (value: number) =>
+    clamp(height - padBottom - ((value - min) / range) * usableHeight, 0, height);
+
+  const candleWidth = Math.max(4, Math.min(10, width / Math.max(1, ha.length) * 0.62));
+  const bodies = ha.map((candle, index) => {
+    const x = (index / Math.max(1, ha.length - 1)) * width;
+    const openY = valueToY(candle.open);
+    const closeY = valueToY(candle.close);
+    const highY = valueToY(candle.high);
+    const lowY = valueToY(candle.low);
+    const top = Math.min(openY, closeY);
+    const bodyH = Math.max(1.5, Math.abs(openY - closeY));
+    return {
+      x,
+      width: candleWidth,
+      wickHighY: highY,
+      wickLowY: lowY,
+      bodyY: top,
+      bodyH,
+      bullish: candle.close >= candle.open,
+    };
+  });
+
+  return {
+    bodies,
+    ema9: buildLinePath(ema9Series, width, valueToY),
+    ema21: buildLinePath(ema21Series, width, valueToY),
+    vwapLine: buildLinePath(new Array(ha.length).fill(vwapValue), width, valueToY),
+  };
+}
+
+export function buildPhoenixCoach(
+  signals: TimeframeSignal[],
+  plan: PhoenixPlan,
+  macroIntel: MacroIntel,
+  snapshot: CoinstoreSnapshot,
+  mode25x: boolean
+): PhoenixCoachCue[] {
+  const spreadPct = snapshot.markPrice ? (snapshot.spread / snapshot.markPrice) * 100 : 0;
+  const crowdedFunding = Math.abs(snapshot.fundingRate) > (mode25x ? 0.0006 : 0.0008);
+  const waitFrames = signals.filter((signal) => signal.bias === "WAIT").length;
+  const lowerFrames = signals.filter((signal) => signal.timeframe === "1m" || signal.timeframe === "3m");
+  const lowerAgree = lowerFrames.every((signal) => signal.bias === plan.primaryBias && plan.primaryBias !== "WAIT");
+
+  const cues: PhoenixCoachCue[] = [
+    {
+      key: "posture",
+      label: "market posture",
+      detail:
+        plan.primaryBias === "WAIT"
+          ? "No clean edge yet. Protect capital and wait for a tighter alignment."
+          : plan.primaryBias === "LONG"
+          ? "Long bias is there, but only if the reclaim holds and you do not chase the candle."
+          : "Short bias is there, but only if weak bounces keep failing before entry.",
+      tone: plan.primaryBias === "WAIT" ? "warn" : plan.primaryBias === "LONG" ? "good" : "bad",
+    },
+    {
+      key: "alignment",
+      label: "alignment",
+      detail:
+        plan.primaryBias === "WAIT"
+          ? `${waitFrames}/${signals.length} frames still want patience.`
+          : lowerAgree
+          ? `Lower frames agree with the main bias. This is the cleaner version of the setup.`
+          : `Lower frames are not fully clean yet. Let the tape prove itself before pressing.`,
+      tone: plan.primaryBias === "WAIT" ? "warn" : lowerAgree ? "good" : "warn",
+    },
+    {
+      key: "friction",
+      label: "execution friction",
+      detail:
+        spreadPct > (mode25x ? 0.02 : 0.03)
+          ? `Spread is wider than ideal at ${spreadPct.toFixed(3)}%. Be picky or reduce risk.`
+          : crowdedFunding
+          ? `Funding is getting crowded. Do not let a crowded move bully you into a bad entry.`
+          : `Spread and funding look manageable enough for a disciplined attempt.`,
+      tone: spreadPct > (mode25x ? 0.02 : 0.03) || crowdedFunding ? "warn" : "good",
+    },
+    {
+      key: "entry",
+      label: "entry discipline",
+      detail: `Entry zone is ${plan.entryZone}. Enter the zone, not the emotion.`,
+      tone: plan.primaryBias === "WAIT" ? "muted" : "good",
+    },
+    {
+      key: "risk",
+      label: "risk control",
+      detail: `${plan.killSwitch} Invalidation is ${plan.invalidation}.`,
+      tone: "warn",
+    },
+    {
+      key: "intel",
+      label: "macro intel",
+      detail: macroIntel.headline,
+      tone: macroIntel.marketTone === "risk-on" ? "good" : macroIntel.marketTone === "risk-off" ? "bad" : "muted",
+    },
+  ];
+
+  return cues;
 }

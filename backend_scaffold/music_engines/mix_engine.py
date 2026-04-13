@@ -22,10 +22,19 @@ def _is_effectively_silent(samples, threshold=SILENCE_EPSILON):
 
 def _audible_fallback(seconds=2.0, freq=220.0, sample_rate=DEFAULT_SAMPLE_RATE):
     total = max(1, int(float(seconds) * float(sample_rate)))
-    return [
-        0.20 * math.sin(2.0 * math.pi * float(freq) * (i / float(sample_rate)))
-        for i in range(total)
-    ]
+    return [0.20 * math.sin(2.0 * math.pi * float(freq) * (i / float(sample_rate))) for i in range(total)]
+
+def _moving_average(samples, radius=2):
+    src = _as_list(samples)
+    if not src or radius <= 0:
+        return src
+    out = []
+    for i in range(len(src)):
+        lo = max(0, i - radius)
+        hi = min(len(src), i + radius + 1)
+        chunk = src[lo:hi]
+        out.append(sum(chunk) / max(1, len(chunk)))
+    return out
 
 def mix_tracks(a, b, ga=1.0, gb=1.0):
     a = _as_list(a)
@@ -50,98 +59,123 @@ def normalize(samples, ceiling=0.92, min_gain=1.0, max_gain=12.0):
     gain = max(float(min_gain), min(float(max_gain), gain))
     return [clamp(float(x) * gain) for x in samples], gain
 
-def duck_instrumental(instrumental, vocals, floor=0.80, depth=0.18):
+def duck_instrumental(instrumental, vocals, floor=0.82, depth=0.16):
     instrumental = _as_list(instrumental)
     vocals = _as_list(vocals)
     n = max(len(instrumental), len(vocals))
-    out = [0.0] * n
+    if n <= 0:
+        return []
+    out = []
     for i in range(n):
         inst = instrumental[i] if i < len(instrumental) else 0.0
         voc = vocals[i] if i < len(vocals) else 0.0
-        control = min(1.0, abs(voc) * 1.6)
-        gain = max(float(floor), 1.0 - control * float(depth))
-        out[i] = inst * gain
+        voc_strength = min(1.0, abs(voc) * 2.2)
+        gain = max(float(floor), 1.0 - (float(depth) * voc_strength))
+        out.append(inst * gain)
     return out
 
-def _delay(samples, sample_rate, delay_ms=140, mix=0.12, feedback=0.18):
+def _delay(samples, sample_rate=DEFAULT_SAMPLE_RATE, delay_ms=120, mix=0.12, feedback=0.18):
     src = _as_list(samples)
-    if not src or float(mix) <= 0:
+    if not src or mix <= 0.0:
         return src
-    delay = max(1, int(float(sample_rate) * (float(delay_ms) / 1000.0)))
+    delay_samples = max(1, int((float(delay_ms) / 1000.0) * float(sample_rate)))
     out = list(src)
-    for i in range(delay, len(out)):
-        out[i] += out[i-delay] * float(feedback) * float(mix)
-    return [clamp(src[i] * (1.0 - float(mix)) + out[i] * float(mix)) for i in range(len(src))]
-
-def _reverb(samples, sample_rate, amount=0.14):
-    src = _as_list(samples)
-    if not src or float(amount) <= 0:
-        return src
-    taps = [int(float(sample_rate) * t) for t in (0.013, 0.021, 0.034)]
-    gains = [0.55 * float(amount), 0.35 * float(amount), 0.22 * float(amount)]
-    out = list(src)
-    for tap, gain in zip(taps, gains):
-        for i in range(tap, len(out)):
-            out[i] += src[i - tap] * gain
-    return [clamp(x) for x in out]
-
-def _double(samples, shift=24, amount=0.12):
-    src = _as_list(samples)
-    if not src or float(amount) <= 0:
-        return src
-    out = list(src)
-    for i in range(int(shift), len(out)):
-        out[i] = clamp(out[i] + src[i-int(shift)] * float(amount))
+    for i in range(delay_samples, len(out)):
+        out[i] = clamp(out[i] + (out[i - delay_samples] * float(mix)))
+        tap = i - (delay_samples * 2)
+        if tap >= 0:
+            out[i] = clamp(out[i] + (out[tap] * float(feedback) * float(mix)))
     return out
 
-def _soft_compress(samples, drive=1.08):
+def _reverb(samples, amount=0.12):
     src = _as_list(samples)
-    return [math.tanh(float(x) * float(drive)) for x in src]
+    if not src or amount <= 0.0:
+        return src
+    short = _moving_average(src, radius=6)
+    tail = _moving_average(src, radius=18)
+    out = []
+    for dry, a, b in zip(src, short, tail):
+        out.append(clamp((dry * (1.0 - amount)) + (a * amount * 0.55) + (b * amount * 0.45)))
+    return out
 
-def ensure_audible(samples, fallback_freq=440.0, sample_rate=DEFAULT_SAMPLE_RATE):
+def _double(samples, shift=22, mix=0.10):
     src = _as_list(samples)
-    if not src or _is_effectively_silent(src):
-        return _audible_fallback(freq=float(fallback_freq), sample_rate=int(sample_rate))
-    normalized, _ = normalize(src)
-    return normalized
+    if not src or mix <= 0.0:
+        return src
+    shift = max(1, int(shift))
+    dbl = [0.0] * len(src)
+    for i in range(len(src)):
+        j = i - shift
+        if j >= 0:
+            dbl[i] = src[j]
+    out = []
+    for a, b in zip(src, dbl):
+        out.append(clamp((a * (1.0 - mix)) + (b * mix)))
+    return out
 
-def mix_song(instrumental, vocals, drums=None, instrumental_gain=0.96, vocal_gain=1.00, drum_gain=0.30, sample_rate=24000, vocal_fx=None):
-    vocal_fx = dict(vocal_fx or {})
-    instrumental = _as_list(instrumental)
-    vocals = _as_list(vocals)
+def _soft_compress(samples, threshold=0.72, ratio=2.2, makeup=1.04):
+    src = _as_list(samples)
+    out = []
+    thr = float(threshold)
+    rat = max(1.0, float(ratio))
+    for sample in src:
+        sign = -1.0 if sample < 0 else 1.0
+        mag = abs(sample)
+        if mag > thr:
+            mag = thr + ((mag - thr) / rat)
+        out.append(clamp(sign * mag * float(makeup)))
+    return out
+
+def _presence(samples, amount=0.06):
+    src = _as_list(samples)
+    if not src or amount <= 0.0:
+        return src
+    smooth = _moving_average(src, radius=3)
+    out = []
+    for dry, sm in zip(src, smooth):
+        edge = dry - sm
+        out.append(clamp(dry + (edge * amount)))
+    return out
+
+def _air(samples, amount=0.03):
+    src = _as_list(samples)
+    if not src or amount <= 0.0:
+        return src
+    wide = _moving_average(src, radius=10)
+    out = []
+    for dry, sm in zip(src, wide):
+        out.append(clamp((dry * (1.0 + amount * 0.18)) - (sm * amount * 0.18)))
+    return out
+
+def ensure_audible(samples, fallback_freq=220.0, sample_rate=DEFAULT_SAMPLE_RATE):
+    src = _as_list(samples)
+    if _is_effectively_silent(src):
+        return _audible_fallback(freq=float(fallback_freq), sample_rate=sample_rate)
+    return src
+
+def mix_song(instrumental, vocals, drums=None, sample_rate=DEFAULT_SAMPLE_RATE, vocal_fx=None, instrumental_gain=0.96, drum_gain=0.58):
+    instrumental = ensure_audible(instrumental, fallback_freq=220.0, sample_rate=sample_rate) if instrumental else []
+    vocals = ensure_audible(vocals, fallback_freq=330.0, sample_rate=sample_rate) if vocals else []
     drums = _as_list(drums)
 
+    fx = dict(vocal_fx or {})
     if vocals:
-        vocals = _double(vocals, int(vocal_fx.get('double_shift', 24)), float(vocal_fx.get('double', 0.0)))
-        vocals = _delay(vocals, sample_rate, vocal_fx.get('delay_ms', 120), vocal_fx.get('delay_mix', 0.12), vocal_fx.get('feedback', 0.18))
-        vocals = _reverb(vocals, sample_rate, vocal_fx.get('reverb', 0.14))
-        vocals = _soft_compress(vocals, vocal_fx.get('compress_drive', 1.06))
+        vocals = _presence(vocals, amount=float(fx.get('presence', 0.06)))
+        vocals = _air(vocals, amount=float(fx.get('air', 0.03)))
+        vocals = _double(vocals, shift=int(fx.get('double_shift', 22)), mix=float(fx.get('double', 0.08)))
+        vocals = _delay(vocals, sample_rate=sample_rate, delay_ms=float(fx.get('delay_ms', 120)), mix=float(fx.get('delay_mix', 0.12)))
+        vocals = _reverb(vocals, amount=float(fx.get('reverb', 0.12)))
+        vocals = _soft_compress(vocals, threshold=0.70, ratio=2.1, makeup=float(fx.get('gain', 1.02)))
 
-    if not instrumental and not vocals and not drums:
-        fb = _audible_fallback(sample_rate=sample_rate)
-        return {"samples": fb, "gain": 1.0, "duckedInstrumental": [], "processedVocals": []}
+    if instrumental and vocals:
+        instrumental = duck_instrumental(instrumental, vocals, floor=0.82, depth=0.16)
 
-    if not instrumental and vocals:
-        out = ensure_audible(vocals, fallback_freq=330.0, sample_rate=sample_rate)
-        return {"samples": out, "gain": 1.0, "duckedInstrumental": [], "processedVocals": vocals}
-
-    if instrumental and not vocals and not drums:
-        out = ensure_audible(instrumental, fallback_freq=220.0, sample_rate=sample_rate)
-        return {"samples": out, "gain": 1.0, "duckedInstrumental": instrumental, "processedVocals": []}
-
-    ducked_inst = duck_instrumental(instrumental, vocals, floor=vocal_fx.get('duck_floor', 0.80), depth=vocal_fx.get('duck_depth', 0.18))
-    base = mix_tracks(ducked_inst, vocals, instrumental_gain, vocal_gain * float(vocal_fx.get('gain', 1.0)))
+    mix = []
+    if instrumental or vocals:
+        mix = mix_tracks(instrumental, vocals, ga=float(instrumental_gain), gb=1.0)
     if drums:
-        base = mix_tracks(base, drums, 1.0, drum_gain)
+        mix = mix_tracks(mix, drums, ga=1.0, gb=float(drum_gain))
 
-    if _is_effectively_silent(base):
-        if instrumental:
-            base = mix_tracks(instrumental, vocals, 1.0, 1.0)
-        elif vocals:
-            base = list(vocals)
-        elif drums:
-            base = list(drums)
-
-    normalized, gain = normalize(base)
-    normalized = ensure_audible(normalized, fallback_freq=440.0, sample_rate=sample_rate)
-    return {"samples": normalized, "gain": gain, "duckedInstrumental": ducked_inst, "processedVocals": vocals}
+    mix = ensure_audible(mix, fallback_freq=220.0, sample_rate=sample_rate)
+    mix, gain = normalize(mix, ceiling=0.94, min_gain=1.0, max_gain=10.0)
+    return {'samples': mix, 'gain': gain}

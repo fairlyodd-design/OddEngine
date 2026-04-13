@@ -1,0 +1,8 @@
+ffmpeg available: true
+Work dir: C:\OddEngine\backend_scaffold\runtime\render_jobs\4510d0d8f175719d7a9e7c6b
+Final file: C:\OddEngine\backend_scaffold\runtime\render_jobs\4510d0d8f175719d7a9e7c6b\the-writing-room-wake-up_final_episode.mp4
+Scenes: 4
+Scene 1: C:\OddEngine\backend_scaffold\runtime\render_jobs\4510d0d8f175719d7a9e7c6b\scene_01_introduction-to-the-writing-room.mp4
+Scene 2: C:\OddEngine\backend_scaffold\runtime\render_jobs\4510d0d8f175719d7a9e7c6b\scene_02_max-s-frustration.mp4
+Scene 3: C:\OddEngine\backend_scaffold\runtime\render_jobs\4510d0d8f175719d7a9e7c6b\scene_03_the-writing-room-responds.mp4
+Scene 4: C:\OddEngine\backend_scaffold\runtime\render_jobs\4510d0d8f175719d7a9e7c6b\scene_04_the-plot-thickens.mp4

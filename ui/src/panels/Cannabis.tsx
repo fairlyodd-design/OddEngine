@@ -378,7 +378,7 @@ export default function Cannabis(){
       return;
     }
 
-    const res = await oddApi.homieChat({ messages: next });
+    const res = await oddApi().homieChat?.({ messages: next });
     if(res?.ok && res.reply){
       setChat(c => [...c, { role:"assistant", content: res.reply || "" }]);
     }else{
@@ -721,7 +721,7 @@ export default function Cannabis(){
                     <a href={selectedFav.url} target="_blank" rel="noreferrer">Open</a>
                     <button onClick={lookupCoords}>Lookup coords</button>
                     {selectedFav.coords ? (
-                      <button onClick={() => copy(`${selectedFav.coords.lat}, ${selectedFav.coords.lon}`)}>Copy coords</button>
+                      <button onClick={() => selectedFav.coords && copy(`${selectedFav.coords.lat}, ${selectedFav.coords.lon}`)} disabled={!selectedFav.coords}>Copy coords</button>
                     ) : null}
                   </div>
                   {!selectedFav.address ? (

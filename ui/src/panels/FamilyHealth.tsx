@@ -21,6 +21,11 @@ type Member = {
   researchQuery: string;
   nextVisit: string;
   vitals: string;
+  symptomsNow?: string;
+  symptomStart?: string;
+  refillBy?: string;
+  pharmacy?: string;
+  supportPlan?: string;
   lastResearch?: FeedItem[];
   doctorQuestions?: string[];
   timeline?: Array<{ ts: number; note: string }>;
@@ -34,11 +39,16 @@ type FamilyHealthState = {
   members: Member[];
   careBrief: string;
   disclaimerAccepted: boolean;
+  calmMode?: boolean;
   lastUpdated?: number;
 };
 
 const KEY = "oddengine:familyHealth:v1";
-function uid() { return `member_${Math.random().toString(36).slice(2, 9)}`; }
+
+function uid() {
+  return `member_${Math.random().toString(36).slice(2, 9)}`;
+}
+
 function blankMember(name = "Family member"): Member {
   return {
     id: uid(),
@@ -51,6 +61,11 @@ function blankMember(name = "Family member"): Member {
     researchQuery: "",
     nextVisit: "",
     vitals: "",
+    symptomsNow: "",
+    symptomStart: "",
+    refillBy: "",
+    pharmacy: "",
+    supportPlan: "",
     lastResearch: [],
     doctorQuestions: [],
     timeline: [],
@@ -59,10 +74,59 @@ function blankMember(name = "Family member"): Member {
     followUpChecklist: [],
   };
 }
-const defaultState: FamilyHealthState = { activeId: "", members: [blankMember("Mom")], careBrief: "", disclaimerAccepted: false };
+
+const defaultState: FamilyHealthState = {
+  activeId: "",
+  members: [blankMember("Mom")],
+  careBrief: "",
+  disclaimerAccepted: false,
+  calmMode: true,
+};
 
 function ensureMemberShape(member: Member): Member {
   return { ...blankMember(member.name || "Family member"), ...member };
+}
+
+function parseCsvList(text: string) {
+  return String(text || "")
+    .split(/[,\n]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function isDatePast(dateText?: string) {
+  const value = String(dateText || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  return value < fmtDate(new Date());
+}
+
+function isDateSoon(dateText?: string, days = 7) {
+  const value = String(dateText || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const now = new Date();
+  const target = new Date(`${value}T00:00:00`);
+  const diff = target.getTime() - now.getTime();
+  return diff >= -86400000 && diff <= days * 86400000;
+}
+
+function hasUrgentWords(text: string) {
+  const lower = String(text || "").toLowerCase();
+  return [
+    "chest pain",
+    "can't breathe",
+    "trouble breathing",
+    "difficulty breathing",
+    "fainting",
+    "passed out",
+    "confused",
+    "severe pain",
+    "stroke",
+    "seizure",
+    "suicidal",
+    "overdose",
+    "blue lips",
+    "unresponsive",
+  ].some((term) => lower.includes(term));
 }
 
 function buildDoctorQuestions(member: Member) {
@@ -71,6 +135,7 @@ function buildDoctorQuestions(member: Member) {
   if (member.meds) questions.push(`Are there interactions or timing issues with ${member.meds}?`);
   if (member.allergies) questions.push(`Do ${member.allergies} change medication or food recommendations?`);
   if (member.vitals) questions.push(`Which numbers or symptoms from these vitals/notes matter most: ${member.vitals}?`);
+  if (member.symptomsNow) questions.push(`What should we watch most closely about these current symptoms: ${member.symptomsNow}?`);
   if (member.notes) questions.push(`What should we watch closely based on these notes: ${member.notes.slice(0, 90)}${member.notes.length > 90 ? "…" : ""}?`);
   questions.push("What changes would mean we should call sooner or seek urgent care?");
   questions.push("What simple next steps or home-monitoring habits would help before the next visit?");
@@ -80,23 +145,122 @@ function buildDoctorQuestions(member: Member) {
 function buildFollowUps(member: Member) {
   const items: string[] = [];
   if (member.nextVisit) items.push(`Bring this sheet to the next visit on or around ${member.nextVisit}.`);
+  if (member.refillBy) items.push(`Check refills by ${member.refillBy}${member.pharmacy ? ` with ${member.pharmacy}` : ""}.`);
   if (member.meds) items.push("Review medication timing, refill timing, and any side-effect notes before the visit.");
-  if (member.conditions || member.notes) items.push("Track any changes in symptoms, routines, appetite, sleep, and energy until the next check-in.");
+  if (member.conditions || member.notes || member.symptomsNow) items.push("Track any changes in symptoms, routines, appetite, sleep, and energy until the next check-in.");
   items.push("Escalate urgent or severe symptoms to a clinician or emergency services instead of waiting on this panel.");
   return items;
 }
 
 function summarizeResearchItems(items: FeedItem[]) {
   if (!items.length) return "No research summary yet. Run the trusted-source research helper first.";
-  const leads = items.slice(0, 3).map((item, idx) => `${idx + 1}. ${item.title}${item.publishedAt ? ` (${item.publishedAt})` : ""}`).join("\n");
+  const leads = items
+    .slice(0, 3)
+    .map((item, idx) => `${idx + 1}. ${item.title}${item.publishedAt ? ` (${item.publishedAt})` : ""}`)
+    .join("\n");
   return `Top literature notes:\n${leads}\n\nUse these papers to inform better questions for a clinician, not to self-diagnose.`;
 }
 
-export default function FamilyHealth({ onNavigate, onOpenHowTo }: { onNavigate?: (id: string) => void; onOpenHowTo?: () => void } = {}) {
+function buildMemberActionQueue(member: Member) {
+  const queue: Array<{ level: "urgent" | "soon" | "routine"; title: string; body: string }> = [];
+  const symptomText = `${member.symptomsNow || ""} ${member.notes || ""}`;
+  if (hasUrgentWords(symptomText)) {
+    queue.push({
+      level: "urgent",
+      title: "Escalate now",
+      body: "Severe symptom words are present in the notes. Do not wait on this panel. Call a clinician, urgent care, or emergency services now.",
+    });
+  }
+  if (isDatePast(member.nextVisit)) {
+    queue.push({
+      level: "soon",
+      title: "Follow up on missed appointment",
+      body: `The saved visit date ${member.nextVisit} is already past. Confirm whether the visit happened or reschedule it.`,
+    });
+  } else if (isDateSoon(member.nextVisit, 7)) {
+    queue.push({
+      level: "soon",
+      title: "Get ready for the next visit",
+      body: `The next visit is coming up${member.nextVisit ? ` on or around ${member.nextVisit}` : ""}. Build the prep sheet and bring meds, questions, and symptom notes.`,
+    });
+  }
+  if (isDateSoon(member.refillBy, 7) || isDatePast(member.refillBy)) {
+    queue.push({
+      level: "soon",
+      title: "Check medication refill",
+      body: `A refill date is near${member.refillBy ? ` (${member.refillBy})` : ""}. Confirm remaining supply${member.pharmacy ? ` with ${member.pharmacy}` : ""}.`,
+    });
+  }
+  if (member.symptomsNow && !member.symptomStart) {
+    queue.push({
+      level: "routine",
+      title: "Add symptom timing",
+      body: "Current symptoms are listed, but the start date is blank. Add when they started so changes are easier to explain at the next visit.",
+    });
+  }
+  if (!member.supportPlan) {
+    queue.push({
+      level: "routine",
+      title: "Write a simple support plan",
+      body: "Add what helps day to day: meds timing, hydration, food, rest, mobility, and who to call first.",
+    });
+  }
+  if (!member.doctorQuestions?.length) {
+    queue.push({
+      level: "routine",
+      title: "Build doctor questions",
+      body: "Generate a question list so the next visit stays focused and less stressful.",
+    });
+  }
+  if (!queue.length) {
+    queue.push({
+      level: "routine",
+      title: "Stay steady",
+      body: "The basics are in place. Keep notes updated, monitor changes, and use the prep sheet before the next visit.",
+    });
+  }
+  return queue.slice(0, 5);
+}
+
+function buildCalmSummary(member: Member) {
+  const medsCount = parseCsvList(member.meds).length;
+  const allergyCount = parseCsvList(member.allergies).length;
+  if (hasUrgentWords(`${member.symptomsNow || ""} ${member.notes || ""}`)) return "Urgent symptom words found. Use emergency care, urgent care, or a clinician now.";
+  if (isDateSoon(member.nextVisit, 7)) return `Focus this week: get ready for the visit${member.nextVisit ? ` on ${member.nextVisit}` : ""}.`;
+  if (isDateSoon(member.refillBy, 7) || isDatePast(member.refillBy)) return `Focus now: check medication supply${member.refillBy ? ` before ${member.refillBy}` : ""}.`;
+  if (member.symptomsNow) return "Focus now: track current symptoms calmly and note any changes.";
+  if (medsCount || allergyCount) return "Focus now: keep meds, allergies, and day-to-day notes easy to read for the family.";
+  return "Focus now: keep this sheet updated so the next visit is easier and calmer.";
+}
+
+function buildCareBriefForMember(member: Member) {
+  return [
+    `${member.name}${member.age ? ` • Age ${member.age}` : ""}`,
+    member.conditions ? `Conditions: ${member.conditions}` : "Conditions: none noted",
+    member.allergies ? `Allergies: ${member.allergies}` : "Allergies: none noted",
+    member.meds ? `Meds: ${member.meds}` : "Meds: none noted",
+    member.symptomsNow ? `Symptoms now: ${member.symptomsNow}` : "Symptoms now: none noted",
+    member.symptomStart ? `Symptoms started: ${member.symptomStart}` : "Symptoms started: not recorded",
+    member.vitals ? `Vitals / home readings: ${member.vitals}` : "Vitals / home readings: none noted",
+    member.nextVisit ? `Next visit: ${member.nextVisit}` : "Next visit: not set",
+    member.refillBy ? `Refill by: ${member.refillBy}` : "Refill by: not set",
+    member.supportPlan ? `Support plan: ${member.supportPlan}` : "Support plan: not written yet",
+    member.notes ? `Notes: ${member.notes}` : "Notes: no additional notes",
+    "This panel is for organization and education only. For emergencies or urgent symptoms, call a clinician or emergency services.",
+  ].join("\n");
+}
+
+export default function FamilyHealth({
+  onNavigate,
+  onOpenHowTo,
+}: {
+  onNavigate?: (id: string) => void;
+  onOpenHowTo?: () => void;
+} = {}) {
   const [state, setState] = useState<FamilyHealthState>(() => {
     const saved = loadJSON<FamilyHealthState>(KEY, defaultState);
     const members = (saved.members || defaultState.members).map(ensureMemberShape);
-    return { ...saved, members, activeId: saved.activeId || members[0]?.id || "" };
+    return { ...defaultState, ...saved, members, activeId: saved.activeId || members[0]?.id || "" };
   });
   const [busy, setBusy] = useState(false);
   const [pluginTick, setPluginTick] = useState(0);
@@ -115,11 +279,13 @@ export default function FamilyHealth({ onNavigate, onOpenHowTo }: { onNavigate?:
     if (!active) return;
     const nextMembers = state.members.map((m) => {
       if (m.id !== active.id) return m;
-      const timeline = [...(m.timeline || [])];
-      if (typeof patch.notes === "string" && patch.notes !== m.notes && patch.notes.trim()) {
-        timeline.push({ ts: Date.now(), note: patch.notes.trim() });
+      const nextTimeline = [...(m.timeline || [])];
+      const newNotes = typeof patch.notes === "string" ? patch.notes.trim() : "";
+      if (typeof patch.notes === "string" && patch.notes !== m.notes && newNotes) {
+        nextTimeline.push({ ts: Date.now(), note: newNotes });
       }
-      return { ...m, ...patch, timeline };
+      const mergedTimeline = patch.timeline ? patch.timeline : nextTimeline;
+      return { ...m, ...patch, timeline: mergedTimeline };
     });
     persist({ ...state, members: nextMembers, lastUpdated: Date.now() });
   }
@@ -156,17 +322,7 @@ export default function FamilyHealth({ onNavigate, onOpenHowTo }: { onNavigate?:
 
   function buildCareBrief() {
     if (!active) return;
-    const brief = [
-      `${active.name}${active.age ? ` • Age ${active.age}` : ""}`,
-      active.conditions ? `Conditions: ${active.conditions}` : "Conditions: none noted",
-      active.allergies ? `Allergies: ${active.allergies}` : "Allergies: none noted",
-      active.meds ? `Meds: ${active.meds}` : "Meds: none noted",
-      active.vitals ? `Vitals / home readings: ${active.vitals}` : "Vitals / home readings: none noted",
-      active.nextVisit ? `Next visit: ${active.nextVisit}` : "Next visit: not set",
-      active.notes ? `Notes: ${active.notes}` : "Notes: no additional notes",
-      "This panel is for organization and education only. For emergencies or urgent symptoms, call a clinician or emergency services.",
-    ].join("\n");
-    persist({ ...state, careBrief: brief, lastUpdated: Date.now() });
+    persist({ ...state, careBrief: buildCareBriefForMember(active), lastUpdated: Date.now() });
   }
 
   function buildQuestions() {
@@ -181,6 +337,8 @@ export default function FamilyHealth({ onNavigate, onOpenHowTo }: { onNavigate?:
       `Appointment prep for ${active.name}`,
       active.nextVisit ? `Visit date: ${active.nextVisit}` : "Visit date: not set",
       active.conditions ? `Main conditions / concerns: ${active.conditions}` : "Main conditions / concerns: list the main concern to discuss",
+      active.symptomsNow ? `Symptoms now: ${active.symptomsNow}` : "Symptoms now: none recorded",
+      active.symptomStart ? `Symptoms started: ${active.symptomStart}` : "Symptoms started: not recorded",
       active.meds ? `Current meds: ${active.meds}` : "Current meds: none recorded",
       active.allergies ? `Allergies: ${active.allergies}` : "Allergies: none recorded",
       active.vitals ? `Vitals / home readings: ${active.vitals}` : "Vitals / home readings: none recorded",
@@ -194,6 +352,22 @@ export default function FamilyHealth({ onNavigate, onOpenHowTo }: { onNavigate?:
   function summarizeResearch() {
     if (!active) return;
     patchActive({ researchSummary: summarizeResearchItems(active.lastResearch || []) });
+  }
+
+  function addAppointmentToCalendar() {
+    if (!active) return;
+    const d = String(active.nextVisit || "").trim() || prompt("Date (YYYY-MM-DD)", fmtDate(new Date())) || "";
+    if (!d) return;
+    addQuickEvent({ title: `Appointment: ${active.name}`, panelId: "FamilyHealth", date: d, notes: "Bring meds list + questions." });
+    pushNotif({ title: "Family Health", body: "Added appointment to Calendar.", tags: ["FamilyHealth"], level: "good" as any });
+  }
+
+  function addRefillToCalendar() {
+    if (!active) return;
+    const d = String(active.refillBy || "").trim() || prompt("Date (YYYY-MM-DD)", fmtDate(new Date())) || "";
+    if (!d) return;
+    addQuickEvent({ title: `Refill: ${active.name}`, panelId: "FamilyHealth", date: d, notes: "Check meds, pharmacy, and remaining supply." });
+    pushNotif({ title: "Family Health", body: "Added refill reminder to Calendar.", tags: ["FamilyHealth"], level: "good" as any });
   }
 
   useEffect(() => {
@@ -221,7 +395,21 @@ export default function FamilyHealth({ onNavigate, onOpenHowTo }: { onNavigate?:
     const members = state.members || [];
     const researchCount = members.reduce((sum, member) => sum + (member.lastResearch?.length || 0), 0);
     const prepCount = members.filter((member) => member.appointmentPrep).length;
-    return { memberCount: members.length, researchCount, prepCount };
+    const urgentCount = members.filter((member) => hasUrgentWords(`${member.symptomsNow || ""} ${member.notes || ""}`)).length;
+    const refillCount = members.filter((member) => isDateSoon(member.refillBy, 7) || isDatePast(member.refillBy)).length;
+    const visitCount = members.filter((member) => isDateSoon(member.nextVisit, 7) || isDatePast(member.nextVisit)).length;
+    return { memberCount: members.length, researchCount, prepCount, urgentCount, refillCount, visitCount };
+  }, [state.members]);
+
+  const activeQueue = useMemo(() => (active ? buildMemberActionQueue(active) : []), [active]);
+  const activeSummary = useMemo(() => (active ? buildCalmSummary(active) : "Select a family member to begin."), [active]);
+  const householdQueue = useMemo(() => {
+    return state.members
+      .map((member) => {
+        const top = buildMemberActionQueue(member)[0];
+        return top ? { member: member.name, level: top.level, title: top.title, body: top.body, id: member.id } : null;
+      })
+      .filter(Boolean) as Array<{ member: string; level: "urgent" | "soon" | "routine"; title: string; body: string; id: string }>;
   }, [state.members]);
 
   return (
@@ -229,7 +417,7 @@ export default function FamilyHealth({ onNavigate, onOpenHowTo }: { onNavigate?:
       <PanelHeader
         panelId="FamilyHealth"
         title="🩺 Family Health"
-        subtitle="Care briefs, appointment prep, and trusted research lane."
+        subtitle="Calm family care lane for symptoms, meds, appointments, and next steps."
         storagePrefix="oddengine:familyHealth"
         storageActionsMode="menu"
         badges={[
@@ -243,8 +431,9 @@ export default function FamilyHealth({ onNavigate, onOpenHowTo }: { onNavigate?:
             title="Health tools"
             items={[
               { label: "Open Calendar", onClick: () => onNavigate?.("Calendar") },
-              { label: "Add appointment", onClick: () => { const d = prompt("Date (YYYY-MM-DD)", fmtDate(new Date())); if(!d) return; addQuickEvent({ title: "Family Health: appointment", panelId: "FamilyHealth", date: d, notes: "Add doctor + questions + meds list." }); } },
-              { label: "Add refill reminder", onClick: () => { const d = prompt("Date (YYYY-MM-DD)", fmtDate(new Date())); if(!d) return; addQuickEvent({ title: "Family Health: med refill", panelId: "FamilyHealth", date: d, notes: "Check meds, refills, pharmacy." }); } },
+              { label: "Add appointment", onClick: addAppointmentToCalendar },
+              { label: "Add refill reminder", onClick: addRefillToCalendar },
+              { label: state.calmMode ? "Calm mode: On" : "Calm mode: Off", onClick: () => persist({ ...state, calmMode: !state.calmMode, lastUpdated: Date.now() }) },
             ]}
           />
         }
@@ -263,37 +452,100 @@ export default function FamilyHealth({ onNavigate, onOpenHowTo }: { onNavigate?:
         onNavigate={onNavigate}
       />
 
-
       <PluginMiniWidgets panelId="FamilyHealth" onNavigate={onNavigate} onOpenHowTo={onOpenHowTo} />
 
       <div className="grid2" style={{ alignItems: "start" }}>
         <div className="card softCard">
-          <div className="h">Household overview</div>
+          <div className="small shellEyebrow">CALM CARE VIEW</div>
+          <div className="h">What should we do next?</div>
+          <div className="timelineCard" style={{ marginTop: 12 }}>
+            {activeSummary}
+          </div>
+          <div className="assistantChipWrap" style={{ marginTop: 12 }}>
+            <span className={`badge ${householdStats.urgentCount ? "bad" : "good"}`}>{householdStats.urgentCount ? `${householdStats.urgentCount} urgent note${householdStats.urgentCount === 1 ? "" : "s"}` : "No urgent note words"}</span>
+            <span className={`badge ${householdStats.visitCount ? "warn" : "good"}`}>{householdStats.visitCount ? `${householdStats.visitCount} visit item${householdStats.visitCount === 1 ? "" : "s"}` : "Visits steady"}</span>
+            <span className={`badge ${householdStats.refillCount ? "warn" : "good"}`}>{householdStats.refillCount ? `${householdStats.refillCount} refill item${householdStats.refillCount === 1 ? "" : "s"}` : "Refills steady"}</span>
+          </div>
+          <div className="assistantStack" style={{ marginTop: 12 }}>
+            {activeQueue.map((item, idx) => (
+              <div key={`${item.title}_${idx}`} className={`timelineCard ${item.level === "urgent" ? "warn" : item.level === "soon" ? "good" : ""}`}>
+                <div style={{ fontWeight: 800 }}>{item.title}</div>
+                <div className="small" style={{ marginTop: 6 }}>{item.body}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="card softCard">
+          <div className="small shellEyebrow">HOUSEHOLD QUEUE</div>
+          <div className="h">Family care overview</div>
           <div className="assistantChipWrap" style={{ marginTop: 10 }}>
             <span className="badge good">{householdStats.memberCount} members</span>
             <span className="badge">{householdStats.researchCount} research items</span>
             <span className={`badge ${state.careBrief ? "good" : "warn"}`}>{state.careBrief ? "Care brief ready" : "No care brief yet"}</span>
           </div>
-          <div className="timelineCard" style={{ marginTop: 12, whiteSpace: "pre-wrap" }}>
-            {state.careBrief || "Build a care brief to keep appointments and family updates portable."}
+          <div className="assistantStack" style={{ marginTop: 12 }}>
+            {householdQueue.map((item) => (
+              <button
+                key={`${item.id}_${item.title}`}
+                className="timelineCard"
+                onClick={() => persist({ ...state, activeId: item.id, lastUpdated: Date.now() })}
+                style={{ textAlign: "left" }}
+              >
+                <div className="row" style={{ justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+                  <div style={{ fontWeight: 800 }}>{item.member}</div>
+                  <span className={`badge ${item.level === "urgent" ? "bad" : item.level === "soon" ? "warn" : "good"}`}>{item.level}</span>
+                </div>
+                <div style={{ marginTop: 6 }}>{item.title}</div>
+                <div className="small" style={{ marginTop: 6 }}>{item.body}</div>
+              </button>
+            ))}
+            {!householdQueue.length && <div className="small">No care queue yet. Add a member, symptoms, meds, or a next visit.</div>}
           </div>
         </div>
+      </div>
 
+      <div className="grid2" style={{ alignItems: "start" }}>
         <div className="card softCard">
           <div className="h">Trusted-source lane</div>
           <div className="assistantChipWrap" style={{ marginTop: 10 }}>
-            {TRUSTED_HEALTH_LINKS.map((link) => <button key={link.label} className="tabBtn" onClick={() => openExternalLink(link.url)}>{link.label}</button>)}
+            {TRUSTED_HEALTH_LINKS.map((link) => (
+              <button key={link.label} className="tabBtn" onClick={() => openExternalLink(link.url)}>
+                {link.label}
+              </button>
+            ))}
           </div>
           <label className="row" style={{ marginTop: 12, alignItems: "center", gap: 10 }}>
-            <input type="checkbox" checked={state.disclaimerAccepted} onChange={(e) => persist({ ...state, disclaimerAccepted: e.target.checked, lastUpdated: Date.now() })} />
-            <span className="small">I understand this panel is educational and organizational only, not a substitute for clinical diagnosis or emergency care.</span>
+            <input
+              type="checkbox"
+              checked={state.disclaimerAccepted}
+              onChange={(e) => persist({ ...state, disclaimerAccepted: e.target.checked, lastUpdated: Date.now() })}
+            />
+            <span className="small">
+              I understand this panel is educational and organizational only, not a substitute for clinical diagnosis or emergency care.
+            </span>
           </label>
-          {!hasResearchPack && <div className="small" style={{ marginTop: 10, color: "var(--warn)" }}>Install the Family Health Research Pack from Plugins to unlock prep sheets, trusted-source research, and doctor-question builder.</div>}
-          {hasResearchPack && !permissionsReady && <div className="small" style={{ marginTop: 10, color: "var(--warn)" }}>Family Health Research Pack is installed but still needs source permissions in the Plugin panel.</div>}
+          {!hasResearchPack && (
+            <div className="small" style={{ marginTop: 10, color: "var(--warn)" }}>
+              Install the Family Health Research Pack from Plugins to unlock prep sheets, trusted-source research, and doctor-question builder.
+            </div>
+          )}
+          {hasResearchPack && !permissionsReady && (
+            <div className="small" style={{ marginTop: 10, color: "var(--warn)" }}>
+              Family Health Research Pack is installed but still needs source permissions in the Plugin panel.
+            </div>
+          )}
           <div className="row" style={{ marginTop: 12, gap: 8, flexWrap: "wrap" }}>
             <button className="tabBtn active" onClick={buildCareBrief}>Build care brief</button>
             {hasResearchPack && <button className="tabBtn" onClick={buildQuestions}>Build doctor questions</button>}
             {hasResearchPack && <button className="tabBtn" onClick={buildPrepSheet}>Build prep sheet</button>}
+          </div>
+        </div>
+
+        <div className="card softCard">
+          <div className="h">Portable care brief</div>
+          <div className="timelineCard" style={{ marginTop: 12, whiteSpace: "pre-wrap" }}>
+            {state.careBrief || "Build a care brief to keep appointments and family updates portable."}
           </div>
         </div>
       </div>
@@ -303,7 +555,7 @@ export default function FamilyHealth({ onNavigate, onOpenHowTo }: { onNavigate?:
           <div className="row" style={{ justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <div>
               <div className="h">Family member tabs</div>
-              <div className="sub">Keep one structured tab per person.</div>
+              <div className="sub">Keep one calm, readable tab per person.</div>
             </div>
             <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
               <button className="tabBtn active" onClick={addMember}>Add member</button>
@@ -312,34 +564,73 @@ export default function FamilyHealth({ onNavigate, onOpenHowTo }: { onNavigate?:
           </div>
           <div className="assistantChipWrap" style={{ marginTop: 10 }}>
             {state.members.map((member) => (
-              <button key={member.id} className={`tabBtn ${member.id === active?.id ? "active" : ""}`} onClick={() => persist({ ...state, activeId: member.id })}>{member.name}</button>
+              <button
+                key={member.id}
+                className={`tabBtn ${member.id === active?.id ? "active" : ""}`}
+                onClick={() => persist({ ...state, activeId: member.id, lastUpdated: Date.now() })}
+              >
+                {member.name}
+              </button>
             ))}
           </div>
+
           {active && (
             <div className="assistantStack" style={{ marginTop: 12 }}>
               <label className="field">Name<input value={active.name} onChange={(e) => patchActive({ name: e.target.value })} /></label>
+
               <div className="grid2">
                 <label className="field">Age<input value={active.age} onChange={(e) => patchActive({ age: e.target.value })} placeholder="74" /></label>
-                <label className="field"><div className="row" style={{justifyContent:"space-between", alignItems:"center", gap:8}}><span>Next visit</span><button className="tabBtn" onClick={() => { const d = (active.nextVisit || "").trim() || prompt("Date (YYYY-MM-DD)", fmtDate(new Date())) || ""; if(!d) return; addQuickEvent({ title: `Appointment: ${active.name}`, panelId: "FamilyHealth", date: d, notes: "Bring meds list + questions." }); pushNotif({ title: "Family Health", body: "Added appointment to Calendar.", tags: ["FamilyHealth"], level: "good" as any }); }}>+Cal</button></div><input value={active.nextVisit} onChange={(e) => patchActive({ nextVisit: e.target.value })} placeholder="2026-03-12" /></label>
+                <label className="field">
+                  <div className="row" style={{ justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                    <span>Next visit</span>
+                    <button className="tabBtn" onClick={addAppointmentToCalendar}>+Cal</button>
+                  </div>
+                  <input value={active.nextVisit} onChange={(e) => patchActive({ nextVisit: e.target.value })} placeholder="2026-03-12" />
+                </label>
               </div>
+
+              <div className="grid2">
+                <label className="field">Symptoms now<input value={active.symptomsNow || ""} onChange={(e) => patchActive({ symptomsNow: e.target.value })} placeholder="cough, fatigue, swelling, dizziness" /></label>
+                <label className="field">Symptoms started<input value={active.symptomStart || ""} onChange={(e) => patchActive({ symptomStart: e.target.value })} placeholder="2026-04-10 or '2 days ago'" /></label>
+              </div>
+
               <label className="field">Conditions<input value={active.conditions} onChange={(e) => patchActive({ conditions: e.target.value })} placeholder="high blood pressure, arthritis" /></label>
               <label className="field">Allergies<input value={active.allergies} onChange={(e) => patchActive({ allergies: e.target.value })} placeholder="penicillin, shellfish" /></label>
               <label className="field">Meds<input value={active.meds} onChange={(e) => patchActive({ meds: e.target.value })} placeholder="lisinopril, vitamin D" /></label>
+
+              <div className="grid2">
+                <label className="field">Refill by<input value={active.refillBy || ""} onChange={(e) => patchActive({ refillBy: e.target.value })} placeholder="2026-04-18" /></label>
+                <label className="field">
+                  <div className="row" style={{ justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                    <span>Pharmacy / supplier</span>
+                    <button className="tabBtn" onClick={addRefillToCalendar}>+Cal</button>
+                  </div>
+                  <input value={active.pharmacy || ""} onChange={(e) => patchActive({ pharmacy: e.target.value })} placeholder="CVS, Walgreens, local pharmacy" />
+                </label>
+              </div>
+
               <label className="field">Vitals / home readings<input value={active.vitals} onChange={(e) => patchActive({ vitals: e.target.value })} placeholder="BP 128/80, O2 97%, temp 98.6" /></label>
+              <label className="field">Simple support plan<textarea rows={3} value={active.supportPlan || ""} onChange={(e) => patchActive({ supportPlan: e.target.value })} placeholder="What helps day to day: meds timing, hydration, food, mobility, sleep, who to call first…" /></label>
               <label className="field">Notes<textarea rows={5} value={active.notes} onChange={(e) => patchActive({ notes: e.target.value })} placeholder="Symptoms, appointment notes, concerns, home observations…" /></label>
             </div>
           )}
         </div>
 
         <div className="card softCard">
-          <div className="h">Doctor visit prep</div>
+          <div className="h">Visit + follow-up lane</div>
           <div className="assistantStack" style={{ marginTop: 10 }}>
-            <div className="timelineCard" style={{ whiteSpace: "pre-wrap" }}>{active?.appointmentPrep || "Build a prep sheet to turn this member tab into an appointment-ready summary."}</div>
+            <div className="timelineCard" style={{ whiteSpace: "pre-wrap" }}>
+              {active?.appointmentPrep || "Build a prep sheet to turn this member tab into an appointment-ready summary."}
+            </div>
             {hasResearchPack && (
               <>
                 <div className="assistantSectionTitle">Follow-up checklist</div>
-                {(active?.followUpChecklist || []).map((item, idx) => <div key={idx} className="timelineCard">{item}</div>)}
-                {!(active?.followUpChecklist || []).length && <div className="small">Build doctor questions or a prep sheet to generate a practical follow-up checklist.</div>}
+                {(active?.followUpChecklist || []).map((item, idx) => (
+                  <div key={idx} className="timelineCard">{item}</div>
+                ))}
+                {!(active?.followUpChecklist || []).length && (
+                  <div className="small">Build doctor questions or a prep sheet to generate a practical follow-up checklist.</div>
+                )}
               </>
             )}
           </div>
@@ -387,8 +678,13 @@ export default function FamilyHealth({ onNavigate, onOpenHowTo }: { onNavigate?:
             </div>
           </div>
           <div className="row" style={{ marginTop: 10, gap: 10, flexWrap: "wrap" }}>
-            <label className="field" style={{ flex: 1 }}>Research query
-              <input value={active.researchQuery} onChange={(e) => patchActive({ researchQuery: e.target.value })} placeholder="Example: hypertension older adult diet medication interactions" />
+            <label className="field" style={{ flex: 1 }}>
+              Research query
+              <input
+                value={active.researchQuery}
+                onChange={(e) => patchActive({ researchQuery: e.target.value })}
+                placeholder="Example: hypertension older adult diet medication interactions"
+              />
             </label>
           </div>
           {hasResearchPack && <div className="timelineCard" style={{ marginTop: 12, whiteSpace: "pre-wrap" }}>{active.researchSummary || "Run research and summarize it here into a short trusted-source note."}</div>}

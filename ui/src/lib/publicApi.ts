@@ -117,3 +117,5 @@ export function parseGreeksResponse(json: any): Record<string, PublicApiGreeks> 
   }
   return out;
 }
+
+export type { PublicChainData, PublicContract } from "./publicScanner";

@@ -1,0 +1,28 @@
+{
+  "jobId": "demojob",
+  "finalEpisodeFile": "demo_final.mp4",
+  "scenes": [
+    {
+      "sceneId": "s1",
+      "sceneTitle": "Night Drive",
+      "visualPrompt": "Rain on the windshield as neon signs glow across the street",
+      "motionPrompt": "slow push forward through wet city lights",
+      "cameraPlan": "wide to medium dolly in",
+      "voiceText": "We drive through the city and everything feels alive tonight.",
+      "durationSec": 3,
+      "outputFile": "s1.mp4",
+      "voiceAssetFile": "s1.wav"
+    },
+    {
+      "sceneId": "s2",
+      "sceneTitle": "The Reveal",
+      "visualPrompt": "A hidden rooftop garden above the skyline under moonlight",
+      "motionPrompt": "floating crane rise with soft parallax",
+      "cameraPlan": "medium to wide rise",
+      "voiceText": "Then the whole skyline opens up and the world changes in one breath.",
+      "durationSec": 3,
+      "outputFile": "s2.mp4",
+      "voiceAssetFile": "s2.wav"
+    }
+  ]
+}

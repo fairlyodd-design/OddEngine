@@ -1,0 +1,48 @@
+ffmpeg exited with code 4294967274
+ffmpeg version 2026-03-26-git-fd9f1e9c52-essentials_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers
+  built with gcc 15.2.0 (Rev11, Built by MSYS2 project)
+  configuration: --enable-gpl --enable-version3 --enable-static --disable-w32threads --disable-autodetect --enable-cairo --enable-fontconfig --enable-iconv --enable-gnutls --enable-libxml2 --enable-gmp --enable-bzlib --enable-lzma --enable-zlib --enable-libsrt --enable-libssh --enable-libzmq --enable-avisynth --enable-sdl2 --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxvid --enable-libaom --enable-libopenjpeg --enable-libvpx --enable-mediafoundation --enable-libass --enable-libfreetype --enable-libfribidi --enable-libharfbuzz --enable-libvidstab --enable-libvmaf --enable-libzimg --enable-amf --enable-cuda-llvm --enable-cuvid --enable-dxva2 --enable-d3d11va --enable-d3d12va --enable-ffnvcodec --enable-libvpl --enable-nvdec --enable-nvenc --enable-vaapi --enable-openal --enable-libgme --enable-libopenmpt --enable-libopencore-amrwb --enable-libmp3lame --enable-libtheora --enable-libvo-amrwbenc --enable-libgsm --enable-libopencore-amrnb --enable-libopus --enable-libspeex --enable-libvorbis --enable-librubberband
+  libavutil      60. 29.100 / 60. 29.100
+  libavcodec     62. 29.101 / 62. 29.101
+  libavformat    62. 13.101 / 62. 13.101
+  libavdevice    62.  4.100 / 62.  4.100
+  libavfilter    11. 15.101 / 11. 15.101
+  libswscale      9.  7.100 /  9.  7.100
+  libswresample   6.  4.100 /  6.  4.100
+Input #0, lavfi, from 'color=c=black:s=1280x720:d=1':
+  Duration: N/A, start: 0.000000, bitrate: N/A
+  Stream #0:0: Video: wrapped_avframe, yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 25 fps, 25 tbr, 25 tbn
+Fontconfig error: Cannot load default config file: No such file: (null)
+Fontconfig error: Cannot load default config file: No such file: (null)
+Fontconfig error: Cannot load default config file: No such file: (null)
+Fontconfig error: Cannot load default config file: No such file: (null)
+Fontconfig error: Cannot load default config file: No such file: (null)
+Fontconfig error: Cannot load default config file: No such file: (null)
+Fontconfig error: Cannot load default config file: No such file: (null)
+Fontconfig error: Cannot load default config file: No such file: (null)
+Fontconfig error: Cannot load default config file: No such file: (null)
+Fontconfig error: Cannot load default config file: No such file: (null)
+Stream mapping:
+  Stream #0:0 -> #0:0 (wrapped_avframe (native) -> png (native))
+Press [q] to stop, [?] for help
+Fontconfig error: Cannot load default config file: No such file: (null)
+Fontconfig error: Cannot load default config file: No such file: (null)
+Fontconfig error: Cannot load default config file: No such file: (null)
+Fontconfig error: Cannot load default config file: No such file: (null)
+Fontconfig error: Cannot load default config file: No such file: (null)
+Fontconfig error: Cannot load default config file: No such file: (null)
+Fontconfig error: Cannot load default config file: No such file: (null)
+Fontconfig error: Cannot load default config file: No such file: (null)
+Fontconfig error: Cannot load default config file: No such file: (null)
+[Parsed_drawtext_17 @ 000001ad639533c0] [Eval @ 00000060a9bfebb0] Invalid chars ',drawtext=text=makeit...Illneverfindmyvoice...,The:fontcolor=white@0.88:fontsize=20:x=150:y=636,drawtext=text=OddEngineWritersLounge:fontcolor=white@0.3:fontsize=18:x=910:y=675' at the end of expression '610,drawtext=text=make it... Ill never find my voice...,The:fontcolor=white@0.88:fontsize=20:x=150:y=636,drawtext=text=OddEngine Writers Lounge:fontcolor=white@0.3:fontsize=18:x=910:y=675'
+[Parsed_drawtext_17 @ 000001ad639533c0] Failed to parse expression: 610,drawtext=text=make it... Ill never find my voice...,The:fontcolor=white@0.88:fontsize=20:x=150:y=636,drawtext=text=OddEngine Writers Lounge:fontcolor=white@0.3:fontsize=18:x=910:y=675 
+[Parsed_drawtext_17 @ 000001ad639533c0] Failed to configure input pad on Parsed_drawtext_17
+[vf#0:0 @ 000001ad637f0b00] Error reinitializing filters!
+[vf#0:0 @ 000001ad637f0b00] Task finished with error code: -22 (Invalid argument)
+[vf#0:0 @ 000001ad637f0b00] Terminating thread with return code -22 (Invalid argument)
+[vost#0:0/png @ 000001ad63770900] [enc:png @ 000001ad637ed440] Could not open encoder before EOF
+[vost#0:0/png @ 000001ad63770900] Task finished with error code: -22 (Invalid argument)
+[vost#0:0/png @ 000001ad63770900] Terminating thread with return code -22 (Invalid argument)
+[out#0/image2 @ 000001ad63947140] Nothing was written into output file, because at least one of its streams received no packets.
+frame=    0 fps=0.0 q=0.0 Lsize=       0KiB time=N/A bitrate=N/A speed=N/A elapsed=0:00:00.01    
+Conversion failed!

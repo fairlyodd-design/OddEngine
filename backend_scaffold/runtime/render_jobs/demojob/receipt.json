@@ -1,0 +1,87 @@
+{
+  "jobId": "demojob",
+  "status": "completed",
+  "detail": "Final episode assembled with movie-like scene visuals",
+  "artifacts": [
+    {
+      "kind": "voice",
+      "label": "Scene 1 voice",
+      "path": "/mnt/data/out333b/odd333b/backend_scaffold/runtime/render_jobs/demojob/s1.wav",
+      "url": "http://127.0.0.1:8899/files/demojob/s1.wav"
+    },
+    {
+      "kind": "transcript",
+      "label": "Scene 1 transcript",
+      "path": "/mnt/data/out333b/odd333b/backend_scaffold/runtime/render_jobs/demojob/s1_transcript.txt",
+      "url": "http://127.0.0.1:8899/files/demojob/s1_transcript.txt"
+    },
+    {
+      "kind": "voice",
+      "label": "Scene 2 voice",
+      "path": "/mnt/data/out333b/odd333b/backend_scaffold/runtime/render_jobs/demojob/s2.wav",
+      "url": "http://127.0.0.1:8899/files/demojob/s2.wav"
+    },
+    {
+      "kind": "transcript",
+      "label": "Scene 2 transcript",
+      "path": "/mnt/data/out333b/odd333b/backend_scaffold/runtime/render_jobs/demojob/s2_transcript.txt",
+      "url": "http://127.0.0.1:8899/files/demojob/s2_transcript.txt"
+    },
+    {
+      "kind": "voice-manifest",
+      "label": "Voice manifest",
+      "path": "/mnt/data/out333b/odd333b/backend_scaffold/runtime/render_jobs/demojob/voice_manifest.txt",
+      "url": "http://127.0.0.1:8899/files/demojob/voice_manifest.txt"
+    },
+    {
+      "kind": "scene-poster",
+      "label": "Scene 1 poster",
+      "path": "/mnt/data/out333b/odd333b/backend_scaffold/runtime/render_jobs/demojob/s1_poster.png",
+      "url": "http://127.0.0.1:8899/files/demojob/s1_poster.png"
+    },
+    {
+      "kind": "scene-video",
+      "label": "Scene 1 video",
+      "path": "/mnt/data/out333b/odd333b/backend_scaffold/runtime/render_jobs/demojob/s1.mp4",
+      "url": "http://127.0.0.1:8899/files/demojob/s1.mp4"
+    },
+    {
+      "kind": "scene-poster",
+      "label": "Scene 2 poster",
+      "path": "/mnt/data/out333b/odd333b/backend_scaffold/runtime/render_jobs/demojob/s2_poster.png",
+      "url": "http://127.0.0.1:8899/files/demojob/s2_poster.png"
+    },
+    {
+      "kind": "scene-video",
+      "label": "Scene 2 video",
+      "path": "/mnt/data/out333b/odd333b/backend_scaffold/runtime/render_jobs/demojob/s2.mp4",
+      "url": "http://127.0.0.1:8899/files/demojob/s2.mp4"
+    },
+    {
+      "kind": "shot-manifest",
+      "label": "Shot manifest",
+      "path": "/mnt/data/out333b/odd333b/backend_scaffold/runtime/render_jobs/demojob/shot_manifest.txt",
+      "url": "http://127.0.0.1:8899/files/demojob/shot_manifest.txt"
+    },
+    {
+      "kind": "concat-list",
+      "label": "Concat list",
+      "path": "/mnt/data/out333b/odd333b/backend_scaffold/runtime/render_jobs/demojob/concat_list.txt",
+      "url": "http://127.0.0.1:8899/files/demojob/concat_list.txt"
+    },
+    {
+      "kind": "assembly",
+      "label": "Assembly recipe",
+      "path": "/mnt/data/out333b/odd333b/backend_scaffold/runtime/render_jobs/demojob/assembly_recipe.txt",
+      "url": "http://127.0.0.1:8899/files/demojob/assembly_recipe.txt"
+    },
+    {
+      "kind": "final-video",
+      "label": "Final episode video",
+      "path": "/mnt/data/out333b/odd333b/backend_scaffold/runtime/render_jobs/demojob/demo_final.mp4",
+      "url": "http://127.0.0.1:8899/files/demojob/demo_final.mp4"
+    }
+  ],
+  "createdAt": 1775891100676,
+  "updatedAt": 1775891120841
+}

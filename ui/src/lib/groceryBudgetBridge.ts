@@ -4,6 +4,10 @@ export const GROCERY_BUDGET_BRIDGE_KEY = "oddengine:groceryBudgetBridge:v1";
 
 export type GroceryBudgetSnapshot = {
   updatedAt: number;
+  ready?: boolean;
+  plannedLabel?: string;
+  actualLabel?: string;
+  savingsLabel?: string;
   basketGoalLabel: string;
   plannedSpend: number;
   actualSpend: number;
@@ -57,7 +61,7 @@ export function buildGroceryBudgetSnapshot(input: {
   pantryPressure?: number;
   topNeed?: string;
   preferredStores?: string[];
-}): GroceryBudgetSnapshot {
+} = {}): GroceryBudgetSnapshot {
   const plannedSpend = Math.max(0, Number(input.plannedSpend ?? DEFAULT_GROCERY_BUDGET_SNAPSHOT.plannedSpend));
   const actualSpend = Math.max(0, Number(input.actualSpend ?? DEFAULT_GROCERY_BUDGET_SNAPSHOT.actualSpend));
   const estimatedBasket = Math.max(0, Number(input.estimatedBasket ?? actualSpend));
@@ -81,6 +85,10 @@ export function buildGroceryBudgetSnapshot(input: {
 
   return {
     updatedAt: Date.now(),
+    ready: groceryItemCount > 0 || estimatedBasket > 0 || actualSpend > 0,
+    plannedLabel: money(plannedSpend),
+    actualLabel: money(actualSpend),
+    savingsLabel: money(estimatedSavings),
     basketGoalLabel: input.basketGoalLabel || `${money(plannedSpend)} family week`,
     plannedSpend,
     actualSpend,

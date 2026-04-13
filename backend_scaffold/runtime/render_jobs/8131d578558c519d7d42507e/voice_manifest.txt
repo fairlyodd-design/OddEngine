@@ -1,0 +1,6 @@
+Scene 1: C:\OddEngine\backend_scaffold\runtime\render_jobs\8131d578558c519d7d42507e\scene_01_cold-open_voice.wav • powershell-system-speech
+Speech: Lonely: This is where everything starts to bend. In a world shaped by lonely, one small shift changes the whole lane.
+Scene 2: C:\OddEngine\backend_scaffold\runtime\render_jobs\8131d578558c519d7d42507e\scene_02_escalation_voice.wav • powershell-system-speech
+Speech: Radio: You feel that? The whole scene just changed. The pressure builds, and every beat gets tighter.
+Scene 3: C:\OddEngine\backend_scaffold\runtime\render_jobs\8131d578558c519d7d42507e\scene_03_payoff_voice.wav • powershell-system-speech
+Speech: Lonely: Then let's make the ending count. At the center of the moment, the truth finally lands.

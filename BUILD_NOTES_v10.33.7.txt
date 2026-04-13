@@ -1,0 +1,17 @@
+v10.33.7_TrueBackendReceiptAndStageTimelinePass
+
+What changed
+- Added backend receipt capture to the Studio pipeline state.
+- Added artifact counts for voice, transcripts, posters, scene videos, assemblies, final videos, and logs.
+- Added a rolling backend timeline so Writers Lounge shows the last few backend receipts with timestamps.
+- Expanded pipeline polling to include backendSubmit, so the cards can advance from real backend evidence even when the initial submit stage lingers.
+- Added Builder/Render Lab visibility for the last backend receipt and recent timeline entries.
+
+Files changed
+- ui/src/lib/studioOrchestrator.ts
+- ui/src/panels/Books.tsx
+- ui/src/panels/Builder.tsx
+
+Notes
+- This is a targeted drop-in pass built on the provided v10.33.6 source.
+- I could not run the full Windows Electron app end-to-end in this environment because the UI dependencies are not installed in the extracted zip.

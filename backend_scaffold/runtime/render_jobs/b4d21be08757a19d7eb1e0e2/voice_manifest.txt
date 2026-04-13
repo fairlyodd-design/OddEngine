@@ -1,0 +1,6 @@
+Scene 1: C:\OddEngine\backend_scaffold\runtime\render_jobs\b4d21be08757a19d7eb1e0e2\scene_01_morning-routine_voice.wav • powershell-system-speech
+Speech: Good morning, writing room.,Nothing from you, as usual. Another day, another blank page.
+Scene 2: C:\OddEngine\backend_scaffold\runtime\render_jobs\b4d21be08757a19d7eb1e0e2\scene_02_the-writing-room-awakens_voice.wav • powershell-system-speech
+Speech: Ah, finally! You're talking to me.,Now we can get this show on the road. The writing room has come to life!
+Scene 3: C:\OddEngine\backend_scaffold\runtime\render_jobs\b4d21be08757a19d7eb1e0e2\scene_03_confronting-creativity_voice.wav • powershell-system-speech
+Speech: You're just a tool, but I'm the one who brings life!,Don't get too full of yourself. The lines between creator and creation blur.

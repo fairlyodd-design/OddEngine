@@ -1,0 +1,16 @@
+{
+  "title": "Neon Heartline",
+  "runRoot": "C:\\OddEngine\\backend_scaffold\\backend_scaffold_data\\music_bridge\\outputs\\neon-heartline-74d338fa",
+  "files": [
+    "cover-art.svg",
+    "drums.wav",
+    "instrumental.wav",
+    "lyric-video.svg",
+    "main.wav",
+    "manifest.json",
+    "request.json",
+    "response.json",
+    "vocals.wav"
+  ],
+  "updatedAt": 1775856006747
+}

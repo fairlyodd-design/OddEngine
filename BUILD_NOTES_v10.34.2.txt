@@ -1,0 +1,10 @@
+v10.34.2_ImageToVideoShotMotionPass
+----------------------------------
+Mission:
+Take generated stills, add image-to-video or motion-model support per shot,
+increase life and movement, and keep still-image fallback if the model fails.
+
+Honesty note:
+This package is a concrete scaffold/spec-driven pass starter. It defines the
+motion-provider abstraction and the still-motion fallback path so the next
+layer can be built cleanly on top of v10.34.1.

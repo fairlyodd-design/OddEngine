@@ -305,7 +305,7 @@ export default function CryptoGames(){
       <div className="row" style={{marginTop:12, flexWrap:"wrap"}}>
         <button onClick={()=>window.open("https://zbd.gg/z/earn","_blank")}>Open ZBD Earn</button>
         <button onClick={seed}>Seed 1 example</button>
-        <button onClick={scanOfficialZbd} title="Pull official game names from ZBD web lists (Desktop recommended)">Scan official ZBD</button>
+        <button onClick={() => void scanOfficialZbd(state, save)} title="Pull official game names from ZBD web lists (Desktop recommended)">Scan official ZBD</button>
       </div>
 
       <div className="card" style={{marginTop:12}}>
@@ -410,7 +410,7 @@ https://zbd.gg/z/earn`} />
 }
 
 
-async function scanOfficialZbd(){
+async function scanOfficialZbd(state: State, save: (next: State) => void){
   try{
     pushNotif({ title:"Crypto Games", body:"Scanning official ZBD lists…", tags:["Crypto Games"], level:"info" });
     const urls = ["https://zbd.gg/", "https://app.zbd.gg/arcade"];
@@ -427,7 +427,7 @@ async function scanOfficialZbd(){
       seen.add(k);
       return true;
     });
-    const existing = new Set((state.games||[]).map(g => (g.name||"").toLowerCase()));
+    const existing = new Set((state.games||[]).map((g: Game) => (g.name||"").toLowerCase()));
     const toAdd: Game[] = [];
     for(const n of uniq){
       if(existing.has(n.toLowerCase())) continue;
@@ -438,7 +438,7 @@ async function scanOfficialZbd(){
       return;
     }
     save({ ...state, games: [...toAdd, ...(state.games||[])] });
-    pushNotif({ title:"Crypto Games", body:`Added ${toAdd.length} official ZBD game(s).`, tags:["Crypto Games"], level:"good" });
+    pushNotif({ title:"Crypto Games", body:`Added ${toAdd.length} official ZBD game(s).`, tags:["Crypto Games"], level:"success" });
   }catch(e:any){
     pushNotif({ title:"Crypto Games", body:`Scan failed: ${e?.message || String(e)}`, tags:["Crypto Games"], level:"error" });
   }

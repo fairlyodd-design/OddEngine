@@ -368,7 +368,9 @@ function getWorkingLane() {
     current.lastTs = Math.max(current.lastTs, Number(row.ts || 0));
     grouped.set(row.laneKey, current);
   }
-  return Array.from(grouped.values()).sort((a, b) => (b.actualUsd * 100 + b.wins * 10 + b.lastTs / 1e10) - (a.actualUsd * 100 + a.wins * 10 + a.lastTs / 1e10))[0] || null;
+  return Array.from(grouped.values())
+    .filter((entry): entry is Exclude<HomieWorkingLane, null> => !!entry)
+    .sort((a, b) => (b.actualUsd * 100 + b.wins * 10 + b.lastTs / 1e10) - (a.actualUsd * 100 + a.wins * 10 + a.lastTs / 1e10))[0] || null;
 }
 
 export function buildPanelCompanionMemory(activePanelId: string) {

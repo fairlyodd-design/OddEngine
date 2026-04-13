@@ -1,57 +1,31 @@
-# OddEngine Render Backend
+# OddEngine Budget Sync Scaffold
 
-Run locally:
+This folder gives you two tiny backend examples for the Family Budget sync bridge in OddEngine v10.14.0.
+
+## Routes expected by the app
+
+- `GET /api/health`
+- `GET /api/households/:id/snapshot`
+- `POST /api/households/:id/snapshot`
+
+## Express
 
 ```bash
-node backend_scaffold/render-backend.mjs
+npm i express
+node backend_scaffold/express-snapshot-server.mjs
 ```
 
-Default URL: `http://127.0.0.1:8899`
+## Fastify
 
-This pass adds a real media provider bridge for image, audio, and video workers.
-
-## Backend storage
-- jobs: `backend_scaffold_data/render_jobs/`
-- outputs: `backend_scaffold_data/render_outputs/`
-- provider config: `backend_scaffold_data/render_providers.json`
-
-## Provider bridge contract
-Health probe:
-- `GET /health`
-
-Generate:
-- `POST /generate`
-
-Expected request body:
-```json
-{
-  "provider": "image",
-  "model": "your-model-name",
-  "job": {
-    "title": "Project title",
-    "prompt": "Primary brief",
-    "visualBrief": "...",
-    "audioBrief": "...",
-    "videoBrief": "...",
-    "script": "..."
-  }
-}
+```bash
+npm i fastify
+node backend_scaffold/fastify-snapshot-server.mjs
 ```
 
-Accepted provider responses:
-- `artifacts: [{ name, mime, base64 }]`
-- `outputs: [...]`
-- `base64`
-- `url`
-- `text`
+## Optional env vars
 
-## Useful routes
-- `GET /health`
-- `GET /providers`
-- `POST /providers`
-- `POST /providers/probe`
-- `GET /render/jobs`
-- `POST /render/jobs`
-- `GET /render/jobs/:id`
-- `POST /render/jobs/:id/run`
-- `GET /render/jobs/:id/artifacts`
+- `PORT=8787`
+- `API_PREFIX=/api`
+- `BEARER_TOKEN=your-secret`
+
+The scaffold stores one JSON snapshot per household under `backend_scaffold_data/`.

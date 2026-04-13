@@ -1,0 +1,10 @@
+v10.34.0_TrueSceneVisualGenerationPass
+
+Includes:
+- Repair for broken studioOrchestrator export regression (advanceStudioPipeline preserved)
+- Scene poster generation upgraded to cleaner prompt-driven scene visuals
+- Reduced on-screen text density in scene frames
+- More cinematic clip rendering with less placeholder-card feel
+
+Honest note:
+This is still local procedural scene visual generation using ffmpeg composition. It is a meaningful visual upgrade over the text-card output, but it is not model-generated illustration/video.

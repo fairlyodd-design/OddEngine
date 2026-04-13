@@ -1,0 +1,12 @@
+v10.32.2_TrueRenderRunnerAndLiveBuilderSyncPass
+
+What changed:
+- Added backend_scaffold/render-execution-server.mjs with /health, POST /render/jobs, GET /render/jobs/:id, GET /render/jobs/:id/artifacts
+- Added backend_scaffold/RUN_WINDOWS_RENDER_BACKEND.bat helper
+- Builder panel now auto-refreshes render jobs, imported artifacts, and episode packages every 2s and on focus
+- Version bumped to 10.32.2
+
+Important:
+- This fixes the stall where Writers Lounge submitted a render job but no matching local render backend existed on port 8899.
+- The render bridge creates placeholder execution artifacts and advances job states automatically.
+- It does not yet render real video or run ffmpeg. This pass makes the pipeline move and import outputs instead of sitting idle.

@@ -1,0 +1,29 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2021",
+    "lib": ["ES2021", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "files": [
+    "src/auditEntry.ts",
+    "src/types/assets.d.ts"
+  ],
+  "exclude": [
+    "src/components/ui/src/**/*",
+    "src/**/PATCH*.ts",
+    "src/**/PATCH*.tsx",
+    "src/**/_PATCH*.ts",
+    "src/**/_PATCH*.tsx",
+    "src/**/Books_PATCH.tsx",
+    "src/**/PATCH_runLocalBackend.ts",
+    "src/**/Books_SAFE_RENDER_PATCH.tsx",
+    "src/**/Builder_SAFE_RENDER_PATCH.tsx",
+    "src/panels/aBooks.tsx",
+    "src/lib/studioRevenueClosure.ts",
+    "src/lib/systemDiagnostics.ts",
+    "src/lib/writerEngine.ts",
+    "../portfolio/**/*"
+  ]
+}

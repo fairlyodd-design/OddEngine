@@ -71,20 +71,20 @@ export default function AssistantDock({ panelId, onNavigate, onOpenHowTo }: { pa
   }
 
   function pushAssistantMessage(content: string) {
-    const next = [...messages, { role: "assistant", content, ts: Date.now() }];
+    const next: BrainChatMessage[] = [...messages, { role: "assistant", content, ts: Date.now() }];
     persist(next.slice(-20));
   }
 
   async function ask(nextPrompt?: string) {
     const text = (nextPrompt ?? prompt).trim();
     if (!text || busy) return;
-    const next = [...messages, { role: "user", content: text, ts: Date.now() }];
+    const next: BrainChatMessage[] = [...messages, { role: "user", content: text, ts: Date.now() }];
     persist(next);
     setPrompt("");
     setBusy(true);
     try {
       const r = await runBrainChat({ panelId: meta.id, prompt: text, mode: "panel" });
-      const out = [...next, { role: "assistant", content: r.reply, ts: Date.now() }];
+      const out: BrainChatMessage[] = [...next, { role: "assistant", content: r.reply, ts: Date.now() }];
       persist(out);
       if (prefs.ai?.autoPinNotes) {
         saveBrainNote({ panelId: meta.id, title: `${meta.title} insight`, body: r.reply, pinned: true });

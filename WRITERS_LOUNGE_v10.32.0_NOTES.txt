@@ -1,0 +1,12 @@
+v10.32.0_RealPublishingConnectorExecutionPass
+
+What changed
+- Added real local publishing connector probe + execution hooks in ui/src/lib/writerEngine.ts
+- Added Publishing Prep runner URL, probe button, YouTube/Gumroad handoff buttons, and recent handoff history in ui/src/panels/Books.tsx
+- Bumped app version to 10.32.0
+- Added backend_scaffold/publishing-connector-server.mjs as a simple local publishing bridge starter
+
+Important
+- This pass sends upload-ready payloads to a local publishing runner endpoint.
+- The included publishing-connector-server.mjs accepts handoff payloads and writes them to disk for a local connector workflow.
+- It does not authenticate with or upload directly to YouTube or Gumroad by itself.

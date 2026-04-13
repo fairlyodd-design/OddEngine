@@ -10,12 +10,12 @@ try:
     from .section_contract import apply_style_preset, build_section_plan, bark_text_for_section, crossfade_concat, section_timings_from_plan
     from .lyrics_generator import flatten_lyrics_for_payload, generate_lyrics
     from .mix_engine import mix_song
-    from .melody_voice import apply_pitch_follow, section_fx_profile
+    from .melody_voice import apply_pitch_follow, polish_vocals, section_fx_profile
 except ImportError:
     from section_contract import apply_style_preset, build_section_plan, bark_text_for_section, crossfade_concat, section_timings_from_plan
     from lyrics_generator import flatten_lyrics_for_payload, generate_lyrics
     from mix_engine import mix_song
-    from melody_voice import apply_pitch_follow, section_fx_profile
+    from melody_voice import apply_pitch_follow, polish_vocals, section_fx_profile
 
 SAMPLE_RATE = 24000
 CROSSFADE_SEC = 0.12
@@ -142,7 +142,7 @@ def do_generate(payload, run_root: Path):
             'audioPath': str(payload.get('instrumentalPath') or run_root / 'main.wav'),
             'stems': {'vocals': str(blank), 'instrumental': str(payload.get('instrumentalPath') or run_root / 'instrumental.wav'), 'drums': str(run_root / 'drums.wav') if (run_root / 'drums.wav').exists() else ''},
             'waveform': build_waveform([]),
-            'meta': {'engine': 'bark-vocal-overlay', 'adapter': 'bark_song_adapter.py', 'note': 'Vocals disabled for this render.', 'sectionDynamics': plan, 'sectionTimings': section_timings_from_plan(plan, CROSSFADE_SEC), 'engineUsedPerSection': [], 'contractVersion': 'v10.28', 'stylePreset': payload.get('stylePreset', 'default'), 'enableVocals': False},
+            'meta': {'engine': 'bark-vocal-overlay', 'adapter': 'bark_song_adapter.py', 'note': 'Vocals disabled for this render.', 'sectionDynamics': plan, 'sectionTimings': section_timings_from_plan(plan, CROSSFADE_SEC), 'engineUsedPerSection': [], 'contractVersion': 'v10.29', 'stylePreset': payload.get('stylePreset', 'default'), 'enableVocals': False},
         }
     vocals = run_root / 'vocals.wav'
     main = run_root / 'main.wav'
@@ -179,6 +179,7 @@ def do_generate(payload, run_root: Path):
         dur_ratio = float(idx) / max(1.0, len(plan) - 1.0) if len(plan) > 1 else 0.0
         inst_slice = instrumental_samples[int(len(instrumental_samples) * max(0.0, dur_ratio - 0.12)):int(len(instrumental_samples) * min(1.0, dur_ratio + 0.18))] if instrumental_samples else []
         samples = apply_pitch_follow(samples, section, SAMPLE_RATE, vocal_mode=vocal_mode, instrumental_samples=inst_slice)
+        samples = polish_vocals(samples, section, SAMPLE_RATE, vocal_mode=vocal_mode)
         fx = section_fx_profile(section, vocal_mode=vocal_mode)
         if name == 'chorus':
             fx['gain'] = float(fx.get('gain', 1.0)) + chorus_boost
@@ -195,7 +196,7 @@ def do_generate(payload, run_root: Path):
     if drum_path.exists():
         d_sr, drum_samples = read_wav(drum_path)
         drum_samples = ensure_audible_audio(resample_linear(drum_samples, d_sr, SAMPLE_RATE), freq=110.0, seconds=2.0, sample_rate=SAMPLE_RATE)
-    song_fx = {'gain': 1.0, 'delay_ms': 120 if vocal_mode != 'spoken' else 80, 'delay_mix': 0.12 if vocal_mode != 'spoken' else 0.08, 'reverb': 0.16 if vocal_mode == 'sing' else 0.12, 'double': chorus_boost * 0.2, 'double_shift': 26}
+    song_fx = {'gain': 1.02 if vocal_mode != 'spoken' else 1.0, 'delay_ms': 126 if vocal_mode != 'spoken' else 82, 'delay_mix': 0.13 if vocal_mode != 'spoken' else 0.08, 'reverb': 0.17 if vocal_mode == 'sing' else 0.13, 'double': max(0.05, chorus_boost * 0.24), 'double_shift': 24, 'presence': 0.08 if vocal_mode == 'sing' else 0.06, 'air': 0.04 if vocal_mode != 'spoken' else 0.02}
     mixed = mix_song(instrumental_samples, vocal_samples, drum_samples, sample_rate=SAMPLE_RATE, vocal_fx=song_fx)
     merged = mixed['samples'] if instrumental_samples or drum_samples else list(vocal_samples)
     merged = ensure_audible_audio(merged, freq=330.0, seconds=2.0, sample_rate=SAMPLE_RATE)
@@ -206,7 +207,7 @@ def do_generate(payload, run_root: Path):
         'audioPath': str(main),
         'stems': {'vocals': str(vocals), 'instrumental': str(instrumental_path) if instrumental_path.exists() else '', 'drums': str(drum_path) if drum_path.exists() else ''},
         'waveform': build_waveform(merged),
-        'meta': {'engine': 'bark-vocal-overlay', 'adapter': 'bark_song_adapter.py', 'model': bark_model, 'vocalMode': vocal_mode, 'chorusBoost': chorus_boost, 'note': 'Backed by a real local Bark runtime when installed. Section phrasing follows the shared section dynamics contract, adds melody-follow vocal shaping, and applies chorus boost FX.', 'lyrics': payload.get('lyrics', ''), 'lyricsBySection': generated_lyrics, 'mix': {'gain': mixed.get('gain') if instrumental_samples or drum_samples else 1.0}, 'sectionDynamics': plan, 'sectionTimings': timings, 'engineUsedPerSection': per_section_meta, 'contractVersion': 'v10.28', 'stylePreset': payload.get('stylePreset', 'default'), 'enableVocals': True},
+        'meta': {'engine': 'bark-vocal-overlay', 'adapter': 'bark_song_adapter.py', 'model': bark_model, 'vocalMode': vocal_mode, 'chorusBoost': chorus_boost, 'note': 'Backed by a real local Bark runtime when installed. Section phrasing follows the shared section dynamics contract, adds artist-voice polish shaping, smoother phrase contouring, emotion-aware section FX, stronger chorus layering, and a less robotic vocal edge.', 'lyrics': payload.get('lyrics', ''), 'lyricsBySection': generated_lyrics, 'mix': {'gain': mixed.get('gain') if instrumental_samples or drum_samples else 1.0}, 'sectionDynamics': plan, 'sectionTimings': timings, 'engineUsedPerSection': per_section_meta, 'contractVersion': 'v10.29', 'stylePreset': payload.get('stylePreset', 'default'), 'enableVocals': True},
     }
 
 def main():

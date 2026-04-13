@@ -1,0 +1,9 @@
+ffmpeg available: true
+render mode: scene visuals + cinematic clips
+job: b4d21be08757a19d7eb1e0e2
+created: 2026-04-11T22:38:05.540Z
+final file: C:\OddEngine\backend_scaffold\runtime\render_jobs\b4d21be08757a19d7eb1e0e2\the-writing-room-wakes_final_episode.mp4
+scenes: 3
+Scene 1: C:\OddEngine\backend_scaffold\runtime\render_jobs\b4d21be08757a19d7eb1e0e2\scene_01_morning-routine.mp4
+Scene 2: C:\OddEngine\backend_scaffold\runtime\render_jobs\b4d21be08757a19d7eb1e0e2\scene_02_the-writing-room-awakens.mp4
+Scene 3: C:\OddEngine\backend_scaffold\runtime\render_jobs\b4d21be08757a19d7eb1e0e2\scene_03_confronting-creativity.mp4

@@ -36,12 +36,13 @@ export function promptMoneyOutcomeCapture(move: Pick<MoneyAutopilotQueueItem, "t
     );
     if (!wantsCapture) return undefined;
 
-    const amountPrompt = move.kind === "save"
+    const moveKind = String((move as any).kind || "");
+    const amountPrompt = moveKind === "save"
       ? "Actual dollars saved. Use a negative number if it backfired, or 0 for a wash. Leave blank to keep the estimate."
       : "Actual dollars made. Use a negative number for a loss, or 0 for a wash. Leave blank to keep the estimate.";
     const amountRaw = window.prompt(amountPrompt, move.amountUsd != null ? String(move.amountUsd) : "");
     const parsedAmount = parseMaybeNumber(amountRaw);
-    const defaultOutcome = inferOutcome(parsedAmount, move.kind === "protect" ? "mixed" : "win");
+    const defaultOutcome = inferOutcome(parsedAmount, moveKind === "protect" ? "mixed" : "win");
     const outcomeRaw = window.prompt("Outcome type? win / mixed / loss", defaultOutcome);
     const outcome = normalizeOutcome(outcomeRaw, defaultOutcome);
     const noteRaw = window.prompt("Optional note for the money log", "");

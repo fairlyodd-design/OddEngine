@@ -5,7 +5,8 @@ import { loadJSON, saveJSON } from "../lib/storage";
 import { exportToFolderBrowser, downloadTextFile, downloadZip, GenFile } from "../lib/files";
 import { oddApi, isDesktop } from "../lib/odd";
 import { queueAutoProductionLoop } from "../lib/productionLoop";
-import { runOnePromptFlow, listOnePromptFlowRuns } from "../lib/onePromptFlow";
+import { listOnePromptFlowRuns } from "../lib/onePromptFlow";
+import { shipStudioHandoffToFinishedProduct, type StudioShipReceipt } from "../lib/studioShip";
 
 type AssetType = "book" | "music" | "art" | "video" | "cartoon" | "social";
 type Stage = "Idea" | "Planning" | "Producing" | "Packaging" | "Ready" | "Published";
@@ -51,6 +52,10 @@ type StudioHandoff = {
     videoBrief: string;
     script: string;
     requestedAssets: string[];
+    narrationEnabled?: boolean;
+    familyVoiceName?: string;
+    narrationText?: string;
+    timingMode?: string;
   };
   distribution: {
     hooks: string[];
@@ -60,6 +65,14 @@ type StudioHandoff = {
     checklist: string[];
     monetization: string;
   };
+};
+
+type LegacyVideoOptions = {
+  enabled: boolean;
+  narrationEnabled: boolean;
+  familyVoiceName: string;
+  narrationText: string;
+  timingMode: string;
 };
 
 type StudioProject = {
@@ -76,6 +89,7 @@ type StudioProject = {
   notes?: string;
   output?: string;
   distribution?: DistributionPack;
+  legacyVideo?: LegacyVideoOptions;
   chapters: Chapter[];
   updatedAt: number;
 };
@@ -170,6 +184,16 @@ function migrateLegacyBooks(items: LegacyBook[]): StudioProject[] {
   }));
 }
 
+function normalizeLegacyVideoOptions(value?: Partial<LegacyVideoOptions>): LegacyVideoOptions {
+  return {
+    enabled: value?.enabled !== false,
+    narrationEnabled: value?.narrationEnabled !== false,
+    familyVoiceName: String(value?.familyVoiceName || "Family Narrator"),
+    narrationText: String(value?.narrationText || ""),
+    timingMode: String(value?.timingMode || "image_beat_frames_v1"),
+  };
+}
+
 function loadInitialProjects(): StudioProject[] {
   const studio = loadJSON<StudioProject[]>(KEY_PROJECTS, []);
   if (Array.isArray(studio) && studio.length) return studio;
@@ -192,6 +216,7 @@ function ensureProjectShape(p: Partial<StudioProject>): StudioProject {
     format: String(p.format || ""),
     notes: String(p.notes || ""),
     output: String(p.output || ""),
+    legacyVideo: normalizeLegacyVideoOptions(p.legacyVideo),
     distribution: {
       ...(p.distribution || {}),
       hooks: Array.isArray(p.distribution?.hooks) ? p.distribution?.hooks : [],
@@ -261,6 +286,7 @@ function createProject(type: AssetType = "book"): StudioProject {
       publishTargets: [],
       monetization: "",
     },
+    legacyVideo: normalizeLegacyVideoOptions(),
     chapters: type === "book" ? [{ title: "Chapter 1", notes: "", draft: "" }] : [],
     updatedAt: Date.now(),
   };
@@ -363,6 +389,12 @@ function buildProjectMarkdown(project: StudioProject) {
 
 function buildHandoff(project: StudioProject, files: GenFile[]): StudioHandoff {
   const dist = project.distribution || {};
+  const legacyVideo = normalizeLegacyVideoOptions(project.legacyVideo);
+  const requestedAssets = Array.from(new Set([
+    ...(dist.deliverables || []),
+    ...(legacyVideo.enabled ? ["video", "poster"] : []),
+    ...(legacyVideo.narrationEnabled ? ["narration"] : []),
+  ]));
   return {
     generatedAt: Date.now(),
     projectId: project.id,
@@ -377,7 +409,11 @@ function buildHandoff(project: StudioProject, files: GenFile[]): StudioHandoff {
       audioBrief: dist.audioBrief || "",
       videoBrief: dist.videoBrief || dist.thumbnailBrief || "",
       script: dist.script || project.output || "",
-      requestedAssets: dist.deliverables || [],
+      requestedAssets,
+      narrationEnabled: legacyVideo.narrationEnabled,
+      familyVoiceName: legacyVideo.familyVoiceName,
+      narrationText: legacyVideo.narrationText,
+      timingMode: legacyVideo.timingMode,
     },
     distribution: {
       hooks: dist.hooks || [],
@@ -389,7 +425,6 @@ function buildHandoff(project: StudioProject, files: GenFile[]): StudioHandoff {
     },
   };
 }
-
 function buildArtifactFiles(project: StudioProject): GenFile[] {
   const safe = ensureProjectShape(project);
   const dist = safe.distribution || {};
@@ -488,6 +523,8 @@ export default function Books({ onNavigate }: { onNavigate: (panelId: string) =>
   const [pipelineMode, setPipelineMode] = useState<"pack" | "draft" | "all">("all");
   const [autoPublishEnabled, setAutoPublishEnabled] = useState<boolean>(() => loadJSON<boolean>("oddengine:studio:autoPublish:v1", false));
   const [trackRevenueEnabled, setTrackRevenueEnabled] = useState<boolean>(() => loadJSON<boolean>("oddengine:studio:trackRevenue:v1", true));
+  const [shipBusy, setShipBusy] = useState(false);
+  const [shipReceipt, setShipReceipt] = useState<StudioShipReceipt | null>(() => loadJSON<StudioShipReceipt | null>("oddengine:studio:lastShipReceipt:v1", null as any));
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   const active = useMemo(() => projects.find((p) => p.id === activeId) || projects[0] || null, [projects, activeId]);
@@ -521,6 +558,10 @@ export default function Books({ onNavigate }: { onNavigate: (panelId: string) =>
       chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
     } catch {}
   }, [chat]);
+
+  useEffect(() => {
+    saveJSON("oddengine:studio:lastShipReceipt:v1", shipReceipt);
+  }, [shipReceipt]);
 
   const toast = (text: string, kind: "ok" | "warn" = "ok") => {
     try {
@@ -696,23 +737,38 @@ const flowRuns = useMemo(() => {
 }, [flowTick]);
 
 const runSinglePromptShipFlow = async () => {
-  if (!active) return;
-  await quickGenerate();
-  const latestProjects = loadJSON<StudioProject[]>(KEY_PROJECTS, []);
-  const latest = latestProjects.find((p) => p.id === active.id) || active;
-  const files = buildArtifactFiles(latest);
-  const handoff = buildHandoff(latest, files);
-  saveJSON(KEY_HANDOFF, handoff);
-  saveJSON(KEY_LAST_BUNDLE, { at: Date.now(), title: latest.title, type: latest.type, files: files.length, root: handoff.bundleName, mode: "one-prompt-flow" });
-  const result = runOnePromptFlow({
-    handoff,
-    autoPublish: autoPublishEnabled,
-    autoDraftProducts: trackRevenueEnabled,
-    publishMode: autoPublishEnabled ? "assisted" : "manual",
-  });
-  setFlowTick((x) => x + 1);
-  toast(result.summary, "ok");
-  onNavigate(autoPublishEnabled ? "PublisherHub" : "RenderLab");
+  if (!active || busy || shipBusy) return;
+  setShipBusy(true);
+  try {
+    await quickGenerate();
+    const latestProjects = loadJSON<StudioProject[]>(KEY_PROJECTS, []);
+    const latest = ensureProjectShape(latestProjects.find((p) => p.id === active.id) || active);
+    const files = buildArtifactFiles(latest);
+    const handoff = buildHandoff(latest, files);
+    saveJSON(KEY_HANDOFF, handoff);
+    saveJSON(KEY_LAST_BUNDLE, { at: Date.now(), title: latest.title, type: latest.type, files: files.length, root: handoff.bundleName, mode: "one-prompt-finished-product" });
+
+    const shipped = await shipStudioHandoffToFinishedProduct({
+      handoff,
+      autoPublish: autoPublishEnabled,
+      trackRevenue: trackRevenueEnabled,
+    });
+
+    const latestStatus: Stage = shipped.published
+      ? "Published"
+      : shipped.job.status === "failed"
+        ? latest.status
+        : "Ready";
+    upsert({ ...latest, status: latestStatus, updatedAt: Date.now() });
+    setShipReceipt(shipped);
+    setFlowTick((x) => x + 1);
+    toast(shipped.summary, shipped.job.status === "failed" ? "warn" : "ok");
+    onNavigate(shipped.published ? "PublisherHub" : "RenderLab");
+  } catch (e: any) {
+    toast(`1 prompt flow failed: ${e?.message || String(e)}`, "warn");
+  } finally {
+    setShipBusy(false);
+  }
 };
 
   const insertLastAssistantIntoOutput = () => {
@@ -840,7 +896,7 @@ const runSinglePromptShipFlow = async () => {
 
           <CardFrame title="Pipeline Launch" subtitle="Push the current project into render, assets, publishing, money, or final distribution handoff" storageKey="writers:tools" className="softCard" defaultCollapsed={false}>
             <div className="row wrap">
-              <button className="tabBtn" onClick={() => handoffTo("RenderLab")} disabled={!active}>🎞️ Render Lab</button>
+              <button className="tabBtn" onClick={() => handoffTo("RenderLab")} disabled={!active}>🎞️ Legacy Mode ▶ Real Video</button>
               <button className="tabBtn" onClick={() => handoffTo("PublisherHub")} disabled={!active}>🚀 Publisher Hub</button>
               <button className="tabBtn" onClick={() => handoffTo("Money")} disabled={!active}>💵 Distribution</button>
               <button className="tabBtn" onClick={() => handoffTo("Brain")} disabled={!active}>🧠 Brain / Notes</button>
@@ -849,7 +905,7 @@ const runSinglePromptShipFlow = async () => {
             <div className="row wrap mt-4">
               <label className="small"><input type="checkbox" checked={autoPublishEnabled} onChange={(e) => setAutoPublishEnabled(e.target.checked)} /> Auto Publish</label>
               <label className="small"><input type="checkbox" checked={trackRevenueEnabled} onChange={(e) => setTrackRevenueEnabled(e.target.checked)} /> Track Revenue</label>
-              <button className="tabBtn" onClick={runSinglePromptShipFlow} disabled={!active || busy}>Run Full Auto Pipeline</button>
+              <button className="tabBtn" onClick={runSinglePromptShipFlow} disabled={!active || busy || shipBusy}>{shipBusy ? "Shipping…" : "1 Prompt → Finished Product"}</button>
             </div>
             <div className="note">
               This pass turns Writers Lounge into a studio pipeline. The desk now builds a handoff pack with render briefs, output files, metadata, distribution materials, publish queue metadata, and money-tracking hooks from one prompt.
@@ -858,13 +914,35 @@ const runSinglePromptShipFlow = async () => {
 
 <CardFrame title="One Prompt Flow" subtitle="Studio → Render Lab → Publisher Hub → Outcomes" storageKey="writers:onePromptFlow" className="softCard" defaultCollapsed={false}>
   <div className="row wrap">
-    <button className="tabBtn" disabled={busy || !active} onClick={runSinglePromptShipFlow}>Run 1 prompt flow</button>
+    <button className="tabBtn" disabled={busy || shipBusy || !active} onClick={runSinglePromptShipFlow}>{shipBusy ? "Shipping…" : "Ship finished product"}</button>
     <button className="tabBtn" onClick={() => onNavigate("RenderLab")}>Open Render Lab</button>
     <button className="tabBtn" onClick={() => onNavigate("PublisherHub")}>Open Publisher Hub</button>
   </div>
   <div className="note mt-4">
     One click now generates the pack, saves the handoff, creates a Render Lab job, creates a Publisher Hub job, optionally auto-publishes it, and drafts product listings from winners.
   </div>
+  {shipReceipt && (
+    <div className="studioPipelineCard mt-4">
+      <div className="cluster spread">
+        <div>
+          <div className="h">Latest finished-product run</div>
+          <div className="small">{shipReceipt.title} • {shipReceipt.job.status}</div>
+        </div>
+        <span className="studioPill">{shipReceipt.published ? "published" : shipReceipt.job.status}</span>
+      </div>
+      <div className="small mt-2">{shipReceipt.summary}</div>
+      <div className="studioPillRow mt-4">
+        {shipReceipt.release?.video ? <span className="studioPill">video ready</span> : null}
+        {shipReceipt.release?.poster ? <span className="studioPill">poster ready</span> : null}
+        {shipReceipt.release?.audio ? <span className="studioPill">narration ready</span> : null}
+        {shipReceipt.backendJobId ? <span className="studioPill">backend {shipReceipt.backendJobId.slice(0, 6)}</span> : null}
+      </div>
+      <div className="row wrap mt-4">
+        <button className="tabBtn" onClick={() => onNavigate("RenderLab")}>Open finished render</button>
+        <button className="tabBtn" onClick={() => onNavigate("PublisherHub")}>Open publish queue</button>
+      </div>
+    </div>
+  )}
   <div className="grid mt-4">
     {(flowRuns || []).slice(0, 3).map((run) => (
       <div key={run.runId} className="studioPipelineCard">
@@ -928,6 +1006,24 @@ const runSinglePromptShipFlow = async () => {
                     </div>
                     <textarea className="input" style={{ minHeight: 90 }} value={active.notes || ""} onChange={(e) => upsert({ ...active, notes: e.target.value, updatedAt: Date.now() })} placeholder="Notes, constraints, branding, character ideas, monetization angle..." />
 
+                    <div className="note">
+                      <b>Legacy Mode ▶ Real Video</b>
+                      <div className="small mt-2">Voice-timed cinematic pacing follows the family narration automatically and forces the render handoff to request a real video lane.</div>
+                      <div className="row wrap mt-3">
+                        <label className="small"><input type="checkbox" checked={active.legacyVideo?.enabled !== false} onChange={(e) => upsert({ ...active, legacyVideo: { ...(active.legacyVideo || normalizeLegacyVideoOptions()), enabled: e.target.checked }, updatedAt: Date.now() })} /> Enable legacy video lane</label>
+                        <label className="small"><input type="checkbox" checked={active.legacyVideo?.narrationEnabled !== false} onChange={(e) => upsert({ ...active, legacyVideo: { ...(active.legacyVideo || normalizeLegacyVideoOptions()), narrationEnabled: e.target.checked }, updatedAt: Date.now() })} /> Family narration</label>
+                      </div>
+                      <div className="studioMetaGrid mt-3">
+                        <input className="input" value={active.legacyVideo?.familyVoiceName || "Family Narrator"} onChange={(e) => upsert({ ...active, legacyVideo: { ...(active.legacyVideo || normalizeLegacyVideoOptions()), familyVoiceName: e.target.value }, updatedAt: Date.now() })} placeholder="Family voice label" />
+                        <select className="input" value={active.legacyVideo?.timingMode || "image_beat_frames_v1"} onChange={(e) => upsert({ ...active, legacyVideo: { ...(active.legacyVideo || normalizeLegacyVideoOptions()), timingMode: e.target.value }, updatedAt: Date.now() })}>
+                          <option value="image_beat_frames_v1">Image beat frames</option>
+                          <option value="voice_timed_cinematic_v1">Voice-timed cinematic</option>
+                        </select>
+                        <div className="small">Per-beat generated image frames replace the old plain beat cards while still following narration timing.</div>
+                      </div>
+                      <textarea className="input mt-3" style={{ minHeight: 90 }} value={active.legacyVideo?.narrationText || ""} onChange={(e) => upsert({ ...active, legacyVideo: { ...(active.legacyVideo || normalizeLegacyVideoOptions()), narrationText: e.target.value }, updatedAt: Date.now() })} placeholder="Optional narration override. Leave blank to derive the family voice from the prompt and output." />
+                    </div>
+
                     <div className="cluster wrap spread">
                       <div className="small">
                         Output: <b>{outputWords}</b> words • ~{outputMinutes} min read • <b>{assetLabel(active.type)}</b>
@@ -939,7 +1035,7 @@ const runSinglePromptShipFlow = async () => {
                           <option value="draft">Core asset only</option>
                         </select>
                         <button className="tabBtn" disabled={busy || !(active.prompt || active.notes || active.title)} onClick={quickGenerate}>Generate now</button>
-                        <button className="tabBtn" disabled={busy || !(active.prompt || active.notes || active.title)} onClick={runSinglePromptShipFlow}>1 Prompt → Ship It</button>
+                        <button className="tabBtn" disabled={busy || shipBusy || !(active.prompt || active.notes || active.title)} onClick={runSinglePromptShipFlow}>{shipBusy ? "Shipping…" : "1 Prompt → Ship It"}</button>
                         <button className="tabBtn" disabled={busy || !(active.prompt || active.notes || active.title)} onClick={() => send(`Write the main finished ${assetLabel(active.type)} now from this prompt:\n${active.prompt || active.notes || active.title}`, { mode: "draft" })}>Generate main output</button>
                         <button className="tabBtn" onClick={() => copyText(active.prompt || "", "Copied master prompt.")} disabled={!active.prompt}>Copy prompt</button>
                       </div>

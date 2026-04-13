@@ -922,7 +922,7 @@ export default function Home({ onNavigate }: Props) {
                       </div>
                       <div className="small mt-1" style={{ opacity: 0.9 }}>{a.body}</div>
                       <div className="cluster wrap mt-3">
-                        <button className="tabBtn" onClick={() => onNavigate(a.panelId)}>Open {a.panelId}</button>
+                        <button className="tabBtn" onClick={() => onNavigate(a.panelId || "Home")}>Open {a.panelId || "Home"}</button>
                       </div>
                     </div>
                   ))}

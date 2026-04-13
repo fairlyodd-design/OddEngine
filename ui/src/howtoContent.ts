@@ -1,305 +1,200 @@
-export const HOWTO: Record<string, {title: string; sections: {heading: string; bullets: string[]}[]}> = {
-  "DevEngine": {
-    "title": "Dev Engine \u2014 How to Use",
-    "sections": [
+export type HowToEntry = {
+  title: string;
+  icon?: string;
+  sections?: { heading: string; bullets: string[] }[];
+  bullets?: string[];
+  hotkeys?: string[];
+};
+
+export const HOWTO: Record<string, HowToEntry> = {
+  Home: {
+    title: "Home — How to Use",
+    sections: [
       {
-        "heading": "What it is",
-        "bullets": [
-          "Your project launcher + build console.",
-          "Shows build status (Idle/Running/Failed) and keeps a recent log tail for Homie."
-        ]
-      },
-      {
-        "heading": "Basic workflow",
-        "bullets": [
-          "Run a task (dev/build/dist) from inside Dev Engine so logs stream into the UI.",
-          "If something fails, open Homie \ud83d\udc4a \u2192 Dev Awareness \u2192 Refresh \u2192 Suggested fixes."
-        ]
-      },
-      {
-        "heading": "Logs & status",
-        "bullets": [
-          "Use Filters to focus on errors/warnings.",
-          "Copy/export the log tail when sharing an issue."
-        ]
-      },
-      {
-        "heading": "Homie playbooks",
-        "bullets": [
-          "Run one-click playbooks (Clean reinstall / Verify build / Fix common issues).",
-          "Confirmation gate is required before any destructive step."
-        ]
-      },
-      {
-        "heading": "Shortcuts",
-        "bullets": [
-          "Tip: keep one project as the default Target Project (OddEngine is preselected)."
+        heading: "What it is",
+        bullets: [
+          "Your family front door.",
+          "Use it to see what matters now, what to do next, and where to go."
         ]
       }
     ]
   },
-  "Autopilot": {
-    "title": "Autopilot \u2014 How to Use",
-    "sections": [
+  Homie: {
+    title: "Homie — How to Use",
+    sections: [
       {
-        "heading": "What it is",
-        "bullets": [
-          "Safe generators that create real files (templates, dashboards, microsites).",
-          "Designed to never overwrite without you explicitly choosing the output folder."
-        ]
-      },
-      {
-        "heading": "Web vs Desktop mode",
-        "bullets": [
-          "Web mode: use \u201cExport to Folder\u201d (browser permission prompt).",
-          "Desktop mode: generators can write directly to disk."
-        ]
-      },
-      {
-        "heading": "Typical workflow",
-        "bullets": [
-          "Pick a generator \u2192 fill inputs \u2192 Generate \u2192 Open output folder \u2192 verify files."
-        ]
-      },
-      {
-        "heading": "Safety",
-        "bullets": [
-          "If a generator needs Desktop mode for disk access, the UI will tell you.",
-          "Generated outputs are placed in an exports folder you control."
+        heading: "What it is",
+        bullets: [
+          "Your family guide and companion inside OddEngine.",
+          "Ask plain-English questions and let Homie route you to the right panel."
         ]
       }
     ]
   },
-  "Builder": {
-    "title": "Builder \u2014 How to Use",
-    "sections": [
+  OddBrain: {
+    title: "OddBrain — How to Use",
+    sections: [
       {
-        "heading": "What it is",
-        "bullets": [
-          "UI canvas + scene graph + inspector to design layouts quickly."
-        ]
-      },
-      {
-        "heading": "Core controls",
-        "bullets": [
-          "Canvas: click to select nodes.",
-          "Scene Graph: see hierarchy and select elements.",
-          "Inspector: edit position/size/style keys."
-        ]
-      },
-      {
-        "heading": "Export",
-        "bullets": [
-          "Export React: copies a component you can paste into a project.",
-          "Export Scene JSON: saves the scene structure for later reload."
-        ]
-      },
-      {
-        "heading": "Tip",
-        "bullets": [
-          "Keep the canvas simple; build reusable widgets and export them."
+        heading: "What it is",
+        bullets: [
+          "The shared truth layer for Home, Homie, and family/operator priorities.",
+          "Use it to see what matters now and what lane needs attention."
         ]
       }
     ]
   },
-  "Plugins": {
-    "title": "Plugins \u2014 How to Use",
-    "sections": [
+  News: {
+    title: "News — How to Use",
+    sections: [
       {
-        "heading": "What it is",
-        "bullets": [
-          "Drop-in feature packs so you can add new tools without rewriting the OS."
-        ]
-      },
-      {
-        "heading": "Add a plugin",
-        "bullets": [
-          "Desktop: drop a folder with *.plugin.json into your Plugins folder, then Reload.",
-          "Web: import a plugin manifest (stored locally)."
-        ]
-      },
-      {
-        "heading": "What a plugin can do",
-        "bullets": [
-          "Expose UI (ui.html) inside OddEngine.",
-          "Register actions (open links, run desktop tasks, generators)."
-        ]
-      },
-      {
-        "heading": "Safety",
-        "bullets": [
-          "Plugins are local-only by default. Review the manifest before enabling."
+        heading: "Best workflow",
+        bullets: [
+          "Refresh the lane, read the route note, then push the top story into the right panel.",
+          "Use actionable-only thinking: family first, operator second."
         ]
       }
     ]
   },
-  "FamilyBudget": {
-    "title": "Family Budget — How to Use",
-    "sections": [
+  FamilyBudget: {
+    title: "Family Budget — How to Use",
+    sections: [
       {
-        "heading": "What it is",
-        "bullets": [
-          "A local-first household budget dashboard adapted from your Budget OS starter zip.",
-          "It tracks accounts, transactions, budget buckets, goals, recurring bills, annual planning, and connector health without needing a backend."
-        ]
-      },
-      {
-        "heading": "Best workflow",
-        "bullets": [
-          "Start on Overview to see net worth, this month’s cashflow, and budget progress.",
-          "Use Transactions for quick manual entries, Budget for monthly guardrails, Goals for savings progress, and Plan for yearly planning."
-        ]
-      },
-      {
-        "heading": "Import / export",
-        "bullets": [
-          "Use Seed demo household to restore the imported sample data anytime.",
-          "Export JSON saves your full local state; Import JSON restores a saved snapshot on this device."
-        ]
-      },
-      {
-        "heading": "Tip",
-        "bullets": [
-          "Keep this panel as the family control tower: bills, safety buffer, debt, and net worth in one place.",
-          "It is local-first right now, so it’s safe for planning even before live account syncs are wired."
+        heading: "Best workflow",
+        bullets: [
+          "Start with the Family Clarity + Action block.",
+          "Use it to see bills due soon, debt focus, and the next money move."
         ]
       }
     ]
   },
-  "Money": {
-    "title": "Money \u2014 How to Use",
-    "sections": [
+  FamilyHealth: {
+    title: "Family Health — How to Use",
+    sections: [
       {
-        "heading": "What it is",
-        "bullets": [
-          "Your ROI tier dashboard (Tier 1 \u2192 Tier 3) with actions and notes."
-        ]
-      },
-      {
-        "heading": "Workflow",
-        "bullets": [
-          "Pick a tier \u2192 add an action \u2192 track status \u2192 export a plan as .md/.txt."
-        ]
-      },
-      {
-        "heading": "Tip",
-        "bullets": [
-          "Keep Tier 1 tight (Trading/Crypto tools/Affiliate sites). Ship small, repeat."
+        heading: "Best workflow",
+        bullets: [
+          "Use one tab per family member.",
+          "Track symptoms, meds, next visit, and simple action notes."
         ]
       }
     ]
   },
-  "Cannabis": {
+  GroceryMeals: {
+    title: "Grocery Meals — How to Use",
+    sections: [
+      {
+        heading: "Best workflow",
+        bullets: [
+          "Update pantry, plan meals, then build the list.",
+          "Use the savings lane and substitutions to stay on budget."
+        ]
+      }
+    ]
+  },
+  Calendar: {
+    title: "Calendar — How to Use",
+    sections: [
+      {
+        heading: "Best workflow",
+        bullets: [
+          "Use quick-add buttons for family reminders and routines.",
+          "Link events back into the right panel when the work lives somewhere else."
+        ]
+      }
+    ]
+  },
+  DailyChores: {
+    title: "Daily Chores — How to Use",
+    sections: [
+      {
+        heading: "Best workflow",
+        bullets: [
+          "Start with the must-do queue.",
+          "Clear the hot lane first, then move through house, outdoor, and animals."
+        ]
+      }
+    ]
+  },
+  Entertainment: {
+    title: "Family Entertainment — How to Use",
+    sections: [
+      {
+        heading: "Best workflow",
+        bullets: [
+          "Use Family Night for one-click launch.",
+          "Keep favorites clean and use quick queue for what should play next."
+        ]
+      }
+    ]
+  },
+  Books: {
+    title: "Writers Lounge — How to Use",
+    sections: [
+      {
+        heading: "Best workflow",
+        bullets: [
+          "Start with one prompt and move through the finished-product path.",
+          "Use Render Lab for the artifact handoff and release path."
+        ]
+      }
+    ]
+  },
+  DevEngine: {
+    title: "Dev Engine — How to Use",
+    sections: [
+      {
+        heading: "Best workflow",
+        bullets: [
+          "Run build and repair tasks from inside the panel.",
+          "Use it as the technical control lane for OddEngine."
+        ]
+      }
+    ]
+  },
+  Plugins: {
+    title: "Plugins — How to Use",
+    sections: [
+      {
+        heading: "What it is",
+        bullets: [
+          "Installable feature packs and local plugin manifests.",
+          "Use this lane to enable or repair optional OS upgrades."
+        ]
+      }
+    ]
+  },
+  Preferences: {
+    title: "Preferences — How to Use",
+    sections: [
+      {
+        heading: "What it is",
+        bullets: [
+          "Local defaults and machine-specific settings.",
+          "Use it to save the defaults that keep the OS comfortable on this device."
+        ]
+      }
+    ]
+  },
+  Cannabis: {
     title: "Cannabis Hub",
     icon: "🍃",
     bullets: [
-      "Discover: opens Weedmaps/Leafly/Dutchie/Eaze/AllBud searches near your ZIP (browser).",
-      "Deals: paste deal text → built‑in scoring (best overall: value + clarity + fewer restrictions) → save + filter.",
-      "Favorites: save key dispensary/resource links + optional address for mapping.",
-      "Map: pin favorites by address (uses OpenStreetMap geocoding) and view on an embedded map.",
-      "Ask Homie: Desktop-only chat that compares your saved/pasted info (does not fetch live deals).",
-      "Settings: manage your own categories + price tiers + reset Cannabis-only state."
+      "Discover searches near your ZIP in the browser.",
+      "Deals lets you score and save pasted offers.",
+      "Favorites and map help keep trusted places organized."
     ],
-    hotkeys: ["F1 — How To (global)"]
+    hotkeys: ["F1 — How To"]
   },
-  "Trading": {
-    "title": "Trading — How to Use",
-    "sections": [
+  Trading: {
+    title: "Trading — How to Use",
+    sections: [
       {
-        "heading": "What it is",
-        "bullets": [
-          "Options Sniper scoring plus Public.com scanner modes (website fallback or authenticated API mode).",
-          "Includes a TradingView-style chart, real expiration picker, greeks refresh, and a mobile-style option detail drawer."
-        ]
-      },
-      {
-        "heading": "Public API key mode",
-        "bullets": [
-          "Paste your Public secret key, create an access token, then load accounts to auto-fill your accountId.",
-          "API mode is the best path when you want live expirations, richer chain rows, and greeks inside the panel."
-        ]
-      },
-      {
-        "heading": "Scanner workflow",
-        "bullets": [
-          "Pick your symbol, load expirations, choose an expiry, then click Scan symbol.",
-          "Use Scan watchlist to rank best calls and puts across your tracked tickers with the same filters."
-        ]
-      },
-      {
-        "heading": "Contracts + drawer",
-        "bullets": [
-          "Click any contract row to open the detail drawer with bid/ask/last, breakeven, volume, open interest, and greeks.",
-          "Pinned contract details flow straight into the Sniper plan preview and markdown export."
-        ]
-      }
-    ]
-  },
-  "Mining": {
-    "title": "Mining \u2014 How to Use",
-    "sections": [
-      {
-        "heading": "What it is",
-        "bullets": [
-          "A local hub for mining notes + dashboard hooks (profitability, pools, rigs)."
-        ]
-      },
-      {
-        "heading": "Workflow",
-        "bullets": [
-          "Track your rigs, pools, and coins you care about.",
-          "Use exports to keep configs and notes portable."
-        ]
-      },
-      {
-        "heading": "Tip",
-        "bullets": [
-          "Keep one \u2018default rig\u2019 template and clone it per machine."
-        ]
-      }
-    ]
-  },
-  "OptionsSaaS": {
-    "title": "Options SaaS \u2014 How to Use",
-    "sections": [
-      {
-        "heading": "What it is",
-        "bullets": [
-          "Idea/spec board for your Options SaaS (features, sprints, releases)."
-        ]
-      },
-      {
-        "heading": "Workflow",
-        "bullets": [
-          "Capture the user story \u2192 acceptance criteria \u2192 UI notes \u2192 export roadmap.",
-          "Use this panel to keep scope tight and versioned."
-        ]
-      },
-      {
-        "heading": "Tip",
-        "bullets": [
-          "Ship MVP: scanner \u2192 watchlist \u2192 signal cards \u2192 export reports."
-        ]
-      }
-    ]
-  },
-  "Preferences": {
-    "title": "Preferences — How to Use",
-    "sections": [
-      {
-        "heading": "What it is",
-        "bullets": [
-          "A single place to store default settings for Grow, Cameras, Crypto Games/ZBD, Desktop mode, and Cannabis.",
-          "All settings are saved locally on this device (localStorage)."
-        ]
-      },
-      {
-        "heading": "How it helps",
-        "bullets": [
-          "Pre-fills common values so you don’t retype them every session (ZIP, grid layout, emulator preference, etc.).",
-          "You can still override anything inside each panel."
+        heading: "Current status",
+        bullets: [
+          "This lane is under surgical recovery during the runtime stability sweep.",
+          "Use the stable chart/chain/watchlist areas first and avoid unfinished flows until the recovery pass lands."
         ]
       }
     ]
   }
-} as const;
+};

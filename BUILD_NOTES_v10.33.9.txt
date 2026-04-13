@@ -1,0 +1,17 @@
+v10.33.9_TrueStudioOnePromptProductPass
+
+What this pass does:
+- Generates a backend-authored product pack once the final animatic/video is assembled.
+- Produces a thumbnail PNG when ffmpeg is available.
+- Produces a product_pack.json with title, summary, tags, slug, final video path, and thumbnail path.
+- Produces YouTube-ready and Gumroad-ready text files.
+- Marks the finished output honestly as an animatic/product pack instead of pretending the text-card output is a polished final film.
+
+Files changed:
+- backend_scaffold/render-execution-server.mjs
+
+Artifacts added per job:
+- thumbnail
+- product-pack
+- youtube-prep
+- gumroad-prep

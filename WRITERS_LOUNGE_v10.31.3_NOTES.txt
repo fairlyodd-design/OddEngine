@@ -1,0 +1,15 @@
+v10.31.3_TrueVideoVoiceAssemblyPass
+
+What this pass adds:
+- Animation render jobs now generate per-scene voice asset files
+- Scene jobs now include shot manifests with camera plan + continuity notes
+- Final episode packages now include a real assembly recipe
+- Writers Lounge render bridge now surfaces voice asset, camera plan, and shot coverage
+- Builder / Render Lab monitor now shows voice asset + shot manifest details
+- UI version bumped to 10.31.3
+
+Touched files:
+- ui/src/lib/writerEngine.ts
+- ui/src/panels/Books.tsx
+- ui/src/panels/Builder.tsx
+- ui/src/lib/version.ts

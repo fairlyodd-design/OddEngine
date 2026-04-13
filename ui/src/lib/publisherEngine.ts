@@ -50,7 +50,8 @@ export function runPublisherJob(jobId: string) {
   if (!job) return null;
   const targets = job.targets.map((target, idx) => {
     const ok = hasSecret(target.platform) || target.platform === 'local' || target.platform === 'gumroad' || target.platform === 'etsy';
-    return { ...target, status: ok ? 'published' : 'ready', url: ok ? `oddengine://${target.platform}/${job.id}/${idx+1}` : '', message: ok ? 'publish simulated / handoff ready' : 'missing token / key', updatedAt: Date.now() };
+    const status: PublishTarget['status'] = ok ? 'published' : 'ready';
+    return { ...target, status, url: ok ? `oddengine://${target.platform}/${job.id}/${idx+1}` : '', message: ok ? 'publish simulated / handoff ready' : 'missing token / key', updatedAt: Date.now() };
   });
   const next = { ...job, targets, updatedAt: Date.now(), logs: [`${new Date().toISOString()} publish run executed`, ...job.logs].slice(0, 100) };
   updatePublisherJob(next);

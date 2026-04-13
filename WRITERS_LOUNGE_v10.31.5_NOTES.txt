@@ -1,0 +1,23 @@
+v10.31.5_LocalRendererAndVoiceBackendHookPass
+
+Fixes
+- Books panel now imports PanelHeader as a named export, matching the actual component contract.
+- CardGODMode persist() no longer references an undefined mouse event, removing the repeated runtime crash from ResizeObserver/persist.
+- writerEngine string literal break from prior pass remains fixed.
+
+New in this pass
+- Added local backend runner probe + submit helpers in ui/src/lib/writerEngine.ts
+- Writers Lounge Animation Render Bridge now supports:
+  - local runner base URL
+  - probe runner
+  - run local backend
+  - backend status messaging
+- Builder panel now surfaces backend status/error details for animation jobs.
+
+Backend contract used
+- GET {baseUrl}/health
+- POST {baseUrl}/render/jobs
+
+Important
+- This pass sends real browser fetch requests to the configured local backend endpoint.
+- If no local runner is active, the UI will show the backend error instead of crashing.

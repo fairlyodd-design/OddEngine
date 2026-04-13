@@ -57,7 +57,6 @@ export default function Plugins({ onNavigate }: { onNavigate?: (id: string) => v
 
   async function loadBuiltins() {
     try {
-      // IMPORTANT: Use relative paths so file:// (Electron packaged) works.
       const reg = await fetchJson("plugins/registry.json");
       const files: string[] = Array.isArray(reg?.files) ? reg.files : [];
       const list: Plugin[] = [];
@@ -65,7 +64,9 @@ export default function Plugins({ onNavigate }: { onNavigate?: (id: string) => v
         try {
           const j = await fetchJson(`plugins/${f}`);
           list.push({ ...j, _source: "builtin" });
-        } catch {}
+        } catch {
+          // ignore bad builtin manifest
+        }
       }
       setBuiltins(list);
     } catch {
@@ -80,7 +81,9 @@ export default function Plugins({ onNavigate }: { onNavigate?: (id: string) => v
       if (r.ok) {
         setDesktopPlugins((r.plugins || []).map((p: any) => ({ ...p, _source: "desktop" })));
       }
-    } catch {}
+    } catch {
+      // ignore
+    }
   }
 
   async function refresh() {
@@ -158,19 +161,12 @@ export default function Plugins({ onNavigate }: { onNavigate?: (id: string) => v
     try {
       const raw = String(u || "").trim();
       if (!raw) return;
-
-      // Internal navigation helper:
-      // Many manifests use "/?panel=News" etc. That breaks under file:// because
-      // it becomes file:///?panel=News. Normalize to a relative URL.
-      const normalized = /^https?:\/\//i.test(raw)
-        ? raw
-        : raw.startsWith("/")
-        ? `.${raw}`
-        : raw;
-
+      const normalized = /^https?:\/\//i.test(raw) ? raw : raw.startsWith("/") ? `.${raw}` : raw;
       const href = new URL(normalized, window.location.href).toString();
       window.open(href, "_blank", "noopener,noreferrer");
-    } catch {}
+    } catch {
+      // ignore
+    }
   }
 
   function formatWhen(at?: number) {
@@ -241,7 +237,7 @@ export default function Plugins({ onNavigate }: { onNavigate?: (id: string) => v
           { label: `${bayStats.dependencyIssues} dependency issues`, tone: bayStats.dependencyIssues ? "warn" : "good" },
           { label: `${bayStats.healthy} healthy`, tone: bayStats.healthy === bayStats.installed ? "good" : "warn" },
         ]}
-        primaryAction={{ label: loading ? "Refreshing…" : "Refresh", onClick: () => { if(!loading) refresh(); } }}
+        primaryAction={{ label: loading ? "Refreshing…" : "Refresh", onClick: () => { if (!loading) refresh(); } }}
         rightSlot={
           <div className="row" style={{ gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
             <button className="tabBtn active" onClick={() => { updateAllUpgradePacks(); setTick((v) => v + 1); pushNotif({ title: "Plugins", body: "Upgrade bay synced all outdated packs.", tags: ["Plugins"], level: "success" }); }}>
@@ -255,7 +251,15 @@ export default function Plugins({ onNavigate }: { onNavigate?: (id: string) => v
                 { label: "Open Plugins Folder", onClick: openPluginsFolder, disabled: !desktop },
                 { label: "Import .plugin.json", onClick: importJsonFile },
                 { label: "Update stable channel", onClick: () => { updateAllUpgradePacks("stable"); setTick((v) => v + 1); pushNotif({ title: "Plugins", body: "Stable-channel packs were checked for updates.", tags: ["Plugins"], level: "success" }); } },
-                { label: "Repair dependencies", onClick: () => { upgradePacks.filter((pack) => pack.dependencyIssues?.length).forEach((pack) => repairUpgradePackDependencies(pack.id)); setTick((v) => v + 1); pushNotif({ title: "Plugins", body: "Dependency repair flow ran for packs that needed it.", tags: ["Plugins"], level: "success" }); }, disabled: !upgradePacks.some((pack) => pack.dependencyIssues?.length) },
+                {
+                  label: "Repair dependencies",
+                  onClick: () => {
+                    upgradePacks.filter((pack) => pack.dependencyIssues?.length).forEach((pack) => repairUpgradePackDependencies(pack.id));
+                    setTick((v) => v + 1);
+                    pushNotif({ title: "Plugins", body: "Dependency repair flow ran for packs that needed it.", tags: ["Plugins"], level: "success" });
+                  },
+                  disabled: !upgradePacks.some((pack) => pack.dependencyIssues?.length),
+                },
               ]}
             />
             <input ref={fileRef} type="file" accept=".json,application/json" style={{ display: "none" }} onChange={onFile} />
@@ -306,27 +310,6 @@ export default function Plugins({ onNavigate }: { onNavigate?: (id: string) => v
                   <div className="small" style={{ marginTop: 6 }}>Update feed: <b>{pack.updateFeedLabel || "FairlyOdd Stable"}</b></div>
                   {pack.installed && pack.installedVersion && pack.installedVersion !== pack.version ? <div className="small" style={{ marginTop: 6 }}>Installed <b>{pack.installedVersion}</b> → Available <b>{pack.version}</b></div> : null}
                   {pack.latestHistory ? <div className="small" style={{ marginTop: 6 }}>Latest maintenance: <b>{pack.latestHistory.action}</b> • {pack.latestHistory.detail} • {formatWhen(pack.latestHistory.at)}</div> : <div className="small" style={{ marginTop: 6 }}>Latest maintenance: <b>none yet</b></div>}
-                  {!!pack.releaseNotes?.length && (
-                    <div className="assistantStack" style={{ marginTop: 10 }}>
-                      {pack.releaseNotes.map((note: string) => <div key={note} className="small">• {note}</div>)}
-                    </div>
-                  )}
-                  {!!pack.missingPermissions?.length && (
-                    <div className="assistantStack" style={{ marginTop: 10 }}>
-                      {pack.missingPermissions.map((perm) => (
-                        <div key={perm.id} className="timelineCard" style={{ background: "rgba(70,50,10,0.25)" }}>
-                          <div style={{ fontWeight: 800 }}>{perm.label}</div>
-                          <div className="small" style={{ marginTop: 4 }}>{perm.description}</div>
-                          <div className="row" style={{ marginTop: 8, gap: 8, flexWrap: "wrap" }}>
-                            <button className="tabBtn active" onClick={() => { grantUpgradePackPermission(pack.id, perm.id, true); pushNotif({ title: pack.name, body: `Granted ${perm.label}.`, tags: ["Plugins"], level: "success" }); setTick((v) => v + 1); }}>Grant permission</button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {!!pack.dependencyIssues?.length && (
-                    <div className="small" style={{ marginTop: 10 }}>Dependencies to repair: <b>{pack.dependencyIssues.join(", ")}</b></div>
-                  )}
                 </div>
                 <div className="row" style={{ gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
                   {!pack.installed && <button className="tabBtn active" onClick={() => { installUpgradePack(pack.id); pushNotif({ title: "Plugins", body: `${pack.name} installed.`, tags: ["Plugins"], level: "success" }); setTick((v) => v + 1); }}>{pack.installPrompt || `Install ${pack.name}`}</button>}
@@ -346,7 +329,7 @@ export default function Plugins({ onNavigate }: { onNavigate?: (id: string) => v
         <div className="row" style={{ justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <div>
             <div className="h">Update history</div>
-            <div className="sub">Recent plugin installs, updates, permission grants, and dependency repairs so you can see what changed in the upgrade bay.</div>
+            <div className="sub">Recent plugin installs, updates, permission grants, and dependency repairs.</div>
           </div>
           <span className="badge good">{bayStats.history.success} success</span>
         </div>

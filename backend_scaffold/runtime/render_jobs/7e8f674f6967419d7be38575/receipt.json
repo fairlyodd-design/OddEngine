@@ -1,0 +1,87 @@
+{
+  "jobId": "7e8f674f6967419d7be38575",
+  "status": "failed",
+  "detail": "ffmpeg exited with code 4294967274\nffmpeg version 2026-03-26-git-fd9f1e9c52-essentials_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers\r\n  built with gcc 15.2.0 (Rev11, Built by MSYS2 project)\r\n  configuration: --enable-gpl --enable-version3 --enable-static --disable-w32threads --disable-autodetect --enable-cairo --enable-fontconfig --enable-iconv --enable-gnutls --enable-libxml2 --enable-gmp --enable-bzlib --enable-lzma --enable-zlib --enable-libsrt --enable-libssh --enable-libzmq --enable-avisynth --enable-sdl2 --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxvid --enable-libaom --enable-libopenjpeg --enable-libvpx --enable-mediafoundation --enable-libass --enable-libfreetype --enable-libfribidi --enable-libharfbuzz --enable-libvidstab --enable-libvmaf --enable-libzimg --enable-amf --enable-cuda-llvm --enable-cuvid --enable-dxva2 --enable-d3d11va --enable-d3d12va --enable-ffnvcodec --enable-libvpl --enable-nvdec --enable-nvenc --enable-vaapi --enable-openal --enable-libgme --enable-libopenmpt --enable-libopencore-amrwb --enable-libmp3lame --enable-libtheora --enable-libvo-amrwbenc --enable-libgsm --enable-libopencore-amrnb --enable-libopus --enable-libspeex --enable-libvorbis --enable-librubberband\r\n  libavutil      60. 29.100 / 60. 29.100\r\n  libavcodec     62. 29.101 / 62. 29.101\r\n  libavformat    62. 13.101 / 62. 13.101\r\n  libavdevice    62.  4.100 / 62.  4.100\r\n  libavfilter    11. 15.101 / 11. 15.101\r\n  libswscale      9.  7.100 /  9.  7.100\r\n  libswresample   6.  4.100 /  6.  4.100\r\nInput #0, lavfi, from 'color=c=black:s=1280x720:d=1':\r\n  Duration: N/A, start: 0.000000, bitrate: N/A\r\n  Stream #0:0: Video: wrapped_avframe, yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 25 fps, 25 tbr, 25 tbn\r\nFontconfig error: Cannot load default config file: No such file: (null)\r\nFontconfig error: Cannot load default config file: No such file: (null)\r\nFontconfig error: Cannot load default config file: No such file: (null)\r\nStream mapping:\r\n  Stream #0:0 -> #0:0 (wrapped_avframe (native) -> png (native))\r\nPress [q] to stop, [?] for help\r\nFontconfig error: Cannot load default config file: No such file: (null)\r\nFontconfig error: Cannot load default config file: No such file: (null)\r\n[Parsed_drawtext_10 @ 000001c74edb0540] [Eval @ 0000001ff63fed20] Invalid chars ',drawtext=text=day...,(whisperingtoradio)Imnever:fontcolor=white@0.88:fontsize=20:x=150:y=636,drawtext=text=OddEngineWritersLounge:fontcolor=white@0.3:fontsize=18:x=910:y=675' at the end of expression '610,drawtext=text=day...,(whispering to radio) Im never:fontcolor=white@0.88:fontsize=20:x=150:y=636,drawtext=text=OddEngine Writers Lounge:fontcolor=white@0.3:fontsize=18:x=910:y=675'\r\n[Parsed_drawtext_10 @ 000001c74edb0540] Failed to parse expression: 610,drawtext=text=day...,(whispering to radio) Im never:fontcolor=white@0.88:fontsize=20:x=150:y=636,drawtext=text=OddEngine Writers Lounge:fontcolor=white@0.3:fontsize=18:x=910:y=675 \r\n[Parsed_drawtext_10 @ 000001c74edb0540] Failed to configure input pad on Parsed_drawtext_10\r\n[vf#0:0 @ 000001c74ec70600] Error reinitializing filters!\r\n[vf#0:0 @ 000001c74ec70600] Task finished with error code: -22 (Invalid argument)\r\n[vf#0:0 @ 000001c74ec70600] Terminating thread with return code -22 (Invalid argument)\r\n[vost#0:0/png @ 000001c74ebf0600] [enc:png @ 000001c74ec6e480] Could not open encoder before EOF\r\n[vost#0:0/png @ 000001c74ebf0600] Task finished with error code: -22 (Invalid argument)\r\n[vost#0:0/png @ 000001c74ebf0600] Terminating thread with return code -22 (Invalid argument)\r\n[out#0/image2 @ 000001c74eda7140] Nothing was written into output file, because at least one of its streams received no packets.\r\nframe=    0 fps=0.0 q=0.0 Lsize=       0KiB time=N/A bitrate=N/A speed=N/A elapsed=0:00:00.00    \r\nConversion failed!\r\n",
+  "artifacts": [
+    {
+      "kind": "error",
+      "label": "Execution error",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\7e8f674f6967419d7be38575\\error.txt",
+      "url": "http://127.0.0.1:8899/files/7e8f674f6967419d7be38575/error.txt"
+    },
+    {
+      "kind": "summary",
+      "label": "Job summary",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\7e8f674f6967419d7be38575\\job-summary.json",
+      "url": "http://127.0.0.1:8899/files/7e8f674f6967419d7be38575/job-summary.json"
+    },
+    {
+      "kind": "receipt",
+      "label": "Execution receipt",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\7e8f674f6967419d7be38575\\receipt.json",
+      "url": "http://127.0.0.1:8899/files/7e8f674f6967419d7be38575/receipt.json"
+    },
+    {
+      "kind": "log",
+      "label": "Pipeline log",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\7e8f674f6967419d7be38575\\pipeline.log",
+      "url": "http://127.0.0.1:8899/files/7e8f674f6967419d7be38575/pipeline.log"
+    },
+    {
+      "kind": "voice",
+      "label": "Scene 1 voice",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\7e8f674f6967419d7be38575\\scene_01_jack-s-struggle-is-real_voice.wav",
+      "url": "http://127.0.0.1:8899/files/7e8f674f6967419d7be38575/scene_01_jack-s-struggle-is-real_voice.wav"
+    },
+    {
+      "kind": "transcript",
+      "label": "Scene 1 transcript",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\7e8f674f6967419d7be38575\\70785f07d79f119d7be38574_transcript.txt",
+      "url": "http://127.0.0.1:8899/files/7e8f674f6967419d7be38575/70785f07d79f119d7be38574_transcript.txt"
+    },
+    {
+      "kind": "voice",
+      "label": "Scene 2 voice",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\7e8f674f6967419d7be38575\\scene_02_the-studio-responds_voice.wav",
+      "url": "http://127.0.0.1:8899/files/7e8f674f6967419d7be38575/scene_02_the-studio-responds_voice.wav"
+    },
+    {
+      "kind": "transcript",
+      "label": "Scene 2 transcript",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\7e8f674f6967419d7be38575\\4ea3e2a57d78219d7be38574_transcript.txt",
+      "url": "http://127.0.0.1:8899/files/7e8f674f6967419d7be38575/4ea3e2a57d78219d7be38574_transcript.txt"
+    },
+    {
+      "kind": "voice",
+      "label": "Scene 3 voice",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\7e8f674f6967419d7be38575\\scene_03_the-conversation-begins_voice.wav",
+      "url": "http://127.0.0.1:8899/files/7e8f674f6967419d7be38575/scene_03_the-conversation-begins_voice.wav"
+    },
+    {
+      "kind": "transcript",
+      "label": "Scene 3 transcript",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\7e8f674f6967419d7be38575\\2d6b5a2761f1f19d7be38574_transcript.txt",
+      "url": "http://127.0.0.1:8899/files/7e8f674f6967419d7be38575/2d6b5a2761f1f19d7be38574_transcript.txt"
+    },
+    {
+      "kind": "voice",
+      "label": "Scene 4 voice",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\7e8f674f6967419d7be38575\\scene_04_the-dark-truth_voice.wav",
+      "url": "http://127.0.0.1:8899/files/7e8f674f6967419d7be38575/scene_04_the-dark-truth_voice.wav"
+    },
+    {
+      "kind": "transcript",
+      "label": "Scene 4 transcript",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\7e8f674f6967419d7be38575\\a0417d8713e9d19d7be38574_transcript.txt",
+      "url": "http://127.0.0.1:8899/files/7e8f674f6967419d7be38575/a0417d8713e9d19d7be38574_transcript.txt"
+    },
+    {
+      "kind": "voice-manifest",
+      "label": "Voice manifest",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\7e8f674f6967419d7be38575\\voice_manifest.txt",
+      "url": "http://127.0.0.1:8899/files/7e8f674f6967419d7be38575/voice_manifest.txt"
+    }
+  ],
+  "createdAt": 1775900001720,
+  "updatedAt": 1775900003130
+}

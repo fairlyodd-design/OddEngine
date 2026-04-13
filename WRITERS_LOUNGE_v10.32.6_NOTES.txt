@@ -1,0 +1,10 @@
+v10.32.6_QueuedJobStorageSyncAndLateRenderOpenPass
+
+Fixes:
+- save render jobs to local storage immediately when queued/updated
+- dispatch storage sync event so Builder sees jobs without waiting
+- only auto-open Builder after backend submit succeeds
+
+Why:
+- Builder was opening before render job state had been persisted, so it showed 0 jobs
+- auto-open was also happening too early, before the pipeline had actually reached backend submit

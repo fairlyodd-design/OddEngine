@@ -1,0 +1,13 @@
+v10.33.5_TrueFinalVideoPreviewLockPass
+
+What changed
+- Added persistent Studio final-video preview lock storage.
+- Writers Lounge now rebinds final preview from imported artifacts, pipeline refs, final episode file, or the saved preview lock after reload.
+- Final preview link now survives active job changes and stale selection drift.
+- Export / publish payloads now prefer the locked final preview path.
+- Builder inspector now shows the locked Studio preview path for debugging.
+
+Files changed
+- ui/src/lib/writerStudioPreview.ts
+- ui/src/panels/Books.tsx
+- ui/src/panels/Builder.tsx

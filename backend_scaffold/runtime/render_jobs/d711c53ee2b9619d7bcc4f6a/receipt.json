@@ -1,0 +1,81 @@
+{
+  "jobId": "d711c53ee2b9619d7bcc4f6a",
+  "status": "failed",
+  "detail": "ffmpeg exited with code 4294967274\nffmpeg version 2026-03-26-git-fd9f1e9c52-essentials_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers\r\n  built with gcc 15.2.0 (Rev11, Built by MSYS2 project)\r\n  configuration: --enable-gpl --enable-version3 --enable-static --disable-w32threads --disable-autodetect --enable-cairo --enable-fontconfig --enable-iconv --enable-gnutls --enable-libxml2 --enable-gmp --enable-bzlib --enable-lzma --enable-zlib --enable-libsrt --enable-libssh --enable-libzmq --enable-avisynth --enable-sdl2 --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxvid --enable-libaom --enable-libopenjpeg --enable-libvpx --enable-mediafoundation --enable-libass --enable-libfreetype --enable-libfribidi --enable-libharfbuzz --enable-libvidstab --enable-libvmaf --enable-libzimg --enable-amf --enable-cuda-llvm --enable-cuvid --enable-dxva2 --enable-d3d11va --enable-d3d12va --enable-ffnvcodec --enable-libvpl --enable-nvdec --enable-nvenc --enable-vaapi --enable-openal --enable-libgme --enable-libopenmpt --enable-libopencore-amrwb --enable-libmp3lame --enable-libtheora --enable-libvo-amrwbenc --enable-libgsm --enable-libopencore-amrnb --enable-libopus --enable-libspeex --enable-libvorbis --enable-librubberband\r\n  libavutil      60. 29.100 / 60. 29.100\r\n  libavcodec     62. 29.101 / 62. 29.101\r\n  libavformat    62. 13.101 / 62. 13.101\r\n  libavdevice    62.  4.100 / 62.  4.100\r\n  libavfilter    11. 15.101 / 11. 15.101\r\n  libswscale      9.  7.100 /  9.  7.100\r\n  libswresample   6.  4.100 /  6.  4.100\r\nInput #0, lavfi, from 'color=c=black:s=1280x720:d=1':\r\n  Duration: N/A, start: 0.000000, bitrate: N/A\r\n  Stream #0:0: Video: wrapped_avframe, yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 25 fps, 25 tbr, 25 tbn\r\nFontconfig error: Cannot load default config file: No such file: (null)\r\nFontconfig error: Cannot load default config file: No such file: (null)\r\nFontconfig error: Cannot load default config file: No such file: (null)\r\nFontconfig error: Cannot load default config file: No such file: (null)\r\nStream mapping:\r\n  Stream #0:0 -> #0:0 (wrapped_avframe (native) -> png (native))\r\nPress [q] to stop, [?] for help\r\nFontconfig error: Cannot load default config file: No such file: (null)\r\nFontconfig error: Cannot load default config file: No such file: (null)\r\nFontconfig error: Cannot load default config file: No such file: (null)\r\n[Parsed_drawtext_11 @ 0000021f4abb36c0] [Eval @ 000000c1b29ff0e0] Invalid chars ',drawtext=text=listening.,MaybeImjusthearingthings.:fontcolor=white@0.88:fontsize=20:x=150:y=636,drawtext=text=OddEngineWritersLounge:fontcolor=white@0.3:fontsize=18:x=910:y=675' at the end of expression '610,drawtext=text=listening.,Maybe Im just hearing things.:fontcolor=white@0.88:fontsize=20:x=150:y=636,drawtext=text=OddEngine Writers Lounge:fontcolor=white@0.3:fontsize=18:x=910:y=675'\r\n[Parsed_drawtext_11 @ 0000021f4abb36c0] Failed to parse expression: 610,drawtext=text=listening.,Maybe Im just hearing things.:fontcolor=white@0.88:fontsize=20:x=150:y=636,drawtext=text=OddEngine Writers Lounge:fontcolor=white@0.3:fontsize=18:x=910:y=675 \r\n[Parsed_drawtext_11 @ 0000021f4abb36c0] Failed to configure input pad on Parsed_drawtext_11\r\n[vf#0:0 @ 0000021f4a9f0b40] Error reinitializing filters!\r\n[vf#0:0 @ 0000021f4a9f0b40] Task finished with error code: -22 (Invalid argument)\r\n[vf#0:0 @ 0000021f4a9f0b40] Terminating thread with return code -22 (Invalid argument)\r\n[vost#0:0/png @ 0000021f4a970900] [enc:png @ 0000021f4a9eec40] Could not open encoder before EOF\r\n[vost#0:0/png @ 0000021f4a970900] Task finished with error code: -22 (Invalid argument)\r\n[vost#0:0/png @ 0000021f4a970900] Terminating thread with return code -22 (Invalid argument)\r\n[out#0/image2 @ 0000021f4aba7140] Nothing was written into output file, because at least one of its streams received no packets.\r\nframe=    0 fps=0.0 q=0.0 Lsize=       0KiB time=N/A bitrate=N/A speed=N/A elapsed=0:00:00.00    \r\nConversion failed!\r\n",
+  "artifacts": [
+    {
+      "kind": "error",
+      "label": "Execution error",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\d711c53ee2b9619d7bcc4f6a\\error.txt",
+      "url": "http://127.0.0.1:8899/files/d711c53ee2b9619d7bcc4f6a/error.txt"
+    },
+    {
+      "kind": "voice",
+      "label": "Scene 1 voice",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\d711c53ee2b9619d7bcc4f6a\\scene_01_studio-chaos_voice.wav",
+      "url": "http://127.0.0.1:8899/files/d711c53ee2b9619d7bcc4f6a/scene_01_studio-chaos_voice.wav"
+    },
+    {
+      "kind": "transcript",
+      "label": "Scene 1 transcript",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\d711c53ee2b9619d7bcc4f6a\\46e518e263af719d7bcc4f68_transcript.txt",
+      "url": "http://127.0.0.1:8899/files/d711c53ee2b9619d7bcc4f6a/46e518e263af719d7bcc4f68_transcript.txt"
+    },
+    {
+      "kind": "voice",
+      "label": "Scene 2 voice",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\d711c53ee2b9619d7bcc4f6a\\scene_02_the-room-awakens_voice.wav",
+      "url": "http://127.0.0.1:8899/files/d711c53ee2b9619d7bcc4f6a/scene_02_the-room-awakens_voice.wav"
+    },
+    {
+      "kind": "transcript",
+      "label": "Scene 2 transcript",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\d711c53ee2b9619d7bcc4f6a\\2a85eb300810819d7bcc4f6a_transcript.txt",
+      "url": "http://127.0.0.1:8899/files/d711c53ee2b9619d7bcc4f6a/2a85eb300810819d7bcc4f6a_transcript.txt"
+    },
+    {
+      "kind": "voice",
+      "label": "Scene 3 voice",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\d711c53ee2b9619d7bcc4f6a\\scene_03_mind-games_voice.wav",
+      "url": "http://127.0.0.1:8899/files/d711c53ee2b9619d7bcc4f6a/scene_03_mind-games_voice.wav"
+    },
+    {
+      "kind": "transcript",
+      "label": "Scene 3 transcript",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\d711c53ee2b9619d7bcc4f6a\\c1309d5aa0b1619d7bcc4f6a_transcript.txt",
+      "url": "http://127.0.0.1:8899/files/d711c53ee2b9619d7bcc4f6a/c1309d5aa0b1619d7bcc4f6a_transcript.txt"
+    },
+    {
+      "kind": "voice-manifest",
+      "label": "Voice manifest",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\d711c53ee2b9619d7bcc4f6a\\voice_manifest.txt",
+      "url": "http://127.0.0.1:8899/files/d711c53ee2b9619d7bcc4f6a/voice_manifest.txt"
+    },
+    {
+      "kind": "scene-poster",
+      "label": "Scene 1 poster",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\d711c53ee2b9619d7bcc4f6a\\46e518e263af719d7bcc4f68_poster.png",
+      "url": "http://127.0.0.1:8899/files/d711c53ee2b9619d7bcc4f6a/46e518e263af719d7bcc4f68_poster.png"
+    },
+    {
+      "kind": "scene-video",
+      "label": "Scene 1 video",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\d711c53ee2b9619d7bcc4f6a\\scene_01_studio-chaos.mp4",
+      "url": "http://127.0.0.1:8899/files/d711c53ee2b9619d7bcc4f6a/scene_01_studio-chaos.mp4"
+    },
+    {
+      "kind": "scene-poster",
+      "label": "Scene 2 poster",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\d711c53ee2b9619d7bcc4f6a\\2a85eb300810819d7bcc4f6a_poster.png",
+      "url": "http://127.0.0.1:8899/files/d711c53ee2b9619d7bcc4f6a/2a85eb300810819d7bcc4f6a_poster.png"
+    },
+    {
+      "kind": "scene-video",
+      "label": "Scene 2 video",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\d711c53ee2b9619d7bcc4f6a\\scene_02_the-room-awakens.mp4",
+      "url": "http://127.0.0.1:8899/files/d711c53ee2b9619d7bcc4f6a/scene_02_the-room-awakens.mp4"
+    }
+  ],
+  "createdAt": 1775898480517,
+  "updatedAt": 1775898484244
+}

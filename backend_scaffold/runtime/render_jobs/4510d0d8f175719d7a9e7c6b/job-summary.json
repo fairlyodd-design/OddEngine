@@ -1,0 +1,133 @@
+{
+  "kind": "animation-episode",
+  "jobId": "4510d0d8f175719d7a9e7c6b",
+  "projectId": "bdd086f7b1ad119d7a9e7c69",
+  "projectTitle": "The Writing Room Wake-Up",
+  "outputDir": "render_lab/animation_jobs/the-writing-room-wake-up",
+  "finalEpisodeFile": "render_lab/animation_jobs/the-writing-room-wake-up/the-writing-room-wake-up_final_episode.mp4",
+  "voiceModel": "llama3.1:8b",
+  "renderProfile": "1080p-series-balanced",
+  "scenes": [
+    {
+      "index": 0,
+      "sceneId": "3894dae70cae619d7a9e7c69",
+      "sceneTitle": "Introduction to the Writing Room",
+      "durationSec": 30,
+      "voiceText": "[object Object],[object Object]",
+      "voiceAssetFile": "render_lab/animation_jobs/the-writing-room-wake-up/scene_01_introduction-to-the-writing-room_voice.wav",
+      "outputFile": "render_lab/animation_jobs/the-writing-room-wake-up/scene_01_introduction-to-the-writing-room.mp4",
+      "visualPrompt": "/assets/writing_room.png",
+      "motionPrompt": "The camera pans across the writing room, showing various scripts and papers scattered about.",
+      "sfx": [
+        "sound-effects/typing-on-keyboard.wav"
+      ],
+      "shotNotes": "Animate Introduction to the Writing Room with The camera pans across the writing room, showing various scripts and papers scattered about.. Use visual prompt as frame guidance and keep continuity with [object Object].",
+      "cameraPlan": "Start wide, move to medium performance coverage, end on a detail or reaction for Introduction to the Writing Room.",
+      "shots": [
+        "Shot A: Establish Introduction to the Writing Room with /assets/writing_room.png.",
+        "Shot B: Push motion with The camera pans across the writing room, showing various scripts and papers scattered about..",
+        "Shot C: Land on the strongest acting beat tied to sound-effects/typing-on-keyboard.wav."
+      ]
+    },
+    {
+      "index": 1,
+      "sceneId": "c2a25ec1ebdbf19d7a9e7c69",
+      "sceneTitle": "Max's Frustration",
+      "durationSec": 45,
+      "voiceText": "[object Object]",
+      "voiceAssetFile": "render_lab/animation_jobs/the-writing-room-wake-up/scene_02_max-s-frustration_voice.wav",
+      "outputFile": "render_lab/animation_jobs/the-writing-room-wake-up/scene_02_max-s-frustration.mp4",
+      "visualPrompt": "/assets/max-frustrated.png",
+      "motionPrompt": "The camera zooms in on Max's face as he slams his fist on the desk.",
+      "sfx": [
+        "sound-effects/sigh.wav"
+      ],
+      "shotNotes": "Animate Max's Frustration with The camera zooms in on Max's face as he slams his fist on the desk.. Use visual prompt as frame guidance and keep continuity with [object Object].",
+      "cameraPlan": "Start wide, move to medium performance coverage, end on a detail or reaction for Max's Frustration.",
+      "shots": [
+        "Shot A: Establish Max's Frustration with /assets/max-frustrated.png.",
+        "Shot B: Push motion with The camera zooms in on Max's face as he slams his fist on the desk..",
+        "Shot C: Land on the strongest acting beat tied to sound-effects/sigh.wav."
+      ]
+    },
+    {
+      "index": 2,
+      "sceneId": "52b0cb510c64b19d7a9e7c69",
+      "sceneTitle": "The Writing Room Responds",
+      "durationSec": 60,
+      "voiceText": "[object Object],[object Object]",
+      "voiceAssetFile": "render_lab/animation_jobs/the-writing-room-wake-up/scene_03_the-writing-room-responds_voice.wav",
+      "outputFile": "render_lab/animation_jobs/the-writing-room-wake-up/scene_03_the-writing-room-responds.mp4",
+      "visualPrompt": "/assets/writing_room.png",
+      "motionPrompt": "The writing room begins to glow and the words on the page start moving.",
+      "sfx": [
+        "sound-effects/page-turning.wav"
+      ],
+      "shotNotes": "Animate The Writing Room Responds with The writing room begins to glow and the words on the page start moving.. Use visual prompt as frame guidance and keep continuity with [object Object].",
+      "cameraPlan": "Start wide, move to medium performance coverage, end on a detail or reaction for The Writing Room Responds.",
+      "shots": [
+        "Shot A: Establish The Writing Room Responds with /assets/writing_room.png.",
+        "Shot B: Push motion with The writing room begins to glow and the words on the page start moving..",
+        "Shot C: Land on the strongest acting beat tied to sound-effects/page-turning.wav."
+      ]
+    },
+    {
+      "index": 3,
+      "sceneId": "94b8f809544b19d7a9e7c69",
+      "sceneTitle": "The Plot Thickens",
+      "durationSec": 90,
+      "voiceText": "[object Object]",
+      "voiceAssetFile": "render_lab/animation_jobs/the-writing-room-wake-up/scene_04_the-plot-thickens_voice.wav",
+      "outputFile": "render_lab/animation_jobs/the-writing-room-wake-up/scene_04_the-plot-thickens.mp4",
+      "visualPrompt": "/assets/max-and-writing_room.png",
+      "motionPrompt": "Max and the writing room engage in a lively conversation.",
+      "sfx": [
+        "sound-effects/paper-jumping.wav"
+      ],
+      "shotNotes": "Animate The Plot Thickens with Max and the writing room engage in a lively conversation.. Use visual prompt as frame guidance and keep continuity with [object Object].",
+      "cameraPlan": "Start wide, move to medium performance coverage, end on a detail or reaction for The Plot Thickens.",
+      "shots": [
+        "Shot A: Establish The Plot Thickens with /assets/max-and-writing_room.png.",
+        "Shot B: Push motion with Max and the writing room engage in a lively conversation..",
+        "Shot C: Land on the strongest acting beat tied to sound-effects/paper-jumping.wav."
+      ]
+    }
+  ],
+  "executionPlan": {
+    "voiceEngine": "python local_tts.py",
+    "renderer": "python local_scene_renderer.py",
+    "ffmpegPath": "ffmpeg",
+    "workDir": "render_lab/animation_jobs/the-writing-room-wake-up",
+    "manifestFile": "render_lab/animation_jobs/the-writing-room-wake-up/execution_manifest.json",
+    "windowsScript": {
+      "filename": "the-writing-room-wake-up_episode_build.bat",
+      "content": "@echo off\nsetlocal\nmkdir \"render_lab/animation_jobs/the-writing-room-wake-up\" 2>nul\npython local_tts.py --model \"llama3.1:8b\" --text \"[object Object],[object Object]\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_01_introduction-to-the-writing-room_voice.wav\" --scene \"01\"\npython local_tts.py --model \"llama3.1:8b\" --text \"[object Object]\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_02_max-s-frustration_voice.wav\" --scene \"02\"\npython local_tts.py --model \"llama3.1:8b\" --text \"[object Object],[object Object]\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_03_the-writing-room-responds_voice.wav\" --scene \"03\"\npython local_tts.py --model \"llama3.1:8b\" --text \"[object Object]\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_04_the-plot-thickens_voice.wav\" --scene \"04\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"01\" --visual \"/assets/writing_room.png\" --motion \"The camera pans across the writing room, showing various scripts and papers scattered about.\" --voice \"render_lab/animation_jobs/the-writing-room-wake-up/scene_01_introduction-to-the-writing-room_voice.wav\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_01_introduction-to-the-writing-room.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"02\" --visual \"/assets/max-frustrated.png\" --motion \"The camera zooms in on Max's face as he slams his fist on the desk.\" --voice \"render_lab/animation_jobs/the-writing-room-wake-up/scene_02_max-s-frustration_voice.wav\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_02_max-s-frustration.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"03\" --visual \"/assets/writing_room.png\" --motion \"The writing room begins to glow and the words on the page start moving.\" --voice \"render_lab/animation_jobs/the-writing-room-wake-up/scene_03_the-writing-room-responds_voice.wav\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_03_the-writing-room-responds.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"04\" --visual \"/assets/max-and-writing_room.png\" --motion \"Max and the writing room engage in a lively conversation.\" --voice \"render_lab/animation_jobs/the-writing-room-wake-up/scene_04_the-plot-thickens_voice.wav\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_04_the-plot-thickens.mp4\"\npython build_concat_manifest.py --job \"4510d0d8f175719d7a9e7c6b\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/episode_concat.txt\"\nffmpeg -y -f concat -safe 0 -i \"render_lab/animation_jobs/the-writing-room-wake-up/episode_concat.txt\" -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k \"render_lab/animation_jobs/the-writing-room-wake-up/the-writing-room-wake-up_final_episode.mp4\"\necho Episode build complete.\nendlocal"
+    },
+    "bashScript": {
+      "filename": "the-writing-room-wake-up_episode_build.sh",
+      "content": "#!/usr/bin/env bash\nset -euo pipefail\nmkdir -p \"render_lab/animation_jobs/the-writing-room-wake-up\"\npython local_tts.py --model \"llama3.1:8b\" --text \"[object Object],[object Object]\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_01_introduction-to-the-writing-room_voice.wav\" --scene \"01\"\npython local_tts.py --model \"llama3.1:8b\" --text \"[object Object]\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_02_max-s-frustration_voice.wav\" --scene \"02\"\npython local_tts.py --model \"llama3.1:8b\" --text \"[object Object],[object Object]\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_03_the-writing-room-responds_voice.wav\" --scene \"03\"\npython local_tts.py --model \"llama3.1:8b\" --text \"[object Object]\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_04_the-plot-thickens_voice.wav\" --scene \"04\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"01\" --visual \"/assets/writing_room.png\" --motion \"The camera pans across the writing room, showing various scripts and papers scattered about.\" --voice \"render_lab/animation_jobs/the-writing-room-wake-up/scene_01_introduction-to-the-writing-room_voice.wav\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_01_introduction-to-the-writing-room.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"02\" --visual \"/assets/max-frustrated.png\" --motion \"The camera zooms in on Max's face as he slams his fist on the desk.\" --voice \"render_lab/animation_jobs/the-writing-room-wake-up/scene_02_max-s-frustration_voice.wav\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_02_max-s-frustration.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"03\" --visual \"/assets/writing_room.png\" --motion \"The writing room begins to glow and the words on the page start moving.\" --voice \"render_lab/animation_jobs/the-writing-room-wake-up/scene_03_the-writing-room-responds_voice.wav\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_03_the-writing-room-responds.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"04\" --visual \"/assets/max-and-writing_room.png\" --motion \"Max and the writing room engage in a lively conversation.\" --voice \"render_lab/animation_jobs/the-writing-room-wake-up/scene_04_the-plot-thickens_voice.wav\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_04_the-plot-thickens.mp4\"\npython build_concat_manifest.py --job \"4510d0d8f175719d7a9e7c6b\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/episode_concat.txt\"\nffmpeg -y -f concat -safe 0 -i \"render_lab/animation_jobs/the-writing-room-wake-up/episode_concat.txt\" -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k \"render_lab/animation_jobs/the-writing-room-wake-up/the-writing-room-wake-up_final_episode.mp4\"\necho 'Episode build complete.'"
+    },
+    "voiceCommands": [
+      "python local_tts.py --model \"llama3.1:8b\" --text \"[object Object],[object Object]\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_01_introduction-to-the-writing-room_voice.wav\" --scene \"01\"",
+      "python local_tts.py --model \"llama3.1:8b\" --text \"[object Object]\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_02_max-s-frustration_voice.wav\" --scene \"02\"",
+      "python local_tts.py --model \"llama3.1:8b\" --text \"[object Object],[object Object]\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_03_the-writing-room-responds_voice.wav\" --scene \"03\"",
+      "python local_tts.py --model \"llama3.1:8b\" --text \"[object Object]\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_04_the-plot-thickens_voice.wav\" --scene \"04\""
+    ],
+    "renderCommands": [
+      "python local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"01\" --visual \"/assets/writing_room.png\" --motion \"The camera pans across the writing room, showing various scripts and papers scattered about.\" --voice \"render_lab/animation_jobs/the-writing-room-wake-up/scene_01_introduction-to-the-writing-room_voice.wav\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_01_introduction-to-the-writing-room.mp4\"",
+      "python local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"02\" --visual \"/assets/max-frustrated.png\" --motion \"The camera zooms in on Max's face as he slams his fist on the desk.\" --voice \"render_lab/animation_jobs/the-writing-room-wake-up/scene_02_max-s-frustration_voice.wav\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_02_max-s-frustration.mp4\"",
+      "python local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"03\" --visual \"/assets/writing_room.png\" --motion \"The writing room begins to glow and the words on the page start moving.\" --voice \"render_lab/animation_jobs/the-writing-room-wake-up/scene_03_the-writing-room-responds_voice.wav\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_03_the-writing-room-responds.mp4\"",
+      "python local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"04\" --visual \"/assets/max-and-writing_room.png\" --motion \"Max and the writing room engage in a lively conversation.\" --voice \"render_lab/animation_jobs/the-writing-room-wake-up/scene_04_the-plot-thickens_voice.wav\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/scene_04_the-plot-thickens.mp4\""
+    ],
+    "ffmpegCommands": [
+      "python build_concat_manifest.py --job \"4510d0d8f175719d7a9e7c6b\" --out \"render_lab/animation_jobs/the-writing-room-wake-up/episode_concat.txt\"",
+      "ffmpeg -y -f concat -safe 0 -i \"render_lab/animation_jobs/the-writing-room-wake-up/episode_concat.txt\" -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k \"render_lab/animation_jobs/the-writing-room-wake-up/the-writing-room-wake-up_final_episode.mp4\""
+    ],
+    "executionNotes": [
+      "Run voice generation first so every scene gets a concrete WAV asset.",
+      "Run the renderer second so each scene produces its own MP4 file in the job output directory.",
+      "Run the ffmpeg concat build last to assemble the final episode from the rendered scene clips."
+    ],
+    "generatedAt": 1775878700139
+  }
+}

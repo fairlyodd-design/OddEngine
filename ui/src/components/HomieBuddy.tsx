@@ -351,10 +351,10 @@ function pickIdleStatus(activePanelId: string) {
   const missions = buildMissions();
   if (missions.length) {
     const top = missions[0];
-    return { text: `${getPanelMeta(top.panelId).title}: ${top.title}`, mood: top.level === "good" ? "good" as const : "warn" as const };
+    return { text: `${getPanelMeta(top.panelId).title}: ${top.text}`, mood: top.level === "good" ? "good" as const : "warn" as const };
   }
   const health = buildPanelHealth().sort((a, b) => a.score - b.score)[0];
-  if (health) return { text: `${health.title} health is ${health.score}/100. ${health.headline}`, mood: health.tone === "good" ? "good" as const : "warn" as const };
+  if (health) return { text: `${health.title} health is ${health.score}/100. ${health.headline}`, mood: health.status === "good" ? "good" as const : "warn" as const };
   return { text: `Watching ${getPanelMeta(activePanelId).title} and staying ready.`, mood: "idle" as const };
 }
 
@@ -750,7 +750,7 @@ function getRoomItemStyle(itemId: RoomItemId, baseTransform = ""): React.CSSProp
 
     if ((prefs.ai.homieRoomPreset || "trading") === nextPreset) return;
 
-    const config = nextPreset === "custom" ? null : ROOM_PRESETS[nextPreset as Exclude<RoomPresetId, "custom">];
+    const config = ROOM_PRESETS[nextPreset as keyof typeof ROOM_PRESETS];
     if (!config) return;
     updateHomieRoom({
       homieRoomPreset: nextPreset,
@@ -759,7 +759,7 @@ function getRoomItemStyle(itemId: RoomItemId, baseTransform = ""): React.CSSProp
       homieDeskItem: config.deskItem,
       homieMoodLighting: config.moodLighting,
     } as any);
-    announce(`Linked room → ${ROOM_PRESETS[nextPreset as any].label}.`, "good", true);
+    announce(`Linked room → ${config.label}.`, "good", true);
   }, [activePanelId, autoLinkRoom, layoutEditMode]);
 
   useEffect(() => {
@@ -904,7 +904,7 @@ function getRoomItemStyle(itemId: RoomItemId, baseTransform = ""): React.CSSProp
       const nextState = voiceEngineMode === "cloud" ? "disabled" : "unavailable";
       setDiagnostics((prev) => ({ ...prev, externalBridgeConfigured: wantsExternalVoice(), externalBridgeBaseUrl: externalVoiceBaseUrl, externalBridgeState: nextState, externalBridgeMessage: message, externalBridgeModel: "" }));
       updateVoiceEngineSnapshot({ externalState: nextState, engineMode: voiceEngineMode as any, externalAvailable: false, externalBaseUrl: externalVoiceBaseUrl, externalModel: "", message, source: "homie" });
-      if (!silent) announce(message, nextState === "ready" ? "good" : "warn", true);
+      if (!silent) announce(message, "warn", true);
       return { ok: false, status: nextState, message };
     }
     setDiagnostics((prev) => ({ ...prev, externalBridgeConfigured: true, externalBridgeBaseUrl: externalVoiceBaseUrl, externalBridgeState: "configuring", externalBridgeMessage: `Checking ${externalVoiceBaseUrl}…` }));
@@ -1555,7 +1555,7 @@ function getRoomItemStyle(itemId: RoomItemId, baseTransform = ""): React.CSSProp
           <button className="tabBtn" onClick={() => resetRoomLayout(roomLayoutSlot)}>Reset layout</button>
           {layoutEditMode && selectedRoomItem && (
             <>
-              <span className="badge">Selected: {selectedRoomItem} • {ROOM_ITEM_DEPTH_LABEL[(draftRoomLayout[selectedRoomItem]?.depth ?? 1) as any] || "Mid"}</span>
+              <span className="badge">Selected: {selectedRoomItem} • {ROOM_ITEM_DEPTH_LABEL[(draftRoomLayout[selectedRoomItem]?.depth ?? 1) as keyof typeof ROOM_ITEM_DEPTH_LABEL] || "Mid"}</span>
               <button className="tabBtn" onClick={() => bumpSelectedZ(-1)} title="Send backward">Back</button>
               <button className="tabBtn" onClick={() => bumpSelectedZ(1)} title="Bring forward">Front</button>
               <button className="tabBtn" onClick={() => cycleSelectedDepth(1)} title="Cycle depth layer">Depth</button>
@@ -1716,8 +1716,8 @@ function getRoomItemStyle(itemId: RoomItemId, baseTransform = ""): React.CSSProp
       <div className="timelineCard" style={{ marginTop: 14 }}>
         <div className="small">Mission pulse</div>
         {buildMissions().slice(0, 3).map((mission) => (
-          <div key={`${mission.panelId}-${mission.title}`} className="small" style={{ marginTop: 6 }}>
-            • {getPanelMeta(mission.panelId).title}: {mission.title}
+          <div key={`${mission.panelId}-${mission.text}`} className="small" style={{ marginTop: 6 }}>
+            • {getPanelMeta(mission.panelId).title}: {mission.text}
           </div>
         ))}
       </div>

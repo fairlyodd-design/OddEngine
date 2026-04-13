@@ -192,9 +192,9 @@ export default function Homie3DActorShell({
           </div>
           <div ref={hostRef} className={`homie3DActorHost ${cameraBeat} ${displayStage} ${renderMode === "hybrid" ? "hybrid" : "rig3d"}`.trim()}>
             {renderMode === "3d" ? (
-              <LilHomie3D hostRef={hostRef as any} energy={stageMode === "celebrating" ? 1.04 : stageMode === "talking" ? 0.99 : 0.94} modelUrl={modelUrl} />
+              <LilHomie3D hostRef={hostRef as any} energy={stageMode === "celebrating" ? 1.04 : stageMode === "talking" ? 0.99 : 0.94} />
             ) : (
-              <HomieHybridAvatar stageMode={stageMode} cameraBeat={cameraBeat} mood={mood} />
+              <HomieHybridAvatar stageMode={stageMode as any} cameraBeat={cameraBeat} mood={mood} />
             )}
           </div>
           <div className="homie3DNameplate">Homie</div>

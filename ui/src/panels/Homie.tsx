@@ -3,6 +3,7 @@ import { isDesktop, oddApi } from "../lib/odd";
 import { PanelHeader } from "../components/PanelHeader";
 import ActionMenu from "../components/ActionMenu";
 import { PanelScheduleCard } from "../components/PanelScheduleCard";
+import { DAILY_CHORES_EVENT, buildDailyChoresContext, computeDailyChoresSnapshot, loadDailyChoresState } from "../lib/dailyChoresCommand";
 
 type DevIssue = {
   id: string;
@@ -42,13 +43,13 @@ const LS_AUTOFIX = "oddengine:homie:autofix:v1";
 const LS_TARGET = "oddengine:homie:targetProject:v1";
 const PREFS_KEY = "oddengine:prefs:v1";
 
-
 const DEFAULT_SYSTEM =
   "You are Homie👊, the built-in assistant for OddEngine.\n" +
   "- Be short, clear, and practical.\n" +
   "- When suggesting commands, prefer PowerShell on Windows.\n" +
   "- Ask before running anything that writes/deletes files.\n" +
-  "- If the user shows an error, explain it in plain English then give the safest fix steps.";
+  "- If the user shows an error, explain it in plain English then give the safest fix steps.\n" +
+  "- Help the family route to the right panel and reflect the current house/chores priorities when relevant.";
 
 function uid(){
   return Math.random().toString(16).slice(2) + Date.now().toString(16);
@@ -80,17 +81,17 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
     try{ return localStorage.getItem(LS_TARGET) || localStorage.getItem("oddengine:dev:projectDir") || ""; }catch(e){ return ""; }
   });
   const [autoFixEnabled, setAutoFixEnabled] = useState<boolean>(() => {
-  const stored:any = loadJSON(LS_AUTOFIX, null as any);
-  if(stored && typeof stored.enabled === "boolean") return stored.enabled;
-  const prefs:any = loadJSON(PREFS_KEY, null as any);
-  return !!prefs?.desktop?.autoRunSafeFixes;
-});
+    const stored:any = loadJSON(LS_AUTOFIX, null as any);
+    if(stored && typeof stored.enabled === "boolean") return stored.enabled;
+    const prefs:any = loadJSON(PREFS_KEY, null as any);
+    return !!prefs?.desktop?.autoRunSafeFixes;
+  });
   const [confirmPb, setConfirmPb] = useState<{ id: string; name: string; description: string; safe: boolean } | null>(null);
   const [autoCountdown, setAutoCountdown] = useState<number>(0);
   const [autoPb, setAutoPb] = useState<{ playbookId: string; reason: string } | null>(null);
   const [tab, setTab] = useState<"ai" | "guide">("ai");
+  const [choresTick, setChoresTick] = useState(0);
 
-  // Settings
   const [model, setModel] = useState(() => loadJSON(LS_SETTINGS, { model: "llama3.1:8b", temperature: 0.2, includeContext: true, system: DEFAULT_SYSTEM }).model);
   const [temperature, setTemperature] = useState(() => loadJSON(LS_SETTINGS, { model: "llama3.1:8b", temperature: 0.2, includeContext: true, system: DEFAULT_SYSTEM }).temperature);
   const [includeContext, setIncludeContext] = useState(() => loadJSON(LS_SETTINGS, { model: "llama3.1:8b", temperature: 0.2, includeContext: true, system: DEFAULT_SYSTEM }).includeContext);
@@ -108,7 +109,6 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
     try{ localStorage.setItem(LS_TARGET, targetProject || ""); }catch(e){}
   }, [targetProject]);
 
-  // If target project isn't set yet, default to the OddEngine folder (dev mode).
   useEffect(() => {
     if(!desktop) return;
     if(targetProject) return;
@@ -123,7 +123,28 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
     })();
   }, [desktop, targetProject]);
 
-  // Ollama status
+  useEffect(() => {
+    const onChores = () => setChoresTick((x) => x + 1);
+    try {
+      window.addEventListener(DAILY_CHORES_EVENT as any, onChores);
+      window.addEventListener("storage", onChores);
+    } catch {
+      // ignore
+    }
+    return () => {
+      try {
+        window.removeEventListener(DAILY_CHORES_EVENT as any, onChores);
+        window.removeEventListener("storage", onChores);
+      } catch {
+        // ignore
+      }
+    };
+  }, []);
+  const choresSnapshot = useMemo(() => {
+    void choresTick;
+    return computeDailyChoresSnapshot(loadDailyChoresState());
+  }, [choresTick]);
+
   const [checking, setChecking] = useState(false);
   const [ollamaRunning, setOllamaRunning] = useState<boolean | null>(null);
   const [ollamaModels, setOllamaModels] = useState<string[]>([]);
@@ -152,7 +173,6 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
     }
   }
 
-  // Chat
   const [messages, setMessages] = useState<ChatMsg[]>(() => loadJSON<ChatMsg[]>(LS_CHAT, []));
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -177,7 +197,6 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
     setTab("ai");
   }
 
-  
   async function refreshDevSnapshot() {
     if (!desktop) return;
     try{
@@ -216,7 +235,7 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
     const ok = window.confirm(`Run playbook: ${confirmPb.name}\n\nTarget: ${cwd}\n\nThis will modify files in that folder.`);
     if(!ok){ setConfirmPb(null); return; }
     try{
-      const r = await oddApi().runPlaybook({ playbookId: confirmPb.id, cwd } as any);
+      await oddApi().runPlaybook({ playbookId: confirmPb.id, cwd } as any);
       setMessages((prev) => [...prev, { id: uid(), role: "assistant", content: `✅ Running playbook **${confirmPb.name}** on\n${cwd}\n\nWatch DevEngine logs for progress.`, ts: Date.now() }]);
     }catch(e:any){
       setMessages((prev) => [...prev, { id: uid(), role: "assistant", content: `⚠️ Failed to start playbook: ${String(e)}`, ts: Date.now() }]);
@@ -226,12 +245,13 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
       setAutoPb(null);
     }
   }
-async function send() {
+
+  async function send() {
     const text = input.trim();
     if (!text || busy) return;
 
     const ctx = includeContext
-      ? `\n\n[OddEngine Context]\nHost: ${window.location.hostname}\nActive panel: ${activePanelId || "(unknown)"}\nTime: ${new Date().toISOString()}\n`
+      ? `\n\n[OddEngine Context]\nHost: ${window.location.hostname}\nActive panel: ${activePanelId || "(unknown)"}\nTime: ${new Date().toISOString()}\n\n[Daily Chores Context]\n${buildDailyChoresContext(choresSnapshot)}\n`
       : "";
 
     const userMsg: ChatMsg = { id: uid(), role: "user", content: text + ctx, ts: Date.now() };
@@ -301,16 +321,18 @@ async function send() {
       <PanelHeader
         panelId="Homie"
         title="Homie 👊"
-        subtitle="Dev buddy + local AI helper (Desktop mode)"
+        subtitle="Dev buddy + family guide + local AI helper"
         badges={[
           { label: desktop ? "Desktop" : "Web", tone: desktop ? "good" : "warn" },
           { label: ollamaRunning === null ? "Ollama: ?" : ollamaRunning ? "Ollama: running" : "Ollama: off", tone: ollamaRunning ? "good" : ollamaRunning === false ? "bad" : "muted" },
           { label: (devSnap?.runningCount || 0) > 0 ? `DevEngine: running (${devSnap?.runningCount || 0})` : "DevEngine: idle", tone: (devSnap?.runningCount || 0) > 0 ? "warn" : "muted" },
+          { label: choresSnapshot.open ? `Chores: ${choresSnapshot.open} open` : "Chores: clear", tone: choresSnapshot.open ? "warn" : "good" },
         ]}
         rightSlot={
           <ActionMenu
             items={[
               { label: "Open DevEngine", onClick: () => onNavigate?.("DevEngine") },
+              { label: "Open Daily Chores", onClick: () => onNavigate?.("DailyChores") },
               { label: "Open Calendar", onClick: () => onNavigate?.("Calendar") },
               { label: "Pick Project", onClick: () => pickTargetProject(), disabled: !desktop },
               { label: "Refresh Dev Snapshot", onClick: () => refreshDevSnapshot(), disabled: !desktop },
@@ -347,9 +369,32 @@ async function send() {
               <div className="row" style={{ marginTop: 10, gap: 8, flexWrap: "wrap" }}>
                 <button className="tabBtn" onClick={() => addQuick("Check my logs and tell me the safest fix.")}>Diagnose logs</button>
                 <button className="tabBtn" onClick={() => addQuick("Give me the exact Windows commands to run next.")}>Commands</button>
+                <button className="tabBtn" onClick={() => addQuick("What matters at home today? Route me to the right panel and tell me the next chore lane.")}>House guide</button>
                 <button className="tabBtn" onClick={() => addQuick("Package the next build zip cleanly.")}>Ship zip</button>
                 <button className="tabBtn active" onClick={() => onNavigate?.("DevEngine")}>DevEngine</button>
               </div>
+            </div>
+          </div>
+
+          <div className="card softCard" style={{ marginTop: 12 }}>
+            <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+              <div>
+                <div className="h">Family guide lane</div>
+                <div className="sub">Homie can see the current house reset board and help the family route to the right next move.</div>
+              </div>
+              <span className={`badge ${choresSnapshot.open ? "warn" : "good"}`}>{choresSnapshot.open ? `${choresSnapshot.open} chores open` : "Board clear"}</span>
+            </div>
+            <div className="timelineCard" style={{ marginTop: 12 }}>{choresSnapshot.summary}</div>
+            {choresSnapshot.todayNote ? <div className="timelineCard" style={{ marginTop: 10 }}>Today note: {choresSnapshot.todayNote}</div> : null}
+            <div className="assistantChipWrap" style={{ marginTop: 12 }}>
+              {choresSnapshot.mustDoToday.slice(0, 3).map((item) => (
+                <span key={item.taskId} className="badge">{item.laneTitle}: {item.text}</span>
+              ))}
+            </div>
+            <div className="row" style={{ marginTop: 12, gap: 8, flexWrap: "wrap" }}>
+              <button className="tabBtn active" onClick={() => onNavigate("DailyChores")}>Open Daily Chores</button>
+              <button className="tabBtn" onClick={() => onNavigate("Home")}>Open Home</button>
+              <button className="tabBtn" onClick={() => addQuick("What should the family do next around the house today? Keep it plain and route-ready.")}>Ask about today</button>
             </div>
           </div>
 
@@ -380,7 +425,6 @@ async function send() {
               </div>
             )}
           </div>
-
 
           <div className="card" style={{ marginTop: 12 }}>
             <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -490,7 +534,7 @@ async function send() {
               </div>
               <div style={{ width: 220 }}>
                 <div className="small">Context</div>
-                <select value={includeContext ? "on" : "off"} onChange={(e) => setIncludeContext(e.target.value === "on")}> 
+                <select value={includeContext ? "on" : "off"} onChange={(e) => setIncludeContext(e.target.value === "on")}>
                   <option value="on">Include panel/host</option>
                   <option value="off">No context</option>
                 </select>
@@ -499,7 +543,6 @@ async function send() {
             <div className="small" style={{ marginTop: 8 }}>System prompt (controls Homie’s behavior)</div>
             <textarea value={systemPrompt} onChange={(e) => setSystemPrompt(e.target.value)} rows={4} />
           </div>
-
 
           <div className="card" style={{ marginTop: 12 }}>
             <div className="row" style={{ justifyContent: "space-between" }}>
@@ -513,7 +556,7 @@ async function send() {
 
             <div ref={chatRef} className="chatWrap" style={{ marginTop: 12 }}>
               {messages.length === 0 && (
-                <div className="small">No messages yet. Try: “Explain this error…” or “How do I build the EXE?”</div>
+                <div className="small">No messages yet. Try: “What matters at home today?”, “Explain this error…”, or “How do I build the EXE?”</div>
               )}
               {messages.map((m) => (
                 <div key={m.id} className="chatRow" style={{ justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
@@ -547,7 +590,7 @@ async function send() {
             </div>
 
             <div className="small" style={{ marginTop: 8 }}>
-              Tip: Paste your console log, Vite errors, or build output and Homie will translate it + suggest fixes.
+              Tip: Homie sees the current Daily Chores board too, so you can ask what the family should do next and get a route-ready answer.
             </div>
           </div>
         </>
@@ -559,6 +602,7 @@ async function send() {
             <div style={{ fontWeight: 700 }}>Quick links</div>
             <div className="row" style={{ marginTop: 10, flexWrap: "wrap" }}>
               <button onClick={() => onNavigate("OddBrain")}>Open OddBrain</button>
+              <button onClick={() => onNavigate("DailyChores")}>Open Daily Chores</button>
               <button onClick={() => onNavigate("DevEngine")}>Open Dev Engine</button>
               <button onClick={() => onNavigate("Autopilot")}>Open Autopilot</button>
               <button onClick={() => onNavigate("Security")}>Open Security</button>

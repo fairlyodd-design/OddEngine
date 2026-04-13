@@ -1,0 +1,18 @@
+v10.31_TrueContentGenerationEnginePass
+
+Added real model-backed writer engine support for Writers Lounge.
+
+Highlights:
+- Ollama-backed planning + per-section generation
+- Real/Mock generation mode toggle
+- Model, endpoint, temperature controls
+- Writer engine health check
+- Section-level generation status display
+- Async regenerate section flow
+- Stable fallback to mock generation when Ollama is offline or returns unusable output
+
+Touched files:
+- ui/src/lib/writerEngine.ts
+- ui/src/panels/Books.tsx
+- ui/src/lib/version.ts
+- ui/package.json

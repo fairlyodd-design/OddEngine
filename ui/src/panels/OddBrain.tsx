@@ -3,6 +3,8 @@ import { loadJSON, saveJSON } from "../lib/storage";
 import { getAutos, saveAutos, AutoRule } from "../lib/automation";
 import { pushNotif } from "../lib/notifs";
 import { isDesktop } from "../lib/odd";
+import { getPanelMeta, runQuickAction } from "../lib/brain";
+import { getOperatorBrainSnapshot, runOperatorBrainNextAction } from "../lib/operatorBrain";
 
 type Props = { onNavigate?: (id: string) => void };
 
@@ -76,6 +78,10 @@ function computeMiningAlerts(mining: any){
   return out;
 }
 
+function mapSeedTarget(id: string) {
+  return id === "grow" ? "Grow" : id === "cams" ? "Cameras" : id === "zbd" ? "CryptoGames" : id === "mining" ? "Mining" : "Home";
+}
+
 export default function OddBrain({ onNavigate }: Props){
   const desktop = isDesktop();
   const [tick, setTick] = useState(0);
@@ -89,6 +95,10 @@ export default function OddBrain({ onNavigate }: Props){
   useEffect(()=>{ try{ saveJSON(SKIP_KEY, skip); }catch(e){} }, [skip]);
 
   const miningAlerts = useMemo(()=>computeMiningAlerts(mining), [mining, tick]);
+  const autos = getAutos();
+  const [timeGrow, setTimeGrow] = useState("09:00");
+  const [timeZbd, setTimeZbd] = useState("10:00");
+  const [timeCams, setTimeCams] = useState("08:30");
 
   const health = useMemo(() => {
     const camOk = (cams.cameras?.length||0) > 0;
@@ -104,14 +114,11 @@ export default function OddBrain({ onNavigate }: Props){
     ];
 
     const required = items.filter(i => !(i.id==="cams" && camSkipped));
-    const score = Math.round((required.filter(i=>i.ok).length / required.length) * 100);
+    const score = Math.round((required.filter(i=>i.ok).length / Math.max(1, required.length)) * 100);
     return { items, score, camSkipped };
   }, [grow, cams, zbd, mining, desktop, tick, skip]);
 
-  const autos = getAutos();
-  const [timeGrow, setTimeGrow] = useState("09:00");
-  const [timeZbd, setTimeZbd] = useState("10:00");
-  const [timeCams, setTimeCams] = useState("08:30");
+  const operatorBrain = useMemo(() => getOperatorBrainSnapshot(), [tick, grow, cams, zbd, mining, skip, autos.length]);
 
   function upsertRule(id: string, title: string, hhmm: string, tags: string[], message: string, enabled: boolean){
     const list = getAutos();
@@ -122,6 +129,7 @@ export default function OddBrain({ onNavigate }: Props){
     else list.push(next);
     saveAutos(list);
     pushNotif({ title:"OddBrain", body:`Saved automation: ${title}`, tags:["OddBrain","Automation"], level:"success" });
+    setTick((t) => t + 1);
   }
 
   function seedAllSamples(){
@@ -150,18 +158,40 @@ export default function OddBrain({ onNavigate }: Props){
     }
   }
 
+  function openPanel(id: string) {
+    onNavigate?.(id);
+  }
+
+  function runNextAction() {
+    const result: any = runOperatorBrainNextAction();
+    if (result?.panelId) openPanel(result.panelId);
+    pushNotif({ title: "OddBrain", body: result?.message || "Opened next action.", tags: ["OddBrain", "Action"], level: result?.ok === false ? "warn" : "success" });
+  }
+
+  function runAction(actionId?: string, fallbackPanelId?: string) {
+    if (actionId) {
+      const result: any = runQuickAction(actionId);
+      if (result?.panelId) openPanel(result.panelId);
+      pushNotif({ title: "OddBrain", body: result?.message || "Queued action.", tags: ["OddBrain", "Action"], level: result?.ok === false ? "warn" : "success" });
+      return;
+    }
+    if (fallbackPanelId) openPanel(fallbackPanelId);
+  }
+
   const ruleGrow = autos.find(r=>r.id==="auto_grow") || null;
   const ruleZbd = autos.find(r=>r.id==="auto_zbd") || null;
   const ruleCams = autos.find(r=>r.id==="auto_cams") || null;
 
   return (
     <div className="card">
-      <div className="row" style={{justifyContent:"space-between"}}>
+      <div className="row" style={{justifyContent:"space-between", gap: 12, flexWrap: "wrap"}}>
         <div>
           <div style={{fontSize:22,fontWeight:800}}>OddBrain</div>
-          <div className="small">Master health AI (local). Keeps setup + integrity tight.</div>
+          <div className="small">Single trustworthy source for what matters now across Home, Homie, and the operator lanes.</div>
         </div>
         <div className="row" style={{gap:10, flexWrap:"wrap", justifyContent:"flex-end"}}>
+          <button onClick={runNextAction}>Run next action</button>
+          <button onClick={() => openPanel(operatorBrain.whereToGo.panelId)}>Open {getPanelMeta(operatorBrain.whereToGo.panelId).title}</button>
           <button onClick={seedAllSamples} title="Seeds sample entries so Health can go green (editable/removable).">Quick setup</button>
           <span className={"badge "+(health.score>=75?"good":health.score>=40?"warn":"bad")}>Health {health.score}%</span>
           <label className="row small" style={{gap:8}} title="Cameras can be configured later">
@@ -170,17 +200,113 @@ export default function OddBrain({ onNavigate }: Props){
         </div>
       </div>
 
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(12, minmax(0, 1fr))", gap: 12, marginTop: 14 }}>
+        <div className="card" style={{ gridColumn: "span 4", background: "rgba(8,12,18,0.35)" }}>
+          <div className="small">What matters now</div>
+          <div style={{ fontWeight: 900, fontSize: 18, marginTop: 6 }}>{operatorBrain.whatMattersNow.title}</div>
+          <div className="small" style={{ marginTop: 8, lineHeight: 1.5 }}>{operatorBrain.whatMattersNow.text}</div>
+          <div className="row" style={{ marginTop: 10, flexWrap: "wrap" }}>
+            <button onClick={() => openPanel(operatorBrain.whatMattersNow.panelId)}>Open lane</button>
+            {operatorBrain.whatMattersNow.actionId ? <button onClick={() => runAction(operatorBrain.whatMattersNow.actionId, operatorBrain.whatMattersNow.panelId)}>{operatorBrain.whatMattersNow.actionLabel || "Run action"}</button> : null}
+          </div>
+        </div>
+        <div className="card" style={{ gridColumn: "span 4", background: "rgba(8,12,18,0.35)" }}>
+          <div className="small">Where do I go</div>
+          <div style={{ fontWeight: 900, fontSize: 18, marginTop: 6 }}>{getPanelMeta(operatorBrain.whereToGo.panelId).title}</div>
+          <div className="small" style={{ marginTop: 8, lineHeight: 1.5 }}>{operatorBrain.whereToGo.text}</div>
+          <div className="row" style={{ marginTop: 10, flexWrap: "wrap" }}>
+            <button onClick={() => openPanel(operatorBrain.whereToGo.panelId)}>Open panel</button>
+            <button onClick={runNextAction}>Follow OddBrain</button>
+          </div>
+        </div>
+        <div className="card" style={{ gridColumn: "span 4", background: "rgba(8,12,18,0.35)" }}>
+          <div className="small">What should I do next</div>
+          <div style={{ fontWeight: 900, fontSize: 18, marginTop: 6 }}>{operatorBrain.whatToDoNext.actionLabel || operatorBrain.whatToDoNext.title}</div>
+          <div className="small" style={{ marginTop: 8, lineHeight: 1.5 }}>{operatorBrain.whatToDoNext.text}</div>
+          <div className="row" style={{ marginTop: 10, flexWrap: "wrap" }}>
+            <button onClick={() => runAction(operatorBrain.whatToDoNext.actionId, operatorBrain.whatToDoNext.panelId)}>Do it</button>
+            <button onClick={() => openPanel(operatorBrain.whatToDoNext.panelId)}>Open lane</button>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(12, minmax(0, 1fr))", gap: 12, marginTop: 12 }}>
+        <div className="card" style={{ gridColumn: "span 6" }}>
+          <div style={{ fontWeight: 900, fontSize: 18 }}>Family lane</div>
+          <div className="small" style={{ marginTop: 6 }}>{operatorBrain.familyLane.title}</div>
+          <div className="small" style={{ marginTop: 8, lineHeight: 1.5 }}>{operatorBrain.familyLane.text}</div>
+          <div className="row" style={{ marginTop: 10, flexWrap: "wrap" }}>
+            <button onClick={() => openPanel(operatorBrain.familyLane.panelId)}>Open {getPanelMeta(operatorBrain.familyLane.panelId).title}</button>
+            {operatorBrain.todayTasks[0] ? <span className="badge">{operatorBrain.todayTasks.length} task{operatorBrain.todayTasks.length === 1 ? "" : "s"} today</span> : <span className="badge">No tasks stored</span>}
+          </div>
+        </div>
+        <div className="card" style={{ gridColumn: "span 6" }}>
+          <div style={{ fontWeight: 900, fontSize: 18 }}>Operator lane</div>
+          <div className="small" style={{ marginTop: 6 }}>{operatorBrain.operatorLane.title}</div>
+          <div className="small" style={{ marginTop: 8, lineHeight: 1.5 }}>{operatorBrain.operatorLane.text}</div>
+          <div className="row" style={{ marginTop: 10, flexWrap: "wrap" }}>
+            <button onClick={() => openPanel(operatorBrain.operatorLane.panelId)}>Open {getPanelMeta(operatorBrain.operatorLane.panelId).title}</button>
+            {operatorBrain.operatorLane.actionId ? <button onClick={() => runAction(operatorBrain.operatorLane.actionId, operatorBrain.operatorLane.panelId)}>{operatorBrain.operatorLane.actionLabel || "Run action"}</button> : null}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(12, minmax(0, 1fr))", gap: 12, marginTop: 12 }}>
+        <div className="card" style={{ gridColumn: "span 7" }}>
+          <div style={{ fontWeight: 900, fontSize: 18 }}>Action queue</div>
+          <div className="small" style={{ marginTop: 4 }}>Top recommended actions from the shared operator source.</div>
+          <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
+            {operatorBrain.actionQueue.length ? operatorBrain.actionQueue.slice(0, 5).map((item: any) => (
+              <div key={item.id} className="card" style={{ padding: 12 }}>
+                <div className="row" style={{ justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+                  <div>
+                    <div style={{ fontWeight: 800 }}>{item.title}</div>
+                    <div className="small" style={{ marginTop: 4 }}>{item.body}</div>
+                  </div>
+                  <span className={"badge " + (item.level === "error" ? "bad" : item.level === "warn" ? "warn" : "good")}>{getPanelMeta(item.panelId).title}</span>
+                </div>
+                <div className="row" style={{ marginTop: 10, flexWrap: "wrap" }}>
+                  <button onClick={() => runAction(item.actionId, item.panelId)}>{item.actionLabel || "Run"}</button>
+                  <button onClick={() => openPanel(item.panelId)}>Open panel</button>
+                </div>
+              </div>
+            )) : <div className="small">No queued actions yet.</div>}
+          </div>
+        </div>
+        <div className="card" style={{ gridColumn: "span 5" }}>
+          <div style={{ fontWeight: 900, fontSize: 18 }}>Panel health</div>
+          <div className="small" style={{ marginTop: 4 }}>Weakest lanes rise to the top.</div>
+          <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
+            {operatorBrain.panelHealth.slice(0, 6).map((item: any) => (
+              <div key={item.panelId} className="card" style={{ padding: 12 }}>
+                <div className="row" style={{ justifyContent: "space-between", gap: 10 }}>
+                  <div>
+                    <div style={{ fontWeight: 800 }}>{item.icon} {item.title}</div>
+                    <div className="small" style={{ marginTop: 4 }}>{item.headline}</div>
+                  </div>
+                  <span className={"badge " + (item.status === "error" ? "bad" : item.status === "warn" ? "warn" : "good")}>{item.score}%</span>
+                </div>
+                <div className="row" style={{ marginTop: 10, flexWrap: "wrap" }}>
+                  <button onClick={() => openPanel(item.panelId)}>Open</button>
+                  {item.nextActionId ? <button onClick={() => runAction(item.nextActionId, item.panelId)}>{item.nextActionLabel || "Run action"}</button> : null}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div style={{marginTop:12, display:"grid", gap:10}}>
         {health.items.map(it => {
           const can = (!!onNavigate) && (it.id==="grow" || it.id==="cams" || it.id==="zbd" || it.id==="mining");
-          const target = it.id==="grow" ? "Grow" : it.id==="cams" ? "Cameras" : it.id==="zbd" ? "CryptoGames" : it.id==="mining" ? "Mining" : "";
+          const target = mapSeedTarget(it.id);
           const showSeed = (!it.ok) && (it.id==="grow"||it.id==="cams"||it.id==="zbd"||it.id==="mining");
           return (
-            <div key={it.id} className="row" style={{justifyContent:"space-between", padding:"10px 12px", border:"1px solid var(--line)", borderRadius:14}}>
+            <div key={it.id} className="row" style={{justifyContent:"space-between", padding:"10px 12px", border:"1px solid var(--line)", borderRadius:14, gap: 12, flexWrap: "wrap"}}>
               <div>{it.label}</div>
-              <div className="row" style={{gap:8}}>
+              <div className="row" style={{gap:8, flexWrap: "wrap"}}>
                 {showSeed && <button onClick={()=>seedOne(it.id)} style={{padding:"6px 10px", borderRadius:10}} title="Seed sample data">Seed</button>}
-                {can && target && <button onClick={()=>onNavigate?.(target)} style={{padding:"6px 10px", borderRadius:10}}>Open</button>}
+                {can && target && <button onClick={()=>openPanel(target)} style={{padding:"6px 10px", borderRadius:10}}>Open</button>}
                 <span className={"badge "+(it.ok?"good":"bad")}>{it.ok?"OK":"Needs setup"}</span>
               </div>
             </div>
@@ -201,97 +327,65 @@ export default function OddBrain({ onNavigate }: Props){
         <div style={{fontWeight:800, marginBottom:8}}>Automation starters</div>
 
         <div className="card" style={{background:"rgba(8,12,18,0.45)"}}>
-          <div className="row" style={{justifyContent:"space-between"}}>
+          <div className="row" style={{justifyContent:"space-between", gap: 12, flexWrap: "wrap"}}>
             <div>
               <div style={{fontWeight:800}}>Daily grow check</div>
               <div className="small">Reminder + note prompt. (Runs only while app is open.)</div>
             </div>
             <div style={{width:200}}>
               <input value={timeGrow} onChange={e=>setTimeGrow(e.target.value)} />
-              <div className="row" style={{marginTop:8, justifyContent:"space-between"}}>
+              <div className="row" style={{marginTop:8, justifyContent:"space-between", flexWrap: "wrap"}}>
                 <button onClick={()=>upsertRule("auto_grow","Grow check", timeGrow, ["Grow"], "Do your tent check: temps/RH, VPD, water, lights.", true)}>Enable</button>
                 <button onClick={()=>upsertRule("auto_grow","Grow check", timeGrow, ["Grow"], "Do your tent check: temps/RH, VPD, water, lights.", false)}>Disable</button>
               </div>
               <div className="small">Currently: {ruleGrow?.enabled?"ON":"OFF"} at {ruleGrow?hhmmFromMinute(ruleGrow.atMinute):timeGrow}</div>
             </div>
           </div>
-          <div className="row" style={{marginTop:10, justifyContent:"space-between"}}>
-            <button onClick={()=>onNavigate?.("Grow")}>Open Grow panel</button>
+          <div className="row" style={{marginTop:10, justifyContent:"space-between", flexWrap: "wrap"}}>
+            <button onClick={()=>openPanel("Grow")}>Open Grow panel</button>
             <button onClick={()=>pushNotif({ title:"OddBrain", body:"Grow check test notification", tags:["Grow","Test"], level:"info" })}>Test notif</button>
           </div>
         </div>
 
         <div className="card" style={{background:"rgba(8,12,18,0.45)", marginTop:10}}>
-          <div className="row" style={{justifyContent:"space-between"}}>
+          <div className="row" style={{justifyContent:"space-between", gap: 12, flexWrap: "wrap"}}>
             <div>
               <div style={{fontWeight:800}}>Weekly ZBD refresh</div>
               <div className="small">Reminds you to open the ZBD Earn directory + add new games.</div>
             </div>
             <div style={{width:200}}>
               <input value={timeZbd} onChange={e=>setTimeZbd(e.target.value)} />
-              <div className="row" style={{marginTop:8, justifyContent:"space-between"}}>
+              <div className="row" style={{marginTop:8, justifyContent:"space-between", flexWrap: "wrap"}}>
                 <button onClick={()=>upsertRule("auto_zbd","ZBD refresh", timeZbd, ["ZBD","CryptoGames"], "Open ZBD Earn directory and add new games to your list.", true)}>Enable</button>
                 <button onClick={()=>upsertRule("auto_zbd","ZBD refresh", timeZbd, ["ZBD","CryptoGames"], "Open ZBD Earn directory and add new games to your list.", false)}>Disable</button>
               </div>
               <div className="small">Currently: {ruleZbd?.enabled?"ON":"OFF"} at {ruleZbd?hhmmFromMinute(ruleZbd.atMinute):timeZbd}</div>
             </div>
           </div>
-          <div className="row" style={{marginTop:10, justifyContent:"space-between"}}>
-            <button onClick={()=>onNavigate?.("CryptoGames")}>Open Crypto Games</button>
+          <div className="row" style={{marginTop:10, justifyContent:"space-between", flexWrap: "wrap"}}>
+            <button onClick={()=>openPanel("CryptoGames")}>Open Crypto Games</button>
             <button onClick={()=>window.open("https://zbd.gg/z/earn","_blank")}>Open ZBD Earn</button>
           </div>
         </div>
 
         <div className="card" style={{background:"rgba(8,12,18,0.45)", marginTop:10}}>
-          <div className="row" style={{justifyContent:"space-between"}}>
+          <div className="row" style={{justifyContent:"space-between", gap: 12, flexWrap: "wrap"}}>
             <div>
               <div style={{fontWeight:800}}>Camera health check</div>
               <div className="small">Pings NVR endpoints (Desktop) or reminds you (Web).</div>
             </div>
             <div style={{width:200}}>
               <input value={timeCams} onChange={e=>setTimeCams(e.target.value)} />
-              <div className="row" style={{marginTop:8, justifyContent:"space-between"}}>
+              <div className="row" style={{marginTop:8, justifyContent:"space-between", flexWrap: "wrap"}}>
                 <button onClick={()=>upsertRule("auto_cams","Camera health", timeCams, ["Cameras"], "Check NVR/camera status + fix offline feeds.", true)}>Enable</button>
                 <button onClick={()=>upsertRule("auto_cams","Camera health", timeCams, ["Cameras"], "Check NVR/camera status + fix offline feeds.", false)}>Disable</button>
               </div>
               <div className="small">Currently: {ruleCams?.enabled?"ON":"OFF"} at {ruleCams?hhmmFromMinute(ruleCams.atMinute):timeCams}</div>
             </div>
           </div>
-          <div className="row" style={{marginTop:10, justifyContent:"space-between"}}>
-            <button onClick={()=>onNavigate?.("Cameras")}>Open Cameras</button>
+          <div className="row" style={{marginTop:10, justifyContent:"space-between", flexWrap: "wrap"}}>
+            <button onClick={()=>openPanel("Cameras")}>Open Cameras</button>
             <button onClick={()=>pushNotif({ title:"OddBrain", body: desktop ? "Desktop can ping NVR ports. Use Cameras → Test." : "Web mode: open Cameras and verify feeds.", tags:["Cameras"], level:"info" })}>What to do</button>
-          </div>
-        </div>
-      </div>
-
-      <div style={{marginTop:14}}>
-        <div style={{fontWeight:800, marginBottom:8}}>AI instances (ROI tiers)</div>
-        <div style={{display:"grid", gap:10}}>
-          <div className="card">
-            <div style={{fontWeight:900}}>🥇 Tier 1 — Core Money Engines</div>
-            <div className="small">Trading dashboards + signals • Crypto/mining tools • Affiliate websites</div>
-            <div className="row" style={{marginTop:10, flexWrap:"wrap"}}>
-              <button onClick={()=>onNavigate?.("Trading")}>Open Trading</button>
-              <button onClick={()=>onNavigate?.("Autopilot")}>Open Autopilot</button>
-              <button onClick={()=>onNavigate?.("Mining")}>Open Mining</button>
-            </div>
-          </div>
-          <div className="card">
-            <div style={{fontWeight:900}}>🥈 Tier 2 — Scalable Products</div>
-            <div className="small">Digital products • AI tools/dashboards • SaaS micro-app scaffolds</div>
-            <div className="row" style={{marginTop:10, flexWrap:"wrap"}}>
-              <button onClick={()=>onNavigate?.("OptionsSaaS")}>Open Options SaaS</button>
-              <button onClick={()=>onNavigate?.("Builder")}>Open Builder</button>
-              <button onClick={()=>onNavigate?.("Money")}>Open Money</button>
-            </div>
-          </div>
-          <div className="card">
-            <div style={{fontWeight:900}}>🥉 Tier 3 — Brand Ecosystem</div>
-            <div className="small">Grow / cannabis tools — strengthens your niche identity</div>
-            <div className="row" style={{marginTop:10, flexWrap:"wrap"}}>
-              <button onClick={()=>onNavigate?.("Grow")}>Open Grow</button>
-              <button onClick={()=>onNavigate?.("Brain")}>UI-only Brain</button>
-            </div>
           </div>
         </div>
       </div>

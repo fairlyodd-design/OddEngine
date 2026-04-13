@@ -1,0 +1,18 @@
+v10.33.4_TrueStorageMigrationAndRenderLabStabilityPass
+
+What changed
+- added automatic Writers Lounge storage migration on boot
+- stale/legacy render-job payloads are now normalized or backed up + auto-cleared
+- repaired invalid active render-job pointers automatically
+- Builder / Render Lab now normalizes jobs before reading them
+- Render queue + inspector panels are capped with internal scrolling so cell resize no longer blows out the layout
+- Builder polling reduced from 2s to 4s to cut UI thrash while resizing
+
+Why this pass exists
+- older saved Writers Lounge state could poison newer builds and make the panel look frozen
+- Builder / Render Lab could become visually "stuck" because queue content expanded the cell instead of staying scrollable
+
+Backup behavior
+- if incompatible legacy writer storage is detected, it is copied into:
+  oddengine:writers33_4:storage:backup:<timestamp>
+  before affected keys are cleared

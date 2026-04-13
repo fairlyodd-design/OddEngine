@@ -1,0 +1,15 @@
+v10.34.1b_UIObjectSafeRenderPass
+
+Fixes:
+- Prevents "Cannot convert object to primitive value" crash
+- Adds safeRender helper
+- Ensures all structured objects can render safely in UI
+
+Install:
+1. Copy /ui/src/lib/safeRender.ts
+2. Open Books.tsx
+3. Replace risky JSX with safeRender usage (see patch file)
+
+Result:
+- No more runtime crash
+- UI safely handles structured data

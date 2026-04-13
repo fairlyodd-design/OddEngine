@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { pushNotif } from "../lib/notifs";
 import { DEFAULT_PREFS, loadPrefs, Prefs, savePrefs } from "../lib/prefs";
-import { oddApi } from "../lib/odd";
+import { isDesktop, oddApi } from "../lib/odd";
 import { installUpgradePack, isUpgradePackInstalled } from "../lib/plugins";
 import { getVoiceEngineBadges, loadVoiceEngineSnapshot, summarizeVoiceEngine, type VoiceEngineSnapshot } from "../lib/voice";
 
@@ -53,6 +53,7 @@ function summarizeBridgeHealth(snapshot: VoiceEngineSnapshot, fallbackUrl: strin
 
 export default function Preferences(){
   const api = oddApi();
+  const canResetWindowBounds = isDesktop() && typeof api.resetWindowBounds === "function";
   const [prefs, setPrefs] = useState<Prefs>(() => loadPrefs());
 
   const sections = useMemo(() => ([
@@ -354,9 +355,9 @@ export default function Preferences(){
     ];
     const cleared = clearLocalStorageByPrefix(prefixes);
     try {
-      if (api.resetWindowBounds) await api.resetWindowBounds();
+      if (canResetWindowBounds) await api.resetWindowBounds();
     } catch (_e) {}
-    pushNotif({ kind: "Workspace", title: "Full layout reset", detail: `Cleared ${cleared} layout keys${api.resetWindowBounds ? " and popout bounds" : ""}.` });
+    pushNotif({ title: "Full layout reset", body: `Cleared ${cleared} layout keys${canResetWindowBounds ? " and popout bounds" : ""}.`, tags: ["Workspace"], level: "info" });
     window.location.reload();
   }
 
@@ -396,7 +397,7 @@ export default function Preferences(){
         <div className="sub">Clean + reliable sizing. Reset if anything feels off (cards, popouts, weird bounds).</div>
         <div className="row" style={{ gap: 8, flexWrap: "wrap", marginTop: 12 }}>
           <button className="tabBtn" onClick={resetCardLayouts}>Reset card layouts</button>
-          <button className="tabBtn" disabled={!api.resetWindowBounds} onClick={resetPopoutBounds} title={api.resetWindowBounds ? "" : "Desktop-only"}>Reset popout bounds</button>
+          <button className="tabBtn" disabled={!canResetWindowBounds} onClick={resetPopoutBounds} title={canResetWindowBounds ? "" : "Desktop-only"}>Reset popout bounds</button>
           <button className="tabBtn active" onClick={resetAllLayouts}>Reset ALL</button>
         </div>
         <div className="small" style={{ marginTop: 10, opacity: 0.8 }}>

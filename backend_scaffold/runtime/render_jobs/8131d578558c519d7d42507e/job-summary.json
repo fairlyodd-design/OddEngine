@@ -1,0 +1,113 @@
+{
+  "kind": "animation-episode",
+  "jobId": "8131d578558c519d7d42507e",
+  "projectId": "4be96a4fb845519d7d422199",
+  "projectTitle": "Lonely Radio - Episode One",
+  "outputDir": "render_lab/animation_jobs/lonely-radio-episode-one",
+  "finalEpisodeFile": "render_lab/animation_jobs/lonely-radio-episode-one/lonely-radio-episode-one_final_episode.mp4",
+  "voiceModel": "llama3.1:8b",
+  "renderProfile": "1080p-series-balanced",
+  "scenes": [
+    {
+      "index": 0,
+      "sceneId": "e13c9fbe259c919d7d422199",
+      "sceneTitle": "Cold Open",
+      "durationSec": 12,
+      "voiceText": "Lonely: This is where everything starts to bend. In a world shaped by lonely, one small shift changes the whole lane.",
+      "voiceAssetFile": "render_lab/animation_jobs/lonely-radio-episode-one/scene_01_cold-open_voice.wav",
+      "outputFile": "render_lab/animation_jobs/lonely-radio-episode-one/scene_01_cold-open.mp4",
+      "visualPrompt": "Animated opening frame introducing lonely in a bold stylized environment",
+      "motionPrompt": "Slow push in, light secondary motion, expressive anticipation pose",
+      "sfx": [
+        "ambient hum",
+        "soft rise"
+      ],
+      "shotNotes": "Animate Cold Open with Slow push in, light secondary motion, expressive anticipation pose. Use visual prompt as frame guidance and keep continuity with 2.5D cartoon look, clean silhouettes, expressive acting, cinematic lighting, family-safe polish..",
+      "cameraPlan": "Start wide, move to medium performance coverage, end on a detail or reaction for Cold Open.",
+      "shots": [
+        "Shot A: Establish Cold Open with Animated opening frame introducing lonely in a bold stylized environment.",
+        "Shot B: Push motion with Slow push in, light secondary motion, expressive anticipation pose.",
+        "Shot C: Land on the strongest acting beat tied to ambient hum."
+      ]
+    },
+    {
+      "index": 1,
+      "sceneId": "5e6e15ee8b93219d7d422199",
+      "sceneTitle": "Escalation",
+      "durationSec": 24,
+      "voiceText": "Radio: You feel that? The whole scene just changed. The pressure builds, and every beat gets tighter.",
+      "voiceAssetFile": "render_lab/animation_jobs/lonely-radio-episode-one/scene_02_escalation_voice.wav",
+      "outputFile": "render_lab/animation_jobs/lonely-radio-episode-one/scene_02_escalation.mp4",
+      "visualPrompt": "Characters react to radio as the environment becomes more active",
+      "motionPrompt": "Faster cuts, character acting beats, directional camera move",
+      "sfx": [
+        "whoosh",
+        "impact tap"
+      ],
+      "shotNotes": "Animate Escalation with Faster cuts, character acting beats, directional camera move. Use visual prompt as frame guidance and keep continuity with 2.5D cartoon look, clean silhouettes, expressive acting, cinematic lighting, family-safe polish..",
+      "cameraPlan": "Start wide, move to medium performance coverage, end on a detail or reaction for Escalation.",
+      "shots": [
+        "Shot A: Establish Escalation with Characters react to radio as the environment becomes more active.",
+        "Shot B: Push motion with Faster cuts, character acting beats, directional camera move.",
+        "Shot C: Land on the strongest acting beat tied to whoosh."
+      ]
+    },
+    {
+      "index": 2,
+      "sceneId": "325b6b1a137de19d7d422199",
+      "sceneTitle": "Payoff",
+      "durationSec": 18,
+      "voiceText": "Lonely: Then let's make the ending count. At the center of the moment, the truth finally lands.",
+      "voiceAssetFile": "render_lab/animation_jobs/lonely-radio-episode-one/scene_03_payoff_voice.wav",
+      "outputFile": "render_lab/animation_jobs/lonely-radio-episode-one/scene_03_payoff.mp4",
+      "visualPrompt": "High-energy payoff around host with strong contrast and cinematic framing",
+      "motionPrompt": "Hero motion burst, big reaction pose, hold on final frame",
+      "sfx": [
+        "hit",
+        "resolve swell"
+      ],
+      "shotNotes": "Animate Payoff with Hero motion burst, big reaction pose, hold on final frame. Use visual prompt as frame guidance and keep continuity with 2.5D cartoon look, clean silhouettes, expressive acting, cinematic lighting, family-safe polish..",
+      "cameraPlan": "Start wide, move to medium performance coverage, end on a detail or reaction for Payoff.",
+      "shots": [
+        "Shot A: Establish Payoff with High-energy payoff around host with strong contrast and cinematic framing.",
+        "Shot B: Push motion with Hero motion burst, big reaction pose, hold on final frame.",
+        "Shot C: Land on the strongest acting beat tied to hit."
+      ]
+    }
+  ],
+  "executionPlan": {
+    "voiceEngine": "python local_tts.py",
+    "renderer": "python local_scene_renderer.py",
+    "ffmpegPath": "ffmpeg",
+    "workDir": "render_lab/animation_jobs/lonely-radio-episode-one",
+    "manifestFile": "render_lab/animation_jobs/lonely-radio-episode-one/execution_manifest.json",
+    "windowsScript": {
+      "filename": "lonely-radio-episode-one_episode_build.bat",
+      "content": "@echo off\nsetlocal\nmkdir \"render_lab/animation_jobs/lonely-radio-episode-one\" 2>nul\npython local_tts.py --model \"llama3.1:8b\" --text \"Lonely: This is where everything starts to bend. In a world shaped by lonely, one small shift changes the whole lane.\" --out \"render_lab/animation_jobs/lonely-radio-episode-one/scene_01_cold-open_voice.wav\" --scene \"01\"\npython local_tts.py --model \"llama3.1:8b\" --text \"Radio: You feel that? The whole scene just changed. The pressure builds, and every beat gets tighter.\" --out \"render_lab/animation_jobs/lonely-radio-episode-one/scene_02_escalation_voice.wav\" --scene \"02\"\npython local_tts.py --model \"llama3.1:8b\" --text \"Lonely: Then let's make the ending count. At the center of the moment, the truth finally lands.\" --out \"render_lab/animation_jobs/lonely-radio-episode-one/scene_03_payoff_voice.wav\" --scene \"03\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"01\" --visual \"Animated opening frame introducing lonely in a bold stylized environment\" --motion \"Slow push in, light secondary motion, expressive anticipation pose\" --voice \"render_lab/animation_jobs/lonely-radio-episode-one/scene_01_cold-open_voice.wav\" --out \"render_lab/animation_jobs/lonely-radio-episode-one/scene_01_cold-open.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"02\" --visual \"Characters react to radio as the environment becomes more active\" --motion \"Faster cuts, character acting beats, directional camera move\" --voice \"render_lab/animation_jobs/lonely-radio-episode-one/scene_02_escalation_voice.wav\" --out \"render_lab/animation_jobs/lonely-radio-episode-one/scene_02_escalation.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"03\" --visual \"High-energy payoff around host with strong contrast and cinematic framing\" --motion \"Hero motion burst, big reaction pose, hold on final frame\" --voice \"render_lab/animation_jobs/lonely-radio-episode-one/scene_03_payoff_voice.wav\" --out \"render_lab/animation_jobs/lonely-radio-episode-one/scene_03_payoff.mp4\"\npython build_concat_manifest.py --job \"8131d578558c519d7d42507e\" --out \"render_lab/animation_jobs/lonely-radio-episode-one/episode_concat.txt\"\nffmpeg -y -f concat -safe 0 -i \"render_lab/animation_jobs/lonely-radio-episode-one/episode_concat.txt\" -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k \"render_lab/animation_jobs/lonely-radio-episode-one/lonely-radio-episode-one_final_episode.mp4\"\necho Episode build complete.\nendlocal"
+    },
+    "bashScript": {
+      "filename": "lonely-radio-episode-one_episode_build.sh",
+      "content": "#!/usr/bin/env bash\nset -euo pipefail\nmkdir -p \"render_lab/animation_jobs/lonely-radio-episode-one\"\npython local_tts.py --model \"llama3.1:8b\" --text \"Lonely: This is where everything starts to bend. In a world shaped by lonely, one small shift changes the whole lane.\" --out \"render_lab/animation_jobs/lonely-radio-episode-one/scene_01_cold-open_voice.wav\" --scene \"01\"\npython local_tts.py --model \"llama3.1:8b\" --text \"Radio: You feel that? The whole scene just changed. The pressure builds, and every beat gets tighter.\" --out \"render_lab/animation_jobs/lonely-radio-episode-one/scene_02_escalation_voice.wav\" --scene \"02\"\npython local_tts.py --model \"llama3.1:8b\" --text \"Lonely: Then let's make the ending count. At the center of the moment, the truth finally lands.\" --out \"render_lab/animation_jobs/lonely-radio-episode-one/scene_03_payoff_voice.wav\" --scene \"03\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"01\" --visual \"Animated opening frame introducing lonely in a bold stylized environment\" --motion \"Slow push in, light secondary motion, expressive anticipation pose\" --voice \"render_lab/animation_jobs/lonely-radio-episode-one/scene_01_cold-open_voice.wav\" --out \"render_lab/animation_jobs/lonely-radio-episode-one/scene_01_cold-open.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"02\" --visual \"Characters react to radio as the environment becomes more active\" --motion \"Faster cuts, character acting beats, directional camera move\" --voice \"render_lab/animation_jobs/lonely-radio-episode-one/scene_02_escalation_voice.wav\" --out \"render_lab/animation_jobs/lonely-radio-episode-one/scene_02_escalation.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"03\" --visual \"High-energy payoff around host with strong contrast and cinematic framing\" --motion \"Hero motion burst, big reaction pose, hold on final frame\" --voice \"render_lab/animation_jobs/lonely-radio-episode-one/scene_03_payoff_voice.wav\" --out \"render_lab/animation_jobs/lonely-radio-episode-one/scene_03_payoff.mp4\"\npython build_concat_manifest.py --job \"8131d578558c519d7d42507e\" --out \"render_lab/animation_jobs/lonely-radio-episode-one/episode_concat.txt\"\nffmpeg -y -f concat -safe 0 -i \"render_lab/animation_jobs/lonely-radio-episode-one/episode_concat.txt\" -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k \"render_lab/animation_jobs/lonely-radio-episode-one/lonely-radio-episode-one_final_episode.mp4\"\necho 'Episode build complete.'"
+    },
+    "voiceCommands": [
+      "python local_tts.py --model \"llama3.1:8b\" --text \"Lonely: This is where everything starts to bend. In a world shaped by lonely, one small shift changes the whole lane.\" --out \"render_lab/animation_jobs/lonely-radio-episode-one/scene_01_cold-open_voice.wav\" --scene \"01\"",
+      "python local_tts.py --model \"llama3.1:8b\" --text \"Radio: You feel that? The whole scene just changed. The pressure builds, and every beat gets tighter.\" --out \"render_lab/animation_jobs/lonely-radio-episode-one/scene_02_escalation_voice.wav\" --scene \"02\"",
+      "python local_tts.py --model \"llama3.1:8b\" --text \"Lonely: Then let's make the ending count. At the center of the moment, the truth finally lands.\" --out \"render_lab/animation_jobs/lonely-radio-episode-one/scene_03_payoff_voice.wav\" --scene \"03\""
+    ],
+    "renderCommands": [
+      "python local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"01\" --visual \"Animated opening frame introducing lonely in a bold stylized environment\" --motion \"Slow push in, light secondary motion, expressive anticipation pose\" --voice \"render_lab/animation_jobs/lonely-radio-episode-one/scene_01_cold-open_voice.wav\" --out \"render_lab/animation_jobs/lonely-radio-episode-one/scene_01_cold-open.mp4\"",
+      "python local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"02\" --visual \"Characters react to radio as the environment becomes more active\" --motion \"Faster cuts, character acting beats, directional camera move\" --voice \"render_lab/animation_jobs/lonely-radio-episode-one/scene_02_escalation_voice.wav\" --out \"render_lab/animation_jobs/lonely-radio-episode-one/scene_02_escalation.mp4\"",
+      "python local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"03\" --visual \"High-energy payoff around host with strong contrast and cinematic framing\" --motion \"Hero motion burst, big reaction pose, hold on final frame\" --voice \"render_lab/animation_jobs/lonely-radio-episode-one/scene_03_payoff_voice.wav\" --out \"render_lab/animation_jobs/lonely-radio-episode-one/scene_03_payoff.mp4\""
+    ],
+    "ffmpegCommands": [
+      "python build_concat_manifest.py --job \"8131d578558c519d7d42507e\" --out \"render_lab/animation_jobs/lonely-radio-episode-one/episode_concat.txt\"",
+      "ffmpeg -y -f concat -safe 0 -i \"render_lab/animation_jobs/lonely-radio-episode-one/episode_concat.txt\" -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k \"render_lab/animation_jobs/lonely-radio-episode-one/lonely-radio-episode-one_final_episode.mp4\""
+    ],
+    "executionNotes": [
+      "Run voice generation first so every scene gets a concrete WAV asset.",
+      "Run the renderer second so each scene produces its own MP4 file in the job output directory.",
+      "Run the ffmpeg concat build last to assemble the final episode from the rendered scene clips."
+    ],
+    "generatedAt": 1775922991254
+  }
+}

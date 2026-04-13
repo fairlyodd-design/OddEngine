@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node ./node_modules/vite/bin/vite.js",
     "build": "node ./node_modules/vite/bin/vite.js build",
-    "preview": "node ./node_modules/vite/bin/vite.js preview"
+    "preview": "node ./node_modules/vite/bin/vite.js preview",
+    "typecheck": "node ./node_modules/typescript/bin/tsc -p tsconfig.audit.json --noEmit"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -24,5 +25,5 @@
     "vite": "^5.4.3",
     "@vitejs/plugin-react": "^4.3.1"
   },
-  "description": "OddEngine UI v10.22.0 \u2014 UI cleanup + Calendar panel\u2014 Homie Rive game-buddy mode (state machine + pointer tracking + talk/listen states)"
+  "description": "OddEngine UI v10.35.5c — quarantined core audit + duplicate tree / patch debris bridge"
 }

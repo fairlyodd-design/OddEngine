@@ -1,0 +1,15 @@
+v10.32.7_PersistentJobStoreAndRecoveryPass
+
+What changed:
+- Added a shared in-memory render job bus at ui/src/lib/renderJobStore.ts
+- Books now persists render jobs through the shared bus and storage together
+- Builder now reads live jobs from the shared bus first, then recovers from storage on load
+- Added bus event subscription so Builder updates immediately when Writers Lounge queues or updates a job
+- Added storage recovery path so queued jobs survive restart and rehydrate the live bus
+- Bumped app version to 10.32.7
+
+Files touched:
+- ui/src/lib/renderJobStore.ts
+- ui/src/panels/Books.tsx
+- ui/src/panels/Builder.tsx
+- ui/src/lib/version.ts

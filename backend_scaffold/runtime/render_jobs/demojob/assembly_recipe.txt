@@ -1,0 +1,8 @@
+ffmpeg available: true
+render mode: movie-like poster clips
+job: demojob
+created: 2026-04-11T07:05:20.840Z
+final file: /mnt/data/out333b/odd333b/backend_scaffold/runtime/render_jobs/demojob/demo_final.mp4
+scenes: 2
+Scene 1: /mnt/data/out333b/odd333b/backend_scaffold/runtime/render_jobs/demojob/s1.mp4
+Scene 2: /mnt/data/out333b/odd333b/backend_scaffold/runtime/render_jobs/demojob/s2.mp4

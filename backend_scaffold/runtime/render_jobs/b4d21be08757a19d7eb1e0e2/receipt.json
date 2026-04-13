@@ -1,0 +1,117 @@
+{
+  "jobId": "b4d21be08757a19d7eb1e0e2",
+  "status": "failed",
+  "detail": "ffmpeg exited with code 2880417800\nffmpeg version 2026-03-26-git-fd9f1e9c52-essentials_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers\r\n  built with gcc 15.2.0 (Rev11, Built by MSYS2 project)\r\n  configuration: --enable-gpl --enable-version3 --enable-static --disable-w32threads --disable-autodetect --enable-cairo --enable-fontconfig --enable-iconv --enable-gnutls --enable-libxml2 --enable-gmp --enable-bzlib --enable-lzma --enable-zlib --enable-libsrt --enable-libssh --enable-libzmq --enable-avisynth --enable-sdl2 --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxvid --enable-libaom --enable-libopenjpeg --enable-libvpx --enable-mediafoundation --enable-libass --enable-libfreetype --enable-libfribidi --enable-libharfbuzz --enable-libvidstab --enable-libvmaf --enable-libzimg --enable-amf --enable-cuda-llvm --enable-cuvid --enable-dxva2 --enable-d3d11va --enable-d3d12va --enable-ffnvcodec --enable-libvpl --enable-nvdec --enable-nvenc --enable-vaapi --enable-openal --enable-libgme --enable-libopenmpt --enable-libopencore-amrwb --enable-libmp3lame --enable-libtheora --enable-libvo-amrwbenc --enable-libgsm --enable-libopencore-amrnb --enable-libopus --enable-libspeex --enable-libvorbis --enable-librubberband\r\n  libavutil      60. 29.100 / 60. 29.100\r\n  libavcodec     62. 29.101 / 62. 29.101\r\n  libavformat    62. 13.101 / 62. 13.101\r\n  libavdevice    62.  4.100 / 62.  4.100\r\n  libavfilter    11. 15.101 / 11. 15.101\r\n  libswscale      9.  7.100 /  9.  7.100\r\n  libswresample   6.  4.100 /  6.  4.100\r\nInput #0, png_pipe, from 'C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\b4d21be08757a19d7eb1e0e2\\ec5311cfc03a319d7eb1e0e1_poster.png':\r\n  Duration: N/A, bitrate: N/A\r\n  Stream #0:0: Video: png, rgb24(pc, gbr/unknown/unknown), 1280x720 [SAR 1:1 DAR 16:9], 25 fps, 25 tbr, 25 tbn\r\n[fc#-1 @ 0000015c7e4af940] Error applying option 'w' to filter 'drawtext': Option not found\r\nError opening output file C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\b4d21be08757a19d7eb1e0e2\\the-writing-room-wakes_thumbnail.png.\r\nError opening output files: Option not found\r\n",
+  "artifacts": [
+    {
+      "kind": "error",
+      "label": "Execution error",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\b4d21be08757a19d7eb1e0e2\\error.txt",
+      "url": "http://127.0.0.1:8899/files/b4d21be08757a19d7eb1e0e2/error.txt"
+    },
+    {
+      "kind": "summary",
+      "label": "Job summary",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\b4d21be08757a19d7eb1e0e2\\job-summary.json",
+      "url": "http://127.0.0.1:8899/files/b4d21be08757a19d7eb1e0e2/job-summary.json"
+    },
+    {
+      "kind": "receipt",
+      "label": "Execution receipt",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\b4d21be08757a19d7eb1e0e2\\receipt.json",
+      "url": "http://127.0.0.1:8899/files/b4d21be08757a19d7eb1e0e2/receipt.json"
+    },
+    {
+      "kind": "log",
+      "label": "Pipeline log",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\b4d21be08757a19d7eb1e0e2\\pipeline.log",
+      "url": "http://127.0.0.1:8899/files/b4d21be08757a19d7eb1e0e2/pipeline.log"
+    },
+    {
+      "kind": "voice",
+      "label": "Scene 1 voice",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\b4d21be08757a19d7eb1e0e2\\scene_01_morning-routine_voice.wav",
+      "url": "http://127.0.0.1:8899/files/b4d21be08757a19d7eb1e0e2/scene_01_morning-routine_voice.wav"
+    },
+    {
+      "kind": "transcript",
+      "label": "Scene 1 transcript",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\b4d21be08757a19d7eb1e0e2\\ec5311cfc03a319d7eb1e0e1_transcript.txt",
+      "url": "http://127.0.0.1:8899/files/b4d21be08757a19d7eb1e0e2/ec5311cfc03a319d7eb1e0e1_transcript.txt"
+    },
+    {
+      "kind": "voice",
+      "label": "Scene 2 voice",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\b4d21be08757a19d7eb1e0e2\\scene_02_the-writing-room-awakens_voice.wav",
+      "url": "http://127.0.0.1:8899/files/b4d21be08757a19d7eb1e0e2/scene_02_the-writing-room-awakens_voice.wav"
+    },
+    {
+      "kind": "transcript",
+      "label": "Scene 2 transcript",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\b4d21be08757a19d7eb1e0e2\\fc08e99b74dd819d7eb1e0e1_transcript.txt",
+      "url": "http://127.0.0.1:8899/files/b4d21be08757a19d7eb1e0e2/fc08e99b74dd819d7eb1e0e1_transcript.txt"
+    },
+    {
+      "kind": "voice",
+      "label": "Scene 3 voice",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\b4d21be08757a19d7eb1e0e2\\scene_03_confronting-creativity_voice.wav",
+      "url": "http://127.0.0.1:8899/files/b4d21be08757a19d7eb1e0e2/scene_03_confronting-creativity_voice.wav"
+    },
+    {
+      "kind": "transcript",
+      "label": "Scene 3 transcript",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\b4d21be08757a19d7eb1e0e2\\8ed54f3d1d7ef19d7eb1e0e1_transcript.txt",
+      "url": "http://127.0.0.1:8899/files/b4d21be08757a19d7eb1e0e2/8ed54f3d1d7ef19d7eb1e0e1_transcript.txt"
+    },
+    {
+      "kind": "voice-manifest",
+      "label": "Voice manifest",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\b4d21be08757a19d7eb1e0e2\\voice_manifest.txt",
+      "url": "http://127.0.0.1:8899/files/b4d21be08757a19d7eb1e0e2/voice_manifest.txt"
+    },
+    {
+      "kind": "scene-poster",
+      "label": "Scene 1 poster",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\b4d21be08757a19d7eb1e0e2\\ec5311cfc03a319d7eb1e0e1_poster.png",
+      "url": "http://127.0.0.1:8899/files/b4d21be08757a19d7eb1e0e2/ec5311cfc03a319d7eb1e0e1_poster.png"
+    },
+    {
+      "kind": "scene-video",
+      "label": "Scene 1 video",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\b4d21be08757a19d7eb1e0e2\\scene_01_morning-routine.mp4",
+      "url": "http://127.0.0.1:8899/files/b4d21be08757a19d7eb1e0e2/scene_01_morning-routine.mp4"
+    },
+    {
+      "kind": "scene-poster",
+      "label": "Scene 2 poster",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\b4d21be08757a19d7eb1e0e2\\fc08e99b74dd819d7eb1e0e1_poster.png",
+      "url": "http://127.0.0.1:8899/files/b4d21be08757a19d7eb1e0e2/fc08e99b74dd819d7eb1e0e1_poster.png"
+    },
+    {
+      "kind": "scene-video",
+      "label": "Scene 2 video",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\b4d21be08757a19d7eb1e0e2\\scene_02_the-writing-room-awakens.mp4",
+      "url": "http://127.0.0.1:8899/files/b4d21be08757a19d7eb1e0e2/scene_02_the-writing-room-awakens.mp4"
+    },
+    {
+      "kind": "scene-poster",
+      "label": "Scene 3 poster",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\b4d21be08757a19d7eb1e0e2\\8ed54f3d1d7ef19d7eb1e0e1_poster.png",
+      "url": "http://127.0.0.1:8899/files/b4d21be08757a19d7eb1e0e2/8ed54f3d1d7ef19d7eb1e0e1_poster.png"
+    },
+    {
+      "kind": "scene-video",
+      "label": "Scene 3 video",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\b4d21be08757a19d7eb1e0e2\\scene_03_confronting-creativity.mp4",
+      "url": "http://127.0.0.1:8899/files/b4d21be08757a19d7eb1e0e2/scene_03_confronting-creativity.mp4"
+    },
+    {
+      "kind": "shot-manifest",
+      "label": "Shot manifest",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\b4d21be08757a19d7eb1e0e2\\shot_manifest.txt",
+      "url": "http://127.0.0.1:8899/files/b4d21be08757a19d7eb1e0e2/shot_manifest.txt"
+    }
+  ],
+  "createdAt": 1775947079980,
+  "updatedAt": 1775947085586
+}

@@ -749,6 +749,61 @@ export default function FamilyBudget() {
   const projectedFreeCash = useMemo(() => currentPlanRow ? currentPlanRow.expectedIncome - currentPlanRow.fixedExpenses - currentPlanRow.flexibleExpenses - currentPlanRow.nonMonthlyExpenses - currentPlanRow.savingsGoal : 0, [currentPlanRow]);
   const payoffFocus = useMemo(() => liabilityAccounts[0] || null, [liabilityAccounts]);
   const goalGap = useMemo(() => state.goals.reduce((sum, goal) => sum + Math.max(0, goal.target - goal.current), 0), [state.goals]);
+  const essentialMonthly = useMemo(() => {
+    const fixedBudget = state.budgetLines.filter((line) => line.bucket === "FIXED").reduce((sum, line) => sum + line.planned, 0);
+    const debtMinimums = liabilityAccounts.reduce((sum, account) => sum + Number(account.minPayment || 0), 0);
+    return fixedBudget + debtMinimums;
+  }, [liabilityAccounts, state.budgetLines]);
+  const flexibleMonthly = useMemo(() => state.budgetLines.filter((line) => line.bucket === "FLEXIBLE").reduce((sum, line) => sum + line.planned, 0), [state.budgetLines]);
+  const dueSoon = useMemo(() => {
+    const now = new Date(`${todayIso()}T00:00:00`);
+    return upcomingRecurring.filter((item) => {
+      const due = new Date(`${item.nextDue}T00:00:00`);
+      const diff = Math.ceil((due.getTime() - now.getTime()) / 86400000);
+      return diff >= 0 && diff <= 7;
+    });
+  }, [upcomingRecurring]);
+  const dueSoonTotal = useMemo(() => dueSoon.reduce((sum, item) => sum + item.amount, 0), [dueSoon]);
+  const firstCuts = useMemo(() => budgetProgress.filter((line) => line.bucket === "FLEXIBLE" && line.actual > 0).sort((a, b) => {
+    const aOver = a.actual - a.planned;
+    const bOver = b.actual - b.planned;
+    return bOver - aOver || b.actual - a.actual;
+  }).slice(0, 3), [budgetProgress]);
+  const runwayDays = useMemo(() => {
+    if (essentialMonthly <= 0) return 999;
+    return Math.max(0, Math.floor((totals.cash / essentialMonthly) * 30));
+  }, [essentialMonthly, totals.cash]);
+  const familyHeadline = useMemo(() => {
+    if (projectedFreeCash < 0) return `This month is running ${money(Math.abs(projectedFreeCash), state.household.currency)} short after your current plan.`;
+    if (dueSoon.length) return `${dueSoon.length} bill${dueSoon.length === 1 ? "" : "s"} are due within 7 days totaling ${money(dueSoonTotal, state.household.currency)}.`;
+    if (budgetAnomalies.length) return `${budgetAnomalies[0].label} is the first place to tighten right now.`;
+    if (payoffFocus) return `${payoffFocus.name} is the cleanest debt target to hit next.`;
+    return `Cashflow is stable. Use this month to protect essentials and keep funding the right goals.`;
+  }, [budgetAnomalies, dueSoon.length, dueSoonTotal, payoffFocus, projectedFreeCash, state.household.currency]);
+  const familyActionPlan = useMemo<Array<{ title: string; detail: string; tab: BudgetTab }>>(() => {
+    const actions: Array<{ title: string; detail: string; tab: BudgetTab }> = [];
+    if (projectedFreeCash < 0) {
+      actions.push({ title: "Trim this month back into the green", detail: `You are projected ${money(Math.abs(projectedFreeCash), state.household.currency)} short. Start with flexible buckets before touching essentials.`, tab: "Budget" });
+    }
+    if (dueSoon.length) {
+      actions.push({ title: "Cover bills due this week", detail: `${dueSoon.length} upcoming item${dueSoon.length === 1 ? "" : "s"} total ${money(dueSoonTotal, state.household.currency)}.`, tab: "Recurring" });
+    }
+    if (payoffFocus) {
+      actions.push({ title: `Attack ${payoffFocus.name}`, detail: `${money(payoffFocus.payoffBalance, state.household.currency)} at ${Number(payoffFocus.apr || 0).toFixed(2)}% APR with ${money(Number(payoffFocus.minPayment || 0), state.household.currency)} minimum.`, tab: "Payoff" });
+    }
+    if (firstCuts.length) {
+      const top = firstCuts[0];
+      const over = Math.max(0, top.actual - top.planned);
+      actions.push({ title: `Pull back ${top.label}`, detail: over > 0 ? `${top.label} is ${money(over, state.household.currency)} over plan.` : `${top.label} is the easiest flexible category to trim first.`, tab: "Budget" });
+    }
+    if (goalGap > 0) {
+      actions.push({ title: "Keep goals moving", detail: `There is still ${money(goalGap, state.household.currency)} left across your saved goals.`, tab: "Goals" });
+    }
+    if (!actions.length) {
+      actions.push({ title: "Review the monthly plan", detail: "No urgent money fires detected. Use Plan and Reports to stay ahead instead of reacting late.", tab: "Plan" });
+    }
+    return actions.slice(0, 4);
+  }, [dueSoon, dueSoonTotal, firstCuts, goalGap, payoffFocus, projectedFreeCash, state.household.currency]);
 
   const csvPreviewRows = useMemo(() => csvData.rows.slice(0, 8), [csvData.rows]);
 
@@ -875,6 +930,54 @@ export default function FamilyBudget() {
   };
   const [acctDraft, setAcctDraft] = useState<AccountDraft>(EMPTY_ACCT);
   const [acctEditingId, setAcctEditingId] = useState<string | null>(null);
+
+  function contributeAllGoalsOnce() {
+    if (!state.goals.length) {
+      setTab("Goals");
+      setMessage("Add a goal first so Family Budget has something to fund.");
+      return;
+    }
+    setState((prev) => ({
+      ...prev,
+      goals: prev.goals.map((goal) => ({ ...goal, current: Math.min(goal.target, goal.current + goal.monthly) }))
+    }));
+    setTab("Goals");
+    setMessage(`Applied one monthly contribution across ${state.goals.length} goal${state.goals.length === 1 ? "" : "s"}.`);
+  }
+
+  function exportFamilyBrief() {
+    const lines = [
+      `# ${state.household.name} — Family Budget Brief`,
+      "",
+      `Generated: ${new Date().toLocaleString()}`,
+      "",
+      "## What matters now",
+      `- ${familyHeadline}`,
+      `- Projected free cash: ${money(projectedFreeCash, state.household.currency)}`,
+      `- Essentials base: ${money(essentialMonthly, state.household.currency)} / month`,
+      `- Flexible budget: ${money(flexibleMonthly, state.household.currency)} / month`,
+      `- Cash runway: ${runwayDays >= 999 ? "Long / open-ended" : `${runwayDays} days`}`,
+      dueSoon.length ? `- Bills due within 7 days: ${money(dueSoonTotal, state.household.currency)}` : `- Bills due within 7 days: none flagged`,
+      payoffFocus ? `- Debt focus: ${payoffFocus.name} (${money(payoffFocus.payoffBalance, state.household.currency)} @ ${Number(payoffFocus.apr || 0).toFixed(2)}%)` : `- Debt focus: none`,
+      "",
+      "## Action plan",
+      ...familyActionPlan.map((item) => `- ${item.title}: ${item.detail}`),
+      "",
+      "## First cuts",
+      ...(firstCuts.length ? firstCuts.map((line) => `- ${line.label}: ${money(line.actual, state.household.currency)} actual vs ${money(line.planned, state.household.currency)} planned`) : ["- No obvious flexible overspend flagged."]),
+      "",
+      "## Upcoming recurring",
+      ...(upcomingRecurring.length ? upcomingRecurring.map((item) => `- ${item.nextDue} • ${item.name} • ${money(item.amount, state.household.currency)}`) : ["- No recurring items saved yet."])
+    ];
+    const blob = new Blob([lines.join("\n")], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `family_budget_brief_${todayIso()}.md`;
+    link.click();
+    URL.revokeObjectURL(url);
+    setMessage("Family budget brief exported.");
+  }
 
   function seedDemo() {
     const demo = makeDemoState();
@@ -1331,6 +1434,75 @@ export default function FamilyBudget() {
           <div className="assistantChipWrap">
             <span className={`badge ${budgetAnomalies.length ? "warn" : "good"}`}>{budgetAnomalies.length ? `${budgetAnomalies.length} over-plan buckets` : "Clean month"}</span>
             {payoffFocus && <span className="badge bad">Payoff focus {payoffFocus.name}</span>}
+          </div>
+        </div>
+      </div>
+
+      <div className="card" style={{ marginTop: 12, background: "linear-gradient(180deg, rgba(96,165,250,.08), rgba(15,23,42,.55))", border: "1px solid rgba(96,165,250,.18)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 14, flexWrap: "wrap", alignItems: "flex-start" }}>
+          <div>
+            <div className="small shellEyebrow">Family clarity + action</div>
+            <div style={{ fontWeight: 900, fontSize: 22, marginTop: 4 }}>What matters most right now</div>
+            <div className="small" style={{ marginTop: 8, maxWidth: 860, lineHeight: 1.6 }}>{familyHeadline}</div>
+          </div>
+          <div className="row" style={{ flexWrap: "wrap", justifyContent: "flex-end" }}>
+            <button onClick={() => setTab("Payoff")}>Open payoff</button>
+            <button onClick={() => setTab("Budget")}>Trim budget</button>
+            <button onClick={contributeAllGoalsOnce}>Fund goals once</button>
+            <button onClick={exportFamilyBrief}>Download family brief</button>
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(12, minmax(0, 1fr))", gap: 12, marginTop: 12 }}>
+          <div className="card" style={{ gridColumn: "span 3" }}>
+            <div className="small">Cash runway</div>
+            <div style={{ fontSize: 24, fontWeight: 900, marginTop: 8 }}>{runwayDays >= 999 ? "Stable" : `${runwayDays} days`}</div>
+            <div className="small" style={{ marginTop: 6 }}>Essentials are running about {money(essentialMonthly, state.household.currency)} per month.</div>
+          </div>
+          <div className="card" style={{ gridColumn: "span 3" }}>
+            <div className="small">Bills due in 7 days</div>
+            <div style={{ fontSize: 24, fontWeight: 900, marginTop: 8 }}>{money(dueSoonTotal, state.household.currency)}</div>
+            <div className="small" style={{ marginTop: 6 }}>{dueSoon.length ? `${dueSoon.length} item${dueSoon.length === 1 ? "" : "s"} need coverage soon.` : "Nothing urgent is due in the next week."}</div>
+          </div>
+          <div className="card" style={{ gridColumn: "span 3" }}>
+            <div className="small">Debt focus</div>
+            <div style={{ fontSize: 24, fontWeight: 900, marginTop: 8 }}>{payoffFocus ? payoffFocus.name : "None"}</div>
+            <div className="small" style={{ marginTop: 6 }}>{payoffFocus ? `${money(payoffFocus.payoffBalance, state.household.currency)} at ${Number(payoffFocus.apr || 0).toFixed(2)}% APR.` : "No active liabilities detected."}</div>
+          </div>
+          <div className="card" style={{ gridColumn: "span 3" }}>
+            <div className="small">Flexible trim zone</div>
+            <div style={{ fontSize: 24, fontWeight: 900, marginTop: 8 }}>{firstCuts[0]?.label || "Clean"}</div>
+            <div className="small" style={{ marginTop: 6 }}>{firstCuts[0] ? `${money(firstCuts[0].actual, state.household.currency)} actual vs ${money(firstCuts[0].planned, state.household.currency)} planned.` : "No obvious flexible overspend flagged."}</div>
+          </div>
+
+          <div className="card" style={{ gridColumn: "span 8" }}>
+            <div style={{ fontWeight: 900, fontSize: 18 }}>Family action plan</div>
+            <div className="small" style={{ marginTop: 4 }}>Use this as the household decision stack before bouncing between tabs.</div>
+            <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
+              {familyActionPlan.map((item, idx) => (
+                <div key={`${item.title}-${idx}`} className="card" style={{ padding: 12 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+                    <div>
+                      <div style={{ fontWeight: 800 }}>{idx + 1}. {item.title}</div>
+                      <div className="small" style={{ marginTop: 6 }}>{item.detail}</div>
+                    </div>
+                    <button onClick={() => setTab(item.tab)}>Open {item.tab}</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="card" style={{ gridColumn: "span 4" }}>
+            <div style={{ fontWeight: 900, fontSize: 18 }}>Protect first</div>
+            <div className="small" style={{ marginTop: 8, lineHeight: 1.6 }}>
+              Protect fixed essentials before touching goals. Cut flexible categories before touching essentials. Use the payoff planner when debt interest is doing the most damage.
+            </div>
+            <div className="assistantChipWrap" style={{ marginTop: 12 }}>
+              <span className={`badge ${projectedFreeCash >= 0 ? "good" : "bad"}`}>{money(projectedFreeCash, state.household.currency)} free cash</span>
+              <span className="badge">Flexible {money(flexibleMonthly, state.household.currency)}</span>
+              <span className="badge">Goal gap {money(goalGap, state.household.currency)}</span>
+            </div>
           </div>
         </div>
       </div>

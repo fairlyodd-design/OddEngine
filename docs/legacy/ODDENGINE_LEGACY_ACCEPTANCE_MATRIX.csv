@@ -1,0 +1,5 @@
+id,title,seed_status,note
+core-shell,Core shell,In Progress,Lock after a real boot and recovery audit
+writers-lounge,Writers Lounge,Needs Repair,Legacy creation is not done until text save and export are stable
+trading,Trading,Needs Repair,Chain-heavy lane needs stabilization before it can be trusted
+builder,Builder,In Progress,Converted into Legacy HQ build board

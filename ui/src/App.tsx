@@ -41,6 +41,8 @@ const Cannabis = lazy(() => import("./panels/Cannabis"));
 const HappyHealthy = lazy(() => import("./panels/HappyHealthy"));
 const Entertainment = lazy(() => import("./panels/Entertainment"));
 const Books = lazy(() => import("./panels/Books"));
+const RenderLab = lazy(() => import("./panels/RenderLab"));
+const PublisherHub = lazy(() => import("./panels/PublisherHub"));
 const RoutineLauncher = lazy(() => import("./panels/RoutineLauncher"));
 const Calendar = lazy(() => import("./panels/Calendar"));
 const DailyChores = lazy(() => import("./panels/DailyChores"));
@@ -79,6 +81,8 @@ function renderPanel(id: string, setActive: (id: string) => void, activeId: stri
     case "Cannabis": return <Cannabis />;
     case "Entertainment": return <Entertainment />;
     case "Books": return <Books onNavigate={setActive} />;
+    case "RenderLab": return <RenderLab onNavigate={setActive} onOpenHowTo={openHowTo} />;
+    case "PublisherHub": return <PublisherHub onNavigate={setActive} />;
     case "RoutineLauncher": return <RoutineLauncher onNavigate={setActive} />;
     case "Calendar": return <Calendar onNavigate={setActive} />;
     case "DailyChores": return <DailyChores />;

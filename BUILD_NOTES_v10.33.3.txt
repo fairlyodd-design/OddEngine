@@ -1,0 +1,22 @@
+v10.33.3_TrueEndToEndMediaExecutionPass
+
+What this pass adds
+- Writers Lounge gets a new local "1 Prompt -> Finished Video" execution card.
+- Real Windows WAV voice generation per scene using System.Speech via PowerShell.
+- Real scene clip rendering using ffmpeg.
+- Final MP4 assembly using ffmpeg concat.
+- Final video preview auto-locks into Writers Lounge after render completes.
+- Full pipeline logs stream live in-panel.
+- Manifest + output files written to backend_scaffold/outputs/writers_media_runs/
+
+Important runtime requirement
+- ffmpeg must be installed and available on PATH.
+- Desktop mode is required for the end-to-end media button.
+- Ollama is optional. If it is running locally, scene structure generation will try to use it first.
+  If not available, the pipeline falls back to a local heuristic story structure so the run still completes.
+
+Files added/changed
+- backend_scaffold/writers_media_pipeline.mjs
+- ui/src/panels/Books.tsx
+- ui/src/styles.css
+- BUILD_NOTES_v10.33.3.txt

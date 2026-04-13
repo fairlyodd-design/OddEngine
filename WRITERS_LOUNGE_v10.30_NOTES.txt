@@ -1,0 +1,18 @@
+OddEngine v10.31_WritersLoungeProductionEnginePass
+
+What changed
+- Rebuilt Writers Lounge into a prompt -> structure -> section -> merge -> preview -> export flow.
+- Added section-aware writing contracts: intro, body, climax, outro.
+- Added writing modes: Story, Script, Narration, Social Content.
+- Added product types: short story, book chapter, screenplay scene, YouTube script, narration script.
+- Added merged preview, section navigation, regenerate section, and text/markdown export.
+- Added YouTube-ready export helper.
+- Preserved Books/Writers Lounge panel routing so the shell keeps working.
+
+Files touched
+- ui/src/panels/Books.tsx
+- ui/src/lib/writerEngine.ts
+- ui/src/lib/version.ts
+- ui/src/styles.css
+- ui/package.json
+- package.json

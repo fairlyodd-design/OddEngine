@@ -24,6 +24,28 @@ export type MoneyAutopilotRecommendation = {
   panelId: string;
   cta: string;
   action: "publish-pending" | "queue-latest-handoff" | "open-studio";
+  valueLabel?: string;
+  lane?: string;
+  score?: number;
+  actionLabel?: string;
+  moveKey?: string;
+  kind?: AssetType;
+  amountUsd?: number;
+};
+
+export type MoneyAutopilotQueueItem = MoneyAutopilotRecommendation & {
+  moveKey: string;
+  lane: string;
+  score: number;
+  valueLabel: string;
+  actionLabel: string;
+  kind: AssetType;
+  amountUsd: number;
+};
+
+export type MoneyAutopilotQueue = {
+  items: MoneyAutopilotQueueItem[];
+  nextMove: MoneyAutopilotQueueItem | null;
 };
 
 export type MoneyAutopilotPlan = {
@@ -75,7 +97,7 @@ function platformStats(items: MoneyOutcome[]) {
       ...row,
       avgRevenue: row.count ? row.revenue / row.count : 0,
       conversionRate: row.views ? row.conversions / row.views : 0,
-      score: row.revenue + (row.count * 3) + (row.conversions * 1.5),
+      score: row.revenue + row.count * 3 + row.conversions * 1.5,
     }))
     .sort((a, b) => b.score - a.score);
 }
@@ -95,7 +117,7 @@ function typeStats(items: MoneyOutcome[]) {
       contentType: contentType as AssetType,
       ...row,
       avgRevenue: row.count ? row.revenue / row.count : 0,
-      score: row.revenue + (row.count * 2) + row.conversions,
+      score: row.revenue + row.count * 2 + row.conversions,
     }))
     .sort((a, b) => b.score - a.score);
 }
@@ -120,8 +142,7 @@ function latestStudioCandidate(bestType: AssetType) {
     .filter((x) => x && typeof x === "object")
     .sort((a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0));
   const draftable = items.filter((x) => ["Idea", "Planning", "Producing", "Packaging", "Ready"].includes(String(x.status || "")));
-  const exact = draftable.find((x) => String(x.type || "").toLowerCase() === String(bestType).toLowerCase());
-  return exact || draftable[0] || null;
+  return draftable.find((x) => String(x.type || "").toLowerCase() === String(bestType).toLowerCase()) || draftable[0] || null;
 }
 
 function pendingJobs(jobs: PublisherJob[]) {
@@ -135,7 +156,6 @@ export function buildMoneyAutopilotPlan(): MoneyAutopilotPlan {
   const pending = pendingJobs(publishers);
   const platformRank = platformStats(outcomes);
   const contentRank = typeStats(outcomes);
-
   const preferredPlatform = settings.preferredPlatforms.find(Boolean);
   const topPlatform = preferredPlatform || platformRank[0]?.platform || "youtube";
   const topContentType = contentRank[0]?.contentType || "social";
@@ -143,7 +163,6 @@ export function buildMoneyAutopilotPlan(): MoneyAutopilotPlan {
   const latestHandoff = loadJSON<any>(HANDOFF_KEY, null as any);
   const totalRevenue = outcomes.reduce((sum, item) => sum + Number(item.revenue || 0), 0);
   const avgRevenue = outcomes.length ? totalRevenue / outcomes.length : 0;
-
   const suggestions: MoneyAutopilotRecommendation[] = [];
 
   if (pending.length) {
@@ -232,6 +251,33 @@ export function buildMoneyAutopilotPlan(): MoneyAutopilotPlan {
   };
 }
 
+function toQueueItem(rec: MoneyAutopilotRecommendation, index: number): MoneyAutopilotQueueItem {
+  const amountUsd = Number(rec.estimatedRevenue || 0);
+  const contentType = rec.contentType || "social";
+  return {
+    ...rec,
+    moveKey: rec.moveKey || rec.id || `money-move-${index + 1}`,
+    lane: rec.lane || "Money Autopilot",
+    score: typeof rec.score === "number" ? rec.score : Math.round((Number(rec.confidence || 0) * 100) + amountUsd),
+    valueLabel: rec.valueLabel || `$${amountUsd.toFixed(2)} est.`,
+    actionLabel: rec.actionLabel || rec.cta || `Open ${rec.panelId || "Money"}`,
+    kind: rec.kind || contentType,
+    amountUsd,
+  };
+}
+
+export function buildMoneyAutopilotQueue(limit = 8): MoneyAutopilotQueue {
+  const plan = buildMoneyAutopilotPlan();
+  const queueItems = [plan.recommendation, ...(plan.alternatives || [])]
+    .filter(Boolean)
+    .slice(0, Math.max(1, limit))
+    .map((rec, index) => toQueueItem(rec, index));
+  return {
+    items: queueItems,
+    nextMove: queueItems[0] || null,
+  };
+}
+
 export function runMoneyAutopilotAction(plan?: MoneyAutopilotPlan) {
   const next = plan || buildMoneyAutopilotPlan();
   const choice = next.recommendation;
@@ -260,7 +306,9 @@ export function runMoneyAutopilotAction(plan?: MoneyAutopilotPlan) {
   if (choice.action === "open-studio") {
     const candidate = latestStudioCandidate(choice.contentType);
     if (candidate) {
-      try { localStorage.setItem("oddengine:studio:active", JSON.stringify(candidate.id)); } catch {}
+      try {
+        localStorage.setItem("oddengine:studio:active", JSON.stringify(candidate.id));
+      } catch {}
       return { ok: true, reason: `Focused studio project ${candidate.title}.`, projectId: candidate.id };
     }
     return { ok: false, reason: "No draftable studio project found." };

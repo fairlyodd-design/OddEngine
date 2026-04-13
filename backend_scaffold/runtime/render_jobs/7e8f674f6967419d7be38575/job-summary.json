@@ -1,0 +1,131 @@
+{
+  "kind": "animation-episode",
+  "jobId": "7e8f674f6967419d7be38575",
+  "projectId": "797ac5e8a149e19d7be38574",
+  "projectTitle": "The Voice in the Booth",
+  "outputDir": "render_lab/animation_jobs/the-voice-in-the-booth",
+  "finalEpisodeFile": "render_lab/animation_jobs/the-voice-in-the-booth/the-voice-in-the-booth_final_episode.mp4",
+  "voiceModel": "llama3.1:8b",
+  "renderProfile": "1080p-series-balanced",
+  "scenes": [
+    {
+      "index": 0,
+      "sceneId": "70785f07d79f119d7be38574",
+      "sceneTitle": "Jack's Struggle is Real",
+      "durationSec": 90,
+      "voiceText": "(to himself) Ugh, another terrible day...,(whispering to radio) I'm never going to make it... The struggling radio host had lost his mojo.,His ratings were in the tank.",
+      "voiceAssetFile": "render_lab/animation_jobs/the-voice-in-the-booth/scene_01_jack-s-struggle-is-real_voice.wav",
+      "outputFile": "render_lab/animation_jobs/the-voice-in-the-booth/scene_01_jack-s-struggle-is-real.mp4",
+      "visualPrompt": "radio studio,Jack sitting at desk",
+      "motionPrompt": "Jack fidgeting with pen,looking around nervously",
+      "sfx": [
+        "static noise",
+        "car horn honking"
+      ],
+      "shotNotes": "Animate Jack's Struggle is Real with Jack fidgeting with pen,looking around nervously. Use visual prompt as frame guidance and keep continuity with [object Object].",
+      "cameraPlan": "Start wide, move to medium performance coverage, end on a detail or reaction for Jack's Struggle is Real.",
+      "shots": [
+        "Shot A: Establish Jack's Struggle is Real with radio studio,Jack sitting at desk.",
+        "Shot B: Push motion with Jack fidgeting with pen,looking around nervously.",
+        "Shot C: Land on the strongest acting beat tied to static noise."
+      ]
+    },
+    {
+      "index": 1,
+      "sceneId": "4ea3e2a57d78219d7be38574",
+      "sceneTitle": "The Studio Responds",
+      "durationSec": 90,
+      "voiceText": "(in a deep, smooth voice) Ah, poor Jack...,(laughing) You're so predictable. But little did he know, the studio had a secret.,It was alive, and it was talking back.",
+      "voiceAssetFile": "render_lab/animation_jobs/the-voice-in-the-booth/scene_02_the-studio-responds_voice.wav",
+      "outputFile": "render_lab/animation_jobs/the-voice-in-the-booth/scene_02_the-studio-responds.mp4",
+      "visualPrompt": "radio studio,Jack's mouth agape",
+      "motionPrompt": "Studio lights flicker, Jack jumping back in his seat",
+      "sfx": [
+        "dramatic music swell",
+        "echoey voice effect"
+      ],
+      "shotNotes": "Animate The Studio Responds with Studio lights flicker, Jack jumping back in his seat. Use visual prompt as frame guidance and keep continuity with [object Object].",
+      "cameraPlan": "Start wide, move to medium performance coverage, end on a detail or reaction for The Studio Responds.",
+      "shots": [
+        "Shot A: Establish The Studio Responds with radio studio,Jack's mouth agape.",
+        "Shot B: Push motion with Studio lights flicker, Jack jumping back in his seat.",
+        "Shot C: Land on the strongest acting beat tied to dramatic music swell."
+      ]
+    },
+    {
+      "index": 2,
+      "sceneId": "2d6b5a2761f1f19d7be38574",
+      "sceneTitle": "The Conversation Begins",
+      "durationSec": 90,
+      "voiceText": "(Jack) Wait, what? You can talk?,(Studio) Of course I can, silly. Now, let's get this show on the road. As Jack struggled to comprehend, the studio began to reveal its true nature.,A place where creativity and madness blurred.",
+      "voiceAssetFile": "render_lab/animation_jobs/the-voice-in-the-booth/scene_03_the-conversation-begins_voice.wav",
+      "outputFile": "render_lab/animation_jobs/the-voice-in-the-booth/scene_03_the-conversation-begins.mp4",
+      "visualPrompt": "radio studio,Jack and the Studio talking",
+      "motionPrompt": "Studio equipment spinning around,Jack gesturing wildly",
+      "sfx": [],
+      "shotNotes": "Animate The Conversation Begins with Studio equipment spinning around,Jack gesturing wildly. Use visual prompt as frame guidance and keep continuity with [object Object].",
+      "cameraPlan": "Start wide, move to medium performance coverage, end on a detail or reaction for The Conversation Begins.",
+      "shots": [
+        "Shot A: Establish The Conversation Begins with radio studio,Jack and the Studio talking.",
+        "Shot B: Push motion with Studio equipment spinning around,Jack gesturing wildly.",
+        "Shot C: Land on the strongest acting beat tied to the emotional cue."
+      ]
+    },
+    {
+      "index": 3,
+      "sceneId": "a0417d8713e9d19d7be38574",
+      "sceneTitle": "The Dark Truth",
+      "durationSec": 90,
+      "voiceText": "(Jack) You're a monster!,(Studio) Ah, but I'm just trying to get the best out of you, dear. The studio's true intentions were sinister.,It had been manipulating Jack all along, using his fears and doubts.",
+      "voiceAssetFile": "render_lab/animation_jobs/the-voice-in-the-booth/scene_04_the-dark-truth_voice.wav",
+      "outputFile": "render_lab/animation_jobs/the-voice-in-the-booth/scene_04_the-dark-truth.mp4",
+      "visualPrompt": "radio studio,Jack's horrified face",
+      "motionPrompt": "Studio lights dimming, Jack backing away slowly",
+      "sfx": [],
+      "shotNotes": "Animate The Dark Truth with Studio lights dimming, Jack backing away slowly. Use visual prompt as frame guidance and keep continuity with [object Object].",
+      "cameraPlan": "Start wide, move to medium performance coverage, end on a detail or reaction for The Dark Truth.",
+      "shots": [
+        "Shot A: Establish The Dark Truth with radio studio,Jack's horrified face.",
+        "Shot B: Push motion with Studio lights dimming, Jack backing away slowly.",
+        "Shot C: Land on the strongest acting beat tied to the emotional cue."
+      ]
+    }
+  ],
+  "executionPlan": {
+    "voiceEngine": "python local_tts.py",
+    "renderer": "python local_scene_renderer.py",
+    "ffmpegPath": "ffmpeg",
+    "workDir": "render_lab/animation_jobs/the-voice-in-the-booth",
+    "manifestFile": "render_lab/animation_jobs/the-voice-in-the-booth/execution_manifest.json",
+    "windowsScript": {
+      "filename": "the-voice-in-the-booth_episode_build.bat",
+      "content": "@echo off\nsetlocal\nmkdir \"render_lab/animation_jobs/the-voice-in-the-booth\" 2>nul\npython local_tts.py --model \"llama3.1:8b\" --text \"(to himself) Ugh, another terrible day...,(whispering to radio) I'm never going to make it... The struggling radio host had lost his mojo.,His ratings were in the tank.\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_01_jack-s-struggle-is-real_voice.wav\" --scene \"01\"\npython local_tts.py --model \"llama3.1:8b\" --text \"(in a deep, smooth voice) Ah, poor Jack...,(laughing) You're so predictable. But little did he know, the studio had a secret.,It was alive, and it was talking back.\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_02_the-studio-responds_voice.wav\" --scene \"02\"\npython local_tts.py --model \"llama3.1:8b\" --text \"(Jack) Wait, what? You can talk?,(Studio) Of course I can, silly. Now, let's get this show on the road. As Jack struggled to comprehend, the studio began to reveal its true nature.,A place where creativity and madness blurred.\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_03_the-conversation-begins_voice.wav\" --scene \"03\"\npython local_tts.py --model \"llama3.1:8b\" --text \"(Jack) You're a monster!,(Studio) Ah, but I'm just trying to get the best out of you, dear. The studio's true intentions were sinister.,It had been manipulating Jack all along, using his fears and doubts.\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_04_the-dark-truth_voice.wav\" --scene \"04\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"01\" --visual \"radio studio,Jack sitting at desk\" --motion \"Jack fidgeting with pen,looking around nervously\" --voice \"render_lab/animation_jobs/the-voice-in-the-booth/scene_01_jack-s-struggle-is-real_voice.wav\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_01_jack-s-struggle-is-real.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"02\" --visual \"radio studio,Jack's mouth agape\" --motion \"Studio lights flicker, Jack jumping back in his seat\" --voice \"render_lab/animation_jobs/the-voice-in-the-booth/scene_02_the-studio-responds_voice.wav\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_02_the-studio-responds.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"03\" --visual \"radio studio,Jack and the Studio talking\" --motion \"Studio equipment spinning around,Jack gesturing wildly\" --voice \"render_lab/animation_jobs/the-voice-in-the-booth/scene_03_the-conversation-begins_voice.wav\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_03_the-conversation-begins.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"04\" --visual \"radio studio,Jack's horrified face\" --motion \"Studio lights dimming, Jack backing away slowly\" --voice \"render_lab/animation_jobs/the-voice-in-the-booth/scene_04_the-dark-truth_voice.wav\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_04_the-dark-truth.mp4\"\npython build_concat_manifest.py --job \"7e8f674f6967419d7be38575\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/episode_concat.txt\"\nffmpeg -y -f concat -safe 0 -i \"render_lab/animation_jobs/the-voice-in-the-booth/episode_concat.txt\" -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k \"render_lab/animation_jobs/the-voice-in-the-booth/the-voice-in-the-booth_final_episode.mp4\"\necho Episode build complete.\nendlocal"
+    },
+    "bashScript": {
+      "filename": "the-voice-in-the-booth_episode_build.sh",
+      "content": "#!/usr/bin/env bash\nset -euo pipefail\nmkdir -p \"render_lab/animation_jobs/the-voice-in-the-booth\"\npython local_tts.py --model \"llama3.1:8b\" --text \"(to himself) Ugh, another terrible day...,(whispering to radio) I'm never going to make it... The struggling radio host had lost his mojo.,His ratings were in the tank.\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_01_jack-s-struggle-is-real_voice.wav\" --scene \"01\"\npython local_tts.py --model \"llama3.1:8b\" --text \"(in a deep, smooth voice) Ah, poor Jack...,(laughing) You're so predictable. But little did he know, the studio had a secret.,It was alive, and it was talking back.\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_02_the-studio-responds_voice.wav\" --scene \"02\"\npython local_tts.py --model \"llama3.1:8b\" --text \"(Jack) Wait, what? You can talk?,(Studio) Of course I can, silly. Now, let's get this show on the road. As Jack struggled to comprehend, the studio began to reveal its true nature.,A place where creativity and madness blurred.\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_03_the-conversation-begins_voice.wav\" --scene \"03\"\npython local_tts.py --model \"llama3.1:8b\" --text \"(Jack) You're a monster!,(Studio) Ah, but I'm just trying to get the best out of you, dear. The studio's true intentions were sinister.,It had been manipulating Jack all along, using his fears and doubts.\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_04_the-dark-truth_voice.wav\" --scene \"04\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"01\" --visual \"radio studio,Jack sitting at desk\" --motion \"Jack fidgeting with pen,looking around nervously\" --voice \"render_lab/animation_jobs/the-voice-in-the-booth/scene_01_jack-s-struggle-is-real_voice.wav\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_01_jack-s-struggle-is-real.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"02\" --visual \"radio studio,Jack's mouth agape\" --motion \"Studio lights flicker, Jack jumping back in his seat\" --voice \"render_lab/animation_jobs/the-voice-in-the-booth/scene_02_the-studio-responds_voice.wav\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_02_the-studio-responds.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"03\" --visual \"radio studio,Jack and the Studio talking\" --motion \"Studio equipment spinning around,Jack gesturing wildly\" --voice \"render_lab/animation_jobs/the-voice-in-the-booth/scene_03_the-conversation-begins_voice.wav\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_03_the-conversation-begins.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"04\" --visual \"radio studio,Jack's horrified face\" --motion \"Studio lights dimming, Jack backing away slowly\" --voice \"render_lab/animation_jobs/the-voice-in-the-booth/scene_04_the-dark-truth_voice.wav\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_04_the-dark-truth.mp4\"\npython build_concat_manifest.py --job \"7e8f674f6967419d7be38575\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/episode_concat.txt\"\nffmpeg -y -f concat -safe 0 -i \"render_lab/animation_jobs/the-voice-in-the-booth/episode_concat.txt\" -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k \"render_lab/animation_jobs/the-voice-in-the-booth/the-voice-in-the-booth_final_episode.mp4\"\necho 'Episode build complete.'"
+    },
+    "voiceCommands": [
+      "python local_tts.py --model \"llama3.1:8b\" --text \"(to himself) Ugh, another terrible day...,(whispering to radio) I'm never going to make it... The struggling radio host had lost his mojo.,His ratings were in the tank.\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_01_jack-s-struggle-is-real_voice.wav\" --scene \"01\"",
+      "python local_tts.py --model \"llama3.1:8b\" --text \"(in a deep, smooth voice) Ah, poor Jack...,(laughing) You're so predictable. But little did he know, the studio had a secret.,It was alive, and it was talking back.\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_02_the-studio-responds_voice.wav\" --scene \"02\"",
+      "python local_tts.py --model \"llama3.1:8b\" --text \"(Jack) Wait, what? You can talk?,(Studio) Of course I can, silly. Now, let's get this show on the road. As Jack struggled to comprehend, the studio began to reveal its true nature.,A place where creativity and madness blurred.\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_03_the-conversation-begins_voice.wav\" --scene \"03\"",
+      "python local_tts.py --model \"llama3.1:8b\" --text \"(Jack) You're a monster!,(Studio) Ah, but I'm just trying to get the best out of you, dear. The studio's true intentions were sinister.,It had been manipulating Jack all along, using his fears and doubts.\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_04_the-dark-truth_voice.wav\" --scene \"04\""
+    ],
+    "renderCommands": [
+      "python local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"01\" --visual \"radio studio,Jack sitting at desk\" --motion \"Jack fidgeting with pen,looking around nervously\" --voice \"render_lab/animation_jobs/the-voice-in-the-booth/scene_01_jack-s-struggle-is-real_voice.wav\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_01_jack-s-struggle-is-real.mp4\"",
+      "python local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"02\" --visual \"radio studio,Jack's mouth agape\" --motion \"Studio lights flicker, Jack jumping back in his seat\" --voice \"render_lab/animation_jobs/the-voice-in-the-booth/scene_02_the-studio-responds_voice.wav\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_02_the-studio-responds.mp4\"",
+      "python local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"03\" --visual \"radio studio,Jack and the Studio talking\" --motion \"Studio equipment spinning around,Jack gesturing wildly\" --voice \"render_lab/animation_jobs/the-voice-in-the-booth/scene_03_the-conversation-begins_voice.wav\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_03_the-conversation-begins.mp4\"",
+      "python local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"04\" --visual \"radio studio,Jack's horrified face\" --motion \"Studio lights dimming, Jack backing away slowly\" --voice \"render_lab/animation_jobs/the-voice-in-the-booth/scene_04_the-dark-truth_voice.wav\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/scene_04_the-dark-truth.mp4\""
+    ],
+    "ffmpegCommands": [
+      "python build_concat_manifest.py --job \"7e8f674f6967419d7be38575\" --out \"render_lab/animation_jobs/the-voice-in-the-booth/episode_concat.txt\"",
+      "ffmpeg -y -f concat -safe 0 -i \"render_lab/animation_jobs/the-voice-in-the-booth/episode_concat.txt\" -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k \"render_lab/animation_jobs/the-voice-in-the-booth/the-voice-in-the-booth_final_episode.mp4\""
+    ],
+    "executionNotes": [
+      "Run voice generation first so every scene gets a concrete WAV asset.",
+      "Run the renderer second so each scene produces its own MP4 file in the job output directory.",
+      "Run the ffmpeg concat build last to assemble the final episode from the rendered scene clips."
+    ],
+    "generatedAt": 1775900001698
+  }
+}

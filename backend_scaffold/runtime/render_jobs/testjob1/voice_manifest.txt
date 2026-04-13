@@ -1,0 +1,2 @@
+Scene 1: /mnt/data/work10323/backend_scaffold/runtime/render_jobs/testjob1/s1_voice.wav • ffmpeg-silence
+Scene 2: /mnt/data/work10323/backend_scaffold/runtime/render_jobs/testjob1/s2_voice.wav • ffmpeg-silence

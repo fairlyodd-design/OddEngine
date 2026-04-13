@@ -214,9 +214,9 @@ export default function Entertainment() {
   };
 
   const toggleMode = (id: string) => {
-    const next = services.map((svc) => (svc.id === id ? { ...svc, openMode: svc.openMode === "window" ? "external" : "window" } : svc));
+    const next: Service[] = services.map((svc) => (svc.id === id ? { ...svc, openMode: (svc.openMode === "window" ? "external" : "window") as Service["openMode"] } : svc));
     // If preset uses this service, keep it but update openMode.
-    const preset = familyNightPreset && familyNightPreset.serviceId === id ? { ...familyNightPreset, openMode: next.find((s) => s.id === id)?.openMode || familyNightPreset.openMode } : familyNightPreset;
+    const preset: FamilyNightPreset | null = familyNightPreset && familyNightPreset.serviceId === id ? { ...familyNightPreset, openMode: (next.find((s) => s.id === id)?.openMode || familyNightPreset.openMode) as Service["openMode"] } : familyNightPreset;
     persist({ services: next, favorites: Array.from(favorites), nowPlaying, familyNightPreset: preset });
   };
 

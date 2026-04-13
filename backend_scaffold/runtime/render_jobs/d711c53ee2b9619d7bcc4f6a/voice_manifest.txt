@@ -1,0 +1,6 @@
+Scene 1: C:\OddEngine\backend_scaffold\runtime\render_jobs\d711c53ee2b9619d7bcc4f6a\scene_01_studio-chaos_voice.wav • powershell-system-speech
+Speech: I'll never find it...,Relax, I'm here.,You're not helping! Jack's search for inspiration has become an all-consuming task.
+Scene 2: C:\OddEngine\backend_scaffold\runtime\render_jobs\d711c53ee2b9619d7bcc4f6a\scene_02_the-room-awakens_voice.wav • powershell-system-speech
+Speech: Hello? Is anyone there?,We're here. Always have been. As Jack searches for answers, the room begins to stir.
+Scene 3: C:\OddEngine\backend_scaffold\runtime\render_jobs\d711c53ee2b9619d7bcc4f6a\scene_03_mind-games_voice.wav • powershell-system-speech
+Speech: This is just the beginning...,You're not listening.,Maybe I'm just hearing things. As Jack confronts his creative doubts, the room pushes him to new heights and new lows.

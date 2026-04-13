@@ -419,6 +419,7 @@ export default function CardGODMode({ panelId }: { panelId: string }) {
               return;
             }
             const cards = getManagedCards(root, panelId);
+            const usedIds = new Set<string>();
             cards.forEach((card, idx) => {
               // Ensure stable id for layout keys (prevents drift when card order changes)
         deriveStableCardId(panelId, card, idx, usedIds);

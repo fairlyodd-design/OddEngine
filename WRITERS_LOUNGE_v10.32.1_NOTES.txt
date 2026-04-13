@@ -1,0 +1,20 @@
+v10.32.1_TruePublishingRunnerStatusAndReceiptImportPass
+
+What changed
+- Added publishing runner status polling for YouTube and Gumroad handoffs.
+- Added publishing receipt import once a run reaches completed state.
+- Added richer run records in Writers Lounge showing receipt path/import time.
+- Upgraded publishing connector scaffold with:
+  - GET /publish/runs/:runId
+  - GET /publish/runs/:runId/receipt
+  - static file serving for receipts under /files/*
+  - simulated accepted -> processing -> completed lifecycle
+
+Files touched
+- ui/src/panels/Books.tsx
+- ui/src/lib/writerEngine.ts
+- ui/src/lib/version.ts
+- backend_scaffold/publishing-connector-server.mjs
+
+Version
+- 10.32.1

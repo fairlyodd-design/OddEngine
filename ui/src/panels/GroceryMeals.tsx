@@ -9,6 +9,7 @@ import { PanelHeader } from "../components/PanelHeader";
 import ActionMenu from "../components/ActionMenu";
 import { PanelScheduleCard } from "../components/PanelScheduleCard";
 import { addQuickEvent, fmtDate } from "../lib/calendarStore";
+import { buildGroceryMealsCommand, estimateItemPrice, GroceryState as GroceryCommandState } from "../lib/groceryMealsCommand";
 
 type MealPlan = { day: string; breakfast: string; lunch: string; dinner: string; snacks: string };
 type GroceryState = {
@@ -31,9 +32,7 @@ const KEY = "oddengine:groceryMeals:v1";
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const STORE_OPTIONS = ["Walmart", "Smith's/Kroger", "Albertsons/Vons", "Costco", "Target"];
 const defaultState: GroceryState = {
-  pantry: `rice
-eggs
-frozen vegetables`,
+  pantry: `rice\neggs\nfrozen vegetables`,
   dietaryTags: "",
   meals: DAYS.map((day) => ({ day, breakfast: "", lunch: "", dinner: "", snacks: "" })),
   groceryList: [],
@@ -46,7 +45,7 @@ frozen vegetables`,
   basketGoal: "$125 family week",
 };
 
-const STATE_VERSION = "10.24.1";
+const STATE_VERSION = "10.35.2";
 
 function sanitizeMeal(raw: unknown): MealPlan {
   const rec = toRecord(raw);
@@ -110,7 +109,6 @@ function sanitizeState(raw: unknown, fallback: GroceryState = defaultState): Gro
   };
 }
 
-
 function normalizeItems(text: string) {
   return text.split(/[\n,]/).map((item) => item.trim()).filter(Boolean);
 }
@@ -124,20 +122,6 @@ const CHEAP_WEEK_TEMPLATE = [
   { breakfast: "pancakes", lunch: "leftover chili", dinner: "sheet-pan sausage, potatoes, onions", snacks: "fruit cups" },
   { breakfast: "eggs, toast", lunch: "grilled cheese, soup", dinner: "fried rice using leftovers", snacks: "banana, yogurt" },
 ];
-
-function estimateItemPrice(item: string) {
-  const text = item.toLowerCase();
-  if (["chicken", "beef", "sausage", "turkey", "fish"].some((t) => text.includes(t))) return 6.5;
-  if (["eggs", "milk", "yogurt", "cheese"].some((t) => text.includes(t))) return 4.2;
-  if (["rice", "beans", "oatmeal", "bread", "pasta", "potatoes"].some((t) => text.includes(t))) return 2.5;
-  if (["berries", "banana", "apple", "fruit", "vegetable", "broccoli", "carrots", "salad"].some((t) => text.includes(t))) return 3.1;
-  if (["snack", "chips", "crackers", "juice"].some((t) => text.includes(t))) return 3.9;
-  return 4.0;
-}
-
-function sumPriceBook(items: string[], priceBook: Record<string, number>) {
-  return items.reduce((sum, item) => sum + Number(priceBook[item] || estimateItemPrice(item) || 0), 0);
-}
 
 function buildStorePlanText(preferredStores: string[], cheapWeekMode: boolean, couponMatches: string[]) {
   const stores = preferredStores.length ? preferredStores : ["Walmart", "Smith's/Kroger"];
@@ -218,7 +202,7 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
       .slice(0, 8)
       .map((deal) => deal.title);
     const next = { ...base, couponMatches, storePlan: buildStorePlanText(base.preferredStores, base.cheapWeekMode, couponMatches), lastUpdated: Date.now() };
-    if (push) persist(next); else { setState(next); saveJSON(KEY, next); }
+    if (push) persist(next); else { setState(next); saveGuardedState(KEY, STATE_VERSION, next); }
   }
 
   function estimateBasket() {
@@ -240,6 +224,15 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
     persist({ ...state, storePlan: buildStorePlanText(state.preferredStores, state.cheapWeekMode, state.couponMatches), lastUpdated: Date.now() });
   }
 
+  function runCommandAction(actionId: string) {
+    if (actionId === "build-list") buildList();
+    if (actionId === "refresh-coupons") refreshCoupons();
+    if (actionId === "estimate-basket") estimateBasket();
+    if (actionId === "cheap-week") runCheapWeek();
+    if (actionId === "store-plan") buildStorePlan();
+    if (actionId === "match-coupons") matchCoupons();
+  }
+
   useEffect(() => { if (!state.couponFeed.length) refreshCoupons(); }, []);
 
   useEffect(() => {
@@ -259,11 +252,6 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
   }, []);
 
   useEffect(() => {
-    saveGuardedState(KEY, STATE_VERSION, state);
-  }, []);
-
-
-  useEffect(() => {
     const handler = () => {
       for (const action of getPanelActions("GroceryMeals")) {
         if (action.actionId === "grocery:build-list") buildList();
@@ -281,28 +269,20 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
   }, [state, hasSaverPack, pluginTick]);
 
   const pantryCount = useMemo(() => normalizeItems(state.pantry).length, [state.pantry]);
-  const estimatedListCost = useMemo(() => sumPriceBook(state.groceryList, state.priceBook), [state.groceryList, state.priceBook]);
-  const targetNumber = useMemo(() => Number(String(state.basketGoal).replace(/[^0-9.]/g, "")) || 0, [state.basketGoal]);
-  const budgetDelta = targetNumber ? estimatedListCost - targetNumber : 0;
-  const pantryCoverage = useMemo(() => {
-    const raw = state.meals.flatMap((meal) => [meal.breakfast, meal.lunch, meal.dinner, meal.snacks]).flatMap((entry) => normalizeItems(entry));
-    const deduped = Array.from(new Set(raw.map((item) => item.trim()).filter(Boolean)));
-    if (!deduped.length) return 0;
-    return Math.round(((deduped.length - state.groceryList.length) / deduped.length) * 100);
-  }, [state.meals, state.groceryList]);
+  const command = useMemo(() => buildGroceryMealsCommand(state as GroceryCommandState, hasSaverPack), [state, hasSaverPack]);
 
   return (
     <div className="page">
       <PanelHeader
         panelId="GroceryMeals"
         title="🛒 Grocery Meals"
-        subtitle="Meal planning + grocery list + coupon feed."
+        subtitle="Family food, savings, meal planning, and substitution lane."
         storagePrefix="oddengine:groceryMeals"
         storageActionsMode="menu"
         badges={[
           { label: `${state.groceryList.length} needed`, tone: state.groceryList.length ? "warn" : "good" },
-          { label: `Pantry ${pantryCoverage}%`, tone: pantryCoverage >= 70 ? "good" : pantryCoverage >= 40 ? "warn" : "bad" },
-          { label: `Est. $${estimatedListCost.toFixed(0)}${targetNumber ? ` vs goal $${targetNumber.toFixed(0)}` : ""}`, tone: budgetDelta > 0 ? "warn" : "good" },
+          { label: `Pantry ${command.pantryCoverage}%`, tone: command.pantryCoverage >= 70 ? "good" : command.pantryCoverage >= 40 ? "warn" : "bad" },
+          { label: `Est. $${command.estimatedCost.toFixed(0)}${command.targetNumber ? ` vs goal $${command.targetNumber.toFixed(0)}` : ""}`, tone: command.budgetDelta > 0 ? "warn" : "good" },
           ...(hasSaverPack ? [{ label: "Saver pack active", tone: "good" as const }] : []),
         ]}
         rightSlot={
@@ -310,8 +290,8 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
             title="Grocery tools"
             items={[
               { label: "Open Calendar", onClick: () => onNavigate?.("Calendar") },
-              { label: "Add grocery run", onClick: () => { const d = prompt("Date (YYYY-MM-DD)", fmtDate(new Date())); if(!d) return; addQuickEvent({ title: "Grocery run", panelId: "GroceryMeals", date: d, notes: `Basket goal: ${state.basketGoal || "—"}` }); pushNotif({ title: "Grocery", body: "Added grocery run to Calendar.", tags: ["GroceryMeals"], level: "good" as any }); } },
-              { label: "Add meal prep session", onClick: () => { const d = prompt("Date (YYYY-MM-DD)", fmtDate(new Date())); if(!d) return; addQuickEvent({ title: "Meal prep", panelId: "GroceryMeals", date: d, notes: "Prep proteins + chop veg + portion snacks." }); pushNotif({ title: "Grocery", body: "Added meal prep to Calendar.", tags: ["GroceryMeals"], level: "good" as any }); } },
+              { label: "Add grocery run", onClick: () => { const d = prompt("Date (YYYY-MM-DD)", fmtDate(new Date())); if(!d) return; addQuickEvent({ title: "Grocery run", panelId: "GroceryMeals", date: d, notes: `Basket goal: ${state.basketGoal || "—"}` }); } },
+              { label: "Add meal prep session", onClick: () => { const d = prompt("Date (YYYY-MM-DD)", fmtDate(new Date())); if(!d) return; addQuickEvent({ title: "Meal prep", panelId: "GroceryMeals", date: d, notes: "Prep proteins + chop veg + portion snacks." }); } },
             ]}
           />
         }
@@ -330,23 +310,68 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
         onNavigate={onNavigate}
       />
 
-
       <PluginMiniWidgets panelId="GroceryMeals" onNavigate={onNavigate} onOpenHowTo={onOpenHowTo} />
+
+      <div className="card heroCard missionHero">
+        <div className="small shellEyebrow">FAMILY FOOD COMMAND</div>
+        <div className="h">What matters today</div>
+        <div className="sub">{command.whatMattersToday}</div>
+        <div className="assistantChipWrap" style={{ marginTop: 12 }}>
+          <span className={`badge ${command.doThisNow.tone}`}>{command.doThisNow.title}</span>
+          <span className="badge">Pantry items {pantryCount}</span>
+          <span className={`badge ${state.cheapWeekMode ? "warn" : "good"}`}>{state.cheapWeekMode ? "Cheap week active" : "Balanced week"}</span>
+        </div>
+        <div className="row" style={{ marginTop: 12, gap: 8, flexWrap: "wrap" }}>
+          <button className="tabBtn active" onClick={() => runCommandAction(command.doThisNow.actionId)}>{command.doThisNow.title}</button>
+          <button className="tabBtn" onClick={() => buildList()}>Build grocery list</button>
+          <button className="tabBtn" onClick={() => refreshCoupons()} disabled={busy}>{busy ? "Refreshing…" : "Refresh coupon lane"}</button>
+          {hasSaverPack && <button className="tabBtn" onClick={() => estimateBasket()}>Estimate basket</button>}
+        </div>
+        {state.lastError && <div className="small" style={{ marginTop: 8, color: "var(--warn)" }}>{state.lastError}</div>}
+      </div>
+
+      <div className="grid2" style={{ alignItems: "start" }}>
+        <div className="card softCard">
+          <div className="h">Do this now</div>
+          <div className={`timelineCard ${command.doThisNow.tone === "bad" ? "warn" : ""}`} style={{ marginTop: 10 }}>
+            <div style={{ fontWeight: 800 }}>{command.doThisNow.title}</div>
+            <div className="small" style={{ marginTop: 6 }}>{command.doThisNow.body}</div>
+            <div className="row" style={{ marginTop: 10, gap: 8, flexWrap: "wrap" }}>
+              <button className="tabBtn active" onClick={() => runCommandAction(command.doThisNow.actionId)}>Run now</button>
+              {hasSaverPack && <button className="tabBtn" onClick={() => buildStorePlan()}>Store plan</button>}
+            </div>
+          </div>
+          <div className="assistantSectionTitle" style={{ marginTop: 14 }}>Trusted route note</div>
+          <div className="timelineCard" style={{ marginTop: 10 }}>{command.trustedRouteNote}</div>
+        </div>
+
+        <div className="card softCard">
+          <div className="h">Family food queue</div>
+          <div className="assistantStack" style={{ marginTop: 10 }}>
+            {command.actionQueue.map((item) => (
+              <div key={item.id} className={`timelineCard ${item.tone === "bad" ? "warn" : ""}`}>
+                <div className="row" style={{ justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+                  <div>
+                    <div style={{ fontWeight: 800 }}>{item.title}</div>
+                    <div className="small" style={{ marginTop: 6 }}>{item.body}</div>
+                  </div>
+                  <button className="tabBtn active" onClick={() => runCommandAction(item.actionId)}>Run</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       <div className="grid2" style={{ alignItems: "start" }}>
         <div className="card softCard" data-no-drag="true" data-no-snap="true">
-          <div className="h">Savings overview</div>
-          <div className="assistantStack" style={{ marginTop: 10 }}>
-            <div className="timelineCard">Pantry items: {pantryCount}</div>
-            <div className="timelineCard">Estimated basket: ${estimatedListCost.toFixed(2)}</div>
-            <div className="timelineCard">Coupon matches: {state.couponMatches.length}</div>
-            <div className="timelineCard">Mode: {state.cheapWeekMode ? "Cheap week active" : "Balanced planning"}</div>
+          <div className="h">Staples + pantry status</div>
+          <div className="assistantChipWrap" style={{ marginTop: 10 }}>
+            {command.stapleStatus.map((item) => (
+              <span key={item.label} className={`badge ${item.state === "ready" ? "good" : item.state === "low" ? "warn" : "bad"}`}>{item.label}</span>
+            ))}
           </div>
-        </div>
-
-        <div className="card softCard" data-no-drag="true" data-no-snap="true">
-          <div className="h">Pantry + savings lane</div>
-          <label className="field" style={{ marginTop: 10 }}>Pantry items
+          <label className="field" style={{ marginTop: 12 }}>Pantry items
             <textarea rows={6} value={state.pantry} onChange={(e) => persist({ ...state, pantry: e.target.value, lastUpdated: Date.now() })} placeholder="List one item per line…" />
           </label>
           <label className="field">Dietary tags / notes
@@ -355,15 +380,30 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
           <label className="field">Basket goal
             <input value={state.basketGoal} onChange={(e) => persist({ ...state, basketGoal: e.target.value, lastUpdated: Date.now() })} placeholder="$125 family week" />
           </label>
-          <div className="row" style={{ marginTop: 10, gap: 8, flexWrap: "wrap" }}>
-            <button className="tabBtn active" onClick={() => buildList()}>Build grocery list</button>
-            <button className="tabBtn" onClick={refreshCoupons} disabled={busy}>{busy ? "Refreshing…" : "Refresh coupon lane"}</button>
-            {hasSaverPack && <button className="tabBtn" onClick={runCheapWeek}>Cheap week</button>}
-            {hasSaverPack && <button className="tabBtn" onClick={estimateBasket}>Estimate basket</button>}
+        </div>
+
+        <div className="card softCard" data-no-drag="true" data-no-snap="true">
+          <div className="h">Meal ideas from what you already have</div>
+          <div className="assistantStack" style={{ marginTop: 10 }}>
+            {command.mealIdeas.map((idea) => (
+              <div key={idea.title} className="timelineCard">
+                <div style={{ fontWeight: 800 }}>{idea.title}</div>
+                <div className="small" style={{ marginTop: 6 }}>{idea.why}</div>
+                <div className="assistantChipWrap" style={{ marginTop: 8 }}>
+                  {idea.ingredients.map((ingredient) => <span key={ingredient} className="badge">{ingredient}</span>)}
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="assistantSectionTitle" style={{ marginTop: 14 }}>Live coupon links</div>
-          <div className="assistantChipWrap" style={{ marginTop: 10 }}>
-            {DEFAULT_COUPON_LINKS.map((link) => <button key={link.label} className="tabBtn" onClick={() => openExternalLink(link.url)}>{link.label}</button>)}
+          <div className="assistantSectionTitle" style={{ marginTop: 14 }}>Money-saving substitutions</div>
+          <div className="assistantStack" style={{ marginTop: 10 }}>
+            {command.substitutions.map((item) => (
+              <div key={item.need} className="timelineCard">
+                <div style={{ fontWeight: 800 }}>{item.need} → {item.swap}</div>
+                <div className="small" style={{ marginTop: 6 }}>{item.why}</div>
+              </div>
+            ))}
+            {!command.substitutions.length && <div className="small">Build the grocery list first to surface substitution ideas.</div>}
           </div>
         </div>
       </div>
@@ -388,6 +428,9 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
 
         <div className="card softCard" data-no-drag="true" data-no-snap="true">
           <div className="h">Generated grocery list</div>
+          <div className="assistantChipWrap" style={{ marginTop: 10 }}>
+            {command.mustBuyNow.map((item) => <span key={item} className="badge warn">{item}</span>)}
+          </div>
           <div className="assistantStack" style={{ marginTop: 10 }}>
             {state.groceryList.map((item) => <div key={item} className="timelineCard">{item}</div>)}
             {!state.groceryList.length && <div className="small">Build the list from your meal plan to see what you still need.</div>}
@@ -407,6 +450,7 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
             <div className="row" style={{ marginTop: 10, gap: 8, flexWrap: "wrap" }}>
               <button className="tabBtn active" onClick={buildStorePlan}>Build store plan</button>
               <button className="tabBtn" onClick={() => matchCoupons()}>Match coupons</button>
+              <button className="tabBtn" onClick={runCheapWeek}>Cheap week</button>
             </div>
             <div className="assistantStack" style={{ marginTop: 12 }}>
               {(state.storePlan || []).map((line, idx) => <div key={idx} className="timelineCard">{line}</div>)}
@@ -451,6 +495,9 @@ export default function GroceryMeals({ onNavigate, onOpenHowTo }: { onNavigate?:
 
       <div className="card softCard" data-no-drag="true" data-no-snap="true">
         <div className="h">Coupon / deals feed</div>
+        <div className="assistantChipWrap" style={{ marginTop: 10 }}>
+          {DEFAULT_COUPON_LINKS.map((link) => <button key={link.label} className="tabBtn" onClick={() => openExternalLink(link.url)}>{link.label}</button>)}
+        </div>
         {state.lastError && <div className="small" style={{ marginTop: 8, color: "var(--warn)" }}>{state.lastError}</div>}
         <div className="assistantStack" style={{ marginTop: 10 }}>
           {state.couponFeed.slice(0, 8).map((item) => (

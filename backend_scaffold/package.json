@@ -8,5 +8,14 @@
     "local-media-stack": "node render-backend.mjs",
     "music-provider-bridge": "node music-provider-bridge.mjs",
     "music-adapter-test": "python music_engines/musicgen_adapter.py --input backend_scaffold_data/music_bridge/sample_request.json --output backend_scaffold_data/music_bridge/sample_response.json"
+  },
+  "description": "This folder gives you two tiny backend examples for the Family Budget sync bridge in OddEngine v10.14.0.",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.2.1"
   }
 }

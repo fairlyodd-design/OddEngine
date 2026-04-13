@@ -73,7 +73,7 @@ async function openPath(path?: string | null): Promise<DesktopActionResult> {
       await (oddApi as any).openPath(value);
       return { ok: true, message: "Opened path.", path: value };
     }
-    if (isDesktop && oddApi && typeof (oddApi as any).shellOpenPath === "function") {
+    if (isDesktop() && oddApi && typeof (oddApi as any).shellOpenPath === "function") {
       await (oddApi as any).shellOpenPath(value);
       return { ok: true, message: "Opened path.", path: value };
     }

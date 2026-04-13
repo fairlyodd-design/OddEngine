@@ -1,0 +1,11 @@
+v10.34.1_ActualSceneGenerationBridgePass
+---------------------------------------
+Scope subtitle:
+Real shot-based image generation bridge with continuity prompts, provider abstraction,
+cinematic clip build, and artifact-bound Studio preview.
+
+Important honesty note:
+This package is a concrete scaffold/spec-driven drop-in starter, not a runtime-verified
+full replacement for the entire OddEngine source tree. It contains the new modules,
+endpoint contracts, file schemas, and UI/backend integration surfaces needed to implement
+the pass cleanly on top of the existing Writers Lounge pipeline.

@@ -1,0 +1,112 @@
+{
+  "kind": "animation-episode",
+  "jobId": "028aaa5bc5cff19d7bd8cca6",
+  "projectId": "cbb76bba10e1b19d7bd8cca5",
+  "projectTitle": "The Host's Dilemma",
+  "outputDir": "render_lab/animation_jobs/the-host-s-dilemma",
+  "finalEpisodeFile": "render_lab/animation_jobs/the-host-s-dilemma/the-host-s-dilemma_final_episode.mp4",
+  "voiceModel": "llama3.1:8b",
+  "renderProfile": "1080p-series-balanced",
+  "scenes": [
+    {
+      "index": 0,
+      "sceneId": "dbd81733c232219d7bd8cca5",
+      "sceneTitle": "The Studio Awakens",
+      "durationSec": 90,
+      "voiceText": "Jack Harris (V.O.): I'm never going to make it... I'll never find my voice...,The Studio: *whispers* Ah, but you already have.",
+      "voiceAssetFile": "render_lab/animation_jobs/the-host-s-dilemma/scene_01_the-studio-awakens_voice.wav",
+      "outputFile": "render_lab/animation_jobs/the-host-s-dilemma/scene_01_the-studio-awakens.mp4",
+      "visualPrompt": "A close-up shot of a coffee-stained script on the desk, with a faint glow emanating from it",
+      "motionPrompt": "Slow zoom in on the script, with a slight camera shake",
+      "sfx": [
+        "creaking wood",
+        "faint typing"
+      ],
+      "shotNotes": "Animate The Studio Awakens with Slow zoom in on the script, with a slight camera shake. Use visual prompt as frame guidance and keep continuity with [object Object].",
+      "cameraPlan": "Start wide, move to medium performance coverage, end on a detail or reaction for The Studio Awakens.",
+      "shots": [
+        "Shot A: Establish The Studio Awakens with A close-up shot of a coffee-stained script on the desk, with a faint glow emanating from it.",
+        "Shot B: Push motion with Slow zoom in on the script, with a slight camera shake.",
+        "Shot C: Land on the strongest acting beat tied to creaking wood."
+      ]
+    },
+    {
+      "index": 1,
+      "sceneId": "f260219f76bbf19d7bd8cca5",
+      "sceneTitle": "Jack's Dilemma",
+      "durationSec": 90,
+      "voiceText": "Jack Harris: What am I doing wrong?!,The Studio: *laughs* Oh, you're just not listening.",
+      "voiceAssetFile": "render_lab/animation_jobs/the-host-s-dilemma/scene_02_jack-s-dilemma_voice.wav",
+      "outputFile": "render_lab/animation_jobs/the-host-s-dilemma/scene_02_jack-s-dilemma.mp4",
+      "visualPrompt": "A wide shot of Jack pacing around the studio, looking frazzled and worried",
+      "motionPrompt": "Slow tracking shot following Jack as he paces",
+      "sfx": [
+        "footsteps on wood floor"
+      ],
+      "shotNotes": "Animate Jack's Dilemma with Slow tracking shot following Jack as he paces. Use visual prompt as frame guidance and keep continuity with [object Object].",
+      "cameraPlan": "Start wide, move to medium performance coverage, end on a detail or reaction for Jack's Dilemma.",
+      "shots": [
+        "Shot A: Establish Jack's Dilemma with A wide shot of Jack pacing around the studio, looking frazzled and worried.",
+        "Shot B: Push motion with Slow tracking shot following Jack as he paces.",
+        "Shot C: Land on the strongest acting beat tied to footsteps on wood floor."
+      ]
+    },
+    {
+      "index": 2,
+      "sceneId": "e4df319ace27a19d7bd8cca5",
+      "sceneTitle": "The Battle Begins",
+      "durationSec": 90,
+      "voiceText": "Jack Harris: You're just a room! You don't have thoughts or feelings!,The Studio: *smirking* Oh, but I do. And they're all very... script-y.",
+      "voiceAssetFile": "render_lab/animation_jobs/the-host-s-dilemma/scene_03_the-battle-begins_voice.wav",
+      "outputFile": "render_lab/animation_jobs/the-host-s-dilemma/scene_03_the-battle-begins.mp4",
+      "visualPrompt": "A split-screen shot of Jack and the studio's responses, with a timer counting down in the middle",
+      "motionPrompt": "Fast-paced cuts between Jack and the studio's different attempts at communication",
+      "sfx": [
+        "typing sounds",
+        "alarms blaring"
+      ],
+      "shotNotes": "Animate The Battle Begins with Fast-paced cuts between Jack and the studio's different attempts at communication. Use visual prompt as frame guidance and keep continuity with [object Object].",
+      "cameraPlan": "Start wide, move to medium performance coverage, end on a detail or reaction for The Battle Begins.",
+      "shots": [
+        "Shot A: Establish The Battle Begins with A split-screen shot of Jack and the studio's responses, with a timer counting down in the middle.",
+        "Shot B: Push motion with Fast-paced cuts between Jack and the studio's different attempts at communication.",
+        "Shot C: Land on the strongest acting beat tied to typing sounds."
+      ]
+    }
+  ],
+  "executionPlan": {
+    "voiceEngine": "python local_tts.py",
+    "renderer": "python local_scene_renderer.py",
+    "ffmpegPath": "ffmpeg",
+    "workDir": "render_lab/animation_jobs/the-host-s-dilemma",
+    "manifestFile": "render_lab/animation_jobs/the-host-s-dilemma/execution_manifest.json",
+    "windowsScript": {
+      "filename": "the-host-s-dilemma_episode_build.bat",
+      "content": "@echo off\nsetlocal\nmkdir \"render_lab/animation_jobs/the-host-s-dilemma\" 2>nul\npython local_tts.py --model \"llama3.1:8b\" --text \"Jack Harris (V.O.): I'm never going to make it... I'll never find my voice...,The Studio: *whispers* Ah, but you already have.\" --out \"render_lab/animation_jobs/the-host-s-dilemma/scene_01_the-studio-awakens_voice.wav\" --scene \"01\"\npython local_tts.py --model \"llama3.1:8b\" --text \"Jack Harris: What am I doing wrong?!,The Studio: *laughs* Oh, you're just not listening.\" --out \"render_lab/animation_jobs/the-host-s-dilemma/scene_02_jack-s-dilemma_voice.wav\" --scene \"02\"\npython local_tts.py --model \"llama3.1:8b\" --text \"Jack Harris: You're just a room! You don't have thoughts or feelings!,The Studio: *smirking* Oh, but I do. And they're all very... script-y.\" --out \"render_lab/animation_jobs/the-host-s-dilemma/scene_03_the-battle-begins_voice.wav\" --scene \"03\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"01\" --visual \"A close-up shot of a coffee-stained script on the desk, with a faint glow emanating from it\" --motion \"Slow zoom in on the script, with a slight camera shake\" --voice \"render_lab/animation_jobs/the-host-s-dilemma/scene_01_the-studio-awakens_voice.wav\" --out \"render_lab/animation_jobs/the-host-s-dilemma/scene_01_the-studio-awakens.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"02\" --visual \"A wide shot of Jack pacing around the studio, looking frazzled and worried\" --motion \"Slow tracking shot following Jack as he paces\" --voice \"render_lab/animation_jobs/the-host-s-dilemma/scene_02_jack-s-dilemma_voice.wav\" --out \"render_lab/animation_jobs/the-host-s-dilemma/scene_02_jack-s-dilemma.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"03\" --visual \"A split-screen shot of Jack and the studio's responses, with a timer counting down in the middle\" --motion \"Fast-paced cuts between Jack and the studio's different attempts at communication\" --voice \"render_lab/animation_jobs/the-host-s-dilemma/scene_03_the-battle-begins_voice.wav\" --out \"render_lab/animation_jobs/the-host-s-dilemma/scene_03_the-battle-begins.mp4\"\npython build_concat_manifest.py --job \"028aaa5bc5cff19d7bd8cca6\" --out \"render_lab/animation_jobs/the-host-s-dilemma/episode_concat.txt\"\nffmpeg -y -f concat -safe 0 -i \"render_lab/animation_jobs/the-host-s-dilemma/episode_concat.txt\" -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k \"render_lab/animation_jobs/the-host-s-dilemma/the-host-s-dilemma_final_episode.mp4\"\necho Episode build complete.\nendlocal"
+    },
+    "bashScript": {
+      "filename": "the-host-s-dilemma_episode_build.sh",
+      "content": "#!/usr/bin/env bash\nset -euo pipefail\nmkdir -p \"render_lab/animation_jobs/the-host-s-dilemma\"\npython local_tts.py --model \"llama3.1:8b\" --text \"Jack Harris (V.O.): I'm never going to make it... I'll never find my voice...,The Studio: *whispers* Ah, but you already have.\" --out \"render_lab/animation_jobs/the-host-s-dilemma/scene_01_the-studio-awakens_voice.wav\" --scene \"01\"\npython local_tts.py --model \"llama3.1:8b\" --text \"Jack Harris: What am I doing wrong?!,The Studio: *laughs* Oh, you're just not listening.\" --out \"render_lab/animation_jobs/the-host-s-dilemma/scene_02_jack-s-dilemma_voice.wav\" --scene \"02\"\npython local_tts.py --model \"llama3.1:8b\" --text \"Jack Harris: You're just a room! You don't have thoughts or feelings!,The Studio: *smirking* Oh, but I do. And they're all very... script-y.\" --out \"render_lab/animation_jobs/the-host-s-dilemma/scene_03_the-battle-begins_voice.wav\" --scene \"03\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"01\" --visual \"A close-up shot of a coffee-stained script on the desk, with a faint glow emanating from it\" --motion \"Slow zoom in on the script, with a slight camera shake\" --voice \"render_lab/animation_jobs/the-host-s-dilemma/scene_01_the-studio-awakens_voice.wav\" --out \"render_lab/animation_jobs/the-host-s-dilemma/scene_01_the-studio-awakens.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"02\" --visual \"A wide shot of Jack pacing around the studio, looking frazzled and worried\" --motion \"Slow tracking shot following Jack as he paces\" --voice \"render_lab/animation_jobs/the-host-s-dilemma/scene_02_jack-s-dilemma_voice.wav\" --out \"render_lab/animation_jobs/the-host-s-dilemma/scene_02_jack-s-dilemma.mp4\"\npython local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"03\" --visual \"A split-screen shot of Jack and the studio's responses, with a timer counting down in the middle\" --motion \"Fast-paced cuts between Jack and the studio's different attempts at communication\" --voice \"render_lab/animation_jobs/the-host-s-dilemma/scene_03_the-battle-begins_voice.wav\" --out \"render_lab/animation_jobs/the-host-s-dilemma/scene_03_the-battle-begins.mp4\"\npython build_concat_manifest.py --job \"028aaa5bc5cff19d7bd8cca6\" --out \"render_lab/animation_jobs/the-host-s-dilemma/episode_concat.txt\"\nffmpeg -y -f concat -safe 0 -i \"render_lab/animation_jobs/the-host-s-dilemma/episode_concat.txt\" -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k \"render_lab/animation_jobs/the-host-s-dilemma/the-host-s-dilemma_final_episode.mp4\"\necho 'Episode build complete.'"
+    },
+    "voiceCommands": [
+      "python local_tts.py --model \"llama3.1:8b\" --text \"Jack Harris (V.O.): I'm never going to make it... I'll never find my voice...,The Studio: *whispers* Ah, but you already have.\" --out \"render_lab/animation_jobs/the-host-s-dilemma/scene_01_the-studio-awakens_voice.wav\" --scene \"01\"",
+      "python local_tts.py --model \"llama3.1:8b\" --text \"Jack Harris: What am I doing wrong?!,The Studio: *laughs* Oh, you're just not listening.\" --out \"render_lab/animation_jobs/the-host-s-dilemma/scene_02_jack-s-dilemma_voice.wav\" --scene \"02\"",
+      "python local_tts.py --model \"llama3.1:8b\" --text \"Jack Harris: You're just a room! You don't have thoughts or feelings!,The Studio: *smirking* Oh, but I do. And they're all very... script-y.\" --out \"render_lab/animation_jobs/the-host-s-dilemma/scene_03_the-battle-begins_voice.wav\" --scene \"03\""
+    ],
+    "renderCommands": [
+      "python local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"01\" --visual \"A close-up shot of a coffee-stained script on the desk, with a faint glow emanating from it\" --motion \"Slow zoom in on the script, with a slight camera shake\" --voice \"render_lab/animation_jobs/the-host-s-dilemma/scene_01_the-studio-awakens_voice.wav\" --out \"render_lab/animation_jobs/the-host-s-dilemma/scene_01_the-studio-awakens.mp4\"",
+      "python local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"02\" --visual \"A wide shot of Jack pacing around the studio, looking frazzled and worried\" --motion \"Slow tracking shot following Jack as he paces\" --voice \"render_lab/animation_jobs/the-host-s-dilemma/scene_02_jack-s-dilemma_voice.wav\" --out \"render_lab/animation_jobs/the-host-s-dilemma/scene_02_jack-s-dilemma.mp4\"",
+      "python local_scene_renderer.py --profile \"1080p-series-balanced\" --scene \"03\" --visual \"A split-screen shot of Jack and the studio's responses, with a timer counting down in the middle\" --motion \"Fast-paced cuts between Jack and the studio's different attempts at communication\" --voice \"render_lab/animation_jobs/the-host-s-dilemma/scene_03_the-battle-begins_voice.wav\" --out \"render_lab/animation_jobs/the-host-s-dilemma/scene_03_the-battle-begins.mp4\""
+    ],
+    "ffmpegCommands": [
+      "python build_concat_manifest.py --job \"028aaa5bc5cff19d7bd8cca6\" --out \"render_lab/animation_jobs/the-host-s-dilemma/episode_concat.txt\"",
+      "ffmpeg -y -f concat -safe 0 -i \"render_lab/animation_jobs/the-host-s-dilemma/episode_concat.txt\" -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k \"render_lab/animation_jobs/the-host-s-dilemma/the-host-s-dilemma_final_episode.mp4\""
+    ],
+    "executionNotes": [
+      "Run voice generation first so every scene gets a concrete WAV asset.",
+      "Run the renderer second so each scene produces its own MP4 file in the job output directory.",
+      "Run the ffmpeg concat build last to assemble the final episode from the rendered scene clips."
+    ],
+    "generatedAt": 1775899299002
+  }
+}

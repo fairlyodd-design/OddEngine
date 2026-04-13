@@ -35,16 +35,10 @@ type SpeechRecognitionLike = {
   abort: () => void;
 };
 
-declare global {
-  interface Window {
-    webkitSpeechRecognition?: new () => SpeechRecognitionLike;
-    SpeechRecognition?: new () => SpeechRecognitionLike;
-    speechSynthesis?: SpeechSynthesis;
-  }
-}
 
 export function createHomieVoiceBridge(options: HomieVoiceBridgeOptions = {}) {
-  const RecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const speechWindow = window as any;
+  const RecognitionCtor = speechWindow.SpeechRecognition || speechWindow.webkitSpeechRecognition;
   const recognition = RecognitionCtor ? new RecognitionCtor() : null;
 
   let isListening = false;

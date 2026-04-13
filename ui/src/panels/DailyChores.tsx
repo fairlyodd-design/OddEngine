@@ -1,37 +1,19 @@
 import React, { useMemo, useState } from "react";
 import { PanelHeader } from "../components/PanelHeader";
-import { loadJSON, saveJSON } from "../lib/storage";
+import { saveJSON } from "../lib/storage";
+import {
+  DAILY_CHORES_EVENT,
+  DAILY_CHORES_KEY,
+  computeDailyChoresSnapshot,
+  createDailyChoresSeed,
+  lanePriority,
+  laneTone,
+  type DailyChoreState,
+  type LaneName,
+} from "../lib/dailyChoresCommand";
 
 type ChoreItem = { id: string; text: string; done: boolean };
 type Bucket = { title: string; items: ChoreItem[] };
-type ChoreState = {
-  household: Bucket;
-  outdoor: Bucket;
-  animals: Bucket;
-  todayNote: string;
-};
-
-type LaneName = "household" | "outdoor" | "animals";
-
-const KEY = "oddengine:dailyChores:v1";
-const seed = (): ChoreState => ({
-  household: { title: "Household", items: [
-    { id: "h1", text: "Dishes / kitchen reset", done: false },
-    { id: "h2", text: "Laundry sweep", done: false },
-    { id: "h3", text: "Trash + quick tidy", done: false },
-  ] },
-  outdoor: { title: "Outdoor", items: [
-    { id: "o1", text: "Check yard / porch", done: false },
-    { id: "o2", text: "Water plants or beds", done: false },
-    { id: "o3", text: "Tools / bins / gates check", done: false },
-  ] },
-  animals: { title: "Animals", items: [
-    { id: "a1", text: "Feed / water refresh", done: false },
-    { id: "a2", text: "Walk / play / enrichment", done: false },
-    { id: "a3", text: "Clean area / litter / waste", done: false },
-  ] },
-  todayNote: "",
-});
 
 const recurringTemplates: Record<LaneName, string[]> = {
   household: ["Entryway reset", "Bathroom wipe-down", "15-minute floor pickup"],
@@ -40,41 +22,43 @@ const recurringTemplates: Record<LaneName, string[]> = {
 };
 
 function uid(){ return Math.random().toString(16).slice(2)+Date.now().toString(16); }
-function lanePriority(openCount: number){
-  if (openCount >= 4) return "High";
-  if (openCount >= 2) return "Medium";
-  return "Low";
-}
-function laneTone(openCount: number){
-  if (openCount >= 4) return "bad";
-  if (openCount >= 2) return "warn";
-  return "good";
-}
 
 export default function DailyChores(){
-  const [state, setState] = useState<ChoreState>(() => ({ ...seed(), ...loadJSON(KEY, seed()) }));
+  const [state, setState] = useState<DailyChoreState>(() => createDailyChoresSeed());
   const [drafts, setDrafts] = useState({ household:"", outdoor:"", animals:"" });
-  const persist = (next: ChoreState) => { setState(next); saveJSON(KEY, next); };
-  const laneOrder: LaneName[] = ["household", "outdoor", "animals"];
-  const buckets = laneOrder.map((name) => ({ name, ...state[name] }));
 
-  const total = useMemo(() => buckets.reduce((sum,b) => sum + b.items.length, 0), [state]);
-  const done = useMemo(() => buckets.reduce((sum,b) => sum + b.items.filter(i => i.done).length, 0), [state]);
-  const openCount = Math.max(0, total - done);
-  const pct = total ? Math.round((done/total)*100) : 0;
-  const todayFocus = useMemo(() => {
-    const nextByLane = buckets.map((bucket) => ({
-      name: bucket.name,
-      title: bucket.title,
-      next: bucket.items.find((item) => !item.done) || null,
-      open: bucket.items.filter((item) => !item.done).length,
-    }));
-    const hotLane = [...nextByLane].sort((a,b) => b.open - a.open)[0];
-    return { nextByLane, hotLane };
-  }, [state]);
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem(DAILY_CHORES_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored) as DailyChoreState;
+        setState({ ...createDailyChoresSeed(), ...parsed });
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const persist = (next: DailyChoreState) => {
+    setState(next);
+    saveJSON(DAILY_CHORES_KEY, next);
+    try {
+      window.dispatchEvent(new CustomEvent(DAILY_CHORES_EVENT, { detail: { ts: Date.now(), open: computeDailyChoresSnapshot(next).open } }));
+    } catch {
+      // ignore
+    }
+  };
+
+  const laneOrder: LaneName[] = ["household", "outdoor", "animals"];
+  const snapshot = useMemo(() => computeDailyChoresSnapshot(state), [state]);
+  const buckets = laneOrder.map((name) => ({ name, ...state[name] }));
+  const total = snapshot.total;
+  const done = snapshot.done;
+  const openCount = snapshot.open;
+  const pct = snapshot.pct;
 
   function updateBucket(name: LaneName, bucket: Bucket){
-    persist({ ...state, [name]: bucket } as ChoreState);
+    persist({ ...state, [name]: bucket } as DailyChoreState);
   }
   function toggle(name: LaneName, id: string){
     const bucket = state[name];
@@ -106,7 +90,7 @@ export default function DailyChores(){
     recurringTemplates[name].forEach((task) => addItem(name, task));
   }
   function resetDay(){
-    const next: ChoreState = {
+    const next: DailyChoreState = {
       ...state,
       household: { ...state.household, items: state.household.items.map((item) => ({ ...item, done: false })) },
       outdoor: { ...state.outdoor, items: state.outdoor.items.map((item) => ({ ...item, done: false })) },
@@ -117,55 +101,64 @@ export default function DailyChores(){
 
   return (
     <div className="page">
-      <PanelHeader panelId="DailyChores" title="🧹 Daily Chores" subtitle="Household + outdoor + animals command center." storagePrefix="oddengine:dailyChores" />
+      <PanelHeader panelId="DailyChores" title="🧹 Daily Chores" subtitle="House reset + outdoor + animals command lane." storagePrefix="oddengine:dailyChores" />
       <div className="creativeHeroBand">
         <div className="creativeHeroCard choresHeroCard">
-          <div className="small shellEyebrow">HOUSEHOLD OPS CENTER</div>
+          <div className="small shellEyebrow">HOUSE / OUTDOOR / ANIMALS</div>
           <div className="creativeHeroTitle">Daily Chores Command</div>
-          <div className="creativeHeroSub">Run your inside, outside, and animal-care flow from one calm board with a daily focus, recurring loops, and quick-complete actions.</div>
+          <div className="creativeHeroSub">One trustworthy board for what must happen today, what lane is hottest, and what the family should do next without hunting through separate lists.</div>
+          <div className="assistantChipWrap" style={{ marginTop: 12 }}>
+            <span className={`badge ${laneTone(openCount)}`}>{openCount} open</span>
+            <span className="badge good">{done} done</span>
+            <span className={`badge ${laneTone(snapshot.hotLane?.open || 0)}`}>Start with {snapshot.hotLane?.title || "Clear board"}</span>
+          </div>
         </div>
       </div>
 
       <div className="choresMetricStrip">
         <div className="card creativeMetricCard"><div className="small shellEyebrow">DONE</div><div className="groceryMetricValue">{done}</div><div className="small">{pct}% of today’s board complete.</div></div>
         <div className="card creativeMetricCard"><div className="small shellEyebrow">OPEN</div><div className="groceryMetricValue">{openCount}</div><div className="small">Tasks still waiting across all lanes.</div></div>
-        <div className="card creativeMetricCard"><div className="small shellEyebrow">HOT LANE</div><div className="groceryMetricValue">{todayFocus.hotLane?.title || "Clear"}</div><div className="small">Priority: {lanePriority(todayFocus.hotLane?.open || 0)}</div></div>
-        <div className="card creativeMetricCard"><div className="small shellEyebrow">RECURRING</div><div className="groceryMetricValue">3</div><div className="small">Household / outdoor / animal loops ready.</div></div>
+        <div className="card creativeMetricCard"><div className="small shellEyebrow">HOT LANE</div><div className="groceryMetricValue">{snapshot.hotLane?.title || "Clear"}</div><div className="small">Priority: {lanePriority(snapshot.hotLane?.open || 0)}</div></div>
+        <div className="card creativeMetricCard"><div className="small shellEyebrow">MUST DO</div><div className="groceryMetricValue">{snapshot.mustDoToday.length}</div><div className="small">Top household / outdoor / animal moves.</div></div>
       </div>
 
       <div className="choresTopGrid">
         <div className="card softCard choresFocusCard">
           <div className="row wrap" style={{ justifyContent: "space-between", gap: 10 }}>
             <div>
-              <div className="small shellEyebrow">TODAY FOCUS</div>
-              <div className="grocerySectionTitle">Next best actions</div>
+              <div className="small shellEyebrow">WHAT MATTERS TODAY</div>
+              <div className="grocerySectionTitle">Must-do queue</div>
             </div>
-            <span className={`badge ${laneTone(todayFocus.hotLane?.open || 0)}`}>{todayFocus.hotLane?.title || "Clear board"}</span>
+            <span className={`badge ${laneTone(snapshot.hotLane?.open || 0)}`}>{snapshot.hotLane?.title || "Board clear"}</span>
           </div>
           <div className="choresFocusList">
-            {todayFocus.nextByLane.map((lane) => (
-              <div key={lane.name} className="choresFocusRow">
+            {snapshot.mustDoToday.length ? snapshot.mustDoToday.map((item) => (
+              <div key={item.taskId} className="choresFocusRow">
                 <div>
-                  <div className="small shellEyebrow">{lane.title.toUpperCase()}</div>
-                  <div className="small">{lane.next?.text || "Lane is clear."}</div>
+                  <div className="small shellEyebrow">{item.laneTitle.toUpperCase()}</div>
+                  <div className="small">{item.text}</div>
                 </div>
-                <span className={`badge ${laneTone(lane.open)}`}>{lane.open} open</span>
+                <button className="tabBtn active" onClick={() => completeNext(item.lane)}>Done next</button>
               </div>
-            ))}
+            )) : (
+              <div className="small" style={{ opacity: 0.82 }}>The board is clear right now. Use recurring buttons or the note field to stage anything special.</div>
+            )}
           </div>
         </div>
 
         <div className="card softCard choresFocusCard">
-          <div className="small shellEyebrow">QUICK OPS</div>
-          <div className="grocerySectionTitle">Recurring loops + reset</div>
+          <div className="small shellEyebrow">FAMILY HANDOFF</div>
+          <div className="grocerySectionTitle">What to do next</div>
+          <div className="timelineCard" style={{ marginTop: 12 }}>{snapshot.summary}</div>
+          <div className="timelineCard" style={{ marginTop: 10 }}>{snapshot.familyDirection}</div>
           <div className="row wrap mt-3">
-            <button className="tabBtn active" onClick={() => seedRecurring("household")}>Morning reset</button>
+            <button className="tabBtn active" onClick={() => seedRecurring("household")}>House reset</button>
             <button className="tabBtn" onClick={() => seedRecurring("outdoor")}>Outdoor sweep</button>
             <button className="tabBtn" onClick={() => seedRecurring("animals")}>Animal loop</button>
             <button className="tabBtn" onClick={resetDay}>Reset day</button>
           </div>
           <div className="small mt-3" style={{ opacity: 0.82 }}>
-            Add your recurring house loops in one click, then run the board lane by lane without hunting through separate lists.
+            This board is the calm source of truth for the family: start with the hot lane, clear one next-step per lane, then close the day out.
           </div>
         </div>
       </div>
@@ -178,9 +171,9 @@ export default function DailyChores(){
       <div className="choresGrid">
         {laneOrder.map((name) => {
           const bucket = state[name];
-          const laneOpen = bucket.items.filter((item) => !item.done).length;
-          const laneDone = bucket.items.length - laneOpen;
-          const lanePct = bucket.items.length ? Math.round((laneDone / bucket.items.length) * 100) : 0;
+          const laneSnapshot = snapshot.lanes.find((lane) => lane.name === name);
+          const laneOpen = laneSnapshot?.open || 0;
+          const lanePct = laneSnapshot?.pct || 0;
           return (
             <div key={name} className="choresCard">
               <div className="row wrap" style={{ justifyContent: "space-between", gap: 10 }}>
@@ -194,6 +187,9 @@ export default function DailyChores(){
                 </div>
               </div>
               <div className="choresProgress mt-3"><span style={{ width: `${lanePct}%` }} /></div>
+              <div className="small mt-3" style={{ opacity: 0.82 }}>
+                {laneSnapshot?.next ? `Next up: ${laneSnapshot.next.text}` : "This lane is clear right now."}
+              </div>
               <div className="row wrap mt-3" style={{ gap: 8 }}>
                 <button className="tabBtn active" onClick={() => completeNext(name)}>Complete next</button>
                 <button className="tabBtn" onClick={() => seedRecurring(name)}>Add recurring</button>

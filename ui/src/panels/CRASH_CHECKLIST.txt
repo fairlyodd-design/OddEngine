@@ -1,0 +1,12 @@
+Fast places to patch first:
+1. recent items / action queue pills
+2. stage subtitle props
+3. shot plan list rendering
+4. scene clip list rendering
+5. debug panels that print whole objects
+
+Most common bad pattern:
+array.map(x => <div>{x}</div>)
+
+Safe replacement:
+array.map((x, i) => <div key={i}>{safeRender(x)}</div>)

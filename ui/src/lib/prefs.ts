@@ -61,24 +61,31 @@ export type AiDefaults = {
   homieVoiceEngineMode: "cloud" | "external-http" | "hybrid";
   homieExternalVoiceBaseUrl: string;
   homieExternalVoiceTimeoutMs: number;
-
-  // Lil Homie Agent (floating NPC helper)
   homieLilEnabled: boolean;
   homieLilRoam: boolean;
   homieLilSpeech: boolean;
-  homieLilSpeed: number; // px/sec
-  homieLilScale: number; // 0.6–1.4
+  homieLilSpeed: number;
+  homieLilScale: number;
   homieLilChatter: boolean;
+  homieLil3d: boolean;
+  homieLilEnergy: number;
+  homieEmbeddedCore: boolean;
+  homieCompanionBridgeEnabled: boolean;
+  homieCompanionBridgeBaseUrl: string;
+  homieCompanionBridgeTimeoutMs: number;
+  homieCompanionBridgeMirrorNotifications: boolean;
+  homieCompanionPhoenixRelayEnabled: boolean;
 };
-
 
 export type FairlyGodDefaults = {
   gridSize: number;
   snapEnabled: boolean;
-  autoLockAfterSec: number; // 0 disables
+  autoLockAfterSec: number;
   defaultTileStyle: "grid" | "left-main" | "hero";
   defaultRoutineMode: "windows" | "main";
   defaultTilePreset: "single" | "trader-main-3mon";
+  compactEnabled: boolean;
+  compactKeep: number;
 };
 
 export type Prefs = {
@@ -97,13 +104,12 @@ export const DEFAULT_PREFS: Prefs = {
   grow: { name: "", size: "", stage: "veg", lightsOn: "06:00", lightsOff: "00:00" },
   cameras: { grid: "4x3", livePreviews: true, snapshotIntervalMs: 2500 },
   zbd: { walletAddress: "", preferredEmulator: "auto" },
-  // v10.22.3 — Home becomes the default launch surface (users can override in Preferences).
   desktop: { startPanel: "Home", autoRunSafeFixes: false },
   cannabis: {
     zip: "",
-    categories: ["Flower","Pre-Rolls","Vapes","Edibles","Concentrates","Tinctures","Topicals","Accessories","CBD"],
-    priceTiers: ["$","$$","$$$","$$$$"],
-    minDealScore: 60
+    categories: ["Flower", "Pre-Rolls", "Vapes", "Edibles", "Concentrates", "Tinctures", "Topicals", "Accessories", "CBD"],
+    priceTiers: ["$", "$$", "$$$", "$$$$"],
+    minDealScore: 60,
   },
   ai: {
     tone: "coach",
@@ -113,6 +119,8 @@ export const DEFAULT_PREFS: Prefs = {
     homieVoiceEnabled: true,
     homieVoiceProfile: "auto",
     homieAvatarSkin: "memoji",
+    homieMascotAnimated: false,
+    homieMascotEnergy: 1,
     homieRiveEnabled: false,
     homieRiveSrc: "/rive/homie.riv",
     homieRiveArtboard: "Homie",
@@ -133,18 +141,21 @@ export const DEFAULT_PREFS: Prefs = {
     homieVoiceEngineMode: "cloud",
     homieExternalVoiceBaseUrl: "http://127.0.0.1:8765",
     homieExternalVoiceTimeoutMs: 20000,
-
-    // Lil Homie Agent defaults (Fortnite mascot helper that can roam the screen)
     homieLilEnabled: true,
     homieLilRoam: true,
     homieLilSpeech: false,
     homieLilSpeed: 160,
     homieLilScale: 1,
+    homieLilChatter: true,
     homieLil3d: false,
     homieLilEnergy: 0.9,
-    homieLilChatter: true,
+    homieEmbeddedCore: true,
+    homieCompanionBridgeEnabled: true,
+    homieCompanionBridgeBaseUrl: "http://127.0.0.1:45777",
+    homieCompanionBridgeTimeoutMs: 3500,
+    homieCompanionBridgeMirrorNotifications: true,
+    homieCompanionPhoenixRelayEnabled: true,
   },
-  // FairlyGOD workspace defaults (layout/grid helpers)
   fairlygod: {
     gridSize: 16,
     snapEnabled: true,
@@ -152,24 +163,24 @@ export const DEFAULT_PREFS: Prefs = {
     defaultTileStyle: "grid",
     defaultRoutineMode: "windows",
     defaultTilePreset: "single",
+    compactEnabled: false,
+    compactKeep: 3,
   },
 };
 
 function merge<T extends Record<string, any>>(base: T, over: any): T {
-  const out: any = { ...base, ...(over||{}) };
-  for (const k of Object.keys(base)){
-    const bv = (base as any)[k];
-    const ov = (over||{})[k];
-    if(bv && typeof bv === "object" && !Array.isArray(bv)){
-      out[k] = { ...bv, ...(ov||{}) };
-    }
+  const out: any = { ...base, ...(over || {}) };
+  for (const key of Object.keys(base)) {
+    const bv = (base as any)[key];
+    const ov = (over || {})[key];
+    if (bv && typeof bv === "object" && !Array.isArray(bv)) out[key] = { ...bv, ...(ov || {}) };
   }
   return out as T;
 }
 
 export function loadPrefs(): Prefs {
-  const raw:any = loadJSON(PREFS_KEY, null as any);
-  if(!raw) return DEFAULT_PREFS;
+  const raw: any = loadJSON(PREFS_KEY, null as any);
+  if (!raw) return DEFAULT_PREFS;
   const merged: Prefs = {
     ...DEFAULT_PREFS,
     ...raw,
@@ -181,24 +192,12 @@ export function loadPrefs(): Prefs {
     ai: merge(DEFAULT_PREFS.ai as any, raw.ai),
     fairlygod: merge(DEFAULT_PREFS.fairlygod as any, raw.fairlygod),
   };
-  merged.ai.homiePreferLocalVoice = false;
-  merged.ai.homieLocalVoiceStrict = false;
-
-  // v10.21.6 — one-time migration: default to the Fortnite-mascot Homie skin (users can switch back anytime).
-  try {
-    const key = "oddengine:homie:memoji-migrated:v1";
-    const migrated = !!(typeof window !== "undefined" && window.localStorage && window.localStorage.getItem(key));
-    if (!migrated && (merged.ai.homieAvatarSkin as any) === "orb") {
-      merged.ai.homieAvatarSkin = "memoji" as any;
-      if (typeof window !== "undefined" && window.localStorage) window.localStorage.setItem(key, "1");
-    }
-  } catch {
-    // ignore
-  }
+  merged.ai.homiePreferLocalVoice = !!merged.ai.homiePreferLocalVoice;
+  merged.ai.homieLocalVoiceStrict = !!merged.ai.homieLocalVoiceStrict;
   return merged;
 }
 
-export function savePrefs(prefs: Prefs){
+export function savePrefs(prefs: Prefs) {
   saveJSON(PREFS_KEY, prefs);
   if (typeof window !== "undefined") {
     try {

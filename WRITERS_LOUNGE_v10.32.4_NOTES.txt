@@ -1,0 +1,16 @@
+v10.32.4_AnimationPlannerTimeoutAndGuaranteedQueuePass
+
+What changed
+- Added a 12 second timeout guard to the real animation planner call in ui/src/lib/writerEngine.ts
+- If Ollama hangs or responds with unusable JSON, the animation pack now falls back to a guaranteed local project
+- Books.tsx now surfaces animation-pack progress and fallback or ready messages through backendMessage
+- Version bumped to 10.32.4
+
+Why
+- Prevent the one-click episode pipeline from stalling forever on Animation Pack
+- Guarantee the pipeline reaches Backend Submit so Render Lab can receive a job
+
+Touched files
+- ui/src/lib/writerEngine.ts
+- ui/src/panels/Books.tsx
+- ui/src/lib/version.ts

@@ -1,0 +1,10 @@
+v10.34.1c_ObjectRenderCrashHotfix
+
+Purpose:
+- stop 'Cannot convert object to primitive value' crashes in Writers Lounge
+- add safe object rendering helpers for JSX
+- provide conservative patch snippets for Books and Builder
+
+Important honesty note:
+This is a surgical hotfix overlay pack. It does not pretend to be a fully runtime-verified
+full OddEngine replacement. It is designed to stop the current object-render crash fast.

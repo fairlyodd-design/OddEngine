@@ -1,0 +1,22 @@
+v10.31.4_TrueEpisodeRenderExecutionPass
+
+Fixes:
+- repaired unterminated string literal in ui/src/lib/writerEngine.ts
+- restored Books panel dynamic import by fixing the broken writer engine export path
+
+New in this pass:
+- animation render jobs now carry a concrete execution plan
+- per-scene local voice generation commands
+- per-scene local render commands
+- final ffmpeg concat build command
+- exportable Windows .bat build script
+- exportable Bash .sh build script
+- exportable execution-plan .json manifest
+- Writers Lounge render bridge now shows execution workdir and command previews
+- Builder / Render Lab now surfaces voice/render/ffmpeg command visibility
+
+Touched files:
+- ui/src/lib/writerEngine.ts
+- ui/src/panels/Books.tsx
+- ui/src/panels/Builder.tsx
+- ui/src/lib/version.ts

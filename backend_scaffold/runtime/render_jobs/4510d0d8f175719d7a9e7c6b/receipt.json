@@ -1,0 +1,111 @@
+{
+  "jobId": "4510d0d8f175719d7a9e7c6b",
+  "status": "completed",
+  "detail": "Final episode assembled",
+  "artifacts": [
+    {
+      "kind": "voice",
+      "label": "Scene 1 voice",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\4510d0d8f175719d7a9e7c6b\\scene_01_introduction-to-the-writing-room_voice.wav",
+      "url": "http://127.0.0.1:8899/files/4510d0d8f175719d7a9e7c6b/scene_01_introduction-to-the-writing-room_voice.wav"
+    },
+    {
+      "kind": "transcript",
+      "label": "Scene 1 transcript",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\4510d0d8f175719d7a9e7c6b\\3894dae70cae619d7a9e7c69_transcript.txt",
+      "url": "http://127.0.0.1:8899/files/4510d0d8f175719d7a9e7c6b/3894dae70cae619d7a9e7c69_transcript.txt"
+    },
+    {
+      "kind": "voice",
+      "label": "Scene 2 voice",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\4510d0d8f175719d7a9e7c6b\\scene_02_max-s-frustration_voice.wav",
+      "url": "http://127.0.0.1:8899/files/4510d0d8f175719d7a9e7c6b/scene_02_max-s-frustration_voice.wav"
+    },
+    {
+      "kind": "transcript",
+      "label": "Scene 2 transcript",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\4510d0d8f175719d7a9e7c6b\\c2a25ec1ebdbf19d7a9e7c69_transcript.txt",
+      "url": "http://127.0.0.1:8899/files/4510d0d8f175719d7a9e7c6b/c2a25ec1ebdbf19d7a9e7c69_transcript.txt"
+    },
+    {
+      "kind": "voice",
+      "label": "Scene 3 voice",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\4510d0d8f175719d7a9e7c6b\\scene_03_the-writing-room-responds_voice.wav",
+      "url": "http://127.0.0.1:8899/files/4510d0d8f175719d7a9e7c6b/scene_03_the-writing-room-responds_voice.wav"
+    },
+    {
+      "kind": "transcript",
+      "label": "Scene 3 transcript",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\4510d0d8f175719d7a9e7c6b\\52b0cb510c64b19d7a9e7c69_transcript.txt",
+      "url": "http://127.0.0.1:8899/files/4510d0d8f175719d7a9e7c6b/52b0cb510c64b19d7a9e7c69_transcript.txt"
+    },
+    {
+      "kind": "voice",
+      "label": "Scene 4 voice",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\4510d0d8f175719d7a9e7c6b\\scene_04_the-plot-thickens_voice.wav",
+      "url": "http://127.0.0.1:8899/files/4510d0d8f175719d7a9e7c6b/scene_04_the-plot-thickens_voice.wav"
+    },
+    {
+      "kind": "transcript",
+      "label": "Scene 4 transcript",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\4510d0d8f175719d7a9e7c6b\\94b8f809544b19d7a9e7c69_transcript.txt",
+      "url": "http://127.0.0.1:8899/files/4510d0d8f175719d7a9e7c6b/94b8f809544b19d7a9e7c69_transcript.txt"
+    },
+    {
+      "kind": "voice-manifest",
+      "label": "Voice manifest",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\4510d0d8f175719d7a9e7c6b\\voice_manifest.txt",
+      "url": "http://127.0.0.1:8899/files/4510d0d8f175719d7a9e7c6b/voice_manifest.txt"
+    },
+    {
+      "kind": "shot-manifest",
+      "label": "Shot manifest",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\4510d0d8f175719d7a9e7c6b\\shot_manifest.txt",
+      "url": "http://127.0.0.1:8899/files/4510d0d8f175719d7a9e7c6b/shot_manifest.txt"
+    },
+    {
+      "kind": "scene-video",
+      "label": "Scene 1 video",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\4510d0d8f175719d7a9e7c6b\\scene_01_introduction-to-the-writing-room.mp4",
+      "url": "http://127.0.0.1:8899/files/4510d0d8f175719d7a9e7c6b/scene_01_introduction-to-the-writing-room.mp4"
+    },
+    {
+      "kind": "scene-video",
+      "label": "Scene 2 video",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\4510d0d8f175719d7a9e7c6b\\scene_02_max-s-frustration.mp4",
+      "url": "http://127.0.0.1:8899/files/4510d0d8f175719d7a9e7c6b/scene_02_max-s-frustration.mp4"
+    },
+    {
+      "kind": "scene-video",
+      "label": "Scene 3 video",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\4510d0d8f175719d7a9e7c6b\\scene_03_the-writing-room-responds.mp4",
+      "url": "http://127.0.0.1:8899/files/4510d0d8f175719d7a9e7c6b/scene_03_the-writing-room-responds.mp4"
+    },
+    {
+      "kind": "scene-video",
+      "label": "Scene 4 video",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\4510d0d8f175719d7a9e7c6b\\scene_04_the-plot-thickens.mp4",
+      "url": "http://127.0.0.1:8899/files/4510d0d8f175719d7a9e7c6b/scene_04_the-plot-thickens.mp4"
+    },
+    {
+      "kind": "concat-list",
+      "label": "Concat list",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\4510d0d8f175719d7a9e7c6b\\concat_list.txt",
+      "url": "http://127.0.0.1:8899/files/4510d0d8f175719d7a9e7c6b/concat_list.txt"
+    },
+    {
+      "kind": "assembly",
+      "label": "Assembly recipe",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\4510d0d8f175719d7a9e7c6b\\assembly_recipe.txt",
+      "url": "http://127.0.0.1:8899/files/4510d0d8f175719d7a9e7c6b/assembly_recipe.txt"
+    },
+    {
+      "kind": "final-video",
+      "label": "Final episode video",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\4510d0d8f175719d7a9e7c6b\\the-writing-room-wake-up_final_episode.mp4",
+      "url": "http://127.0.0.1:8899/files/4510d0d8f175719d7a9e7c6b/the-writing-room-wake-up_final_episode.mp4"
+    }
+  ],
+  "createdAt": 1775878700176,
+  "updatedAt": 1775878703110
+}

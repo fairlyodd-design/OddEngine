@@ -2085,227 +2085,138 @@ textarea{ resize: vertical; }
 .homeSectionTitle.compact{ margin-top:2px; }
 .cardTitle18{ font-weight:900; font-size:18px; }
 
-/* v10.24.4 Trading lane isolation + performance polish */
-.tradingPanelRoot {
-  contain: layout style;
-}
-
-.tradingLaneCard {
-  contain: layout paint style;
-  isolation: isolate;
-  backface-visibility: hidden;
-  transform: translateZ(0);
-}
-
-.tradingLaneChart {
-  min-height: 560px;
-}
-
-.tradingLaneContracts {
-  min-height: 560px;
-}
-
-.tradingLaneContracts .tableWrap {
-  max-height: 640px;
-  overflow: auto;
-  overscroll-behavior: contain;
-}
-
-.tradingLaneDrawer,
-.tradingLaneTicket,
-.tradingLanePlan,
-.tradingLaneSource {
-  min-height: 320px;
-}
-
-@media (min-width: 1180px) {
-  .tradingPanelRoot .grid2 {
-    align-items: start;
-  }
-
-  .tradingLaneChart {
-    position: sticky;
-    top: 12px;
-  }
-}
-
-
-.homeQuickRow{ display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
-@media(max-width: 1100px){ .homeQuickRow{ grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media(max-width: 720px){ .homeQuickRow{ grid-template-columns: 1fr; } }
-.homeOpsRowTwo{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
-@media(max-width: 1100px){ .homeOpsRowTwo{ grid-template-columns: 1fr; } }
-.homeMoneyGrid{ display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-@media(max-width: 760px){ .homeMoneyGrid{ grid-template-columns: 1fr; } }
-.homeMoneyStat{ border:1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.16); border-radius: 16px; padding: 12px; }
-.homeMoneyLabel{ font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(240,248,255,0.62); }
-.homeMoneyValue{ font-size: 20px; font-weight: 900; margin-top: 6px; }
-.grid2{ display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-@media(max-width: 860px){ .grid2{ grid-template-columns: 1fr; } }
-
-.homeBestMoveCard {
-  min-height: 100%;
-}
-.homeMoveMeta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 12px;
-  font-size: 12px;
-  opacity: .88;
-}
-.homeMoveList {
-  display: grid;
-  gap: 10px;
-}
-.homeMoveItem {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 48px 1fr 48px;
-  align-items: center;
-  gap: 10px;
-  padding: 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.08);
-  background: rgba(255,255,255,.03);
-  color: inherit;
-  text-align: left;
-}
-.homeMoveItem.active {
-  border-color: rgba(255,255,255,.18);
-  background: rgba(255,255,255,.06);
-}
-.homeMoveRank {
-  font-size: 18px;
-  font-weight: 800;
-  opacity: .85;
-}
-.homeMoveTitle {
-  font-weight: 700;
-}
-.homeMoveSub {
-  font-size: 12px;
-  opacity: .75;
-  margin-top: 2px;
-}
-.homeMoveScore {
-  justify-self: end;
-  font-weight: 800;
-  opacity: .9;
-}
-
-/* ---------- Panel internal widget drag (v10.25.4) ---------- */
-.internalWidgetZone{
-  min-width: 0;
-}
-.internalWidgetCard{
-  position: relative;
-}
-.internalWidgetHandleRow{
-  display:flex;
-  justify-content:flex-end;
-  margin: -2px 0 8px;
-}
-.internalWidgetHandle{
-  border:1px dashed rgba(94,234,242,0.26);
-  background: rgba(8,12,18,0.34);
-  color: rgba(240,248,255,0.82);
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 11px;
-  letter-spacing: 0.02em;
-  cursor: grab;
-}
-.internalWidgetHandle:hover{ filter: brightness(1.06) saturate(1.06); }
-.internalWidgetHandle:active{ cursor: grabbing; }
-.widgetHeaderRight .internalWidgetHandle{ margin-right: 8px; }
-.internalWidgetCard.internalWidgetDragging{
-  opacity: 0.74;
-  transform: scale(0.995);
-}
-.widgetZoneActive{
-  outline: 1px dashed rgba(94,234,242,0.36);
-  outline-offset: 8px;
-  border-radius: 18px;
-}
-
-/* ---------- FairlyOdd Studio additions ---------- */
-.studioMetaGrid{
+/* ---------- Writers Lounge Production Engine v10.30 ---------- */
+.writersProductionGrid{
   display:grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-@media(max-width: 980px){ .studioMetaGrid{ grid-template-columns: 1fr; } }
-.studioInlineSelect{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  align-items:center;
-}
-.studioOutput{
-  min-height: 360px;
-}
-.studioExportBlock{
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(4,10,14,0.55);
-  border-radius: 18px;
-  padding: 12px;
-}
-.studioExportBlock pre{
-  white-space: pre-wrap;
-  word-break: break-word;
-  margin: 8px 0 0;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: 12px;
-  line-height: 1.45;
-  color: rgba(232,244,250,0.94);
-}
-.studioPipelineGrid{
-  display:grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 340px 1fr 420px;
   gap:12px;
+  align-items:start;
 }
-@media(max-width: 980px){ .studioPipelineGrid{ grid-template-columns: 1fr; } }
-.studioPipelineCard{
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(7,13,20,0.6);
-  border-radius: 18px;
-  padding: 14px;
+@media(max-width: 1320px){ .writersProductionGrid{ grid-template-columns: 320px 1fr 380px; } }
+@media(max-width: 1120px){ .writersProductionGrid{ grid-template-columns: 1fr; } }
+
+.writersProductionLeft,
+.writersProductionCenter,
+.writersProductionRight{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  min-width:0;
+}
+
+.writersPromptBox,
+.writersSectionEditor{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  line-height:1.4;
+}
+
+.writersControlGrid{
   display:grid;
-  gap:8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap:10px;
 }
-.studioPillRow{
+@media(max-width: 700px){ .writersControlGrid{ grid-template-columns: 1fr; } }
+
+.writersLibraryItem{
+  display:flex;
+  align-items:stretch;
+  gap:8px;
+  border:1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.18);
+  border-radius:16px;
+  padding:8px;
+}
+.writersLibraryItem.active{
+  border-color: rgba(94,234,242,0.30);
+  background: linear-gradient(180deg, rgba(94,234,242,0.10), rgba(143,98,255,0.08));
+}
+.writersLibraryButton{
+  flex:1;
+  min-width:0;
+  border:none;
+  background:transparent;
+  color:inherit;
+  text-align:left;
+  cursor:pointer;
+}
+.writersLibraryTitle{
+  font-size:14px;
+  font-weight:700;
+  margin-bottom:4px;
+}
+
+.writersMetricRow{
   display:flex;
   gap:8px;
   flex-wrap:wrap;
 }
-.studioPill{
-  border:1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.05);
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 12px;
-  color: rgba(232,244,250,0.92);
+
+.writersOutlineCard{
+  margin-top:12px;
+  border:1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.16);
+  border-radius:16px;
+  padding:12px;
+}
+.writersOutlineList{
+  margin:8px 0 0 18px;
+  padding:0;
+  display:grid;
+  gap:6px;
 }
 
-.musicWaveform {
-  display: flex;
-  align-items: end;
-  gap: 6px;
-  padding: 12px;
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
-  overflow-x: auto;
+.writersSectionNav{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:12px;
 }
-.musicWaveformBar {
-  width: 6px;
-  min-height: 10px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(125,220,255,0.58));
-  box-shadow: 0 0 10px rgba(125,220,255,0.14);
-  flex: 0 0 auto;
+
+.writersMergedPreview{
+  margin-top:12px;
+  border:1px solid rgba(255,255,255,0.10);
+  background:
+    radial-gradient(640px 240px at 0% 0%, rgba(94,234,242,0.08) 0%, rgba(0,0,0,0) 55%),
+    radial-gradient(640px 260px at 100% 0%, rgba(255,64,182,0.08) 0%, rgba(0,0,0,0) 55%),
+    rgba(0,0,0,0.22);
+  border-radius:18px;
+  padding:14px;
+  max-height: 76vh;
+  overflow:auto;
 }
-.dropZoneHot {
-  outline: 2px dashed rgba(125,220,255,0.72);
-  outline-offset: 4px;
+.writersMergedPreview pre{
+  margin:0;
+  white-space:pre-wrap;
+  word-break:break-word;
+  line-height:1.45;
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  font-size:14px;
+}
+
+.writersSectionHeader{ margin-bottom: 10px; }
+.writersContractGrid{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap:8px;
+}
+.writersContractStat{
+  border:1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.16);
+  border-radius:14px;
+  padding:10px 12px;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.writersContractStat span{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.10em;
+  color:var(--muted);
+}
+.writersBeatList{
+  margin:8px 0 0 18px;
+  padding:0;
+  display:grid;
+  gap:6px;
 }

@@ -112,11 +112,17 @@ export function runHomieActionRouter(args: HomieActionRouterArgs): HomieActionRo
   if (containsAny(text, ["route the best money move", "run the best money move", "best move now"])) {
     const queue = buildMoneyAutopilotQueue(8);
     const best = queue.nextMove;
-    if (best?.actionId) {
+    const quickActionId = (best as any)?.actionId as string | undefined;
+    if (best && quickActionId) {
       noteHomieInteraction("action", args.text, best.panelId);
-      const result = runQuickAction(best.actionId);
+      const result = runQuickAction(quickActionId);
       if (result.panelId) args.onNavigate(result.panelId);
-      return { matched: true, ok: result.ok, message: result.ok ? `Running ${best.title}. ${result.message}` : result.message, panelId: result.panelId || best.panelId };
+      return {
+        matched: true,
+        ok: result.ok,
+        message: result.ok ? `Running ${best.title}. ${result.message}` : result.message,
+        panelId: result.panelId || best.panelId,
+      };
     }
     const fallback = buildRecoveryAwareIncomeSniperBoard(6).todayBestMove;
     const panelId = fallback?.panelId || "Money";
@@ -126,10 +132,16 @@ export function runHomieActionRouter(args: HomieActionRouterArgs): HomieActionRo
 
   if (containsAny(text, ["pin this task", "pin best move", "queue this", "pin the next move"])) {
     const best = buildMoneyAutopilotQueue(8).nextMove || buildRecoveryAwareIncomeSniperBoard(6).todayBestMove;
-    if (best?.actionId) {
-      queuePanelAction(best.panelId, best.actionId);
+    const queuedActionId = (best as any)?.actionId as string | undefined;
+    if (best && queuedActionId) {
+      queuePanelAction(best.panelId, queuedActionId);
       navigateWithMemory(best.panelId, args.onNavigate, args.text);
-      return { matched: true, ok: true, message: `Pinned ${best.title} into ${getPanelMeta(best.panelId).title}'s queue.`, panelId: best.panelId };
+      return {
+        matched: true,
+        ok: true,
+        message: `Pinned ${best.title} into ${getPanelMeta(best.panelId).title}'s queue.`,
+        panelId: best.panelId,
+      };
     }
     return { matched: true, ok: true, message: "Homie could not find a queue-ready move yet. Open Money or Brain and refresh the scans.", panelId: "Money" };
   }

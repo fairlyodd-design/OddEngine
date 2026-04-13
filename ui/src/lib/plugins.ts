@@ -349,7 +349,7 @@ export function updateAllUpgradePacks(channel?: UpdateChannel) {
   return changed;
 }
 
-export function repairUpgradePackDependencies(packId: string, seen = new Set<string>()) {
+export function repairUpgradePackDependencies(packId: string, seen = new Set<string>()): boolean {
   if (seen.has(packId)) return false;
   seen.add(packId);
   const manifest = getUpgradePackManifest(packId);

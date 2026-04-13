@@ -1,5 +1,5 @@
 {
   "image": { "enabled": false, "mode": "webhook", "endpoint": "http://127.0.0.1:5001", "model": "image-model", "healthPath": "/health", "timeoutMs": 30000 },
   "audio": { "enabled": false, "mode": "webhook", "endpoint": "http://127.0.0.1:5002", "model": "audio-model", "healthPath": "/health", "timeoutMs": 45000 },
-  "video": { "enabled": false, "mode": "webhook", "endpoint": "http://127.0.0.1:5003", "model": "video-model", "healthPath": "/health", "timeoutMs": 60000 }
+  "video": { "enabled": true, "mode": "legacy-local", "endpoint": "", "model": "FFmpeg local runtime", "healthPath": "/health", "timeoutMs": 180000, "voice": "Family Narrator" }
 }

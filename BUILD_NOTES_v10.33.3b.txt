@@ -1,0 +1,28 @@
+v10.33.3b_StableMediaExecutionOn32.7Base
+
+Base:
+- Built on top of v10.32.7b_SystemRecoveryAndPanelRestorePass_FULL_DROPIN.zip
+- Keeps the stable panel/router/layout baseline intact
+
+What changed:
+- Upgraded backend_scaffold/render-execution-server.mjs only
+- Real WAV voice generation retained
+- Added per-scene poster generation
+- Added movie-like scene clip rendering using ffmpeg loop + zoom/pan + fades
+- Added pipeline.log artifact for easier debugging
+- Added richer shot_manifest and assembly_recipe outputs
+- Health endpoint now reports movie-like-poster-scenes mode
+
+Result:
+- Writers Lounge one-click episode pipeline stays on the stable 32.7b base
+- Render backend produces:
+  - scene voice wav files
+  - scene posters
+  - scene mp4 clips
+  - final mp4 assembly
+  - pipeline log + manifests
+
+Important:
+- ffmpeg must be installed and available on PATH for real PNG/MP4 output
+- On Windows, System.Speech PowerShell voice path is used for local wav generation
+- If ffmpeg is missing, the backend still returns fallback artifacts instead of stalling

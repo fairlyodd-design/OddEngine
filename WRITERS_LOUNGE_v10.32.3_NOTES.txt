@@ -1,0 +1,19 @@
+v10.32.3_TrueFFmpegAndVoiceExecutionPass
+
+What changed
+- Replaced placeholder render execution server with a true local execution backend.
+- Backend now creates per-scene WAV voice assets.
+- Backend now creates per-scene MP4 scene renders with ffmpeg when available.
+- Backend now assembles a final episode MP4 with ffmpeg concat when available.
+- Added static file serving for generated artifacts so Studio can preview/import them directly.
+- Version bumped to 10.32.3.
+
+Important
+- Best results on Windows with ffmpeg installed and available on PATH.
+- Voice generation uses PowerShell System.Speech on Windows.
+- If ffmpeg is missing, backend falls back to non-video placeholder outputs and reports that in the job detail.
+
+Touched files
+- backend_scaffold/render-execution-server.mjs
+- ui/src/lib/version.ts
+- WRITERS_LOUNGE_v10.32.3_NOTES.txt

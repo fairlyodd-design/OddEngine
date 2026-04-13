@@ -1,0 +1,26 @@
+// PATCH SNIPPET FOR Books.tsx
+
+async function submitRenderJob() {
+  const res = await fetch("http://127.0.0.1:8899/render/jobs", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({})
+  });
+
+  if (!res.ok) throw new Error("Backend not reachable");
+
+  return await res.json();
+}
+
+function pollJob(jobId) {
+  const interval = setInterval(async () => {
+    const res = await fetch(`http://127.0.0.1:8899/render/jobs/${jobId}`);
+    const data = await res.json();
+
+    console.log("JOB UPDATE", data);
+
+    if (data.status === "completed") {
+      clearInterval(interval);
+    }
+  }, 2000);
+}

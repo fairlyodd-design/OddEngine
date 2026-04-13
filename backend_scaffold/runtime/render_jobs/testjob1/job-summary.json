@@ -1,0 +1,29 @@
+{
+  "jobId": "testjob1",
+  "projectTitle": "Test Project",
+  "finalEpisodeFile": "final.mp4",
+  "scenes": [
+    {
+      "sceneId": "s1",
+      "sceneTitle": "Scene One",
+      "durationSec": 2,
+      "voiceText": "Hello there from scene one.",
+      "voiceAssetFile": "s1_voice.wav",
+      "outputFile": "s1.mp4",
+      "visualPrompt": "blue room",
+      "motionPrompt": "slow pan",
+      "cameraPlan": "wide to medium"
+    },
+    {
+      "sceneId": "s2",
+      "sceneTitle": "Scene Two",
+      "durationSec": 2,
+      "voiceText": "Second scene here.",
+      "voiceAssetFile": "s2_voice.wav",
+      "outputFile": "s2.mp4",
+      "visualPrompt": "green room",
+      "motionPrompt": "push in",
+      "cameraPlan": "close up"
+    }
+  ]
+}

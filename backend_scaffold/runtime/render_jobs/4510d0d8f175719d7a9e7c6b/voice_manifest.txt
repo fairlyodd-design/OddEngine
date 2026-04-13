@@ -1,0 +1,4 @@
+Scene 1: C:\OddEngine\backend_scaffold\runtime\render_jobs\4510d0d8f175719d7a9e7c6b\scene_01_introduction-to-the-writing-room_voice.wav • powershell-system-speech
+Scene 2: C:\OddEngine\backend_scaffold\runtime\render_jobs\4510d0d8f175719d7a9e7c6b\scene_02_max-s-frustration_voice.wav • powershell-system-speech
+Scene 3: C:\OddEngine\backend_scaffold\runtime\render_jobs\4510d0d8f175719d7a9e7c6b\scene_03_the-writing-room-responds_voice.wav • powershell-system-speech
+Scene 4: C:\OddEngine\backend_scaffold\runtime\render_jobs\4510d0d8f175719d7a9e7c6b\scene_04_the-plot-thickens_voice.wav • powershell-system-speech

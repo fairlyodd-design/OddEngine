@@ -1,0 +1,11 @@
+v10.31.8_MultiEpisodeBatchAndPublishingPass
+
+Fixes:
+- Fixed unterminated string constant in ui/src/panels/Books.tsx final video path normalization.
+
+Adds:
+- Series batch queue lane for 1-10 episodes
+- Pull current episode packages into batch list
+- Publishing prep card for YouTube and Gumroad metadata
+- Export YouTube and Gumroad prep text files
+- Version bump to 10.31.8

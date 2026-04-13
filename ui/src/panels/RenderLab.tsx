@@ -25,6 +25,10 @@ type StudioHandoff = {
     videoBrief: string;
     script: string;
     requestedAssets: string[];
+    narrationEnabled?: boolean;
+    familyVoiceName?: string;
+    narrationText?: string;
+    timingMode?: string;
   };
   distribution: {
     hooks: string[];
@@ -60,7 +64,7 @@ type RenderJob = {
 
 type ProviderConfig = {
   enabled: boolean;
-  mode: "stub" | "webhook" | "a1111" | "bark" | "comfyui";
+  mode: "stub" | "webhook" | "a1111" | "bark" | "comfyui" | "legacy-local";
   endpoint: string;
   model: string;
   healthPath: string;
@@ -77,6 +81,30 @@ type RenderSettings = {
     image: ProviderConfig;
     audio: ProviderConfig;
     video: ProviderConfig;
+  };
+};
+
+type ReleaseAsset = {
+  path: string;
+  bytes?: number;
+  updatedAt?: number;
+  url?: string;
+  downloadUrl?: string;
+  absoluteUrl?: string;
+  absoluteDownloadUrl?: string;
+};
+
+type ReleasePayload = {
+  baseUrl?: string;
+  outputRoot?: string;
+  artifacts?: BackendArtifact[];
+  release: {
+    video?: ReleaseAsset | null;
+    poster?: ReleaseAsset | null;
+    summary?: ReleaseAsset | null;
+    captions?: ReleaseAsset | null;
+    audio?: ReleaseAsset | null;
+    transcript?: ReleaseAsset | null;
   };
 };
 
@@ -165,11 +193,13 @@ export default function RenderLab({ onOpenHowTo, onNavigate }: { onOpenHowTo?: (
     providerBridge: {
       image: { enabled: false, mode: "stub", endpoint: "", model: "", healthPath: "/health", timeoutMs: 30000 },
       audio: { enabled: false, mode: "stub", endpoint: "", model: "", healthPath: "/health", timeoutMs: 45000 },
-      video: { enabled: false, mode: "stub", endpoint: "", model: "", healthPath: "/health", timeoutMs: 60000 },
+      video: { enabled: true, mode: "legacy-local", endpoint: "", model: "FFmpeg local runtime", healthPath: "/health", timeoutMs: 180000 },
     },
   }));
   const [busy, setBusy] = useState(false);
   const [backendState, setBackendState] = useState<{ ok?: boolean; detail?: string; capabilities?: string[]; providers?: Record<string, any> }>({});
+  const [releaseState, setReleaseState] = useState<{ loading: boolean; data: ReleasePayload | null; error: string }>({ loading: false, data: null, error: "" });
+  const [previewNonce, setPreviewNonce] = useState(0);
 
   useEffect(() => {
     saveJSON(KEY_SETTINGS, settings);
@@ -188,6 +218,11 @@ export default function RenderLab({ onOpenHowTo, onNavigate }: { onOpenHowTo?: (
 
   const activeJob = useMemo(() => jobs.find((j) => j.id === activeJobId) || jobs[0] || null, [jobs, activeJobId]);
   const handoffAge = handoff?.generatedAt ? Math.max(0, Math.round((Date.now() - handoff.generatedAt) / 60000)) : null;
+
+  useEffect(() => {
+    if (activeJob?.backendJobId) refreshRelease(activeJob);
+    else setReleaseState({ loading: false, data: null, error: "" });
+  }, [activeJob?.backendJobId, settings.backendUrl, previewNonce]);
 
   async function pingBackend() {
     const base = (settings.backendUrl || "").replace(/\/$/, "");
@@ -256,6 +291,42 @@ export default function RenderLab({ onOpenHowTo, onNavigate }: { onOpenHowTo?: (
     }
     const res = await fetch(url, init);
     return await res.json();
+  }
+
+  function absolutizeAssetUrl(asset?: ReleaseAsset | null, useDownload = false) {
+    const raw = useDownload
+      ? (asset?.absoluteDownloadUrl || asset?.downloadUrl || asset?.absoluteUrl || asset?.url || "")
+      : (asset?.absoluteUrl || asset?.url || "");
+    if (!raw) return "";
+    const base = (settings.backendUrl || "").replace(/\/$/, "");
+    const abs = /^https?:\/\//i.test(raw) ? raw : `${base}${raw.startsWith("/") ? raw : `/${raw}`}`;
+    const extra = `previewTs=${encodeURIComponent(String(asset?.updatedAt || Date.now()))}&nonce=${previewNonce}`;
+    return `${abs}${abs.includes("?") ? "&" : "?"}${extra}`;
+  }
+
+  async function refreshRelease(job?: RenderJob | null) {
+    if (!job?.backendJobId) {
+      setReleaseState({ loading: false, data: null, error: "" });
+      return;
+    }
+    const base = (settings.backendUrl || "").replace(/\/$/, "");
+    if (!base) {
+      setReleaseState({ loading: false, data: null, error: "Backend URL is not set." });
+      return;
+    }
+    setReleaseState((prev) => ({ ...prev, loading: true, error: "" }));
+    try {
+      const data = await readBackendJson(`${base}/render/jobs/${encodeURIComponent(job.backendJobId)}/release`);
+      setReleaseState({ loading: false, data: data as ReleasePayload, error: "" });
+    } catch (e: any) {
+      setReleaseState({ loading: false, data: null, error: e?.message || String(e) });
+    }
+  }
+
+  function openAsset(asset?: ReleaseAsset | null, useDownload = false) {
+    const url = absolutizeAssetUrl(asset, useDownload);
+    if (!url) return;
+    window.open(url, "_blank", "noopener,noreferrer");
   }
 
   async function queueFromHandoff() {
@@ -435,13 +506,13 @@ export default function RenderLab({ onOpenHowTo, onNavigate }: { onOpenHowTo?: (
     }
     setProvider("video", {
       enabled: true,
-      mode: "comfyui",
-      endpoint: "http://127.0.0.1:8188",
-      model: "ComfyUI wrapper",
-      healthPath: "/system_stats",
+      mode: "legacy-local",
+      endpoint: "",
+      model: "FFmpeg local runtime",
+      healthPath: "/health",
       timeoutMs: 180000,
     });
-    pushNotif({ title: "Render Lab", body: "Applied local video preset for ComfyUI wrapper.", tags: ["RenderLab"], level: "good" as any });
+    pushNotif({ title: "Render Lab", body: "Applied local legacy-local video preset.", tags: ["RenderLab"], level: "good" as any });
   }
 
   function applyAllLocalPresets() {
@@ -473,6 +544,11 @@ export default function RenderLab({ onOpenHowTo, onNavigate }: { onOpenHowTo?: (
       pushNotif({ title: "Render Lab", body: `Provider probe failed: ${e?.message || String(e)}`, tags: ["RenderLab"], level: "bad" as any });
     }
   }
+
+  const release = releaseState.data?.release || {};
+  const videoPreviewUrl = absolutizeAssetUrl(release.video || null);
+  const posterPreviewUrl = absolutizeAssetUrl(release.poster || null);
+  const audioPreviewUrl = absolutizeAssetUrl(release.audio || null);
 
   const badges = [
     { label: handoff ? "Studio handoff ready" : "No handoff", tone: handoff ? "good" : "warn" as any },
@@ -531,6 +607,7 @@ export default function RenderLab({ onOpenHowTo, onNavigate }: { onOpenHowTo?: (
               <div className="grid mt-5">
                 <div className="note"><b>Primary brief</b><br />{handoff.renderLab.primaryBrief || "—"}</div>
                 <div className="note"><b>Requested assets</b><br />{(handoff.renderLab.requestedAssets || []).join(", ") || "—"}</div>
+                <div className="note"><b>Legacy image beats</b><br />{handoff.renderLab.timingMode || "image_beat_frames_v1"} • {handoff.renderLab.narrationEnabled === false ? "narration off" : `voice ${handoff.renderLab.familyVoiceName || "Family Narrator"}`}</div>
                 <div className="note"><b>Publish targets</b><br />{(handoff.distribution.targets || []).join(", ") || "—"}</div>
               </div>
             </>
@@ -627,6 +704,7 @@ export default function RenderLab({ onOpenHowTo, onNavigate }: { onOpenHowTo?: (
                     <option value="a1111">AUTOMATIC1111</option>
                     <option value="bark">Bark / TTS wrapper</option>
                     <option value="comfyui">ComfyUI workflow wrapper</option>
+                    <option value="legacy-local">Legacy local FFmpeg runtime</option>
                   </select>
                   <input className="input" value={cfg.endpoint} onChange={(e) => setProvider(kind, { endpoint: e.target.value })} placeholder={`${kind} endpoint (example ${suggestedEndpoint})`} />
                   <input className="input" value={cfg.model} onChange={(e) => setProvider(kind, { model: e.target.value })} placeholder="Model or workflow name" />
@@ -698,6 +776,43 @@ export default function RenderLab({ onOpenHowTo, onNavigate }: { onOpenHowTo?: (
                   ))}
                 </div>
               )}
+              <div className="note mt-5">
+                <div className="cluster spread">
+                  <div>
+                    <b>Release preview</b>
+                    <div className="small">This should play the real rendered MP4 from the backend. If it stays black at 0:00, use Open video below.</div>
+                  </div>
+                  <div className="row wrap">
+                    <button className="tabBtn" onClick={() => refreshRelease(activeJob)} disabled={releaseState.loading || !activeJob?.backendJobId}>Refresh release</button>
+                    <button className="tabBtn" onClick={() => setPreviewNonce((n) => n + 1)} disabled={!activeJob?.backendJobId}>Reload player</button>
+                  </div>
+                </div>
+                {releaseState.error && <div className="small mt-4" style={{ color: "#fda4af" }}>{releaseState.error}</div>}
+                {!releaseState.error && !release.video && !releaseState.loading && <div className="small mt-4">No release video found yet. Run backend workers first.</div>}
+                {release.video && (
+                  <div className="grid mt-4">
+                    <video
+                      key={videoPreviewUrl}
+                      controls
+                      preload="metadata"
+                      playsInline
+                      poster={posterPreviewUrl || undefined}
+                      style={{ width: "100%", maxHeight: 420, borderRadius: 12, background: "#000" }}
+                      src={videoPreviewUrl}
+                    />
+                    <div className="row wrap">
+                      <button className="tabBtn" onClick={() => openAsset(release.video)}>Open video</button>
+                      <button className="tabBtn" onClick={() => openAsset(release.video, true)}>Download video</button>
+                      {release.poster && <button className="tabBtn" onClick={() => openAsset(release.poster)}>Open poster</button>}
+                      {release.audio && <button className="tabBtn" onClick={() => openAsset(release.audio)}>Open narration</button>}
+                      {release.transcript && <button className="tabBtn" onClick={() => openAsset(release.transcript)}>Open transcript</button>}
+                    </div>
+                    {release.audio && (
+                      <audio key={audioPreviewUrl} controls preload="metadata" style={{ width: "100%" }} src={audioPreviewUrl} />
+                    )}
+                  </div>
+                )}
+              </div>
               <div className="grid2 mt-5">
                 <div className="note"><b>Artifacts</b><br />{(activeJob.artifactFiles || []).join("\n")}</div>
                 <div className="note"><b>Targets</b><br />{(activeJob.publishTargets || []).join("\n") || "Manual / direct"}</div>

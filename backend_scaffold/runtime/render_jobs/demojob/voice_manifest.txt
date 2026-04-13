@@ -1,0 +1,4 @@
+Scene 1: /mnt/data/out333b/odd333b/backend_scaffold/runtime/render_jobs/demojob/s1.wav • ffmpeg-silence
+Speech: We drive through the city and everything feels alive tonight.
+Scene 2: /mnt/data/out333b/odd333b/backend_scaffold/runtime/render_jobs/demojob/s2.wav • ffmpeg-silence
+Speech: Then the whole skyline opens up and the world changes in one breath.

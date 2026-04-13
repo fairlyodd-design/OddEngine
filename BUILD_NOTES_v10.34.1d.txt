@@ -1,0 +1,9 @@
+v10.34.1d_FullDropinBooksRuntimeFix
+
+Goal:
+- stop the current Writers Lounge / Books lazy-load runtime crash
+- restore a valid default React component export for Books
+- restore a valid default React component export for Builder
+- harden object rendering so structured data cannot crash JSX
+
+This is a conservative stability pass focused on getting the panel loading again.

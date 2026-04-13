@@ -1,0 +1,88 @@
+{
+  "id": "6dd4fe88-8c9e-4eb9-970f-a4b5ff5afbb0",
+  "createdAt": 1775874643596,
+  "updatedAt": 1775874643596,
+  "status": "queued",
+  "title": "Untitled render job",
+  "type": "book",
+  "publishMode": "assisted",
+  "autoPublish": false,
+  "outputRoot": "untitled-6dd4fe",
+  "handoff": {},
+  "summary": {
+    "requestedAssets": [],
+    "targets": []
+  },
+  "providers": {
+    "image": {
+      "enabled": false,
+      "mode": "stub",
+      "endpoint": "",
+      "model": "",
+      "healthPath": "/health",
+      "timeoutMs": 30000
+    },
+    "audio": {
+      "enabled": false,
+      "mode": "stub",
+      "endpoint": "",
+      "model": "",
+      "healthPath": "/health",
+      "timeoutMs": 45000
+    },
+    "video": {
+      "enabled": false,
+      "mode": "stub",
+      "endpoint": "",
+      "model": "",
+      "healthPath": "/health",
+      "timeoutMs": 60000
+    }
+  },
+  "workers": [
+    {
+      "id": "manifest",
+      "label": "Build studio manifest",
+      "kind": "packaging",
+      "status": "queued",
+      "outputs": [
+        "manifests/studio-handoff.json",
+        "manifests/render-plan.json",
+        "manifests/provider-bridge.json"
+      ],
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "book",
+      "label": "Book worker",
+      "kind": "book",
+      "status": "queued",
+      "outputs": [
+        "book/manuscript.md",
+        "book/launch-blurb.md",
+        "book/distribution-checklist.md"
+      ],
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "social",
+      "label": "Social distribution worker",
+      "kind": "social",
+      "status": "queued",
+      "outputs": [
+        "social/captions.md",
+        "social/hooks.md",
+        "social/hashtags.txt",
+        "social/publish-plan.md"
+      ],
+      "startedAt": null,
+      "completedAt": null
+    }
+  ],
+  "artifacts": [],
+  "log": [
+    "2026-04-11T02:30:43.596Z received studio handoff"
+  ]
+}

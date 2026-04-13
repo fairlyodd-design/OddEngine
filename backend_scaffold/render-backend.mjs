@@ -2,6 +2,7 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
+import { renderLegacyLocalVideo } from "./legacy-video-runtime.mjs";
 
 const PORT = Number(process.env.PORT || 8899);
 const HOST = process.env.HOST || "127.0.0.1";
@@ -22,6 +23,103 @@ function send(res, status, payload) {
   const json = JSON.stringify(payload, null, 2);
   res.writeHead(status, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" });
   res.end(json);
+}
+
+function sendRaw(res, status, body, headers = {}) {
+  res.writeHead(status, { "Access-Control-Allow-Origin": "*", ...headers });
+  res.end(body);
+}
+
+function requestBaseUrl(req) {
+  const proto = String(req.headers["x-forwarded-proto"] || "http").split(",")[0].trim() || "http";
+  const host = String(req.headers.host || `${HOST}:${PORT}`);
+  return `${proto}://${host}`;
+}
+
+function absoluteUrlFor(req, pathnameAndSearch) {
+  return `${requestBaseUrl(req)}${pathnameAndSearch}`;
+}
+
+function sendFile(res, req, fullPath, dispositionMode = "inline") {
+  const stat = fs.statSync(fullPath);
+  const total = stat.size;
+  const contentType = contentTypeFor(fullPath);
+  const baseHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Content-Type": contentType,
+    "Accept-Ranges": "bytes",
+    "Cache-Control": "no-store",
+    "Content-Disposition": `${dispositionMode}; filename="${path.basename(fullPath).replace(/"/g, "")}"`,
+  };
+  const rangeHeader = String(req.headers.range || "").trim();
+  if (rangeHeader) {
+    const match = rangeHeader.match(/bytes=(\d*)-(\d*)/i);
+    if (match) {
+      let start = match[1] ? Number(match[1]) : 0;
+      let end = match[2] ? Number(match[2]) : total - 1;
+      if (!Number.isFinite(start) || start < 0) start = 0;
+      if (!Number.isFinite(end) || end >= total) end = total - 1;
+      if (start > end || start >= total) {
+        res.writeHead(416, {
+          ...baseHeaders,
+          "Content-Range": `bytes */${total}`,
+          "Content-Length": "0",
+        });
+        return res.end();
+      }
+      const chunkSize = end - start + 1;
+      res.writeHead(206, {
+        ...baseHeaders,
+        "Content-Range": `bytes ${start}-${end}/${total}`,
+        "Content-Length": String(chunkSize),
+      });
+      if (req.method === "HEAD") return res.end();
+      return fs.createReadStream(fullPath, { start, end }).pipe(res);
+    }
+  }
+  res.writeHead(200, { ...baseHeaders, "Content-Length": String(total) });
+  if (req.method === "HEAD") return res.end();
+  return fs.createReadStream(fullPath).pipe(res);
+}
+
+function extnameLower(file) { return path.extname(String(file || "")).toLowerCase(); }
+function contentTypeFor(file) {
+  const ext = extnameLower(file);
+  if (ext === ".mp4") return "video/mp4";
+  if (ext === ".png") return "image/png";
+  if (ext === ".jpg" || ext === ".jpeg") return "image/jpeg";
+  if (ext === ".webp") return "image/webp";
+  if (ext === ".gif") return "image/gif";
+  if (ext === ".wav") return "audio/wav";
+  if (ext === ".mp3") return "audio/mpeg";
+  if (ext === ".json") return "application/json; charset=utf-8";
+  if (ext === ".md") return "text/markdown; charset=utf-8";
+  if (ext === ".srt") return "application/x-subrip; charset=utf-8";
+  if (ext === ".txt") return "text/plain; charset=utf-8";
+  return "application/octet-stream";
+}
+
+function safeResolveArtifact(job, relativePath) {
+  const root = outputDirFor(job);
+  const wanted = String(relativePath || "").replace(/^\/+/, "");
+  if (!wanted || wanted.includes("..") || path.isAbsolute(wanted)) return null;
+  const full = path.resolve(root, wanted);
+  const allowedRoot = path.resolve(root) + path.sep;
+  if (!(full + path.sep).startsWith(allowedRoot) && full !== path.resolve(root)) return null;
+  if (!fs.existsSync(full) || !fs.statSync(full).isFile()) return null;
+  return { root, full, relativePath: rel(root, full) };
+}
+
+function releaseSummaryFor(job) {
+  const artifacts = listArtifacts(job);
+  const pick = (matcher) => artifacts.find((item) => matcher(String(item.path || ""))) || null;
+  const video = pick((p) => /(^|\/)release\/final-video\.(mp4|mov|webm)$/i.test(p)) || pick((p) => /\.(mp4|mov|webm)$/i.test(p));
+  const poster = pick((p) => /(^|\/)provider\/video\/legacy_local\/.*poster\.(png|jpg|jpeg|webp)$/i.test(p)) || pick((p) => /poster\.(png|jpg|jpeg|webp)$/i.test(p)) || pick((p) => /\.(png|jpg|jpeg|webp)$/i.test(p));
+  const summary = pick((p) => /legacy-mode-summary\.md$/i.test(p)) || pick((p) => /release-summary\.json$/i.test(p)) || pick((p) => /\.md$/i.test(p));
+  const captions = pick((p) => /\.srt$/i.test(p));
+  const audio = pick((p) => /(^|\/)release\/family-narration\.(mp3|wav)$/i.test(p)) || pick((p) => /family-narration\.(mp3|wav)$/i.test(p));
+  const transcript = pick((p) => /legacy-narration\.txt$/i.test(p)) || pick((p) => /narration\.txt$/i.test(p));
+  return { artifacts, video, poster, summary, captions, audio, transcript, outputRoot: outputDirFor(job) };
 }
 
 function readBody(req) {
@@ -59,8 +157,10 @@ function listArtifacts(job) {
       const full = path.join(d, entry.name);
       if (entry.isDirectory()) walk(full);
       else {
+        const relativePath = rel(dir, full);
+        if (relativePath.includes('/tmp/')) continue;
         const stat = fs.statSync(full);
-        files.push({ name: entry.name, path: rel(dir, full), bytes: stat.size, updatedAt: stat.mtimeMs });
+        files.push({ name: entry.name, path: relativePath, bytes: stat.size, updatedAt: stat.mtimeMs });
       }
     }
   };
@@ -102,7 +202,7 @@ function defaultProviders() {
   return {
     image: { enabled: false, mode: "stub", endpoint: "", model: "", healthPath: "/health", timeoutMs: 30000 },
     audio: { enabled: false, mode: "stub", endpoint: "", model: "", healthPath: "/health", timeoutMs: 45000 },
-    video: { enabled: false, mode: "stub", endpoint: "", model: "", healthPath: "/health", timeoutMs: 60000 },
+    video: { enabled: true, mode: "legacy-local", endpoint: "", model: "FFmpeg local runtime", healthPath: "/health", timeoutMs: 180000, voice: "Family Narrator" },
   };
 }
 function normalizeProvider(src, fallback) {
@@ -114,7 +214,11 @@ function loadProviderConfig() {
   if (!fs.existsSync(PROVIDER_CFG)) return d;
   try {
     const parsed = JSON.parse(fs.readFileSync(PROVIDER_CFG, "utf8"));
-    return { image: normalizeProvider(parsed.image, d.image), audio: normalizeProvider(parsed.audio, d.audio), video: normalizeProvider(parsed.video, d.video) };
+    return {
+      image: normalizeProvider(parsed.image, d.image),
+      audio: normalizeProvider(parsed.audio, d.audio),
+      video: normalizeProvider(parsed.video, parsed.video?.mode === "legacy-local" ? providerPresets().video.legacyLocal : d.video),
+    };
   } catch { return d; }
 }
 function saveProviderConfig(cfg) {
@@ -225,6 +329,7 @@ async function fetchJson(url, init = {}, timeoutMs = 30000) {
   } finally { clearTimeout(timer); }
 }
 async function probeSingleProvider(name, cfg) {
+  if (cfg?.enabled && cfg?.mode === "legacy-local") return { ok: true, name, status: "ready", detail: "FFmpeg local legacy runtime", endpoint: cfg.endpoint || "", mode: cfg.mode, model: cfg.model || "ffmpeg local runtime", workflow: cfg.workflow || "", voice: cfg.voice || "" };
   if (!cfg?.enabled || !cfg?.endpoint) return { ok: false, name, status: "disabled", detail: "disabled" };
   try {
     const base = String(cfg.endpoint).replace(/\/$/, "");
@@ -271,6 +376,7 @@ function providerPresets() {
     video: {
       comfyui: { enabled: true, mode: "comfyui", endpoint: "http://127.0.0.1:8188", model: "", healthPath: "/system_stats", timeoutMs: 180000, workflow: "basic_txt2img_video" },
       webhook: { enabled: true, mode: "webhook", endpoint: "http://127.0.0.1:5003", model: "", healthPath: "/health", timeoutMs: 90000 },
+      legacyLocal: { enabled: true, mode: "legacy-local", endpoint: "", model: "ffmpeg local runtime", healthPath: "/health", timeoutMs: 120000, voice: "Family Narrator" },
     },
   };
 }
@@ -343,6 +449,25 @@ async function invokeComfyUI(job, worker, provider) {
 
 async function invokeProvider(job, worker) {
   const provider = providerForWorker(job, worker);
+  if ((worker.id === "video" || worker.kind === "video" || worker.kind === "cartoon") && (!provider?.enabled || provider?.mode === "stub" || provider?.mode === "legacy-local" || !provider?.endpoint)) {
+    appendLog(job, `legacy-local fallback start: ${worker.label}`);
+    const response = await renderLegacyLocalVideo({
+      outputRootDir: outputDirFor(job),
+      title: job.title,
+      prompt: job.handoff?.renderLab?.primaryBrief || job.handoff?.finalOutput || job.title || "",
+      script: job.handoff?.renderLab?.script || job.handoff?.finalOutput || "",
+      videoBrief: job.handoff?.renderLab?.videoBrief || "",
+      visualBrief: job.handoff?.renderLab?.visualBrief || "",
+      finalOutput: job.handoff?.finalOutput || "",
+      narrationEnabled: job.handoff?.renderLab?.narrationEnabled !== false,
+      narrationText: job.handoff?.renderLab?.narrationText || "",
+      familyVoiceName: job.handoff?.renderLab?.familyVoiceName || provider?.voice || "Family Narrator",
+      timingMode: job.handoff?.renderLab?.timingMode || "image_beat_frames_v1",
+      logger: (line) => appendLog(job, line),
+    });
+    appendLog(job, `legacy-local fallback complete: ${worker.label}`);
+    return { ok: true, outputCount: Array.isArray(response?.artifacts) ? response.artifacts.length : 0, mode: "legacy-local" };
+  }
   if (!provider?.enabled || !provider?.endpoint || provider.mode === "stub") { appendLog(job, `provider bridge skipped: ${worker.label} (${provider?.mode || "stub"})`); return { ok: false, skipped: true }; }
   if (provider.mode === "a1111") return invokeA1111(job, worker, provider);
   if (provider.mode === "bark") return invokeBark(job, worker, provider);
@@ -431,7 +556,7 @@ const server = http.createServer(async (req, res) => {
   try {
     if (req.method === "GET" && url.pathname === "/health") {
       const providers = loadProviderConfig();
-      return send(res, 200, { ok: true, service: "oddengine-render-backend", status: "ready", now: nowIso(), jobs: listJobs().length, outputDir: OUT_DIR, capabilities: ["book", "image", "audio", "video", "cartoon", "social", "packaging", "publish-handoff", "provider-bridge", "publisher-hub", "money-outcomes", "learning-loop", "secrets-vault", "a1111-image", "bark-audio", "comfyui-video", "autonomous-overnight", "music-generation", "vocal-generation", "mastering"], providers: { image: await probeSingleProvider("image", providers.image), audio: await probeSingleProvider("audio", providers.audio), video: await probeSingleProvider("video", providers.video) } });
+      return send(res, 200, { ok: true, service: "oddengine-render-backend", status: "ready", now: nowIso(), jobs: listJobs().length, outputDir: OUT_DIR, capabilities: ["book", "image", "audio", "video", "cartoon", "social", "packaging", "publish-handoff", "provider-bridge", "publisher-hub", "money-outcomes", "learning-loop", "secrets-vault", "a1111-image", "bark-audio", "comfyui-video", "legacy-local-video", "autonomous-overnight", "music-generation", "vocal-generation", "mastering"], providers: { image: await probeSingleProvider("image", providers.image), audio: await probeSingleProvider("audio", providers.audio), video: await probeSingleProvider("video", providers.video) } });
     }
 if (req.method === "GET" && url.pathname === "/providers/presets") return send(res, 200, { ok: true, presets: providerPresets() });
     if (req.method === "GET" && url.pathname === "/providers") return send(res, 200, { ok: true, providers: loadProviderConfig() });
@@ -462,6 +587,48 @@ if (req.method === "POST" && commercePublishMatch) { const listing = publishComm
     if (req.method === "POST" && runMatch) { const job = loadJob(runMatch[1]); if (!job) return send(res, 404, { ok: false, error: "Job not found" }); let body = {}; try { body = await readBody(req); } catch {} if (body?.providerBridge) job.providers = effectiveProviders(body.providerBridge); const ran = await runJob(job); return send(res, 200, { ok: true, job: ran, artifacts: ran.artifacts || [] }); }
     const artifactsMatch = url.pathname.match(/^\/render\/jobs\/([^/]+)\/artifacts$/);
     if (req.method === "GET" && artifactsMatch) { const job = loadJob(artifactsMatch[1]); if (!job) return send(res, 404, { ok: false, error: "Job not found" }); const artifacts = listArtifacts(job); job.artifacts = artifacts; saveJob(job); return send(res, 200, { ok: true, artifacts, outputRoot: outputDirFor(job) }); }
+    const releaseMatch = url.pathname.match(/^\/render\/jobs\/([^/]+)\/release$/);
+    if (req.method === "GET" && releaseMatch) {
+      const job = loadJob(releaseMatch[1]);
+      if (!job) return send(res, 404, { ok: false, error: "Job not found" });
+      const release = releaseSummaryFor(job);
+      const addUrls = (item) => {
+        if (!item) return null;
+        const relativeUrl = `/render/jobs/${encodeURIComponent(job.id)}/file?path=${encodeURIComponent(item.path)}`;
+        const relativeDownloadUrl = `${relativeUrl}&download=1`;
+        return {
+          ...item,
+          url: relativeUrl,
+          downloadUrl: relativeDownloadUrl,
+          absoluteUrl: absoluteUrlFor(req, relativeUrl),
+          absoluteDownloadUrl: absoluteUrlFor(req, relativeDownloadUrl),
+        };
+      };
+      return send(res, 200, {
+        ok: true,
+        baseUrl: requestBaseUrl(req),
+        outputRoot: release.outputRoot,
+        artifacts: release.artifacts,
+        release: {
+          video: addUrls(release.video),
+          poster: addUrls(release.poster),
+          summary: addUrls(release.summary),
+          captions: addUrls(release.captions),
+          audio: addUrls(release.audio),
+          transcript: addUrls(release.transcript),
+        },
+      });
+    }
+    const fileMatch = url.pathname.match(/^\/render\/jobs\/([^/]+)\/file$/);
+    if ((req.method === "GET" || req.method === "HEAD") && fileMatch) {
+      const job = loadJob(fileMatch[1]);
+      if (!job) return send(res, 404, { ok: false, error: "Job not found" });
+      const wanted = String(url.searchParams.get("path") || "");
+      const resolved = safeResolveArtifact(job, wanted);
+      if (!resolved) return send(res, 404, { ok: false, error: "Artifact not found" });
+      const dispositionMode = String(url.searchParams.get("download") || "0") === "1" ? "attachment" : "inline";
+      return sendFile(res, req, resolved.full, dispositionMode);
+    }
     const jobMatch = url.pathname.match(/^\/render\/jobs\/([^/]+)$/);
     if (req.method === "GET" && jobMatch) { const job = loadJob(jobMatch[1]); return job ? send(res, 200, { ok: true, job }) : send(res, 404, { ok: false, error: "Job not found" }); }
     return send(res, 404, { ok: false, error: "Not found" });

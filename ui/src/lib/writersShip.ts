@@ -107,7 +107,7 @@ export function buildWritersShipPack(seed: WritersShipSeed): WritersShipPack {
   const productKind = inferKind(prompt || seed.activeLogline || seed.activeTitle || "guide");
   const topic = inferTopic(seed);
   const title = buildTitle(seed, topic, productKind);
-  const subtitle = clean(seed.activeSubtitle) || buildSubtitle(topic, productKind);
+  const subtitle = clean(seed.activeSubtitle || "") || buildSubtitle(topic, productKind);
   const audience = inferAudience(prompt || topic);
   const promise = `Give the buyer a fast, concrete win around ${topic} without making them dig through fluff.`;
   const deliverables = defaultDeliverables(productKind, title);

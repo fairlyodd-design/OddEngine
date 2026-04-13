@@ -1,0 +1,8 @@
+Scene 1: C:\OddEngine\backend_scaffold\runtime\render_jobs\7e8f674f6967419d7be38575\scene_01_jack-s-struggle-is-real_voice.wav • powershell-system-speech
+Speech: (to himself) Ugh, another terrible day...,(whispering to radio) I'm never going to make it... The struggling radio host had lost his mojo.,His ratings were in the tank.
+Scene 2: C:\OddEngine\backend_scaffold\runtime\render_jobs\7e8f674f6967419d7be38575\scene_02_the-studio-responds_voice.wav • powershell-system-speech
+Speech: (in a deep, smooth voice) Ah, poor Jack...,(laughing) You're so predictable. But little did he know, the studio had a secret.,It was alive, and it was talking back.
+Scene 3: C:\OddEngine\backend_scaffold\runtime\render_jobs\7e8f674f6967419d7be38575\scene_03_the-conversation-begins_voice.wav • powershell-system-speech
+Speech: (Jack) Wait, what? You can talk?,(Studio) Of course I can, silly. Now, let's get this show on the road. As Jack struggled to comprehend, the studio began to reveal its true nature.,A place where creativity and madness blurred.
+Scene 4: C:\OddEngine\backend_scaffold\runtime\render_jobs\7e8f674f6967419d7be38575\scene_04_the-dark-truth_voice.wav • powershell-system-speech
+Speech: (Jack) You're a monster!,(Studio) Ah, but I'm just trying to get the best out of you, dear. The studio's true intentions were sinister.,It had been manipulating Jack all along, using his fears and doubts.

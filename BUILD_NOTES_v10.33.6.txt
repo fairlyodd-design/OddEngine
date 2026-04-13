@@ -1,0 +1,18 @@
+v10.33.6_TruePipelineStageCompletionPass
+
+Focus:
+- stop Studio pipeline cards from hanging on Backend Submit / pending
+- promote stage cards from real backend evidence, not just one status string
+- auto-complete pipeline when final video artifacts exist
+- keep final preview binding stable after artifact import
+
+Files changed:
+- ui/src/lib/studioOrchestrator.ts
+- ui/src/panels/Books.tsx
+
+What changed:
+- added backend-aware pipeline promotion helpers
+- infer progress from backend status + artifacts (voice, scene, assembly, final video)
+- promote stage cards sequentially as backend artifacts appear
+- treat existing final mp4/webm/mov artifact as completion evidence
+- complete pipeline cleanly after import so cards stop sitting in pending

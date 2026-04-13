@@ -1,0 +1,6 @@
+ffmpeg available: true
+Work dir: /mnt/data/work10323/backend_scaffold/runtime/render_jobs/testjob1
+Final file: /mnt/data/work10323/backend_scaffold/runtime/render_jobs/testjob1/final.mp4
+Scenes: 2
+Scene 1: /mnt/data/work10323/backend_scaffold/runtime/render_jobs/testjob1/s1.mp4
+Scene 2: /mnt/data/work10323/backend_scaffold/runtime/render_jobs/testjob1/s2.mp4

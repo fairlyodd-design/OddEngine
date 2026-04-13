@@ -1,0 +1,18 @@
+v10.31.6_TrueBackendJobPollingAndArtifactImportPass
+
+Fixes:
+- restored missing Books.tsx file helpers by exporting downloadText + uidFileSafe from ui/src/lib/files.ts
+- preserves prior PanelHeader / CardGODMode / writerEngine syntax fixes
+
+Adds:
+- backend job polling from Writers Lounge Animation Station
+- finished artifact import into Studio state
+- imported render assets shown in Writers Lounge preview + Builder / Render Lab
+- final episode package gets refreshed with imported artifact notes
+
+Touched files:
+- ui/src/lib/files.ts
+- ui/src/lib/writerEngine.ts
+- ui/src/panels/Books.tsx
+- ui/src/panels/Builder.tsx
+- ui/src/lib/version.ts

@@ -1,0 +1,15 @@
+v10.31.7_TrueEndToEndExecutionAndAutoAssemblyPass
+
+What changed:
+- Added ui/src/lib/studioOrchestrator.ts
+- Added one-click Create Episode pipeline in ui/src/panels/Books.tsx
+- Added live pipeline step status UI
+- Added auto-open Render Lab toggle
+- Added retry/reset pipeline controls
+- Added final imported video preview card for mp4/webm/mov assets
+- Updated version to 10.31.7
+
+Notes:
+- This pass orchestrates the existing writer + animation + backend job flow into one pipeline.
+- Final preview uses returned artifact url when available, and falls back to file:// paths for local outputs.
+- I did not run a full local Vite/Electron validation in this container.

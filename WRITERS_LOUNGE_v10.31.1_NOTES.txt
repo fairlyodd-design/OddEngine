@@ -1,0 +1,21 @@
+v10.31.1_WriterStreamingAndInlineEditPass + AnimationStation
+
+What changed
+- Added live writer section streaming path for real model generation.
+- Added re-stream section flow for per-section live regeneration.
+- Kept inline section editing live in the Writers Lounge editor.
+- Added Animation Station inside Writers Lounge.
+- Animation Station now builds a finished animation production pack from one prompt:
+  title, logline, style guide, characters, scenes, visual prompts, motion prompts, dialogue, narration, SFX, and render handoff notes.
+- Added export options for animation packs: txt, md, json.
+- Version bumped to 10.31.1.
+
+Touched files
+- ui/src/lib/writerEngine.ts
+- ui/src/panels/Books.tsx
+- ui/src/lib/version.ts
+- ui/package.json
+
+Honest note
+- Animation Station in this pass produces a finished production pack / storyboard handoff, not final rendered video frames yet.
+- This was built on top of the uploaded 10.31 drop-in source available in the workspace.

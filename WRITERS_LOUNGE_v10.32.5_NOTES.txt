@@ -1,0 +1,12 @@
+v10.32.5_RenderStabilityAndGPUFallbackPass
+
+What changed:
+- Electron now disables hardware acceleration by default unless ODD_ENABLE_GPU=1 is set.
+- Added extra Chromium GPU fallback switches for more stable compositing on Windows dev builds.
+- Main BrowserWindow now uses backgroundThrottling=false and waits for ready-to-show before painting.
+- Final video preview in Writers Lounge now uses a stable keyed <video> element with playsInline, preload=metadata, disablePictureInPicture, contain: paint, and translateZ(0) to reduce repaint corruption.
+
+Files touched:
+- electron/main.cjs
+- ui/src/panels/Books.tsx
+- ui/src/lib/version.ts

@@ -1,0 +1,9 @@
+ffmpeg available: true
+render mode: movie-like poster clips
+job: 8131d578558c519d7d42507e
+created: 2026-04-11T15:56:36.459Z
+final file: C:\OddEngine\backend_scaffold\runtime\render_jobs\8131d578558c519d7d42507e\lonely-radio-episode-one_final_episode.mp4
+scenes: 3
+Scene 1: C:\OddEngine\backend_scaffold\runtime\render_jobs\8131d578558c519d7d42507e\scene_01_cold-open.mp4
+Scene 2: C:\OddEngine\backend_scaffold\runtime\render_jobs\8131d578558c519d7d42507e\scene_02_escalation.mp4
+Scene 3: C:\OddEngine\backend_scaffold\runtime\render_jobs\8131d578558c519d7d42507e\scene_03_payoff.mp4

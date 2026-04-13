@@ -1,5 +1,14 @@
 const { app, BrowserWindow, ipcMain, dialog, shell, session, screen } = require("electron");
 const path = require("path");
+
+const ODD_ENABLE_GPU = process.env.ODD_ENABLE_GPU === "1";
+if(!ODD_ENABLE_GPU){
+  try{ app.disableHardwareAcceleration(); }catch(e){}
+  try{ app.commandLine.appendSwitch("disable-gpu"); }catch(e){}
+  try{ app.commandLine.appendSwitch("disable-gpu-compositing"); }catch(e){}
+  try{ app.commandLine.appendSwitch("disable-software-rasterizer"); }catch(e){}
+}
+
 const fs = require("fs");
 const os = require("os");
 const net = require("net");
@@ -499,7 +508,13 @@ function createWindow(){
       preload: path.join(__dirname, "preload.cjs"),
       contextIsolation: true,
       nodeIntegration: false,
-    }
+      backgroundThrottling: false,
+    },
+    show: false,
+  });
+
+  mainWindow.once("ready-to-show", () => {
+    try{ mainWindow.show(); }catch(e){}
   });
 
   const startUrl = process.env.ELECTRON_START_URL;
@@ -1074,40 +1089,6 @@ ipcMain.handle("odd:getSystemInfo", async () => {
   ensureDir(bundlesDir);
   const growOsDir = seedGrowOsBundle();
   return { ok:true, userData: app.getPath("userData"), bundlesDir, growOsDir, appVersion: app.getVersion(), packaged: app.isPackaged, cwd: process.cwd(), appPath: app.getAppPath() };
-});
-
-ipcMain.handle("odd:getRuntimeStats", async () => {
-  try{
-    const totalMem = Number(os.totalmem() || 0);
-    const freeMem = Number(os.freemem() || 0);
-    const usedMem = Math.max(0, totalMem - freeMem);
-    const ramPercent = totalMem > 0 ? Math.round((usedMem / totalMem) * 100) : 0;
-    const cpuRaw = Array.isArray(os.loadavg()) ? Number(os.loadavg()[0] || 0) : 0;
-    const cpuCount = Math.max(1, Number((os.cpus() || []).length || 1));
-    const cpuPercent = Math.max(0, Math.min(100, Math.round((cpuRaw / cpuCount) * 100)));
-    const nets = os.networkInterfaces ? os.networkInterfaces() : {};
-    let lanIpv4 = 0;
-    for(const list of Object.values(nets || {})){
-      for(const item of (list || [])){
-        if(!item || item.family !== "IPv4" || item.internal) continue;
-        lanIpv4 += 1;
-      }
-    }
-    return {
-      ok: true,
-      ts: Date.now(),
-      cpuPercent,
-      ramPercent,
-      totalMem,
-      freeMem,
-      usedMem,
-      host: os.hostname(),
-      platform: `${os.platform()} ${os.release()}`,
-      lanIpv4,
-    };
-  }catch(e){
-    return { ok:false, error:String(e) };
-  }
 });
 
 ipcMain.handle("odd:growPlannerHandoff", async (_e, payload) => {

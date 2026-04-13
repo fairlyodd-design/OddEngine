@@ -630,41 +630,6 @@ function OptionCurveChart({ chain, selectedKey }: { chain: PublicChainData | nul
   const pathFor = (rows: PublicContract[]) => rows.map((c, idx) => `${idx === 0 ? "M" : "L"}${x(c.strike)},${y(c.ask ?? 0)}`).join(" ");
   const selected = all.find((c) => c.key === selectedKey) ?? null;
 
-  function focusBestContractHUD(){
-    const best = pickBest(filteredContracts.length ? filteredContracts : allContracts, { maxAsk: inp.maxAsk, minOi: inp.minOi, targetSide: inp.targetSide }) || selectedContract;
-    if(best?.key){
-      setSelectedContractKey(best.key);
-      setDrawerTab("detail");
-      if(best.expiration && best.expiration !== inp.selectedExpiration) patch({ selectedExpiration: best.expiration });
-      // scroll contracts into view
-      setTimeout(() => document.getElementById("trading_contracts")?.scrollIntoView({ behavior:"smooth", block:"start" }), 120);
-      pushNotif({ title: "Trading", body: `Focused ${best.symbol} ${best.side.toUpperCase()} ${best.strike}.`, tags: ["Trading"], level: "success" });
-      return true;
-    }
-    pushNotif({ title: "Trading", body: "No contracts loaded yet — scan a symbol first.", tags: ["Trading"], level: "warn" });
-    return false
-  }
-
-  async function copyPlanToClipboard(){
-    try{
-      await navigator.clipboard.writeText(plan);
-      setLastPlanBuiltAt(Date.now());
-      pushNotif({ title: "Trading", body: "Plan copied to clipboard.", tags: ["Trading"], level: "success" });
-      return true;
-    }catch{
-      try{
-        const api:any = oddApi();
-        if(api?.copyText){
-          await api.copyText(plan);
-          setLastPlanBuiltAt(Date.now());
-          pushNotif({ title: "Trading", body: "Plan copied to clipboard.", tags: ["Trading"], level: "success" });
-          return true;
-        }
-      }catch{}
-      pushNotif({ title: "Trading", body: "Could not copy plan (clipboard blocked). Use Export .md instead.", tags: ["Trading"], level: "warn" });
-      return false;
-    }
-  }
 
   return (
     <svg viewBox={`0 0 ${width} ${height}`} style={{ width: "100%", height: 250, display: "block" }}>
@@ -701,42 +666,6 @@ function OiBarChart({ contracts, selectedKey }: { contracts: PublicContract[]; s
   const pad = 20;
   const maxOi = Math.max(...rows.map((c) => c.openInterest ?? 0), 1);
   const slot = (width - pad * 2) / rows.length;
-  function focusBestContractHUD(){
-    const best = pickBest(filteredContracts.length ? filteredContracts : allContracts, { maxAsk: inp.maxAsk, minOi: inp.minOi, targetSide: inp.targetSide }) || selectedContract;
-    if(best?.key){
-      setSelectedContractKey(best.key);
-      setDrawerTab("detail");
-      if(best.expiration && best.expiration !== inp.selectedExpiration) patch({ selectedExpiration: best.expiration });
-      // scroll contracts into view
-      setTimeout(() => document.getElementById("trading_contracts")?.scrollIntoView({ behavior:"smooth", block:"start" }), 120);
-      pushNotif({ title: "Trading", body: `Focused ${best.symbol} ${best.side.toUpperCase()} ${best.strike}.`, tags: ["Trading"], level: "success" });
-      return true;
-    }
-    pushNotif({ title: "Trading", body: "No contracts loaded yet — scan a symbol first.", tags: ["Trading"], level: "warn" });
-    return false
-  }
-
-  async function copyPlanToClipboard(){
-    try{
-      await navigator.clipboard.writeText(plan);
-      setLastPlanBuiltAt(Date.now());
-      pushNotif({ title: "Trading", body: "Plan copied to clipboard.", tags: ["Trading"], level: "success" });
-      return true;
-    }catch{
-      try{
-        const api:any = oddApi();
-        if(api?.copyText){
-          await api.copyText(plan);
-          setLastPlanBuiltAt(Date.now());
-          pushNotif({ title: "Trading", body: "Plan copied to clipboard.", tags: ["Trading"], level: "success" });
-          return true;
-        }
-      }catch{}
-      pushNotif({ title: "Trading", body: "Could not copy plan (clipboard blocked). Use Export .md instead.", tags: ["Trading"], level: "warn" });
-      return false;
-    }
-  }
-
   return (
     <svg viewBox={`0 0 ${width} ${height}`} style={{ width: "100%", height: 250, display: "block" }}>
       <rect x="0" y="0" width={width} height={height} fill="rgba(8,12,18,0.35)" rx="14" />
@@ -747,42 +676,6 @@ function OiBarChart({ contracts, selectedKey }: { contracts: PublicContract[]; s
         const w = slot * 0.72;
         const y = height - pad - h;
         const selected = c.key === selectedKey;
-        function focusBestContractHUD(){
-    const best = pickBest(filteredContracts.length ? filteredContracts : allContracts, { maxAsk: inp.maxAsk, minOi: inp.minOi, targetSide: inp.targetSide }) || selectedContract;
-    if(best?.key){
-      setSelectedContractKey(best.key);
-      setDrawerTab("detail");
-      if(best.expiration && best.expiration !== inp.selectedExpiration) patch({ selectedExpiration: best.expiration });
-      // scroll contracts into view
-      setTimeout(() => document.getElementById("trading_contracts")?.scrollIntoView({ behavior:"smooth", block:"start" }), 120);
-      pushNotif({ title: "Trading", body: `Focused ${best.symbol} ${best.side.toUpperCase()} ${best.strike}.`, tags: ["Trading"], level: "success" });
-      return true;
-    }
-    pushNotif({ title: "Trading", body: "No contracts loaded yet — scan a symbol first.", tags: ["Trading"], level: "warn" });
-    return false
-  }
-
-  async function copyPlanToClipboard(){
-    try{
-      await navigator.clipboard.writeText(plan);
-      setLastPlanBuiltAt(Date.now());
-      pushNotif({ title: "Trading", body: "Plan copied to clipboard.", tags: ["Trading"], level: "success" });
-      return true;
-    }catch{
-      try{
-        const api:any = oddApi();
-        if(api?.copyText){
-          await api.copyText(plan);
-          setLastPlanBuiltAt(Date.now());
-          pushNotif({ title: "Trading", body: "Plan copied to clipboard.", tags: ["Trading"], level: "success" });
-          return true;
-        }
-      }catch{}
-      pushNotif({ title: "Trading", body: "Could not copy plan (clipboard blocked). Use Export .md instead.", tags: ["Trading"], level: "warn" });
-      return false;
-    }
-  }
-
   return (
           <g key={c.key}>
             <rect x={x} y={y} width={w} height={h} rx="6" fill={selected ? "rgba(96,165,250,0.95)" : c.side === "call" ? "rgba(52,211,153,0.80)" : "rgba(251,113,133,0.80)"} />
@@ -800,83 +693,12 @@ const StableOiBarChart = memo(OiBarChart);
 
 function DrawerList({ rows, selectedKey, onPick }: { rows: PublicContract[]; selectedKey: string | null; onPick: (key: string) => void }) {
   if (!rows.length) return <div className="small mt-4">No contracts in this tab yet.</div>;
-  function focusBestContractHUD(){
-    const best = pickBest(filteredContracts.length ? filteredContracts : allContracts, { maxAsk: inp.maxAsk, minOi: inp.minOi, targetSide: inp.targetSide }) || selectedContract;
-    if(best?.key){
-      setSelectedContractKey(best.key);
-      setDrawerTab("detail");
-      if(best.expiration && best.expiration !== inp.selectedExpiration) patch({ selectedExpiration: best.expiration });
-      // scroll contracts into view
-      setTimeout(() => document.getElementById("trading_contracts")?.scrollIntoView({ behavior:"smooth", block:"start" }), 120);
-      pushNotif({ title: "Trading", body: `Focused ${best.symbol} ${best.side.toUpperCase()} ${best.strike}.`, tags: ["Trading"], level: "success" });
-      return true;
-    }
-    pushNotif({ title: "Trading", body: "No contracts loaded yet — scan a symbol first.", tags: ["Trading"], level: "warn" });
-    return false
-  }
-
-  async function copyPlanToClipboard(){
-    try{
-      await navigator.clipboard.writeText(plan);
-      setLastPlanBuiltAt(Date.now());
-      pushNotif({ title: "Trading", body: "Plan copied to clipboard.", tags: ["Trading"], level: "success" });
-      return true;
-    }catch{
-      try{
-        const api:any = oddApi();
-        if(api?.copyText){
-          await api.copyText(plan);
-          setLastPlanBuiltAt(Date.now());
-          pushNotif({ title: "Trading", body: "Plan copied to clipboard.", tags: ["Trading"], level: "success" });
-          return true;
-        }
-      }catch{}
-      pushNotif({ title: "Trading", body: "Could not copy plan (clipboard blocked). Use Export .md instead.", tags: ["Trading"], level: "warn" });
-      return false;
-    }
-  }
 
   return (
     <div className="grid mt-4" style={{ maxHeight: 430, overflow: "auto" }}>
       {rows.slice(0, 24).map((row) => {
         const selected = row.key === selectedKey;
-        function focusBestContractHUD(){
-    const best = pickBest(filteredContracts.length ? filteredContracts : allContracts, { maxAsk: inp.maxAsk, minOi: inp.minOi, targetSide: inp.targetSide }) || selectedContract;
-    if(best?.key){
-      setSelectedContractKey(best.key);
-      setDrawerTab("detail");
-      if(best.expiration && best.expiration !== inp.selectedExpiration) patch({ selectedExpiration: best.expiration });
-      // scroll contracts into view
-      setTimeout(() => document.getElementById("trading_contracts")?.scrollIntoView({ behavior:"smooth", block:"start" }), 120);
-      pushNotif({ title: "Trading", body: `Focused ${best.symbol} ${best.side.toUpperCase()} ${best.strike}.`, tags: ["Trading"], level: "success" });
-      return true;
-    }
-    pushNotif({ title: "Trading", body: "No contracts loaded yet — scan a symbol first.", tags: ["Trading"], level: "warn" });
-    return false
-  }
-
-  async function copyPlanToClipboard(){
-    try{
-      await navigator.clipboard.writeText(plan);
-      setLastPlanBuiltAt(Date.now());
-      pushNotif({ title: "Trading", body: "Plan copied to clipboard.", tags: ["Trading"], level: "success" });
-      return true;
-    }catch{
-      try{
-        const api:any = oddApi();
-        if(api?.copyText){
-          await api.copyText(plan);
-          setLastPlanBuiltAt(Date.now());
-          pushNotif({ title: "Trading", body: "Plan copied to clipboard.", tags: ["Trading"], level: "success" });
-          return true;
-        }
-      }catch{}
-      pushNotif({ title: "Trading", body: "Could not copy plan (clipboard blocked). Use Export .md instead.", tags: ["Trading"], level: "warn" });
-      return false;
-    }
-  }
-
-  return (
+        return (
           <button
             key={row.key}
             onClick={() => onPick(row.key)}
@@ -922,42 +744,6 @@ function ContractDrawer({
   onFetchGreeks: () => void;
 }) {
   const greeks = contract?.greeks || emptyGreeks();
-  function focusBestContractHUD(){
-    const best = pickBest(filteredContracts.length ? filteredContracts : allContracts, { maxAsk: inp.maxAsk, minOi: inp.minOi, targetSide: inp.targetSide }) || selectedContract;
-    if(best?.key){
-      setSelectedContractKey(best.key);
-      setDrawerTab("detail");
-      if(best.expiration && best.expiration !== inp.selectedExpiration) patch({ selectedExpiration: best.expiration });
-      // scroll contracts into view
-      setTimeout(() => document.getElementById("trading_contracts")?.scrollIntoView({ behavior:"smooth", block:"start" }), 120);
-      pushNotif({ title: "Trading", body: `Focused ${best.symbol} ${best.side.toUpperCase()} ${best.strike}.`, tags: ["Trading"], level: "success" });
-      return true;
-    }
-    pushNotif({ title: "Trading", body: "No contracts loaded yet — scan a symbol first.", tags: ["Trading"], level: "warn" });
-    return false
-  }
-
-  async function copyPlanToClipboard(){
-    try{
-      await navigator.clipboard.writeText(plan);
-      setLastPlanBuiltAt(Date.now());
-      pushNotif({ title: "Trading", body: "Plan copied to clipboard.", tags: ["Trading"], level: "success" });
-      return true;
-    }catch{
-      try{
-        const api:any = oddApi();
-        if(api?.copyText){
-          await api.copyText(plan);
-          setLastPlanBuiltAt(Date.now());
-          pushNotif({ title: "Trading", body: "Plan copied to clipboard.", tags: ["Trading"], level: "success" });
-          return true;
-        }
-      }catch{}
-      pushNotif({ title: "Trading", body: "Could not copy plan (clipboard blocked). Use Export .md instead.", tags: ["Trading"], level: "warn" });
-      return false;
-    }
-  }
-
   return (
     <div id="trading_drawer" className="card optionDrawer tradingLaneCard tradingLaneDrawer" style={{ background: "rgba(8,12,18,0.35)", minHeight: 320 }}>
       <div className="cluster spread start">
@@ -1046,7 +832,7 @@ export default function Trading() {
   const [chain, setChain] = useState<PublicChainData | null>(null);
   const lastGoodChainRef = useRef<PublicChainData | null>(null);
   const scanRequestRef = useRef(0);
-  const [selectedContractKey, setSelectedContractKey] = useState<string | null>(() => loadJSON<string | null>(UI_KEY, null as any)?.selectedContractKey ?? null);
+  const [selectedContractKey, setSelectedContractKey] = useState<string | null>(() => (loadJSON<any>(UI_KEY, null as any)?.selectedContractKey ?? null) as string | null);
   const [loading, setLoading] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
   const [watchlistRows, setWatchlistRows] = useState<WatchlistRow[]>([]);
@@ -2027,41 +1813,6 @@ export default function Trading() {
               {deferredVisibleContracts.map((c) => {
                 const total = scanContractScore(c, { maxAsk: inp.maxAsk, minOi: inp.minOi, targetSide: inp.targetSide });
                 const selected = selectedContract?.key === c.key;
-                function focusBestContractHUD(){
-    const best = pickBest(filteredContracts.length ? filteredContracts : allContracts, { maxAsk: inp.maxAsk, minOi: inp.minOi, targetSide: inp.targetSide }) || selectedContract;
-    if(best?.key){
-      setSelectedContractKey(best.key);
-      setDrawerTab("detail");
-      if(best.expiration && best.expiration !== inp.selectedExpiration) patch({ selectedExpiration: best.expiration });
-      // scroll contracts into view
-      setTimeout(() => document.getElementById("trading_contracts")?.scrollIntoView({ behavior:"smooth", block:"start" }), 120);
-      pushNotif({ title: "Trading", body: `Focused ${best.symbol} ${best.side.toUpperCase()} ${best.strike}.`, tags: ["Trading"], level: "success" });
-      return true;
-    }
-    pushNotif({ title: "Trading", body: "No contracts loaded yet — scan a symbol first.", tags: ["Trading"], level: "warn" });
-    return false
-  }
-
-  async function copyPlanToClipboard(){
-    try{
-      await navigator.clipboard.writeText(plan);
-      setLastPlanBuiltAt(Date.now());
-      pushNotif({ title: "Trading", body: "Plan copied to clipboard.", tags: ["Trading"], level: "success" });
-      return true;
-    }catch{
-      try{
-        const api:any = oddApi();
-        if(api?.copyText){
-          await api.copyText(plan);
-          setLastPlanBuiltAt(Date.now());
-          pushNotif({ title: "Trading", body: "Plan copied to clipboard.", tags: ["Trading"], level: "success" });
-          return true;
-        }
-      }catch{}
-      pushNotif({ title: "Trading", body: "Could not copy plan (clipboard blocked). Use Export .md instead.", tags: ["Trading"], level: "warn" });
-      return false;
-    }
-  }
 
   return (
                   <tr key={c.key} className={`${selected ? "selected" : ""} ${bestContract && c.key === bestContract.key ? "bestRow" : ""}`} onClick={() => { setSelectedContractKey(c.key); setDrawerTab("detail"); }}>

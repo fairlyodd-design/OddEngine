@@ -1,0 +1,6 @@
+Scene 1: C:\OddEngine\backend_scaffold\runtime\render_jobs\028aaa5bc5cff19d7bd8cca6\scene_01_the-studio-awakens_voice.wav • powershell-system-speech
+Speech: Jack Harris (V.O.): I'm never going to make it... I'll never find my voice...,The Studio: *whispers* Ah, but you already have.
+Scene 2: C:\OddEngine\backend_scaffold\runtime\render_jobs\028aaa5bc5cff19d7bd8cca6\scene_02_jack-s-dilemma_voice.wav • powershell-system-speech
+Speech: Jack Harris: What am I doing wrong?!,The Studio: *laughs* Oh, you're just not listening.
+Scene 3: C:\OddEngine\backend_scaffold\runtime\render_jobs\028aaa5bc5cff19d7bd8cca6\scene_03_the-battle-begins_voice.wav • powershell-system-speech
+Speech: Jack Harris: You're just a room! You don't have thoughts or feelings!,The Studio: *smirking* Oh, but I do. And they're all very... script-y.

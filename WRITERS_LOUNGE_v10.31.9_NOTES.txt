@@ -1,0 +1,13 @@
+v10.31.9_TruePublishingConnectorPrepPass
+
+What changed
+- Upgraded Publishing Prep in ui/src/panels/Books.tsx from metadata-only fields to upload-ready connector payload mapping.
+- Added YouTube connector payload generation with title, description, tags, category, visibility, playlist ID, and detected final video path.
+- Added Gumroad connector payload generation with name, description, price_cents, currency, permalink, tags, and attached file list.
+- Added JSON export buttons for both YouTube and Gumroad payloads.
+- Added payload preview textareas directly inside Writers Lounge.
+- Preserved the existing series batch queue and one-click episode pipeline lanes.
+
+Touched files
+- ui/src/panels/Books.tsx
+- ui/src/lib/version.ts

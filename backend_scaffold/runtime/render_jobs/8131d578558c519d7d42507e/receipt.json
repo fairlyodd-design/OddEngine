@@ -1,0 +1,111 @@
+{
+  "jobId": "8131d578558c519d7d42507e",
+  "status": "completed",
+  "detail": "Final episode assembled with movie-like scene visuals",
+  "artifacts": [
+    {
+      "kind": "voice",
+      "label": "Scene 1 voice",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\8131d578558c519d7d42507e\\scene_01_cold-open_voice.wav",
+      "url": "http://127.0.0.1:8899/files/8131d578558c519d7d42507e/scene_01_cold-open_voice.wav"
+    },
+    {
+      "kind": "transcript",
+      "label": "Scene 1 transcript",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\8131d578558c519d7d42507e\\e13c9fbe259c919d7d422199_transcript.txt",
+      "url": "http://127.0.0.1:8899/files/8131d578558c519d7d42507e/e13c9fbe259c919d7d422199_transcript.txt"
+    },
+    {
+      "kind": "voice",
+      "label": "Scene 2 voice",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\8131d578558c519d7d42507e\\scene_02_escalation_voice.wav",
+      "url": "http://127.0.0.1:8899/files/8131d578558c519d7d42507e/scene_02_escalation_voice.wav"
+    },
+    {
+      "kind": "transcript",
+      "label": "Scene 2 transcript",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\8131d578558c519d7d42507e\\5e6e15ee8b93219d7d422199_transcript.txt",
+      "url": "http://127.0.0.1:8899/files/8131d578558c519d7d42507e/5e6e15ee8b93219d7d422199_transcript.txt"
+    },
+    {
+      "kind": "voice",
+      "label": "Scene 3 voice",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\8131d578558c519d7d42507e\\scene_03_payoff_voice.wav",
+      "url": "http://127.0.0.1:8899/files/8131d578558c519d7d42507e/scene_03_payoff_voice.wav"
+    },
+    {
+      "kind": "transcript",
+      "label": "Scene 3 transcript",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\8131d578558c519d7d42507e\\325b6b1a137de19d7d422199_transcript.txt",
+      "url": "http://127.0.0.1:8899/files/8131d578558c519d7d42507e/325b6b1a137de19d7d422199_transcript.txt"
+    },
+    {
+      "kind": "voice-manifest",
+      "label": "Voice manifest",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\8131d578558c519d7d42507e\\voice_manifest.txt",
+      "url": "http://127.0.0.1:8899/files/8131d578558c519d7d42507e/voice_manifest.txt"
+    },
+    {
+      "kind": "scene-poster",
+      "label": "Scene 1 poster",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\8131d578558c519d7d42507e\\e13c9fbe259c919d7d422199_poster.png",
+      "url": "http://127.0.0.1:8899/files/8131d578558c519d7d42507e/e13c9fbe259c919d7d422199_poster.png"
+    },
+    {
+      "kind": "scene-video",
+      "label": "Scene 1 video",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\8131d578558c519d7d42507e\\scene_01_cold-open.mp4",
+      "url": "http://127.0.0.1:8899/files/8131d578558c519d7d42507e/scene_01_cold-open.mp4"
+    },
+    {
+      "kind": "scene-poster",
+      "label": "Scene 2 poster",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\8131d578558c519d7d42507e\\5e6e15ee8b93219d7d422199_poster.png",
+      "url": "http://127.0.0.1:8899/files/8131d578558c519d7d42507e/5e6e15ee8b93219d7d422199_poster.png"
+    },
+    {
+      "kind": "scene-video",
+      "label": "Scene 2 video",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\8131d578558c519d7d42507e\\scene_02_escalation.mp4",
+      "url": "http://127.0.0.1:8899/files/8131d578558c519d7d42507e/scene_02_escalation.mp4"
+    },
+    {
+      "kind": "scene-poster",
+      "label": "Scene 3 poster",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\8131d578558c519d7d42507e\\325b6b1a137de19d7d422199_poster.png",
+      "url": "http://127.0.0.1:8899/files/8131d578558c519d7d42507e/325b6b1a137de19d7d422199_poster.png"
+    },
+    {
+      "kind": "scene-video",
+      "label": "Scene 3 video",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\8131d578558c519d7d42507e\\scene_03_payoff.mp4",
+      "url": "http://127.0.0.1:8899/files/8131d578558c519d7d42507e/scene_03_payoff.mp4"
+    },
+    {
+      "kind": "shot-manifest",
+      "label": "Shot manifest",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\8131d578558c519d7d42507e\\shot_manifest.txt",
+      "url": "http://127.0.0.1:8899/files/8131d578558c519d7d42507e/shot_manifest.txt"
+    },
+    {
+      "kind": "concat-list",
+      "label": "Concat list",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\8131d578558c519d7d42507e\\concat_list.txt",
+      "url": "http://127.0.0.1:8899/files/8131d578558c519d7d42507e/concat_list.txt"
+    },
+    {
+      "kind": "assembly",
+      "label": "Assembly recipe",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\8131d578558c519d7d42507e\\assembly_recipe.txt",
+      "url": "http://127.0.0.1:8899/files/8131d578558c519d7d42507e/assembly_recipe.txt"
+    },
+    {
+      "kind": "final-video",
+      "label": "Final episode video",
+      "path": "C:\\OddEngine\\backend_scaffold\\runtime\\render_jobs\\8131d578558c519d7d42507e\\lonely-radio-episode-one_final_episode.mp4",
+      "url": "http://127.0.0.1:8899/files/8131d578558c519d7d42507e/lonely-radio-episode-one_final_episode.mp4"
+    }
+  ],
+  "createdAt": 1775922991268,
+  "updatedAt": 1775922996460
+}
