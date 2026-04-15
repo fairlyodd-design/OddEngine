@@ -1,0 +1,93 @@
+{
+  "pass": "v10.36.12b2_QuarantineDebrisAndMojibakeAuditRepairPass_LegacySafeHotfix",
+  "root": "C:\\OddEngine",
+  "startedAt": "2026-04-15T04:32:02.867Z",
+  "moved": [
+    {
+      "from": "ui\\src\\components\\ui\\src",
+      "to": "checkpoints\\v10.36.12b2_QuarantineDebrisAndMojibakeAuditRepairPass_LegacySafeHotfix_20260414_213202\\quarantine\\ui__src__components__ui__src",
+      "reason": "duplicate nested source tree"
+    },
+    {
+      "from": "ui\\src\\components\\node_modules\\undici-types\\dispatcher.d.ts",
+      "to": "checkpoints\\v10.36.12b2_QuarantineDebrisAndMojibakeAuditRepairPass_LegacySafeHotfix_20260414_213202\\quarantine\\ui__src__components__node_modules__undici-types__dispatcher.d.ts",
+      "reason": "patch debris under ui/src"
+    },
+    {
+      "from": "ui\\src\\components\\node_modules\\undici-types\\global-dispatcher.d.ts",
+      "to": "checkpoints\\v10.36.12b2_QuarantineDebrisAndMojibakeAuditRepairPass_LegacySafeHotfix_20260414_213202\\quarantine\\ui__src__components__node_modules__undici-types__global-dispatcher.d.ts",
+      "reason": "patch debris under ui/src"
+    },
+    {
+      "from": "ui\\src\\components\\node_modules\\undici-types\\patch.d.ts",
+      "to": "checkpoints\\v10.36.12b2_QuarantineDebrisAndMojibakeAuditRepairPass_LegacySafeHotfix_20260414_213202\\quarantine\\ui__src__components__node_modules__undici-types__patch.d.ts",
+      "reason": "patch debris under ui/src"
+    },
+    {
+      "from": "ui\\src\\components\\ui\\node_modules\\@types\\three\\src\\core\\EventDispatcher.d.ts",
+      "to": "checkpoints\\v10.36.12b2_QuarantineDebrisAndMojibakeAuditRepairPass_LegacySafeHotfix_20260414_213202\\quarantine\\ui__src__components__ui__node_modules___types__three__src__core__EventDispatcher.d.ts",
+      "reason": "patch debris under ui/src"
+    },
+    {
+      "from": "ui\\src\\components\\ui\\node_modules\\camera-controls\\dist\\EventDispatcher.d.ts",
+      "to": "checkpoints\\v10.36.12b2_QuarantineDebrisAndMojibakeAuditRepairPass_LegacySafeHotfix_20260414_213202\\quarantine\\ui__src__components__ui__node_modules__camera-controls__dist__EventDispatcher.d.ts",
+      "reason": "patch debris under ui/src"
+    },
+    {
+      "from": "ui\\src\\components\\ui\\node_modules\\three-stdlib\\controls\\EventDispatcher.d.ts",
+      "to": "checkpoints\\v10.36.12b2_QuarantineDebrisAndMojibakeAuditRepairPass_LegacySafeHotfix_20260414_213202\\quarantine\\ui__src__components__ui__node_modules__three-stdlib__controls__EventDispatcher.d.ts",
+      "reason": "patch debris under ui/src"
+    },
+    {
+      "from": "ui\\src\\panels\\Books_PATCH.tsx",
+      "to": "checkpoints\\v10.36.12b2_QuarantineDebrisAndMojibakeAuditRepairPass_LegacySafeHotfix_20260414_213202\\quarantine\\ui__src__panels__Books_PATCH.tsx",
+      "reason": "patch debris under ui/src"
+    },
+    {
+      "from": "ui\\src\\panels\\Books_SAFE_PATCH.tsx",
+      "to": "checkpoints\\v10.36.12b2_QuarantineDebrisAndMojibakeAuditRepairPass_LegacySafeHotfix_20260414_213202\\quarantine\\ui__src__panels__Books_SAFE_PATCH.tsx",
+      "reason": "patch debris under ui/src"
+    },
+    {
+      "from": "ui\\src\\panels\\Books_SAFE_RENDER_PATCH.tsx",
+      "to": "checkpoints\\v10.36.12b2_QuarantineDebrisAndMojibakeAuditRepairPass_LegacySafeHotfix_20260414_213202\\quarantine\\ui__src__panels__Books_SAFE_RENDER_PATCH.tsx",
+      "reason": "patch debris under ui/src"
+    },
+    {
+      "from": "ui\\src\\panels\\Builder_SAFE_RENDER_PATCH.tsx",
+      "to": "checkpoints\\v10.36.12b2_QuarantineDebrisAndMojibakeAuditRepairPass_LegacySafeHotfix_20260414_213202\\quarantine\\ui__src__panels__Builder_SAFE_RENDER_PATCH.tsx",
+      "reason": "patch debris under ui/src"
+    },
+    {
+      "from": "ui\\src\\panels\\PATCH_runLocalBackend.ts",
+      "to": "checkpoints\\v10.36.12b2_QuarantineDebrisAndMojibakeAuditRepairPass_LegacySafeHotfix_20260414_213202\\quarantine\\ui__src__panels__PATCH_runLocalBackend.ts",
+      "reason": "patch debris under ui/src"
+    }
+  ],
+  "repaired": [
+    {
+      "file": "ui\\src\\styles.css",
+      "beforeScore": 344,
+      "afterScore": 16
+    }
+  ],
+  "warnings": [
+    "ui/src/styles.css still contains possible mojibake markers (score 16)."
+  ],
+  "commands": [
+    {
+      "label": "npm run audit:runtime",
+      "command": "npm run audit:runtime",
+      "exitCode": 0
+    },
+    {
+      "label": "npm run build:web",
+      "command": "npm run build:web",
+      "exitCode": 0
+    }
+  ],
+  "finishedAt": "2026-04-15T04:32:13.047Z",
+  "auditPassed": true,
+  "buildPassed": true,
+  "cleanEnoughForCheckpoint": false
+}

@@ -1,0 +1,27 @@
+{
+  "pass": "v10.36.12b2_QuarantineDebrisAndMojibakeAuditRepairPass_LegacySafeHotfix",
+  "root": "C:\\OddEngine",
+  "startedAt": "2026-04-15T04:55:38.941Z",
+  "moved": [],
+  "repaired": [],
+  "warnings": [
+    "Mojibake marker remains in ui\\src\\styles.css (16); skipped auto-repair.",
+    "ui/src/styles.css still contains possible mojibake markers (score 16)."
+  ],
+  "commands": [
+    {
+      "label": "npm run audit:runtime",
+      "command": "npm run audit:runtime",
+      "exitCode": 0
+    },
+    {
+      "label": "npm run build:web",
+      "command": "npm run build:web",
+      "exitCode": 0
+    }
+  ],
+  "finishedAt": "2026-04-15T04:55:47.504Z",
+  "auditPassed": true,
+  "buildPassed": true,
+  "cleanEnoughForCheckpoint": false
+}

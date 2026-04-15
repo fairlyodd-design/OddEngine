@@ -1,0 +1,2 @@
+Circular chunk: vendor -> react-vendor -> vendor. Please adjust the manual chunk logic for these chunks.
+Circular chunk: ops-panels -> brain-core -> ops-panels. Please adjust the manual chunk logic for these chunks.

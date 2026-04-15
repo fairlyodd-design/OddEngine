@@ -1,5 +1,5 @@
 import React from "react";
-import { addBrainMemory, logActivity } from "../lib/brain";
+import { addBrainMemory, getPanelCopilot, getPanelMeta, logActivity, runQuickAction } from "../lib/brain";
 import { pushNotif } from "../lib/notifs";
 
 type Props = {
@@ -31,15 +31,41 @@ ${String(info?.componentStack || "").slice(0, 1200)}`;
     } catch {}
   }
 
+  private runRecovery(panelId: string, actionId?: string) {
+    if (!actionId) return;
+    try {
+      const result = runQuickAction(actionId);
+      if (result.panelId) this.props.onNavigate?.(result.panelId);
+    } catch {
+      // ignore
+    }
+  }
+
   render() {
     if (!this.state.hasError) return this.props.children;
     const panelId = this.props.panelId || "Brain";
+    const meta = getPanelMeta(panelId);
+    const copilot = getPanelCopilot(panelId);
     return (
-      <div className="card softCard" style={{ borderColor: "rgba(244,63,94,0.35)" }}>
-        <div className="h">⚠️ {this.props.label || panelId} hit a runtime error</div>
+      <div className="card softCard" style={{ borderColor: "rgba(244,63,94,0.35)", boxShadow: "0 0 0 1px rgba(244,63,94,0.08) inset" }}>
+        <div className="small shellEyebrow">PHOENIX RECOVERY</div>
+        <div className="h">⚠️ {this.props.label || meta.title} hit a runtime error</div>
         <div className="small" style={{ marginTop: 8, whiteSpace: "pre-wrap" }}>{this.state.message}</div>
+
+        <div className="timelineCard" style={{ marginTop: 12 }}>
+          <div className="small">{meta.icon} {meta.title}</div>
+          <div style={{ fontWeight: 800, marginTop: 6 }}>{copilot.priorityTitle || "Recovery suggestion"}</div>
+          <div className="small" style={{ marginTop: 6 }}>{copilot.priorityText || "Retry this lane or open Brain for cross-panel recovery."}</div>
+        </div>
+
         <div className="row" style={{ gap: 8, marginTop: 12, flexWrap: "wrap" }}>
           <button onClick={() => this.setState({ hasError: false, message: "" })}>Retry render</button>
+          {copilot.nextActionId ? (
+            <button className="tabBtn active" onClick={() => this.runRecovery(panelId, copilot.nextActionId)}>
+              {copilot.nextActionLabel || "Run recovery"}
+            </button>
+          ) : null}
+          {!!this.props.onNavigate && <button className="tabBtn" onClick={() => this.props.onNavigate?.(panelId)}>Open {meta.title}</button>}
           {!!this.props.onNavigate && <button className="tabBtn" onClick={() => this.props.onNavigate?.("Brain")}>Open Brain</button>}
           <button className="tabBtn" onClick={() => window.location.reload()}>Reload app</button>
         </div>

@@ -1,0 +1,96 @@
+{
+  "version": "v10.36.12",
+  "passName": "RuntimeAuditAndCleanCheckpointPass",
+  "createdAt": "2026-04-15T04:08:16.743Z",
+  "root": "C:\\OddEngine",
+  "platform": "win32",
+  "node": "v24.14.0",
+  "hostname": "FairlyOdd",
+  "sourceChecks": {
+    "checks": [
+      {
+        "rel": "ui/src/App.tsx",
+        "present": true,
+        "sha256": "1bd9a2d2d97bf390ac6c45d2c0ac311975072de1225377761ee8cda120ab40fc"
+      },
+      {
+        "rel": "ui/src/styles.css",
+        "present": true,
+        "sha256": "c421c50bbc554bdf679863ec43129eaaa082bfe5877b09b7d2e5dfad1e9dbf56"
+      },
+      {
+        "rel": "ui/src/panels/Home.tsx",
+        "present": true,
+        "sha256": "84944afcee24b891a2077d9e1e65b008c79a5b53cfc0a13eff4ee62c16e4eec7"
+      },
+      {
+        "rel": "ui/src/panels/Trading.tsx",
+        "present": true,
+        "sha256": "ca5ed628f3a9e45a57927a9a590403c1e4235149993b0e6d58c68e8353742424"
+      },
+      {
+        "rel": "ui/src/components/ActivityRail.tsx",
+        "present": true,
+        "sha256": "4ef0ead9e529c66a14766cb273b116088856589e7dc6741d7f8e3656613ad355"
+      },
+      {
+        "rel": "ui/src/lib/lazyWithRetry.ts",
+        "present": true,
+        "sha256": "52c24cdf449ba75ccec2046d65432299af446133c02dfe54c404029de4b96300"
+      },
+      {
+        "rel": "ui/src/components/SoftErrorGuard.tsx",
+        "present": true,
+        "sha256": "3567055e0d89f4f7bb6e3dd374d6c29ee5c406079e049b3eec4ea2853baff242"
+      },
+      {
+        "rel": "ui/src/panels/Home.tsx",
+        "check": "operatorBrain import count",
+        "value": 0
+      },
+      {
+        "rel": "ui/src/components/ActivityRail.tsx",
+        "check": "tab state present",
+        "value": true
+      },
+      {
+        "rel": "ui/src/panels/Trading.tsx",
+        "check": "contains stableDisplayChain",
+        "value": false
+      }
+    ],
+    "failures": [],
+    "warnings": [
+      "ui/src/styles.css contains possible mojibake marker U+00C3",
+      "Duplicate tree still exists at ui/src/components/ui/src. The audit bridge may quarantine it, but it should not grow.",
+      "Patch debris under ui/src: 11 file(s)."
+    ]
+  },
+  "commands": [
+    {
+      "cmd": "npm.cmd run audit:runtime",
+      "code": 1,
+      "ms": 1,
+      "stdout": "",
+      "stderr": "",
+      "error": "spawnSync npm.cmd EINVAL"
+    },
+    {
+      "cmd": "npm.cmd run build:web",
+      "code": 1,
+      "ms": 0,
+      "stdout": "",
+      "stderr": "",
+      "error": "spawnSync npm.cmd EINVAL"
+    }
+  ],
+  "git": {
+    "head": "4d807481",
+    "branch": "main",
+    "statusShort": " M ui/src/components/ActivityRail.tsx\n M ui/src/components/CommandBar.tsx\n M ui/src/components/ErrorBoundary.tsx\n M ui/src/lib/commandCenter.ts\n M ui/src/panels/Homie.tsx\n M ui/src/panels/Money.tsx\n M ui/src/styles.css\n?? PATCH_v10.36.10_ScrollPerfAndCompositorIsolationPass.ps1\n?? PATCH_v10.36.10c_TradingOpaqueSurfaceAndNoWashVisualStabilityPass.ps1\n?? PATCH_v10.36.10d_RightRailBreathingAndDockedBuddyFreezePass.ps1\n?? PATCH_v10.36.11_SingleScrollShellAndStaticRailsPass.ps1\n?? PATCH_v10.36.1_GodModePhoenixShellAndMissionControlPass.ps1\n?? PATCH_v10.36.1b_GodModePhoenixShellAndMissionControlPass_PathHotfix.ps1\n?? PATCH_v10.36.2_HomeHomiePhoenixDailyTruthPass.ps1\n?? PATCH_v10.36.2b_HomeHomiePhoenixDailyTruthPass_HereStringHotfix.ps1\n?? PATCH_v10.36.2c_HomeHomiePhoenixDailyTruthPass_PowerShellHomeVarHotfix.ps1\n?? PATCH_v10.36.2d_HomeHomiePhoenixDailyTruthPass_FileSafeHotfix.ps1\n?? PATCH_v10.36.5_PhoenixPanelStatusAndOneTapRecoveryPass.ps1\n?? PATCH_v10.36.6_HomiePhoenixRecoveryGuideAndStatusVoicePass.ps1\n?? PATCH_v10.36.7_PhoenixShellPolishAndCinematicPresencePass.ps1\n?? PATCH_v10.36.8_RuntimeLazyImportRecoveryAndTradingStabilityPass.ps1\n?? PATCH_v10.36.8c2_HomeDuplicateImportHotfix.ps1\n?? PATCH_v10.36.8c3_HomeDuplicateImportHotfix.ps1\n?? PATCH_v10.36.8c_HomeDuplicateImportHotfix.ps1\n?? PATCH_v10.36.8d2_UTF8EncodingRepairPass_SafeHotfix.ps1\n?? PATCH_v10.36.8d3_UTF8EncodingRepairPass_SafeHotfix.ps1\n?? PATCH_v10.36.8d_UTF8EncodingRepairPass.ps1\n?? PATCH_v10.36.9_TradingChainLoadIsolationPass.ps1\n?? PATCH_v10.36.9b_TradingChainLoadIsolationPass_Hotfix.ps1\n?? PATCH_v10.36.9c_TradingChainLoadIsolationPass_NoFailHotfix.ps1\n?? README_v10.36.0_MONEY_TRUE_HOUSEHOLD_FINANCIAL_OPS_LANE_PASS.txt\n?? README_v10.36.10_SCROLL_PERF_AND_COMPOSITOR_ISOLATION_PASS.txt\n?? README_v10.36.10b_ACTIVITY_RAIL_TAB_STATE_HOTFIX_AND_SCROLL_LOOP_STOP_PASS.txt\n?? README_v10.36.10c_TRADING_OPAQUE_SURFACE_AND_NO_WASH_VISUAL_STABILITY_PASS.txt\n?? README_v10.36.10d_RIGHT_RAIL_BREATHING_AND_DOCKED_BUDDY_FREEZE_PASS.txt\n?? README_v10.36.11_SINGLE_SCROLL_SHELL_AND_STATIC_RAILS_PASS.txt\n?? README_v10.36.12_RUNTIME_AUDIT_AND_CLEAN_CHECKPOINT_PASS.txt\n?? README_v10.36.1_GOD_MODE_PHOENIX_SHELL_AND_MISSION_CONTROL_PASS.txt\n?? README_v10.36.1b_GOD_MODE_PHOENIX_SHELL_AND_MISSION_CONTROL_PATH_HOTFIX.txt\n?? README_v10.36.2_HOME_HOMIE_PHOENIX_DAILY_TRUTH_PASS.txt\n?? README_v10.36.2b_HOME_HOMIE_PHOENIX_DAILY_TRUTH_PASS_HOTFIX.txt\n?? README_v10.36.2c_HOME_HOMIE_PHOENIX_DAILY_TRUTH_PASS_POWERSHELL_HOME_VAR_HOTFIX.txt\n?? README_v10.36.2d_HOME_HOMIE_PHOENIX_DAILY_TRUTH_FILE_SAFE_HOTFIX.txt\n?? README_v10.36.3_TRUE_GOD_MODE_COMMAND_AND_QUICK_ACTION_PASS.txt\n?? README_v10.36.4_PHOENIX_ACTIVITY_RAIL_AND_OPERATOR_INBOX_PASS.txt\n?? README_v10.36.5_PHOENIX_PANEL_STATUS_AND_ONE_TAP_RECOVERY_PASS.txt\n?? README_v10.36.6_HOMIE_PHOENIX_RECOVERY_GUIDE_AND_STATUS_VOICE_PASS.txt\n?? README_v10.36.7_PHOENIX_SHELL_POLISH_AND_CINEMATIC_PRESENCE_PASS.txt\n?? README_v10.36.8_RUNTIME_LAZY_IMPORT_RECOVERY_AND_TRADING_STABILITY_PASS.txt\n?? README_v10.36.8c2_HOME_DUPLICATE_IMPORT_HOTFIX.txt\n?? README_v10.36.8c3_HOME_DUPLICATE_IMPORT_HOTFIX.txt\n?? README_v10.36.8c_HOME_DUPLICATE_IMPORT_HOTFIX.txt\n?? README_v10.36.8d2_UTF8EncodingRepairPass_SafeHotfix.txt\n?? README_v10.36.8d3_UTF8EncodingRepairPass_SafeHotfix.txt\n?? README_v10.36.8d4_HOME_UTF8_DIRECT_OVERLAY.txt\n?? README_v10.36.8d_UTF8EncodingRepairPass.txt\n?? README_v10.36.9_TRADING_CHAIN_LOAD_ISOLATION_PASS.txt\n?? README_v10.36.9b_TRADING_CHAIN_LOAD_ISOLATION_PASS_HOTFIX.txt\n?? README_v10.36.9c_TRADING_CHAIN_LOAD_ISOLATION_PASS_NO_FAIL_HOTFIX.txt\n?? RUN_v10.36.10_ScrollPerfAndCompositorIsolationPass.bat\n?? RUN_v10.36.10c_TradingOpaqueSurfaceAndNoWashVisualStabilityPass.bat\n?? RUN_v10.36.10d_RightRailBreathingAndDockedBuddyFreezePass.bat\n?? RUN_v10.36.11_SingleScrollShellAndStaticRailsPass.bat\n?? RUN_v10.36.12_RuntimeAuditAndCleanCheckpointPass.bat\n?? RUN_v10.36.1_GodModePhoenixShellAndMissionControlPass.bat\n?? RUN_v10.36.1b_GodModePhoenixShellAndMissionControlPass_PathHotfix.bat\n?? RUN_v10.36.2_HomeHomiePhoenixDailyTruthPass.bat\n?? RUN_v10.36.2b_HomeHomiePhoenixDailyTruthPass_HereStringHotfix.bat\n?? RUN_v10.36.2c_HomeHomiePhoenixDailyTruthPass_PowerShellHomeVarHotfix.bat\n?? RUN_v10.36.2d_HomeHomiePhoenixDailyTruthPass_FileSafeHotfix.bat\n?? RUN_v10.36.5_PhoenixPanelStatusAndOneTapRecoveryPass.bat\n?? RUN_v10.36.6_HomiePhoenixRecoveryGuideAndStatusVoicePass.bat\n?? RUN_v10.36.7_PhoenixShellPolishAndCinematicPresencePass.bat\n?? RUN_v10.36.8_RuntimeLazyImportRecoveryAndTradingStabilityPass.bat\n?? RUN_v10.36.8c2_HomeDuplicateImportHotfix.bat\n?? RUN_v10.36.8c3_HomeDuplicateImportHotfix.bat\n?? RUN_v10.36.8c_HomeDuplicateImportHotfix.bat\n?? RUN_v10.36.8d2_UTF8EncodingRepairPass_SafeHotfix.bat\n?? RUN_v10.36.8d3_UTF8EncodingRepairPass_SafeHotfix.bat\n?? RUN_v10.36.8d_UTF8EncodingRepairPass.bat\n?? RUN_v10.36.9_TradingChainLoadIsolationPass.bat\n?? RUN_v10.36.9b_TradingChainLoadIsolationPass_Hotfix.bat\n?? RUN_v10.36.9c_TradingChainLoadIsolationPass_NoFailHotfix.bat\n?? scripts/oddengine-runtime-clean-checkpoint-v10.36.12.mjs\n?? ui/src/App.tsx.v10.36.5.bak\n?? ui/src/components/PhoenixPanelStatusStrip.tsx\n?? ui/src/components/SoftErrorGuard.tsx\n?? ui/src/lib/lazyWithRetry.ts\n?? ui/src/lib/moneyHouseholdOps.ts\n?? ui/src/panels/Trading.tsx.v10.36.9.bak\n?? ui/src/panels/Trading.tsx.v10.36.9b.bak\n",
+    "isClean": false
+  },
+  "passed": false,
+  "tagCreated": false,
+  "tagName": "v10.36.12-clean"
+}

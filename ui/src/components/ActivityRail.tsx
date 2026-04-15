@@ -1,24 +1,104 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { buildActionQueue, buildInboxSummary, buildMorningDigest, getBrainNotes, getGoals, getPanelMeta, runQuickAction } from "../lib/brain";
 
+type RailTab = "Next" | "Copilots" | "Log";
+
+const EMPTY_DATA = {
+  panelHealth: [] as any[],
+  panelCards: [] as any[],
+  operatorFeed: [] as any[],
+};
+
+function safeRailTab(value: unknown): RailTab {
+  return value === "Copilots" || value === "Log" ? value : "Next";
+}
+
 export default function ActivityRail({ activePanelId, onNavigate }: { activePanelId: string; onNavigate: (id: string) => void; }) {
   const [tick, setTick] = useState(0);
-  const [tab, setTab] = useState<"Next" | "Copilots" | "Log">("Next");
-  const data = useMemo(() => buildInboxSummary(), [tick, activePanelId]);
-  const digest = useMemo(() => buildMorningDigest(), [tick]);
-  const queue = useMemo(() => buildActionQueue(4), [tick]);
-  const goals = getGoals().split(/\n+/).filter(Boolean);
-  const noteCount = getBrainNotes().length;
+  const [tab, setTab] = useState<RailTab>("Next");
+  const [isScrollHot, setIsScrollHot] = useState(false);
+
+  const safeTab = safeRailTab(tab);
+
+  const data = useMemo(() => {
+    try {
+      const next = buildInboxSummary();
+      return next || EMPTY_DATA;
+    } catch {
+      return EMPTY_DATA;
+    }
+  }, [tick, activePanelId]);
+
+  const digest = useMemo(() => {
+    try {
+      return buildMorningDigest();
+    } catch {
+      return "Morning digest is temporarily unavailable.";
+    }
+  }, [tick]);
+
+  const queue = useMemo(() => {
+    try {
+      return buildActionQueue(4) || [];
+    } catch {
+      return [];
+    }
+  }, [tick]);
+
+  const goals = useMemo(() => {
+    try {
+      return getGoals().split(/\n+/).filter(Boolean);
+    } catch {
+      return [] as string[];
+    }
+  }, [tick]);
+
+  const noteCount = useMemo(() => {
+    try {
+      return getBrainNotes().length;
+    } catch {
+      return 0;
+    }
+  }, [tick]);
 
   useEffect(() => {
-    const id = window.setInterval(() => setTick((v) => v + 1), 2500);
-    return () => window.clearInterval(id);
+    let coolDownId: number | null = null;
+
+    const markScrolling = () => {
+      setIsScrollHot(true);
+      if (coolDownId !== null) window.clearTimeout(coolDownId);
+      coolDownId = window.setTimeout(() => {
+        setIsScrollHot(false);
+      }, 180);
+    };
+
+    const main = document.querySelector(".main");
+    const rail = document.querySelector(".activityRail");
+
+    main?.addEventListener("scroll", markScrolling, { passive: true });
+    rail?.addEventListener("scroll", markScrolling, { passive: true });
+    window.addEventListener("scroll", markScrolling, { passive: true });
+
+    return () => {
+      if (coolDownId !== null) window.clearTimeout(coolDownId);
+      main?.removeEventListener("scroll", markScrolling as EventListener);
+      rail?.removeEventListener("scroll", markScrolling as EventListener);
+      window.removeEventListener("scroll", markScrolling as EventListener);
+    };
   }, []);
+
+  useEffect(() => {
+    if (isScrollHot) return;
+    const id = window.setInterval(() => setTick((v) => v + 1), 4000);
+    return () => window.clearInterval(id);
+  }, [isScrollHot]);
 
   function fireAction(actionId?: string) {
     if (!actionId) return;
-    const result = runQuickAction(actionId);
-    if (result.panelId) onNavigate(result.panelId);
+    try {
+      const result = runQuickAction(actionId);
+      if (result.panelId) onNavigate(result.panelId);
+    } catch {}
     setTick((v) => v + 1);
   }
 
@@ -34,7 +114,7 @@ export default function ActivityRail({ activePanelId, onNavigate }: { activePane
         </div>
         <div className="row" style={{ gap: 8, flexWrap: "wrap", marginTop: 10 }}>
           {(["Next","Copilots","Log"] as const).map((t) => (
-            <button key={t} className={`tabBtn ${tab === t ? "active" : ""}`} onClick={() => setTab(t)}>{t}</button>
+            <button key={t} className={`tabBtn ${safeTab === t ? "active" : ""}`} onClick={() => setTab(t)}>{t}</button>
           ))}
         </div>
         <div className="assistantChipWrap" style={{ marginTop: 10 }}>
@@ -42,10 +122,11 @@ export default function ActivityRail({ activePanelId, onNavigate }: { activePane
           <span className={`badge ${data.panelHealth?.[0]?.status === "error" ? "bad" : data.panelHealth?.[0]?.status === "warn" ? "warn" : "good"}`}>{data.panelHealth?.[0] ? `${data.panelHealth[0].title} is hottest` : "Stable"}</span>
           <span className={`badge ${noteCount ? "good" : "muted"}`}>{noteCount} notes</span>
           <span className={`badge ${goals.length ? "good" : "warn"}`}>{goals.length} goals</span>
+          <span className={`badge ${isScrollHot ? "warn" : "good"}`}>{isScrollHot ? "Scroll hot" : "Rail calm"}</span>
         </div>
       </div>
 
-      {tab === "Copilots" && (
+      {safeTab === "Copilots" && (
         <div className="card softCard">
           <div className="assistantSectionTitle">Panel copilots</div>
           <div className="small">Each panel registers its hottest priority, next action, and suggested chips.</div>
@@ -77,7 +158,7 @@ export default function ActivityRail({ activePanelId, onNavigate }: { activePane
         </div>
       )}
 
-      {tab === "Next" && (
+      {safeTab === "Next" && (
         <>
           <div className="card softCard">
             <div className="assistantSectionTitle">Morning digest</div>
@@ -90,7 +171,7 @@ export default function ActivityRail({ activePanelId, onNavigate }: { activePane
               <button className="tabBtn" onClick={() => fireAction("brain:run-next-queue")}>Run next</button>
             </div>
             <div className="assistantStack">
-              {queue.length ? queue.map((item) => (
+              {queue.length ? queue.map((item: any) => (
                 <div key={item.id} className="timelineCard">
                   <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
                     <div>
@@ -111,7 +192,7 @@ export default function ActivityRail({ activePanelId, onNavigate }: { activePane
         </>
       )}
 
-      {tab === "Log" && (
+      {safeTab === "Log" && (
         <>
           <div className="card softCard">
             <div className="assistantSectionTitle">Panel health</div>

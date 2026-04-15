@@ -1,0 +1,16 @@
+{
+  "pass": "v10.36.12c_StylesMojibakeFinalScrubAndCleanCheckpointPass",
+  "root": "C:\\OddEngine",
+  "checkpointDir": "checkpoints/v10.36.12c_StylesMojibakeFinalScrubAndCleanCheckpointPass_20260415071151",
+  "timestamp": "2026-04-15T07:12:01.355Z",
+  "status": "blocked",
+  "blockers": [
+    "ui/src/styles.css still contains possible mojibake markers (score 7)"
+  ],
+  "styles": {
+    "before": 12,
+    "after": 7,
+    "changedLines": 3,
+    "blocking": true
+  }
+}

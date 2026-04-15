@@ -1,0 +1,182 @@
+v10.36.12_RuntimeAuditAndCleanCheckpointPass
+Root: C:\OddEngine
+Created: 2026-04-15T04:08:16.743Z
+Node: v24.14.0
+
+
+=== Source sanity checks ===
+
+{
+  "checks": [
+    {
+      "rel": "ui/src/App.tsx",
+      "present": true,
+      "sha256": "1bd9a2d2d97bf390ac6c45d2c0ac311975072de1225377761ee8cda120ab40fc"
+    },
+    {
+      "rel": "ui/src/styles.css",
+      "present": true,
+      "sha256": "c421c50bbc554bdf679863ec43129eaaa082bfe5877b09b7d2e5dfad1e9dbf56"
+    },
+    {
+      "rel": "ui/src/panels/Home.tsx",
+      "present": true,
+      "sha256": "84944afcee24b891a2077d9e1e65b008c79a5b53cfc0a13eff4ee62c16e4eec7"
+    },
+    {
+      "rel": "ui/src/panels/Trading.tsx",
+      "present": true,
+      "sha256": "ca5ed628f3a9e45a57927a9a590403c1e4235149993b0e6d58c68e8353742424"
+    },
+    {
+      "rel": "ui/src/components/ActivityRail.tsx",
+      "present": true,
+      "sha256": "4ef0ead9e529c66a14766cb273b116088856589e7dc6741d7f8e3656613ad355"
+    },
+    {
+      "rel": "ui/src/lib/lazyWithRetry.ts",
+      "present": true,
+      "sha256": "52c24cdf449ba75ccec2046d65432299af446133c02dfe54c404029de4b96300"
+    },
+    {
+      "rel": "ui/src/components/SoftErrorGuard.tsx",
+      "present": true,
+      "sha256": "3567055e0d89f4f7bb6e3dd374d6c29ee5c406079e049b3eec4ea2853baff242"
+    },
+    {
+      "rel": "ui/src/panels/Home.tsx",
+      "check": "operatorBrain import count",
+      "value": 0
+    },
+    {
+      "rel": "ui/src/components/ActivityRail.tsx",
+      "check": "tab state present",
+      "value": true
+    },
+    {
+      "rel": "ui/src/panels/Trading.tsx",
+      "check": "contains stableDisplayChain",
+      "value": false
+    }
+  ],
+  "failures": [],
+  "warnings": [
+    "ui/src/styles.css contains possible mojibake marker U+00C3",
+    "Duplicate tree still exists at ui/src/components/ui/src. The audit bridge may quarantine it, but it should not grow.",
+    "Patch debris under ui/src: 11 file(s)."
+  ]
+}
+
+=== npm run audit:runtime ===
+
+$ npm.cmd run audit:runtime
+exit=1 durationMs=1
+
+
+
+=== npm run build:web ===
+
+$ npm.cmd run build:web
+exit=1 durationMs=0
+
+
+
+=== Git checkpoint status ===
+
+Branch: main
+HEAD: 4d807481
+Working tree clean: no
+ M ui/src/components/ActivityRail.tsx
+ M ui/src/components/CommandBar.tsx
+ M ui/src/components/ErrorBoundary.tsx
+ M ui/src/lib/commandCenter.ts
+ M ui/src/panels/Homie.tsx
+ M ui/src/panels/Money.tsx
+ M ui/src/styles.css
+?? PATCH_v10.36.10_ScrollPerfAndCompositorIsolationPass.ps1
+?? PATCH_v10.36.10c_TradingOpaqueSurfaceAndNoWashVisualStabilityPass.ps1
+?? PATCH_v10.36.10d_RightRailBreathingAndDockedBuddyFreezePass.ps1
+?? PATCH_v10.36.11_SingleScrollShellAndStaticRailsPass.ps1
+?? PATCH_v10.36.1_GodModePhoenixShellAndMissionControlPass.ps1
+?? PATCH_v10.36.1b_GodModePhoenixShellAndMissionControlPass_PathHotfix.ps1
+?? PATCH_v10.36.2_HomeHomiePhoenixDailyTruthPass.ps1
+?? PATCH_v10.36.2b_HomeHomiePhoenixDailyTruthPass_HereStringHotfix.ps1
+?? PATCH_v10.36.2c_HomeHomiePhoenixDailyTruthPass_PowerShellHomeVarHotfix.ps1
+?? PATCH_v10.36.2d_HomeHomiePhoenixDailyTruthPass_FileSafeHotfix.ps1
+?? PATCH_v10.36.5_PhoenixPanelStatusAndOneTapRecoveryPass.ps1
+?? PATCH_v10.36.6_HomiePhoenixRecoveryGuideAndStatusVoicePass.ps1
+?? PATCH_v10.36.7_PhoenixShellPolishAndCinematicPresencePass.ps1
+?? PATCH_v10.36.8_RuntimeLazyImportRecoveryAndTradingStabilityPass.ps1
+?? PATCH_v10.36.8c2_HomeDuplicateImportHotfix.ps1
+?? PATCH_v10.36.8c3_HomeDuplicateImportHotfix.ps1
+?? PATCH_v10.36.8c_HomeDuplicateImportHotfix.ps1
+?? PATCH_v10.36.8d2_UTF8EncodingRepairPass_SafeHotfix.ps1
+?? PATCH_v10.36.8d3_UTF8EncodingRepairPass_SafeHotfix.ps1
+?? PATCH_v10.36.8d_UTF8EncodingRepairPass.ps1
+?? PATCH_v10.36.9_TradingChainLoadIsolationPass.ps1
+?? PATCH_v10.36.9b_TradingChainLoadIsolationPass_Hotfix.ps1
+?? PATCH_v10.36.9c_TradingChainLoadIsolationPass_NoFailHotfix.ps1
+?? README_v10.36.0_MONEY_TRUE_HOUSEHOLD_FINANCIAL_OPS_LANE_PASS.txt
+?? README_v10.36.10_SCROLL_PERF_AND_COMPOSITOR_ISOLATION_PASS.txt
+?? README_v10.36.10b_ACTIVITY_RAIL_TAB_STATE_HOTFIX_AND_SCROLL_LOOP_STOP_PASS.txt
+?? README_v10.36.10c_TRADING_OPAQUE_SURFACE_AND_NO_WASH_VISUAL_STABILITY_PASS.txt
+?? README_v10.36.10d_RIGHT_RAIL_BREATHING_AND_DOCKED_BUDDY_FREEZE_PASS.txt
+?? README_v10.36.11_SINGLE_SCROLL_SHELL_AND_STATIC_RAILS_PASS.txt
+?? README_v10.36.12_RUNTIME_AUDIT_AND_CLEAN_CHECKPOINT_PASS.txt
+?? README_v10.36.1_GOD_MODE_PHOENIX_SHELL_AND_MISSION_CONTROL_PASS.txt
+?? README_v10.36.1b_GOD_MODE_PHOENIX_SHELL_AND_MISSION_CONTROL_PATH_HOTFIX.txt
+?? README_v10.36.2_HOME_HOMIE_PHOENIX_DAILY_TRUTH_PASS.txt
+?? README_v10.36.2b_HOME_HOMIE_PHOENIX_DAILY_TRUTH_PASS_HOTFIX.txt
+?? README_v10.36.2c_HOME_HOMIE_PHOENIX_DAILY_TRUTH_PASS_POWERSHELL_HOME_VAR_HOTFIX.txt
+?? README_v10.36.2d_HOME_HOMIE_PHOENIX_DAILY_TRUTH_FILE_SAFE_HOTFIX.txt
+?? README_v10.36.3_TRUE_GOD_MODE_COMMAND_AND_QUICK_ACTION_PASS.txt
+?? README_v10.36.4_PHOENIX_ACTIVITY_RAIL_AND_OPERATOR_INBOX_PASS.txt
+?? README_v10.36.5_PHOENIX_PANEL_STATUS_AND_ONE_TAP_RECOVERY_PASS.txt
+?? README_v10.36.6_HOMIE_PHOENIX_RECOVERY_GUIDE_AND_STATUS_VOICE_PASS.txt
+?? README_v10.36.7_PHOENIX_SHELL_POLISH_AND_CINEMATIC_PRESENCE_PASS.txt
+?? README_v10.36.8_RUNTIME_LAZY_IMPORT_RECOVERY_AND_TRADING_STABILITY_PASS.txt
+?? README_v10.36.8c2_HOME_DUPLICATE_IMPORT_HOTFIX.txt
+?? README_v10.36.8c3_HOME_DUPLICATE_IMPORT_HOTFIX.txt
+?? README_v10.36.8c_HOME_DUPLICATE_IMPORT_HOTFIX.txt
+?? README_v10.36.8d2_UTF8EncodingRepairPass_SafeHotfix.txt
+?? README_v10.36.8d3_UTF8EncodingRepairPass_SafeHotfix.txt
+?? README_v10.36.8d4_HOME_UTF8_DIRECT_OVERLAY.txt
+?? README_v10.36.8d_UTF8EncodingRepairPass.txt
+?? README_v10.36.9_TRADING_CHAIN_LOAD_ISOLATION_PASS.txt
+?? README_v10.36.9b_TRADING_CHAIN_LOAD_ISOLATION_PASS_HOTFIX.txt
+?? README_v10.36.9c_TRADING_CHAIN_LOAD_ISOLATION_PASS_NO_FAIL_HOTFIX.txt
+?? RUN_v10.36.10_ScrollPerfAndCompositorIsolationPass.bat
+?? RUN_v10.36.10c_TradingOpaqueSurfaceAndNoWashVisualStabilityPass.bat
+?? RUN_v10.36.10d_RightRailBreathingAndDockedBuddyFreezePass.bat
+?? RUN_v10.36.11_SingleScrollShellAndStaticRailsPass.bat
+?? RUN_v10.36.12_RuntimeAuditAndCleanCheckpointPass.bat
+?? RUN_v10.36.1_GodModePhoenixShellAndMissionControlPass.bat
+?? RUN_v10.36.1b_GodModePhoenixShellAndMissionControlPass_PathHotfix.bat
+?? RUN_v10.36.2_HomeHomiePhoenixDailyTruthPass.bat
+?? RUN_v10.36.2b_HomeHomiePhoenixDailyTruthPass_HereStringHotfix.bat
+?? RUN_v10.36.2c_HomeHomiePhoenixDailyTruthPass_PowerShellHomeVarHotfix.bat
+?? RUN_v10.36.2d_HomeHomiePhoenixDailyTruthPass_FileSafeHotfix.bat
+?? RUN_v10.36.5_PhoenixPanelStatusAndOneTapRecoveryPass.bat
+?? RUN_v10.36.6_HomiePhoenixRecoveryGuideAndStatusVoicePass.bat
+?? RUN_v10.36.7_PhoenixShellPolishAndCinematicPresencePass.bat
+?? RUN_v10.36.8_RuntimeLazyImportRecoveryAndTradingStabilityPass.bat
+?? RUN_v10.36.8c2_HomeDuplicateImportHotfix.bat
+?? RUN_v10.36.8c3_HomeDuplicateImportHotfix.bat
+?? RUN_v10.36.8c_HomeDuplicateImportHotfix.bat
+?? RUN_v10.36.8d2_UTF8EncodingRepairPass_SafeHotfix.bat
+?? RUN_v10.36.8d3_UTF8EncodingRepairPass_SafeHotfix.bat
+?? RUN_v10.36.8d_UTF8EncodingRepairPass.bat
+?? RUN_v10.36.9_TradingChainLoadIsolationPass.bat
+?? RUN_v10.36.9b_TradingChainLoadIsolationPass_Hotfix.bat
+?? RUN_v10.36.9c_TradingChainLoadIsolationPass_NoFailHotfix.bat
+?? scripts/oddengine-runtime-clean-checkpoint-v10.36.12.mjs
+?? ui/src/App.tsx.v10.36.5.bak
+?? ui/src/components/PhoenixPanelStatusStrip.tsx
+?? ui/src/components/SoftErrorGuard.tsx
+?? ui/src/lib/lazyWithRetry.ts
+?? ui/src/lib/moneyHouseholdOps.ts
+?? ui/src/panels/Trading.tsx.v10.36.9.bak
+?? ui/src/panels/Trading.tsx.v10.36.9b.bak
+
+
+Audit/build did not pass. No git tag was created.

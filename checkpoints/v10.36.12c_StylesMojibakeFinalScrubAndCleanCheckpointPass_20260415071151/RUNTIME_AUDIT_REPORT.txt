@@ -1,0 +1,97 @@
+[OddEngine] v10.36.12c_StylesMojibakeFinalScrubAndCleanCheckpointPass
+[OddEngine] Root: C:\OddEngine
+[OddEngine] Checkpoint: checkpoints/v10.36.12c_StylesMojibakeFinalScrubAndCleanCheckpointPass_20260415071151
+[OddEngine] Duplicate nested source tree not present.
+[OddEngine] No PATCH debris under ui/src.
+
+[OddEngine] styles.css mojibake score before: 12
+[OddEngine] Backup written: checkpoints/v10.36.12c_StylesMojibakeFinalScrubAndCleanCheckpointPass_20260415071151/styles.css.before_12c.bak
+  - repaired line 1213: score 2 -> 0
+  - left line 1228: score 7; safe auto-repair not proven
+  - repaired line 1235: score 2 -> 0
+  - repaired line 1839: score 1 -> 0
+[OddEngine] styles.css rewritten as UTF-8. Changed lines: 3
+[OddEngine] styles.css mojibake score after: 7
+[OddEngine] Remaining marker report: checkpoints/v10.36.12c_StylesMojibakeFinalScrubAndCleanCheckpointPass_20260415071151/styles_mojibake_remaining_lines.txt
+
+[OddEngine] Running npm run audit:runtime...
+
+> oddengine-v10@10.21.6 audit:runtime
+> npm --prefix ui run typecheck && node scripts/system-runtime-import-audit.mjs
+
+
+> oddengine-ui@10.23.3 typecheck
+> node ./node_modules/typescript/bin/tsc -p tsconfig.audit.json --noEmit
+
+Core audit bridge is active.
+Typecheck now targets the quarantined core lane via ui/tsconfig.audit.json.
+[OddEngine] Exit code: 0
+
+[OddEngine] Running npm run build:web...
+
+> oddengine-v10@10.21.6 build:web
+> npm --prefix ui run build
+
+
+> oddengine-ui@10.23.3 build
+> node ./node_modules/vite/bin/vite.js build
+
+[36mvite v5.4.21 [32mbuilding for production...[36m[39m
+transforming...
+[32m✓[39m 138 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mindex.html                                  [39m[1m[2m    1.28 kB[22m[1m[22m[2m │ gzip:  0.55 kB[22m
+[2mdist/[22m[32massets/homie-mascot-BfqDccug.png            [39m[1m[2m  279.38 kB[22m[1m[22m
+[2mdist/[22m[32massets/os-wallpaper-D0275SSA.png            [39m[1m[2m  320.68 kB[22m[1m[22m
+[2mdist/[22m[32massets/fairlyodd-logo-0me9doSN.png          [39m[1m[2m3,737.42 kB[22m[1m[22m
+[2mdist/[22m[35massets/index-DRUQo38b.css                   [39m[1m[2m   99.55 kB[22m[1m[22m[2m │ gzip: 20.69 kB[22m
+[2mdist/[22m[36massets/PanelChrome-Bg1-U0wT.js              [39m[1m[2m    0.90 kB[22m[1m[22m[2m │ gzip:  0.34 kB[22m
+[2mdist/[22m[36massets/CardFrame-stMt-gla.js                [39m[1m[2m    1.61 kB[22m[1m[22m[2m │ gzip:  0.81 kB[22m
+[2mdist/[22m[36massets/marketDataPhoenix-C14sijVq.js        [39m[1m[2m    1.95 kB[22m[1m[22m[2m │ gzip:  0.91 kB[22m
+[2mdist/[22m[36massets/generators-C2GWNMmG.js               [39m[1m[2m    2.49 kB[22m[1m[22m[2m │ gzip:  1.00 kB[22m
+[2mdist/[22m[36massets/dailyChoresCommand-2MEINmmF.js       [39m[1m[2m    2.76 kB[22m[1m[22m[2m │ gzip:  1.34 kB[22m
+[2mdist/[22m[36massets/Autopilot-CECMzcXp.js                [39m[1m[2m    3.36 kB[22m[1m[22m[2m │ gzip:  1.46 kB[22m
+[2mdist/[22m[36massets/Security-Dr7embcJ.js                 [39m[1m[2m    4.15 kB[22m[1m[22m[2m │ gzip:  1.67 kB[22m
+[2mdist/[22m[36massets/DevEngine-BJbBKvjf.js                [39m[1m[2m    5.14 kB[22m[1m[22m[2m │ gzip:  2.10 kB[22m
+[2mdist/[22m[36massets/OptionsSaaS-Ccr1P1GG.js              [39m[1m[2m    5.42 kB[22m[1m[22m[2m │ gzip:  1.65 kB[22m
+[2mdist/[22m[36massets/MarketMap-D-6bcozq.js                [39m[1m[2m    6.84 kB[22m[1m[22m[2m │ gzip:  1.89 kB[22m
+[2mdist/[22m[36massets/commerceEngine-Dbk-P-pj.js           [39m[1m[2m    6.85 kB[22m[1m[22m[2m │ gzip:  2.35 kB[22m
+[2mdist/[22m[36massets/FiftyTo1K-B-KS4PUO.js                [39m[1m[2m    6.89 kB[22m[1m[22m[2m │ gzip:  2.18 kB[22m
+[2mdist/[22m[36massets/HappyHealthy-CeyT7e3D.js             [39m[1m[2m    6.94 kB[22m[1m[22m[2m │ gzip:  2.42 kB[22m
+[2mdist/[22m[36massets/TimeMachine-CJAhme1B.js              [39m[1m[2m    7.22 kB[22m[1m[22m[2m │ gzip:  2.03 kB[22m
+[2mdist/[22m[36massets/Cameras-DATlQtAB.js                  [39m[1m[2m    7.67 kB[22m[1m[22m[2m │ gzip:  2.63 kB[22m
+[2mdist/[22m[36massets/DailyChores-drkaXPYT.js              [39m[1m[2m    8.22 kB[22m[1m[22m[2m │ gzip:  2.64 kB[22m
+[2mdist/[22m[36massets/Calendar-s9PLN8ee.js                 [39m[1m[2m    9.44 kB[22m[1m[22m[2m │ gzip:  2.96 kB[22m
+[2mdist/[22m[36massets/Mining-Cmm2t-OX.js                   [39m[1m[2m   10.36 kB[22m[1m[22m[2m │ gzip:  3.04 kB[22m
+[2mdist/[22m[36massets/VegasPokerFeed-DnzRrWwA.js           [39m[1m[2m   10.56 kB[22m[1m[22m[2m │ gzip:  3.28 kB[22m
+[2mdist/[22m[36massets/RoutineLauncher-C-NVOQnh.js          [39m[1m[2m   11.23 kB[22m[1m[22m[2m │ gzip:  3.97 kB[22m
+[2mdist/[22m[36massets/Entertainment-9uw2zZSe.js            [39m[1m[2m   14.05 kB[22m[1m[22m[2m │ gzip:  4.08 kB[22m
+[2mdist/[22m[36massets/CryptoGames-CJ-mz0kT.js              [39m[1m[2m   14.35 kB[22m[1m[22m[2m │ gzip:  4.48 kB[22m
+[2mdist/[22m[36massets/Plugins-BeY-jmk7.js                  [39m[1m[2m   14.37 kB[22m[1m[22m[2m │ gzip:  4.25 kB[22m
+[2mdist/[22m[36massets/OddBrain-BvIJydNa.js                 [39m[1m[2m   17.64 kB[22m[1m[22m[2m │ gzip:  4.63 kB[22m
+[2mdist/[22m[36massets/PublisherHub-DF-yZ9hl.js             [39m[1m[2m   18.00 kB[22m[1m[22m[2m │ gzip:  5.39 kB[22m
+[2mdist/[22m[36massets/Money-BiT8OomD.js                    [39m[1m[2m   20.04 kB[22m[1m[22m[2m │ gzip:  6.29 kB[22m
+[2mdist/[22m[36massets/Homie-DCP7szYA.js                    [39m[1m[2m   24.52 kB[22m[1m[22m[2m │ gzip:  7.36 kB[22m
+[2mdist/[22m[36massets/RenderLab-CQkmyrnr.js                [39m[1m[2m   25.21 kB[22m[1m[22m[2m │ gzip:  7.18 kB[22m
+[2mdist/[22m[36massets/Cannabis-WDglQy4s.js                 [39m[1m[2m   30.02 kB[22m[1m[22m[2m │ gzip:  8.05 kB[22m
+[2mdist/[22m[36massets/Home-JNgUREP5.js                     [39m[1m[2m   31.13 kB[22m[1m[22m[2m │ gzip:  8.25 kB[22m
+[2mdist/[22m[36massets/CoinstoreBTCUSDTFutures-CXIQ2220.js  [39m[1m[2m   31.64 kB[22m[1m[22m[2m │ gzip: 10.07 kB[22m
+[2mdist/[22m[36massets/OptionsSniperTerminal-BYrjnpvC.js    [39m[1m[2m   35.43 kB[22m[1m[22m[2m │ gzip:  9.86 kB[22m
+[2mdist/[22m[36massets/Builder-omdzB73t.js                  [39m[1m[2m   39.06 kB[22m[1m[22m[2m │ gzip: 11.41 kB[22m
+[2mdist/[22m[36massets/Preferences-CkVArxmE.js              [39m[1m[2m   40.06 kB[22m[1m[22m[2m │ gzip:  9.49 kB[22m
+[2mdist/[22m[36massets/Books-BCvssJ-w.js                    [39m[1m[2m   51.31 kB[22m[1m[22m[2m │ gzip: 14.14 kB[22m
+[2mdist/[22m[36massets/index-DSZ5oIDK.js                    [39m[1m[2m   63.76 kB[22m[1m[22m[2m │ gzip: 17.91 kB[22m
+[2mdist/[22m[36massets/life-panels-VcYfsTFk.js              [39m[1m[2m   75.35 kB[22m[1m[22m[2m │ gzip: 20.14 kB[22m
+[2mdist/[22m[36massets/jszip-BV1nKuaw.js                    [39m[1m[2m   97.42 kB[22m[1m[22m[2m │ gzip: 30.28 kB[22m
+[2mdist/[22m[36massets/vendor-DuAeHBGQ.js                   [39m[1m[2m  154.37 kB[22m[1m[22m[2m │ gzip: 46.22 kB[22m
+[2mdist/[22m[36massets/react-vendor-DSPdH59H.js             [39m[1m[2m  155.02 kB[22m[1m[22m[2m │ gzip: 49.19 kB[22m
+[2mdist/[22m[36massets/ops-panels-DP4kR8sS.js               [39m[1m[2m  196.80 kB[22m[1m[22m[2m │ gzip: 51.71 kB[22m
+[2mdist/[22m[36massets/brain-core-DQU4_n1T.js               [39m[1m[2m  225.57 kB[22m[1m[22m[2m │ gzip: 60.33 kB[22m
+[32m✓ built in 1.88s[39m
+Circular chunk: vendor -> react-vendor -> vendor. Please adjust the manual chunk logic for these chunks.
+Circular chunk: ops-panels -> brain-core -> ops-panels. Please adjust the manual chunk logic for these chunks.
+[OddEngine] Exit code: 0
+
+[OddEngine] Blocking issue(s) remain. Do not tag yet.
+  - ui/src/styles.css still contains possible mojibake markers (score 7)

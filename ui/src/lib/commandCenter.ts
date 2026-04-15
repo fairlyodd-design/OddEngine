@@ -12,6 +12,7 @@ import {
   queuePanelAction,
   runQuickAction,
 } from "./brain";
+import { getOperatorBrainSnapshot, runOperatorBrainNextAction } from "./operatorBrain";
 import { oddApi } from "./odd";
 import {
   getUpgradePackStatus,
@@ -32,6 +33,10 @@ export type CommandExecArgs = {
 };
 
 const BASE_COMMAND_SUGGESTIONS = [
+  "what matters now",
+  "do this next",
+  "family lane",
+  "operator lane",
   "open homie companion",
   "morning digest",
   "daily digest",
@@ -54,6 +59,13 @@ const BASE_COMMAND_SUGGESTIONS = [
 
 export const COMMAND_SUGGESTIONS = [
   ...BASE_COMMAND_SUGGESTIONS,
+  "phoenix snapshot",
+  "god mode snapshot",
+  "open money lane",
+  "open daily chores",
+  "open calendar",
+  "open home",
+  "open oddbrain",
   "news briefing",
   "refresh news topics",
   "news why it matters",
@@ -80,7 +92,7 @@ export const COMMAND_SUGGESTIONS = [
 
 function resolvePanelFromText(text: string) {
   const cleaned = text.trim().toLowerCase();
-  const candidates = ["OddBrain", "Homie", "DevEngine", "Autopilot", "Builder", "Plugins", "Money", "FamilyBudget", "Brain", "HappyHealthy", "Cannabis", "Trading", "Grow", "Mining", "CryptoGames", "Cameras", "OptionsSaaS", "Preferences", "Security", "News", "FamilyHealth", "GroceryMeals", "Entertainment", "Books"];
+  const candidates = ["OddBrain", "Homie", "DevEngine", "Autopilot", "Builder", "Plugins", "Money", "FamilyBudget", "Brain", "HappyHealthy", "Cannabis", "Trading", "Grow", "Mining", "CryptoGames", "Cameras", "OptionsSaaS", "Preferences", "Security", "News", "FamilyHealth", "GroceryMeals", "Entertainment", "Books", "DailyChores", "Calendar", "Home"];
   for (const id of candidates) {
     const meta = getPanelMeta(id);
     const keys = [id.toLowerCase(), meta.title.toLowerCase(), meta.title.replace(/\s+/g, "").toLowerCase()];
@@ -91,6 +103,7 @@ function resolvePanelFromText(text: string) {
   if (cleaned.includes("saas") || cleaned.includes("options")) return "OptionsSaaS";
   if (cleaned.includes("family health") || cleaned.includes("medical")) return "FamilyHealth";
   if (cleaned.includes("grocery") || cleaned.includes("meal")) return "GroceryMeals";
+  if (cleaned.includes("chores")) return "DailyChores";
   return "";
 }
 
@@ -118,6 +131,19 @@ function installPackCommand(args: CommandExecArgs, packId: string, message: stri
 function queuePanelCommand(args: CommandExecArgs, panelId: string, actionId: string, message: string) {
   queuePanelAction(panelId, actionId);
   args.onNavigate(panelId);
+  args.onStatus?.(message);
+  return { ok: true, message, panelId };
+}
+
+function navigateDecision(args: CommandExecArgs, title: string, text: string, panelId: string, actionId?: string) {
+  if (actionId) {
+    const result = runQuickAction(actionId);
+    if (result.panelId) args.onNavigate(result.panelId);
+    args.onStatus?.(result.message || `${title} — ${text}`);
+    return { ok: true, message: result.message || `${title} — ${text}`, panelId: result.panelId || panelId };
+  }
+  args.onNavigate(panelId);
+  const message = `${title} — ${text}`;
   args.onStatus?.(message);
   return { ok: true, message, panelId };
 }
@@ -151,6 +177,51 @@ export function executeCommand(args: CommandExecArgs) {
     sendToBrain(`Summarize this AI operator feed:\n\n${feed}`, args.onNavigate);
     args.onStatus?.("Sent the operator feed to Brain.");
     return { ok: true, message: "Sent the operator feed to Brain.", panelId: "Brain" };
+  }
+
+  if (lower.includes("what matters now") || lower.includes("phoenix snapshot") || lower.includes("god mode snapshot")) {
+    const snapshot = getOperatorBrainSnapshot();
+    return navigateDecision(args, snapshot.whatMattersNow.title, snapshot.whatMattersNow.text, snapshot.whatMattersNow.panelId, snapshot.whatMattersNow.actionId);
+  }
+  if (lower.includes("family lane") || lower.includes("route family")) {
+    const snapshot = getOperatorBrainSnapshot();
+    return navigateDecision(args, snapshot.familyLane.title, snapshot.familyLane.text, snapshot.familyLane.panelId, snapshot.familyLane.actionId);
+  }
+  if (lower.includes("operator lane") || lower.includes("route operator")) {
+    const snapshot = getOperatorBrainSnapshot();
+    return navigateDecision(args, snapshot.operatorLane.title, snapshot.operatorLane.text, snapshot.operatorLane.panelId, snapshot.operatorLane.actionId);
+  }
+  if (lower.includes("do this next") || lower.includes("next move") || lower.includes("what should i do next")) {
+    const result = runOperatorBrainNextAction();
+    if (result.panelId) args.onNavigate(result.panelId);
+    args.onStatus?.(result.message);
+    return { ok: true, message: result.message, panelId: result.panelId || "Home" };
+  }
+
+  if (lower.includes("open money lane")) {
+    args.onNavigate("Money");
+    args.onStatus?.("Opened Money.");
+    return { ok: true, message: "Opened Money.", panelId: "Money" };
+  }
+  if (lower.includes("open daily chores")) {
+    args.onNavigate("DailyChores");
+    args.onStatus?.("Opened Daily Chores.");
+    return { ok: true, message: "Opened Daily Chores.", panelId: "DailyChores" };
+  }
+  if (lower.includes("open calendar")) {
+    args.onNavigate("Calendar");
+    args.onStatus?.("Opened Calendar.");
+    return { ok: true, message: "Opened Calendar.", panelId: "Calendar" };
+  }
+  if (lower.includes("open home")) {
+    args.onNavigate("Home");
+    args.onStatus?.("Opened Home.");
+    return { ok: true, message: "Opened Home.", panelId: "Home" };
+  }
+  if (lower.includes("open oddbrain") || lower.includes("open operator brain")) {
+    args.onNavigate("OddBrain");
+    args.onStatus?.("Opened OddBrain.");
+    return { ok: true, message: "Opened OddBrain.", panelId: "OddBrain" };
   }
 
   if (lower.includes("install grocery saver")) return installPackCommand(args, "grocery-saver-pack", "Installed Grocery Saver Pack.");
@@ -213,7 +284,6 @@ export function executeCommand(args: CommandExecArgs) {
     if (!isUpgradePackInstalled("grocery-saver-pack")) return { ok: false, message: "Install Grocery Saver Pack first.", panelId: "Plugins" };
     return queuePanelCommand(args, "GroceryMeals", "grocery:store-plan", "Queued a store plan refresh.");
   }
-
 
   if (lower.includes("probe local voice") || lower.includes("check local voice") || lower.includes("on-device voice") || lower.includes("install local voice pack") || lower.includes("install offline voice") || lower.includes("download local voice")) {
     const message = "Browser on-device voice stays disabled in this runtime. Use the external/local voice bridge instead.";

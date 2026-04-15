@@ -1,0 +1,188 @@
+ M ui/src/components/ActivityRail.tsx
+ M ui/src/components/CommandBar.tsx
+ M ui/src/components/ErrorBoundary.tsx
+ D ui/src/components/ui/src/App.tsx
+ D ui/src/components/ui/src/assets/fairlyodd-logo.png
+ D ui/src/components/ui/src/assets/homie-mascot.png
+ D ui/src/components/ui/src/assets/homie-memoji.png
+ D ui/src/components/ui/src/assets/os-wallpaper.png
+ D ui/src/components/ui/src/components/ActionMenu.tsx
+ D ui/src/components/ui/src/components/ActivityRail.tsx
+ D ui/src/components/ui/src/components/AssistantDock.tsx
+ D ui/src/components/ui/src/components/CardFrame.tsx
+ D ui/src/components/ui/src/components/CardGODMode.tsx
+ D ui/src/components/ui/src/components/CommandBar.tsx
+ D ui/src/components/ui/src/components/ErrorBoundary.tsx
+ D ui/src/components/ui/src/components/HomieBuddy.tsx
+ D ui/src/components/ui/src/components/HowToModal.tsx
+ D ui/src/components/ui/src/components/LilHomie3D.tsx
+ D ui/src/components/ui/src/components/LilHomieAgent.tsx
+ D ui/src/components/ui/src/components/PanelHeader.tsx
+ D ui/src/components/ui/src/components/PanelScheduleCard.tsx
+ D ui/src/components/ui/src/components/PluginMiniWidgets.tsx
+ D ui/src/components/ui/src/components/RiveHomie.tsx
+ D ui/src/components/ui/src/howtoContent.ts
+ D ui/src/components/ui/src/lib/automation.ts
+ D ui/src/components/ui/src/lib/brain.ts
+ D ui/src/components/ui/src/lib/calendarStore.ts
+ D ui/src/components/ui/src/lib/commandCenter.ts
+ D ui/src/components/ui/src/lib/dealScore.ts
+ D ui/src/components/ui/src/lib/files.ts
+ D ui/src/components/ui/src/lib/generators.ts
+ D ui/src/components/ui/src/lib/notifs.ts
+ D ui/src/components/ui/src/lib/odd.ts
+ D ui/src/components/ui/src/lib/plugins.ts
+ D ui/src/components/ui/src/lib/prefs.ts
+ D ui/src/components/ui/src/lib/publicApi.ts
+ D ui/src/components/ui/src/lib/publicScanner.ts
+ D ui/src/components/ui/src/lib/snapEngine.ts
+ D ui/src/components/ui/src/lib/stateGuard.ts
+ D ui/src/components/ui/src/lib/storage.ts
+ D ui/src/components/ui/src/lib/storageEx.ts
+ D ui/src/components/ui/src/lib/version.ts
+ D ui/src/components/ui/src/lib/voice.ts
+ D ui/src/components/ui/src/lib/webData.ts
+ D ui/src/components/ui/src/main.tsx
+ D ui/src/components/ui/src/panels/Autopilot.tsx
+ D ui/src/components/ui/src/panels/Books.tsx
+ D ui/src/components/ui/src/panels/Brain.tsx
+ D ui/src/components/ui/src/panels/Builder.tsx
+ D ui/src/components/ui/src/panels/Calendar.tsx
+ D ui/src/components/ui/src/panels/Cameras.tsx
+ D ui/src/components/ui/src/panels/Cannabis.tsx
+ D ui/src/components/ui/src/panels/CryptoGames.tsx
+ D ui/src/components/ui/src/panels/DevEngine.tsx
+ D ui/src/components/ui/src/panels/Entertainment.tsx
+ D ui/src/components/ui/src/panels/FamilyBudget.tsx
+ D ui/src/components/ui/src/panels/FamilyHealth.tsx
+ D ui/src/components/ui/src/panels/GroceryMeals.tsx
+ D ui/src/components/ui/src/panels/Grow.tsx
+ D ui/src/components/ui/src/panels/HappyHealthy.tsx
+ D ui/src/components/ui/src/panels/Home.tsx
+ D ui/src/components/ui/src/panels/Homie.tsx
+ D ui/src/components/ui/src/panels/Mining.tsx
+ D ui/src/components/ui/src/panels/Money.tsx
+ D ui/src/components/ui/src/panels/News.tsx
+ D ui/src/components/ui/src/panels/OddBrain.tsx
+ D ui/src/components/ui/src/panels/OptionsSaaS.tsx
+ D ui/src/components/ui/src/panels/Plugins.tsx
+ D ui/src/components/ui/src/panels/Poker.tsx
+ D ui/src/components/ui/src/panels/Preferences.tsx
+ D ui/src/components/ui/src/panels/RoutineLauncher.tsx
+ D ui/src/components/ui/src/panels/Security.tsx
+ D ui/src/components/ui/src/panels/Trading.tsx
+ D ui/src/components/ui/src/styles.css
+ M ui/src/lib/commandCenter.ts
+ D ui/src/panels/Books_PATCH.tsx
+ D ui/src/panels/Books_SAFE_PATCH.tsx
+ D ui/src/panels/Books_SAFE_RENDER_PATCH.tsx
+ D ui/src/panels/Builder_SAFE_RENDER_PATCH.tsx
+ M ui/src/panels/Homie.tsx
+ M ui/src/panels/Money.tsx
+ D ui/src/panels/PATCH_runLocalBackend.ts
+ M ui/src/styles.css
+?? PATCH_v10.36.10_ScrollPerfAndCompositorIsolationPass.ps1
+?? PATCH_v10.36.10c_TradingOpaqueSurfaceAndNoWashVisualStabilityPass.ps1
+?? PATCH_v10.36.10d_RightRailBreathingAndDockedBuddyFreezePass.ps1
+?? PATCH_v10.36.11_SingleScrollShellAndStaticRailsPass.ps1
+?? PATCH_v10.36.12b2_QuarantineDebrisAndMojibakeAuditRepairPass_LegacySafeHotfix.ps1
+?? PATCH_v10.36.12b_QuarantineDebrisAndMojibakeAuditRepairPass.ps1
+?? PATCH_v10.36.12d_FinalSingleLineMojibakeCleanCheckpointPass.ps1
+?? PATCH_v10.36.12e2_BuildWarningNativeStderrHotfixCleanCheckpointPass.ps1
+?? PATCH_v10.36.12e_BuildWarningTolerantCleanCheckpointPass.ps1
+?? PATCH_v10.36.1_GodModePhoenixShellAndMissionControlPass.ps1
+?? PATCH_v10.36.1b_GodModePhoenixShellAndMissionControlPass_PathHotfix.ps1
+?? PATCH_v10.36.2_HomeHomiePhoenixDailyTruthPass.ps1
+?? PATCH_v10.36.2b_HomeHomiePhoenixDailyTruthPass_HereStringHotfix.ps1
+?? PATCH_v10.36.2c_HomeHomiePhoenixDailyTruthPass_PowerShellHomeVarHotfix.ps1
+?? PATCH_v10.36.2d_HomeHomiePhoenixDailyTruthPass_FileSafeHotfix.ps1
+?? PATCH_v10.36.5_PhoenixPanelStatusAndOneTapRecoveryPass.ps1
+?? PATCH_v10.36.6_HomiePhoenixRecoveryGuideAndStatusVoicePass.ps1
+?? PATCH_v10.36.7_PhoenixShellPolishAndCinematicPresencePass.ps1
+?? PATCH_v10.36.8_RuntimeLazyImportRecoveryAndTradingStabilityPass.ps1
+?? PATCH_v10.36.8c2_HomeDuplicateImportHotfix.ps1
+?? PATCH_v10.36.8c3_HomeDuplicateImportHotfix.ps1
+?? PATCH_v10.36.8c_HomeDuplicateImportHotfix.ps1
+?? PATCH_v10.36.8d2_UTF8EncodingRepairPass_SafeHotfix.ps1
+?? PATCH_v10.36.8d3_UTF8EncodingRepairPass_SafeHotfix.ps1
+?? PATCH_v10.36.8d_UTF8EncodingRepairPass.ps1
+?? PATCH_v10.36.9_TradingChainLoadIsolationPass.ps1
+?? PATCH_v10.36.9b_TradingChainLoadIsolationPass_Hotfix.ps1
+?? PATCH_v10.36.9c_TradingChainLoadIsolationPass_NoFailHotfix.ps1
+?? README_v10.36.0_MONEY_TRUE_HOUSEHOLD_FINANCIAL_OPS_LANE_PASS.txt
+?? README_v10.36.10_SCROLL_PERF_AND_COMPOSITOR_ISOLATION_PASS.txt
+?? README_v10.36.10b_ACTIVITY_RAIL_TAB_STATE_HOTFIX_AND_SCROLL_LOOP_STOP_PASS.txt
+?? README_v10.36.10c_TRADING_OPAQUE_SURFACE_AND_NO_WASH_VISUAL_STABILITY_PASS.txt
+?? README_v10.36.10d_RIGHT_RAIL_BREATHING_AND_DOCKED_BUDDY_FREEZE_PASS.txt
+?? README_v10.36.11_SINGLE_SCROLL_SHELL_AND_STATIC_RAILS_PASS.txt
+?? README_v10.36.12_RUNTIME_AUDIT_AND_CLEAN_CHECKPOINT_PASS.txt
+?? README_v10.36.12b2_QUARANTINE_DEBRIS_AND_MOJIBAKE_AUDIT_REPAIR_LEGACY_SAFE_HOTFIX.txt
+?? README_v10.36.12b_QUARANTINE_DEBRIS_AND_MOJIBAKE_AUDIT_REPAIR_PASS.txt
+?? README_v10.36.12c_StylesMojibakeFinalScrubAndCleanCheckpointPass.txt
+?? README_v10.36.12d_FinalSingleLineMojibakeCleanCheckpointPass.txt
+?? README_v10.36.12e2_BUILD_WARNING_NATIVE_STDERR_HOTFIX.txt
+?? README_v10.36.12e_BUILD_WARNING_TOLERANT_CLEAN_CHECKPOINT_PASS.txt
+?? README_v10.36.1_GOD_MODE_PHOENIX_SHELL_AND_MISSION_CONTROL_PASS.txt
+?? README_v10.36.1b_GOD_MODE_PHOENIX_SHELL_AND_MISSION_CONTROL_PATH_HOTFIX.txt
+?? README_v10.36.2_HOME_HOMIE_PHOENIX_DAILY_TRUTH_PASS.txt
+?? README_v10.36.2b_HOME_HOMIE_PHOENIX_DAILY_TRUTH_PASS_HOTFIX.txt
+?? README_v10.36.2c_HOME_HOMIE_PHOENIX_DAILY_TRUTH_PASS_POWERSHELL_HOME_VAR_HOTFIX.txt
+?? README_v10.36.2d_HOME_HOMIE_PHOENIX_DAILY_TRUTH_FILE_SAFE_HOTFIX.txt
+?? README_v10.36.3_TRUE_GOD_MODE_COMMAND_AND_QUICK_ACTION_PASS.txt
+?? README_v10.36.4_PHOENIX_ACTIVITY_RAIL_AND_OPERATOR_INBOX_PASS.txt
+?? README_v10.36.5_PHOENIX_PANEL_STATUS_AND_ONE_TAP_RECOVERY_PASS.txt
+?? README_v10.36.6_HOMIE_PHOENIX_RECOVERY_GUIDE_AND_STATUS_VOICE_PASS.txt
+?? README_v10.36.7_PHOENIX_SHELL_POLISH_AND_CINEMATIC_PRESENCE_PASS.txt
+?? README_v10.36.8_RUNTIME_LAZY_IMPORT_RECOVERY_AND_TRADING_STABILITY_PASS.txt
+?? README_v10.36.8c2_HOME_DUPLICATE_IMPORT_HOTFIX.txt
+?? README_v10.36.8c3_HOME_DUPLICATE_IMPORT_HOTFIX.txt
+?? README_v10.36.8c_HOME_DUPLICATE_IMPORT_HOTFIX.txt
+?? README_v10.36.8d2_UTF8EncodingRepairPass_SafeHotfix.txt
+?? README_v10.36.8d3_UTF8EncodingRepairPass_SafeHotfix.txt
+?? README_v10.36.8d4_HOME_UTF8_DIRECT_OVERLAY.txt
+?? README_v10.36.8d_UTF8EncodingRepairPass.txt
+?? README_v10.36.9_TRADING_CHAIN_LOAD_ISOLATION_PASS.txt
+?? README_v10.36.9b_TRADING_CHAIN_LOAD_ISOLATION_PASS_HOTFIX.txt
+?? README_v10.36.9c_TRADING_CHAIN_LOAD_ISOLATION_PASS_NO_FAIL_HOTFIX.txt
+?? RUN_v10.36.10_ScrollPerfAndCompositorIsolationPass.bat
+?? RUN_v10.36.10c_TradingOpaqueSurfaceAndNoWashVisualStabilityPass.bat
+?? RUN_v10.36.10d_RightRailBreathingAndDockedBuddyFreezePass.bat
+?? RUN_v10.36.11_SingleScrollShellAndStaticRailsPass.bat
+?? RUN_v10.36.12_RuntimeAuditAndCleanCheckpointPass.bat
+?? RUN_v10.36.12b2_QuarantineDebrisAndMojibakeAuditRepairPass_LegacySafeHotfix.bat
+?? RUN_v10.36.12b_QuarantineDebrisAndMojibakeAuditRepairPass.bat
+?? RUN_v10.36.12c_StylesMojibakeFinalScrubAndCleanCheckpointPass.bat
+?? RUN_v10.36.12d_FinalSingleLineMojibakeCleanCheckpointPass.bat
+?? RUN_v10.36.12e2_BuildWarningNativeStderrHotfixCleanCheckpointPass.bat
+?? RUN_v10.36.12e_BuildWarningTolerantCleanCheckpointPass.bat
+?? RUN_v10.36.1_GodModePhoenixShellAndMissionControlPass.bat
+?? RUN_v10.36.1b_GodModePhoenixShellAndMissionControlPass_PathHotfix.bat
+?? RUN_v10.36.2_HomeHomiePhoenixDailyTruthPass.bat
+?? RUN_v10.36.2b_HomeHomiePhoenixDailyTruthPass_HereStringHotfix.bat
+?? RUN_v10.36.2c_HomeHomiePhoenixDailyTruthPass_PowerShellHomeVarHotfix.bat
+?? RUN_v10.36.2d_HomeHomiePhoenixDailyTruthPass_FileSafeHotfix.bat
+?? RUN_v10.36.5_PhoenixPanelStatusAndOneTapRecoveryPass.bat
+?? RUN_v10.36.6_HomiePhoenixRecoveryGuideAndStatusVoicePass.bat
+?? RUN_v10.36.7_PhoenixShellPolishAndCinematicPresencePass.bat
+?? RUN_v10.36.8_RuntimeLazyImportRecoveryAndTradingStabilityPass.bat
+?? RUN_v10.36.8c2_HomeDuplicateImportHotfix.bat
+?? RUN_v10.36.8c3_HomeDuplicateImportHotfix.bat
+?? RUN_v10.36.8c_HomeDuplicateImportHotfix.bat
+?? RUN_v10.36.8d2_UTF8EncodingRepairPass_SafeHotfix.bat
+?? RUN_v10.36.8d3_UTF8EncodingRepairPass_SafeHotfix.bat
+?? RUN_v10.36.8d_UTF8EncodingRepairPass.bat
+?? RUN_v10.36.9_TradingChainLoadIsolationPass.bat
+?? RUN_v10.36.9b_TradingChainLoadIsolationPass_Hotfix.bat
+?? RUN_v10.36.9c_TradingChainLoadIsolationPass_NoFailHotfix.bat
+?? checkpoints/
+?? scripts/oddengine-runtime-clean-checkpoint-v10.36.12.mjs
+?? scripts/repair-v10.36.12b-mojibake.mjs
+?? scripts/v10.36.12b2_cleanup_audit.mjs
+?? scripts/v10_36_12c_styles_mojibake_final_scrub_and_clean_checkpoint.mjs
+?? ui/src/App.tsx.v10.36.5.bak
+?? ui/src/components/PhoenixPanelStatusStrip.tsx
+?? ui/src/components/SoftErrorGuard.tsx
+?? ui/src/lib/lazyWithRetry.ts
+?? ui/src/lib/moneyHouseholdOps.ts
+?? ui/src/panels/Trading.tsx.v10.36.9.bak
+?? ui/src/panels/Trading.tsx.v10.36.9b.bak

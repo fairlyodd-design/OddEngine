@@ -1,0 +1,32 @@
+﻿{
+    "pass":  "v10.36.12e2_BuildWarningNativeStderrHotfixCleanCheckpointPass",
+    "root":  "C:\\OddEngine",
+    "checkpointDir":  "C:\\OddEngine\\checkpoints\\v10.36.12e2_BuildWarningNativeStderrHotfixCleanCheckpointPass_20260415_063924",
+    "timestamp":  "2026-04-15T13:39:33.6411758Z",
+    "status":  "passed",
+    "blockers":  [
+
+                 ],
+    "warnings":  [
+                     "Circular chunk warnings detected but treated as non-blocking when build exit code is 0.",
+                     "Git working tree has local changes. Commit before tagging."
+                 ],
+    "styles":  {
+                   "mojibakeScore":  0
+               },
+    "audit":  {
+                  "stdout":  "audit_runtime.stdout.txt",
+                  "exitCode":  0,
+                  "stderr":  "audit_runtime.stderr.txt"
+              },
+    "build":  {
+                  "stdout":  "build_web.stdout.txt",
+                  "exitCode":  0,
+                  "stderr":  "build_web.stderr.txt",
+                  "circularChunkWarningsNonBlocking":  true
+              },
+    "git":  {
+                "available":  true,
+                "clean":  false
+            }
+}

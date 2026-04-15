@@ -1,0 +1,20 @@
+﻿[OddEngine] v10.36.12e2 Build Warning Native-Stderr Hotfix Clean Checkpoint
+--------------------------------------------------------------------------
+[OddEngine] Root: C:\OddEngine
+[OddEngine] Checkpoint: C:\OddEngine\checkpoints\v10.36.12e2_BuildWarningNativeStderrHotfixCleanCheckpointPass_20260415_063924
+[OddEngine] Duplicate nested source tree not present.
+[OddEngine] No PATCH debris under ui/src.
+[OddEngine] styles.css mojibake score: 0
+[OddEngine] Running npm run audit:runtime...
+[OddEngine] npm run audit:runtime exit code: 0
+[OddEngine] Running npm run build:web...
+[OddEngine] npm run build:web exit code: 0
+[OddEngine] Non-blocking warning: circular chunk warning detected.
+[OddEngine] Git working tree has local changes. Commit before tagging.
+
+[OddEngine] CLEAN CHECKPOINT PASSED.
+[OddEngine] Safe to commit/tag after reviewing git status.
+[OddEngine] Suggested tag after commit: v10.36.12-clean
+[OddEngine] Warning(s):
+  - Circular chunk warnings detected but treated as non-blocking when build exit code is 0.
+  - Git working tree has local changes. Commit before tagging.

@@ -1,0 +1,10 @@
+
+> oddengine-v10@10.21.6 audit:runtime
+> npm --prefix ui run typecheck && node scripts/system-runtime-import-audit.mjs
+
+
+> oddengine-ui@10.23.3 typecheck
+> node ./node_modules/typescript/bin/tsc -p tsconfig.audit.json --noEmit
+
+Core audit bridge is active.
+Typecheck now targets the quarantined core lane via ui/tsconfig.audit.json.
