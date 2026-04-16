@@ -298,7 +298,7 @@ function sortContracts(contracts: PublicContract[], sortBy: Input["sortBy"], cfg
   return arr;
 }
 
-async function requestText(opts: { url: string; method?: string; headers?: Record<string, string>; body?: string; timeoutMs?: number; maxBytes?: number }): Promise<string> {
+async function requestText(opts: { url: string; method?: string; headers?: Record<string, string>; body?: string; timeoutMs?: number; maxBytes?: number; signal?: AbortSignal }): Promise<string> {
   if (isDesktop()) {
     const res = await oddApi().fetchText({
       url: opts.url,
@@ -320,7 +320,7 @@ async function requestText(opts: { url: string; method?: string; headers?: Recor
   return await res.text();
 }
 
-async function requestJson<T = any>(opts: { url: string; method?: string; headers?: Record<string, string>; body?: any; timeoutMs?: number; maxBytes?: number }): Promise<T> {
+async function requestJson<T = any>(opts: { url: string; method?: string; headers?: Record<string, string>; body?: any; timeoutMs?: number; maxBytes?: number; signal?: AbortSignal }): Promise<T> {
   const headers = { ...(opts.headers || {}) };
   let body: string | undefined;
   if (opts.body !== undefined) {
@@ -1009,8 +1009,8 @@ export default function Trading() {
     if (changed) setAlertHooks(next);
   }, [alertHooks, inp.symbol, inp.targetSide, inp.bias, score]);
 
-  const drawerCalls = useMemo(() => filteredContracts.filter((c) => c.side === "call").slice(0, 30), [filteredContracts]);
-  const drawerPuts = useMemo(() => filteredContracts.filter((c) => c.side === "put").slice(0, 30), [filteredContracts]);
+  const drawerCalls = useMemo(() => filteredContracts.filter((c) => c.side === "call").slice(0, TRADING_DRAWER_ROW_LIMIT), [filteredContracts]);
+  const drawerPuts = useMemo(() => filteredContracts.filter((c) => c.side === "put").slice(0, TRADING_DRAWER_ROW_LIMIT), [filteredContracts]);
 
   const scannerSummary = useMemo(() => {
     if (!displayChain) return null;
@@ -1249,7 +1249,7 @@ export default function Trading() {
     setLoading(true);
     setScanError(null);
     try {
-      const result = inp.dataMode === "api" ? await loadChainApi(symbol, expirationArg) : await loadChainWebsite(symbol);
+      const result = inp.dataMode === "api" ? await loadChainApi(symbol, expirationArg) : await loadChainWebsite(symbol, abortController?.signal);
       if (requestId !== scanRequestRef.current) return;
       setChain(result.chain);
       persistTradingSnapshot(result.chain);
@@ -1264,7 +1264,10 @@ export default function Trading() {
       setScanError(err instanceof Error ? err.message : String(err));
       if (!lastGoodChainRef.current) setChain(null);
     } finally {
-      if (requestId === scanRequestRef.current) setLoading(false);
+      if (requestId === scanRequestRef.current) {
+        if (chainAbortRef.current === abortController) chainAbortRef.current = null;
+        setLoading(false);
+      }
     }
   }
 
@@ -1454,7 +1457,7 @@ export default function Trading() {
   }
 
   return (
-    <div className="card tradingPanelRoot">
+    <div className="card tradingPanelRoot" data-trading-chain-containment="v10.36.14">
       <div className="cluster spread start">
         <div>
           <div style={{ fontSize: 22, fontWeight: 800 }}>Trading</div>
@@ -1712,7 +1715,7 @@ export default function Trading() {
                 Undock
               </button>
             )}
-            <div className="small">Showing {visibleContracts.length} rows after filters</div>
+            <div className="small">Showing {Math.min(visibleContracts.length, TRADING_CONTRACT_ROW_LIMIT)} of {visibleContracts.length} rows after filters</div>
           </div>
         </div>
 
@@ -1791,7 +1794,27 @@ export default function Trading() {
           </div>
         )}
 
-        <div className="tableWrap mt-4">
+        {loading && (
+          <div className="small tradingChainStableLoadingLine" style={{ minHeight: 28, display: "flex", alignItems: "center", gap: 8, opacity: 0.9 }}>
+            <span className="badge warn">Loading chain…</span>
+            <span>Holding the last stable table height while the new chain resolves.</span>
+          </div>
+        )}
+
+        <div
+          className="tableWrap mt-4 tradingChainContainmentIsland"
+          data-trading-chain-island="true"
+          style={{
+            height: TRADING_CONTRACT_ISLAND_HEIGHT,
+            maxHeight: TRADING_CONTRACT_ISLAND_HEIGHT,
+            overflow: "auto",
+            overscrollBehavior: "contain",
+            contain: "layout paint",
+            border: "1px solid var(--line)",
+            borderRadius: 14,
+            background: "rgba(5, 8, 13, 0.22)",
+          }}
+        >
           <table className="dataTable">
             <thead>
               <tr>
@@ -1810,7 +1833,7 @@ export default function Trading() {
               </tr>
             </thead>
             <tbody>
-              {deferredVisibleContracts.map((c) => {
+              {containedVisibleContracts.map((c) => {
                 const total = scanContractScore(c, { maxAsk: inp.maxAsk, minOi: inp.minOi, targetSide: inp.targetSide });
                 const selected = selectedContract?.key === c.key;
 
