@@ -56,6 +56,10 @@ export type AiDefaults = {
   homieRoomAutoLink: boolean;
   homieCompanionWindow: boolean;
   homieIdleChatter: boolean;
+  homieCompanionMode: boolean;
+  homieCompanionCoachStyle: "gentle" | "hype" | "legacy";
+  homieCompanionDailyCheckin: boolean;
+  homieCompanionVoiceFirst: boolean;
   homiePreferLocalVoice: boolean;
   homieLocalVoiceStrict: boolean;
   homieVoiceEngineMode: "cloud" | "external-http" | "hybrid";
@@ -136,6 +140,10 @@ export const DEFAULT_PREFS: Prefs = {
     homieRoomAutoLink: false,
     homieCompanionWindow: true,
     homieIdleChatter: true,
+    homieCompanionMode: true,
+    homieCompanionCoachStyle: "legacy",
+    homieCompanionDailyCheckin: true,
+    homieCompanionVoiceFirst: true,
     homiePreferLocalVoice: false,
     homieLocalVoiceStrict: false,
     homieVoiceEngineMode: "cloud",

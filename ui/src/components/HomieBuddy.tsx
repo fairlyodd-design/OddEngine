@@ -2,6 +2,15 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { buildMissions, buildMorningDigest, buildPanelHealth, getPanelMeta } from "../lib/brain";
 import { COMMAND_SUGGESTIONS, executeCommand } from "../lib/commandCenter";
 import {
+  buildHomieCompanionCheckIn,
+  buildHomieCompanionReply,
+  createHomieMessage,
+  loadHomieCompanionHistory,
+  saveHomieCompanionHistory,
+  shouldHomieCompanionAnswer,
+  type HomieCompanionMessage,
+} from "../lib/homieCompanionCoach";
+import {
   UPGRADE_PACKS_EVENT,
   getHomieUpgradeMessages,
   getUpgradePackSummaries,
@@ -477,6 +486,9 @@ export default function HomieBuddy({
   const [mood, setMood] = useState<"idle" | "good" | "warn">("idle");
   const [diagnostics, setDiagnostics] = useState<VoiceDiagnostics>(() => createBaseDiagnostics());
   const [showDiagnostics, setShowDiagnostics] = useState(mode === "standalone");
+  const [companionMode, setCompanionMode] = useState(() => (prefs.ai as any).homieCompanionMode !== false);
+  const [companionInput, setCompanionInput] = useState("");
+  const [companionMessages, setCompanionMessages] = useState<HomieCompanionMessage[]>(() => loadHomieCompanionHistory());
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<any>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
@@ -1181,7 +1193,36 @@ function getRoomItemStyle(itemId: RoomItemId, baseTransform = ""): React.CSSProp
     } catch {}
   }
 
+  function appendCompanionMessages(nextMessages: HomieCompanionMessage[]) {
+    setCompanionMessages((prev) => {
+      const next = [...prev, ...nextMessages].slice(-18);
+      saveHomieCompanionHistory(next);
+      return next;
+    });
+  }
+
+  function handleCompanionConversation(text: string, source: "typed" | "voice" | "quick" = "typed") {
+    const trimmed = text.trim();
+    if (!trimmed) return false;
+    const ctx = { activePanelTitle: activeTitle, activePanelId, status, mood, source };
+    const reply = buildHomieCompanionReply(trimmed, ctx);
+    appendCompanionMessages([
+      createHomieMessage("user", trimmed, source),
+      createHomieMessage("homie", reply.text, source),
+    ]);
+    announce(reply.text, reply.mood, source === "voice" || voiceEnabled);
+    return true;
+  }
+
+  function runCompanionQuick(text: string) {
+    handleCompanionConversation(text, "quick");
+  }
+
   function run(text: string) {
+    if (companionMode && shouldHomieCompanionAnswer(text)) {
+      handleCompanionConversation(text, "voice");
+      return;
+    }
     const result = executeCommand({ text, activePanelId, onNavigate, onOpenHowTo, onStatus: (message) => announce(message, "good") });
     if (result?.message) announce(result.message, result.ok ? "good" : "warn");
   }
@@ -1613,6 +1654,72 @@ function getRoomItemStyle(itemId: RoomItemId, baseTransform = ""): React.CSSProp
         </div>
       </div>
       <div className="small homieStatusLine">{status}</div>
+      <div className="homieCompanionCoachCard card">
+        <div className="cluster spread start">
+          <div>
+            <div className="assistantSectionTitle">Companion life coach</div>
+            <div className="small">Voice-first Homie: hears through mic, talks through speakers, and keeps you grounded.</div>
+          </div>
+          <button
+            className={`tabBtn ${companionMode ? "active" : ""}`}
+            onClick={() => {
+              const next = !companionMode;
+              setCompanionMode(next);
+              updateHomieRoom({ homieCompanionMode: next } as any);
+              announce(next ? "Companion life coach mode is on." : "Companion mode muted. Commands still work.", next ? "good" : "idle", true);
+            }}
+          >
+            {companionMode ? "Coach on" : "Coach off"}
+          </button>
+        </div>
+        <div className="homieCompanionMemoryStrip">
+          <span className="badge good">Warm companion</span>
+          <span className="badge">Life coach</span>
+          <span className="badge">Mic + speakers</span>
+          <span className="badge warn">Grounded, not fake-human</span>
+        </div>
+        <div className="homieCompanionMessages">
+          {companionMessages.length === 0 ? (
+            <div className="homieCompanionEmpty small">Say “Homie, check in with me” or type what’s heavy. I’ll answer like a companion first, command router second.</div>
+          ) : companionMessages.slice(-6).map((msg) => (
+            <div key={msg.id} className={`homieCompanionMsg ${msg.role}`}>
+              <span>{msg.text}</span>
+            </div>
+          ))}
+        </div>
+        <div className="row mt-3">
+          <input
+            value={companionInput}
+            onChange={(event) => setCompanionInput(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                const next = companionInput.trim();
+                setCompanionInput("");
+                handleCompanionConversation(next, "typed");
+              }
+            }}
+            placeholder="Talk to Homie like a companion…"
+          />
+          <button
+            className="tabBtn active"
+            onClick={() => {
+              const next = companionInput.trim() || "check in with me";
+              setCompanionInput("");
+              handleCompanionConversation(next, "typed");
+            }}
+          >
+            Send
+          </button>
+        </div>
+        <div className="assistantChipWrap" style={{ marginTop: 10 }}>
+          <button className="tabBtn active" onClick={() => { const reply = buildHomieCompanionCheckIn({ activePanelTitle: activeTitle, activePanelId, status, mood, source: "quick" }); appendCompanionMessages([createHomieMessage("homie", reply.text, "quick")]); announce(reply.text, reply.mood, true); }}>Check in</button>
+          <button className="tabBtn" onClick={() => runCompanionQuick("help me focus on the next tiny move")}>Focus me</button>
+          <button className="tabBtn" onClick={() => runCompanionQuick("I feel overwhelmed, ground me")}>Ground me</button>
+          <button className="tabBtn" onClick={() => runCompanionQuick("help me protect the family legacy today")}>Legacy lane</button>
+          <button className="tabBtn" onClick={() => { setOpen(true); void startVoice(false); }}>Talk by mic</button>
+        </div>
+      </div>
       <div className="assistantChipWrap" style={{ marginTop: 10 }}>
         <span className={`badge ${isListening ? "warn" : isSpeaking ? "good" : mood === "warn" ? "warn" : "good"}`}>{isListening ? "Listening" : isSpeaking ? "Speaking" : "Ready"}</span>
         <span className={`badge ${diagnostics.recognitionAvailable ? "good" : "warn"}`}>{diagnostics.recognitionAvailable ? diagnostics.recognitionName : "SpeechRecognition unavailable"}</span>

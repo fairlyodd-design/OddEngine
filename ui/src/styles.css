@@ -3058,3 +3058,136 @@ iframe {
     overflow: visible !important;
   }
 }
+
+
+/* ===== v10.36.15 Homie Companion Life Coach Presence ===== */
+.homieBuddyPanel{
+  border-color: rgba(154, 230, 255, 0.18) !important;
+}
+
+.homieBuddyPanel::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  border-radius: inherit;
+  background:
+    radial-gradient(260px 120px at 50% 0%, rgba(154,230,255,0.08), transparent 70%),
+    radial-gradient(220px 140px at 85% 20%, rgba(255,170,220,0.07), transparent 72%);
+  opacity:0.9;
+}
+
+.homieCompanionCoachCard{
+  margin-top: 12px;
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(154,230,255,0.18) !important;
+  background:
+    radial-gradient(420px 170px at 12% 0%, rgba(154,230,255,0.11), rgba(154,230,255,0) 65%),
+    radial-gradient(380px 170px at 94% 12%, rgba(255,170,220,0.10), rgba(255,170,220,0) 65%),
+    rgba(8, 13, 22, 0.92) !important;
+}
+
+.homieCompanionCoachCard::before{
+  content:"";
+  position:absolute;
+  right:-60px;
+  top:-70px;
+  width:160px;
+  height:160px;
+  border-radius:50%;
+  background: radial-gradient(circle, rgba(154,230,255,0.12), transparent 70%);
+  pointer-events:none;
+}
+
+.homieCompanionMemoryStrip{
+  display:flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.homieCompanionMessages{
+  margin-top: 10px;
+  display:grid;
+  gap: 8px;
+  max-height: 190px;
+  overflow:auto;
+  padding-right: 4px;
+}
+
+.homieCompanionMsg{
+  display:flex;
+  line-height:1.36;
+  font-size: 12.5px;
+}
+
+.homieCompanionMsg span{
+  border:1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.045);
+  border-radius: 15px;
+  padding: 9px 10px;
+  max-width: 92%;
+  white-space: pre-wrap;
+}
+
+.homieCompanionMsg.user{
+  justify-content:flex-end;
+}
+
+.homieCompanionMsg.user span{
+  background: rgba(94,234,242,0.10);
+  border-color: rgba(94,234,242,0.16);
+}
+
+.homieCompanionMsg.homie span{
+  background: rgba(255,170,220,0.075);
+  border-color: rgba(255,170,220,0.14);
+}
+
+.homieCompanionMsg.system span{
+  background: rgba(255,209,102,0.075);
+  border-color: rgba(255,209,102,0.14);
+}
+
+.homieCompanionEmpty{
+  border:1px dashed rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.025);
+  border-radius: 15px;
+  padding: 10px;
+}
+
+.homieOrb.skin-memoji,
+.homieOrb.skin-lil-homie{
+  border-color: rgba(154,230,255,0.40) !important;
+  box-shadow:
+    0 14px 34px rgba(0,0,0,0.34),
+    0 0 26px rgba(154,230,255,0.13),
+    0 0 48px rgba(255,170,220,0.08) !important;
+}
+
+.homieOrb.skin-memoji.good,
+.homieOrb.skin-lil-homie.good{
+  box-shadow:
+    0 14px 34px rgba(0,0,0,0.34),
+    0 0 30px rgba(94,234,242,0.18),
+    0 0 52px rgba(255,170,220,0.10) !important;
+}
+
+.homieOrb.skin-memoji.warn,
+.homieOrb.skin-lil-homie.warn{
+  box-shadow:
+    0 14px 34px rgba(0,0,0,0.34),
+    0 0 30px rgba(255,209,102,0.18),
+    0 0 52px rgba(255,170,220,0.10) !important;
+}
+
+.homieHouseScene{
+  border-color: rgba(154,230,255,0.14) !important;
+}
+
+.homieHouseTopbar .badge.good::after{
+  content:" • alive";
+  opacity:0.8;
+}
+/* ===== v10.36.15 Homie Companion Life Coach Presence END ===== */
