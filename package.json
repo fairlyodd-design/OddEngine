@@ -1,8 +1,8 @@
 {
   "name": "oddengine-v10",
   "private": true,
-  "version": "10.21.6",
-  "description": "OddEngine v10.21.6 — Homie mascot (transparent memoji) + new skin option + one-time migration",
+  "version": "10.36.13c",
+  "description": "OddEngine v10.36.13c — CI Recovery Directory Import Audit Fix Pass",
   "main": "electron/main.cjs",
   "scripts": {
     "postinstall": "npm --prefix ui install",
@@ -16,7 +16,9 @@
     "audit:runtime": "npm --prefix ui run typecheck && node scripts/system-runtime-import-audit.mjs",
     "dist:win": "npm run build:ui && electron-builder --win nsis",
     "dist:portable": "npm run build:ui && electron-builder --win portable",
-    "dist:all": "npm run build:ui && electron-builder --win nsis portable"
+    "dist:all": "npm run build:ui && electron-builder --win nsis portable",
+    "ci:recovery": "node scripts/ci-safe-build.mjs",
+    "verify:runtime": "node scripts/system-runtime-import-audit.mjs"
   },
   "devDependencies": {
     "electron": "^30.5.1",

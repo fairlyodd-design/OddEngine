@@ -1,0 +1,73 @@
+name: OddEngine CI Recovery
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oddengine-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  runtime-build:
+    name: Runtime audit + UI build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            ui/package-lock.json
+
+      - name: Show runtime
+        run: |
+          node --version
+          npm --version
+          pwd
+          ls -la
+
+      - name: Validate OddEngine shape
+        run: |
+          test -f package.json
+          test -d ui
+          test -f ui/package.json
+          test -f ui/tsconfig.audit.json
+          test -f ui/src/auditEntry.ts
+
+      - name: Install UI dependencies
+        run: npm --prefix ui install
+
+      - name: Runtime import audit
+        run: node scripts/system-runtime-import-audit.mjs
+
+      - name: Typecheck audit lane
+        run: npm --prefix ui run typecheck
+
+      - name: Build UI
+        run: npm --prefix ui run build
+
+      - name: Verify dist artifact
+        run: |
+          test -f ui/dist/index.html
+          find ui/dist -maxdepth 2 -type f | head -50
+
+      - name: Upload UI dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: oddengine-ui-dist
+          path: ui/dist
+          if-no-files-found: error

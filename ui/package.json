@@ -1,7 +1,7 @@
 {
   "name": "oddengine-ui",
   "private": true,
-  "version": "10.23.3",
+  "version": "10.36.13c",
   "type": "module",
   "scripts": {
     "dev": "node ./node_modules/vite/bin/vite.js",
@@ -25,5 +25,5 @@
     "vite": "^5.4.3",
     "@vitejs/plugin-react": "^4.3.1"
   },
-  "description": "OddEngine UI v10.35.5c — quarantined core audit + duplicate tree / patch debris bridge"
+  "description": "OddEngine UI v10.36.13c — CI Recovery Directory Import Audit Fix Pass"
 }
