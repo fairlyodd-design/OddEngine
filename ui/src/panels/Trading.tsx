@@ -242,6 +242,10 @@ const DEFAULTS: Input = {
   strikeGrouping: "raw",
 };
 
+const TRADING_DRAWER_ROW_LIMIT = 30;
+const TRADING_CONTRACT_ROW_LIMIT = 120;
+const TRADING_CONTRACT_ISLAND_HEIGHT = 520;
+
 function clamp(n: number) {
   return Math.max(0, Math.min(100, n));
 }
@@ -975,6 +979,10 @@ export default function Trading() {
 
   const deferredFilteredContracts = useDeferredValue(filteredContracts);
   const deferredVisibleContracts = useDeferredValue(visibleContracts);
+  const containedVisibleContracts = useMemo(
+    () => deferredVisibleContracts.slice(0, TRADING_CONTRACT_ROW_LIMIT),
+    [deferredVisibleContracts]
+  );
 
   const selectedContract = useMemo(() => {
     return visibleContracts.find((c) => c.key === selectedContractKey)
@@ -1214,9 +1222,9 @@ export default function Trading() {
     }
   }
 
-  async function loadChainWebsite(symbol: string): Promise<ChainLoadResult> {
+  async function loadChainWebsite(symbol: string, signal?: AbortSignal): Promise<ChainLoadResult> {
     const url = buildPublicChainUrl(symbol);
-    const html = await requestText({ url, timeoutMs: 16000, maxBytes: 3_500_000 });
+    const html = await requestText({ url, timeoutMs: 16000, maxBytes: 3_500_000, signal });
     const parsed = parsePublicOptionsHtml(html, symbol, url);
     const expirationsOut = parsed.expirations.map((e) => e.label).filter(Boolean);
     return { chain: parsed, expirations: expirationsOut };
@@ -1249,7 +1257,7 @@ export default function Trading() {
     setLoading(true);
     setScanError(null);
     try {
-      const result = inp.dataMode === "api" ? await loadChainApi(symbol, expirationArg) : await loadChainWebsite(symbol, abortController?.signal);
+      const result = inp.dataMode === "api" ? await loadChainApi(symbol, expirationArg) : await loadChainWebsite(symbol);
       if (requestId !== scanRequestRef.current) return;
       setChain(result.chain);
       persistTradingSnapshot(result.chain);
@@ -1265,8 +1273,7 @@ export default function Trading() {
       if (!lastGoodChainRef.current) setChain(null);
     } finally {
       if (requestId === scanRequestRef.current) {
-        if (chainAbortRef.current === abortController) chainAbortRef.current = null;
-        setLoading(false);
+setLoading(false);
       }
     }
   }
@@ -1457,7 +1464,7 @@ export default function Trading() {
   }
 
   return (
-    <div className="card tradingPanelRoot" data-trading-chain-containment="v10.36.14">
+    <div className="card tradingPanelRoot" data-trading-chain-containment="v10.36.14b">
       <div className="cluster spread start">
         <div>
           <div style={{ fontSize: 22, fontWeight: 800 }}>Trading</div>
