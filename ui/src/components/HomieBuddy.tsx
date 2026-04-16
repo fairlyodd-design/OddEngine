@@ -4,7 +4,10 @@ import { COMMAND_SUGGESTIONS, executeCommand } from "../lib/commandCenter";
 import {
   buildHomieCompanionCheckIn,
   buildHomieCompanionReply,
+  buildHomieLegacyArtifactDraft,
   createHomieMessage,
+  exportHomieLegacyArtifactText,
+  getHomieCompanionMemorySnapshot,
   loadHomieCompanionHistory,
   saveHomieCompanionHistory,
   shouldHomieCompanionAnswer,
@@ -489,6 +492,7 @@ export default function HomieBuddy({
   const [companionMode, setCompanionMode] = useState(() => (prefs.ai as any).homieCompanionMode !== false);
   const [companionInput, setCompanionInput] = useState("");
   const [companionMessages, setCompanionMessages] = useState<HomieCompanionMessage[]>(() => loadHomieCompanionHistory());
+  const [companionMemory, setCompanionMemory] = useState(() => getHomieCompanionMemorySnapshot());
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<any>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
@@ -1197,6 +1201,7 @@ function getRoomItemStyle(itemId: RoomItemId, baseTransform = ""): React.CSSProp
     setCompanionMessages((prev) => {
       const next = [...prev, ...nextMessages].slice(-18);
       saveHomieCompanionHistory(next);
+      setCompanionMemory(getHomieCompanionMemorySnapshot());
       return next;
     });
   }
@@ -1672,11 +1677,17 @@ function getRoomItemStyle(itemId: RoomItemId, baseTransform = ""): React.CSSProp
             {companionMode ? "Coach on" : "Coach off"}
           </button>
         </div>
-        <div className="homieCompanionMemoryStrip">
+        <div className="homieCompanionMemoryStrip v103616">
           <span className="badge good">Warm companion</span>
           <span className="badge">Life coach</span>
           <span className="badge">Mic + speakers</span>
           <span className="badge warn">Grounded, not fake-human</span>
+          <span className="badge">Check-ins: {companionMemory.checkInCount}</span>
+          <span className="badge">Themes: {companionMemory.recentThemeText}</span>
+        </div>
+        <div className="homieCompanionLegacyPanel">
+          <div className="small"><b>Last next move:</b> {companionMemory.lastNextStep}</div>
+          <div className="small"><b>Legacy artifact:</b> {companionMemory.lastArtifactTitle} • saved drafts: {companionMemory.legacyArtifactCount}</div>
         </div>
         <div className="homieCompanionMessages">
           {companionMessages.length === 0 ? (
@@ -1717,6 +1728,8 @@ function getRoomItemStyle(itemId: RoomItemId, baseTransform = ""): React.CSSProp
           <button className="tabBtn" onClick={() => runCompanionQuick("help me focus on the next tiny move")}>Focus me</button>
           <button className="tabBtn" onClick={() => runCompanionQuick("I feel overwhelmed, ground me")}>Ground me</button>
           <button className="tabBtn" onClick={() => runCompanionQuick("help me protect the family legacy today")}>Legacy lane</button>
+          <button className="tabBtn" onClick={() => { const artifact = buildHomieLegacyArtifactDraft({ activePanelTitle: activeTitle, activePanelId, status, mood, source: "quick" }); appendCompanionMessages([createHomieMessage("homie", artifact.body, "quick")]); setCompanionMemory(getHomieCompanionMemorySnapshot()); announce("Drafted a small Family Legacy Note.", "good", true); }}>Legacy note</button>
+          <button className="tabBtn" onClick={() => { const text = exportHomieLegacyArtifactText(); try { void navigator.clipboard?.writeText(text); } catch {} announce("Copied the latest legacy artifact text.", "good", true); }}>Copy artifact</button>
           <button className="tabBtn" onClick={() => { setOpen(true); void startVoice(false); }}>Talk by mic</button>
         </div>
       </div>

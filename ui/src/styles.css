@@ -3191,3 +3191,49 @@ iframe {
   opacity:0.8;
 }
 /* ===== v10.36.15 Homie Companion Life Coach Presence END ===== */
+
+
+/* ===== v10.36.16_HomieCompanionNaturalCheckInAndLegacyMemoryPass ===== */
+.homieCompanionMemoryStrip.v103616{
+  align-items:center;
+  gap:6px;
+}
+
+.homieCompanionLegacyPanel{
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background:
+    radial-gradient(320px 140px at 0% 0%, rgba(255,209,102,0.10), rgba(255,209,102,0) 62%),
+    radial-gradient(320px 140px at 100% 0%, rgba(94,234,242,0.10), rgba(94,234,242,0) 62%),
+    rgba(0,0,0,0.16);
+  display:grid;
+  gap:6px;
+}
+
+.homieCompanionMsg.homie span{
+  white-space: pre-wrap;
+}
+
+.homieCompanionCoachCard{
+  border-color: rgba(255,209,102,0.18) !important;
+}
+/* ===== v10.36.16_HomieCompanionNaturalCheckInAndLegacyMemoryPass_END ===== */
+
+
+/* ===== v10.36.16c_HomieCompanionLegacyButtonValidationFixPass ===== */
+.homieCompanionLegacyPanel{
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background:
+    radial-gradient(320px 140px at 0% 0%, rgba(255,209,102,0.10), rgba(255,209,102,0) 62%),
+    radial-gradient(320px 140px at 100% 0%, rgba(94,234,242,0.10), rgba(94,234,242,0) 62%),
+    rgba(0,0,0,0.16);
+  display:grid;
+  gap:6px;
+}
+.homieCompanionMsg.homie span{ white-space: pre-wrap; }
+/* ===== v10.36.16c_HomieCompanionLegacyButtonValidationFixPass_END ===== */
