@@ -5,9 +5,11 @@ import {
   buildHomieCompanionCheckIn,
   buildHomieCompanionReply,
   buildHomieLegacyArtifactDraft,
+  buildHomieLegacyPromptArtifact,
   createHomieMessage,
   exportHomieLegacyArtifactText,
   getHomieCompanionMemorySnapshot,
+  getHomieLegacyArtifactSummaries,
   loadHomieCompanionHistory,
   saveHomieCompanionHistory,
   shouldHomieCompanionAnswer,
@@ -272,6 +274,7 @@ export default function HomieBuddy({
   const [companionInput, setCompanionInput] = useState("");
   const [companionMessages, setCompanionMessages] = useState<HomieCompanionMessage[]>(() => loadHomieCompanionHistory());
   const [companionMemory, setCompanionMemory] = useState(() => getHomieCompanionMemorySnapshot());
+  const [legacyArtifactSummaries, setLegacyArtifactSummaries] = useState(() => getHomieLegacyArtifactSummaries(4));
 
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<any>(null);
@@ -376,6 +379,7 @@ export default function HomieBuddy({
       const next = [...prev, ...nextMessages].slice(-18);
       saveHomieCompanionHistory(next);
       setCompanionMemory(getHomieCompanionMemorySnapshot());
+      setLegacyArtifactSummaries(getHomieLegacyArtifactSummaries(4));
       return next;
     });
   }
@@ -774,7 +778,16 @@ export default function HomieBuddy({
     const artifact = buildHomieLegacyArtifactDraft({ activePanelTitle: activeTitle, activePanelId, status, mood, source: "quick" });
     appendCompanionMessages([createHomieMessage("homie", artifact.body, "quick")]);
     setCompanionMemory(getHomieCompanionMemorySnapshot());
+    setLegacyArtifactSummaries(getHomieLegacyArtifactSummaries(4));
     announce("I drafted a family note you can keep.", "good", true, "I drafted a family note.");
+  }
+
+  function runLegacyPrompt(prompt: string, spoken = "Saved a family artifact.") {
+    const artifact = buildHomieLegacyPromptArtifact(prompt, { activePanelTitle: activeTitle, activePanelId, status, mood, source: "quick" });
+    appendCompanionMessages([createHomieMessage("homie", artifact.body, "quick")]);
+    setCompanionMemory(getHomieCompanionMemorySnapshot());
+    setLegacyArtifactSummaries(getHomieLegacyArtifactSummaries(4));
+    announce(spoken, "good", true, spoken);
   }
 
   function saveForFamily() {
@@ -786,6 +799,7 @@ export default function HomieBuddy({
     } catch {
       // ignore
     }
+    setLegacyArtifactSummaries(getHomieLegacyArtifactSummaries(4));
     announce("Saved the latest family note and copied it too.", "good", true, "Saved for family.");
   }
 
@@ -937,6 +951,21 @@ export default function HomieBuddy({
             <div className="homieRebuildMemoryCell"><span className="small">Themes</span><strong>{companionMemory.recentThemeText}</strong></div>
             <div className="homieRebuildMemoryCell wide"><span className="small">Last next move</span><strong>{companionMemory.lastNextStep}</strong></div>
           </div>
+          <div className="homieLegacyVaultMini">
+            <div className="small"><b>Family legacy vault</b> • {companionMemory.legacyArtifactCount} saved</div>
+            {legacyArtifactSummaries.length ? (
+              <div className="homieLegacyVaultList">
+                {legacyArtifactSummaries.slice(0, 3).map((artifact) => (
+                  <div key={artifact.id} className="homieLegacyVaultItem">
+                    <strong>{artifact.title}</strong>
+                    <span>{artifact.preview || "Saved family artifact"}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="small">No family artifact saved yet. Use Legacy note or Save for family when something matters.</div>
+            )}
+          </div>
         </section>
 
         <section className="card homieRebuildConversation">
@@ -988,6 +1017,9 @@ export default function HomieBuddy({
             <button className="tabBtn" onClick={() => runCompanionQuick("help me focus on the next tiny move")}>Focus me</button>
             <button className="tabBtn" onClick={() => runCompanionQuick("I feel overwhelmed, ground me")}>Ground me</button>
             <button className="tabBtn" onClick={runLegacyDraft}>Legacy note</button>
+            <button className="tabBtn" onClick={() => runLegacyPrompt("write a message for my family", "Saved a message for family.")}>Family message</button>
+            <button className="tabBtn" onClick={() => runLegacyPrompt("what should my family open first", "Saved the open-first guide.")}>Open first</button>
+            <button className="tabBtn" onClick={() => runLegacyPrompt("save today’s checkpoint", "Saved today’s checkpoint.")}>Today checkpoint</button>
             <button className="tabBtn" onClick={saveForFamily}>Save for family</button>
             <button className="tabBtn" onClick={() => { setOpen(true); void startVoice(false); }}>Talk by mic</button>
           </div>
