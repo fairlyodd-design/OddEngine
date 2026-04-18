@@ -260,6 +260,40 @@ function getHomiePresenceLine(emotion: HomiePresenceEmotion, activeTitle: string
 }
 // ===== v10.36.20 Homie true presence helpers END =====
 
+
+// ===== v10.36.24 Homie runtime self-check + trust helpers =====
+type HomieTrustSignalTone = "good" | "warn" | "idle";
+
+function isHomieRuntimeSelfCheckPrompt(text: string) {
+  const lower = text.trim().toLowerCase();
+  return /\b(are you okay|are you ok|self check|self-check|runtime check|trust check|status check|can you hear me|can you talk|is your mic working|is the mic working|is voice working|what do you know|what are you guessing|what needs confirmation)\b/.test(lower);
+}
+
+function yesNo(value: boolean, yes: string, no: string) {
+  return value ? yes : no;
+}
+
+function plainPermissionLabel(permission: VoiceDiagnostics["permissionState"]) {
+  if (permission === "granted") return "allowed";
+  if (permission === "denied") return "blocked";
+  if (permission === "prompt") return "will ask when used";
+  return "unknown";
+}
+
+function bridgePlainLabel(state: VoiceDiagnostics["externalBridgeState"]) {
+  switch (state) {
+    case "ready": return "ready";
+    case "recording": return "recording";
+    case "transcribing": return "transcribing";
+    case "configuring": return "checking";
+    case "degraded": return "having trouble";
+    case "unavailable": return "unavailable";
+    case "disabled": return "off";
+    default: return String(state || "unknown");
+  }
+}
+// ===== v10.36.24 Homie runtime self-check + trust helpers END =====
+
 export default function HomieBuddy({
   activePanelId,
   onNavigate,
@@ -403,6 +437,10 @@ export default function HomieBuddy({
   function handleCompanionConversation(text: string, source: "typed" | "voice" | "quick" = "typed") {
     const trimmed = text.trim();
     if (!trimmed) return false;
+    if (isHomieRuntimeSelfCheckPrompt(trimmed)) {
+      void runHomieRuntimeSelfCheck(source, trimmed);
+      return true;
+    }
     const ctx = { activePanelTitle: activeTitle, activePanelId, status, mood, source };
     const reply = buildHomieCompanionReply(trimmed, ctx);
     appendCompanionMessages([
@@ -412,6 +450,85 @@ export default function HomieBuddy({
     announce(reply.text, reply.mood, source === "voice" || voiceEnabled, trimForSpeech(reply.text));
     return true;
   }
+
+
+  async function runHomieRuntimeSelfCheck(source: "typed" | "voice" | "quick" = "quick", prompt = "Homie, are you okay?") {
+    const latest = await refreshVoiceDiagnostics();
+    let bridge: { ok: boolean; status?: string; message?: string; model?: string } = {
+      ok: diagnostics.externalBridgeState === "ready" || diagnostics.externalBridgeState === "recording" || diagnostics.externalBridgeState === "transcribing",
+      status: diagnostics.externalBridgeState,
+      message: diagnostics.externalBridgeMessage,
+      model: diagnostics.externalBridgeModel,
+    };
+
+    if (wantsExternalVoice()) {
+      try {
+        bridge = await getExternalBridgeReadiness(true, latest);
+      } catch {
+        bridge = { ok: false, status: "degraded", message: "I tried to check the local bridge, but the probe itself failed." };
+      }
+    }
+
+    const speechAvailable = typeof window !== "undefined" && !!window.speechSynthesis;
+    const micKnown = latest.microphoneApiAvailable
+      ? `microphone API is present; permission is ${plainPermissionLabel(latest.permissionState)}; ${latest.audioInputCount || 0} audio input${latest.audioInputCount === 1 ? "" : "s"} detected`
+      : "microphone API is not available in this runtime";
+    const speakerKnown = speechAvailable
+      ? `speaker output API is present; Homie voice is ${voiceEnabled ? "enabled" : "muted"}; I am ${isSpeaking ? "speaking right now" : "not speaking right now"}`
+      : "speaker output API is not available in this runtime";
+    const bridgeKnown = wantsExternalVoice()
+      ? `local bridge is ${bridge.ok ? "reachable" : "not confirmed"} at ${externalVoiceBaseUrl}; state is ${bridgePlainLabel((bridge.status as VoiceDiagnostics["externalBridgeState"]) || diagnostics.externalBridgeState)}`
+      : `local bridge is not selected; current mode is ${voiceModeLabel}`;
+    const memoryKnown = `I can see ${companionMemory.checkInCount} check-in${companionMemory.checkInCount === 1 ? "" : "s"}, themes: ${companionMemory.recentThemeText || "general"}, and ${companionMemory.legacyArtifactCount} family artifact${companionMemory.legacyArtifactCount === 1 ? "" : "s"} in this local Homie memory lane`;
+
+    const known = [
+      `Mic: ${micKnown}.`,
+      `Speaker: ${speakerKnown}.`,
+      `Memory: ${memoryKnown}.`,
+      `Bridge: ${bridgeKnown}.`,
+    ];
+
+    const guessing = [
+      "I am not reading your physical room, your actual speaker volume, or your real mic level unless a mic test, transcript, or bridge response gives me evidence.",
+      "I cannot know whether you personally heard me unless you confirm it.",
+      "I can summarize local Homie memory, but I cannot prove your family has opened or read any saved note yet.",
+    ];
+
+    const needsConfirmation = [
+      latest.permissionState === "granted" ? "Say a short test phrase so I can confirm the transcript path." : "Confirm Windows and browser/Electron microphone permission.",
+      voiceEnabled ? "Tell me if my voice volume and pacing feel right." : "Turn Voice on if you want speaker output.",
+      wantsExternalVoice() && !bridge.ok ? "Start or repair the local voice bridge if you want local mic transcription." : "Tell me whether you want cloud, hybrid, or local bridge as the default voice lane.",
+    ];
+
+    const allGreen = latest.microphoneApiAvailable && latest.permissionState !== "denied" && speechAvailable && (!wantsExternalVoice() || !!bridge.ok);
+    const displayText = [
+      allGreen ? "Runtime self-check: I look okay from the signals I can actually see." : "Runtime self-check: I’m present, but at least one voice signal needs attention.",
+      "",
+      "What I know:",
+      ...known.map((line) => `• ${line}`),
+      "",
+      "What I’m guessing / not claiming:",
+      ...guessing.map((line) => `• ${line}`),
+      "",
+      "What needs your confirmation:",
+      ...needsConfirmation.map((line) => `• ${line}`),
+    ].join("\n");
+
+    const spokenText = allGreen
+      ? "I look okay from the runtime signals I can actually see. I still need you to confirm that you can hear me and that the mic catches your words."
+      : "I’m here, but one voice signal needs attention. I’ll show what I know, what I’m guessing, and what needs your confirmation.";
+
+    appendCompanionMessages([
+      createHomieMessage("user", prompt, source),
+      createHomieMessage("homie", displayText, source),
+    ]);
+    setCompanionMemory(getHomieCompanionMemorySnapshot());
+    setLegacyArtifactSummaries(getHomieLegacyArtifactSummaries(4));
+    announce(displayText, allGreen ? "good" : "warn", source === "voice" || voiceEnabled, spokenText);
+    if (!allGreen) setShowDiagnostics(true);
+    return { ok: allGreen, displayText, spokenText };
+  }
+
 
   function runCompanionQuick(text: string) {
     handleCompanionConversation(text, "quick");
@@ -1168,6 +1285,7 @@ export default function HomieBuddy({
               {isHoldingToTalk ? "Release to stop" : "Hold to talk"}
             </button>
             <button className="tabBtn" onClick={() => void runMicTest()}>Mic test</button>
+            <button className="tabBtn" onClick={() => void runHomieRuntimeSelfCheck("quick")}>Self check</button>
             <button className="tabBtn" onClick={() => { const digest = buildMorningDigest(); announce(digest, "good", true, trimForSpeech(digest)); }}>Read digest</button>
             {mode === "floating" && <button className="tabBtn" onClick={launchCompanion}>Pop out</button>}
           </div>
