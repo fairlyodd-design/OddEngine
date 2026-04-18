@@ -173,9 +173,30 @@ function pickVoice(profile: "auto" | "warm" | "clear" | "bright") {
 }
 
 function trimForSpeech(text: string) {
-  const compact = text.replace(/\s+/g, " ").trim();
-  const firstSentence = compact.split(/(?<=[.!?])\s+/)[0] || compact;
-  return firstSentence.length > 180 ? `${firstSentence.slice(0, 177)}...` : firstSentence;
+  const compact = text
+    .replace(/\*\*/g, "")
+    .replace(/\s+/g, " ")
+    .replace(/\bBody:\s*/g, "First, ")
+    .replace(/\bMind:\s*/g, "Here’s the thought: ")
+    .replace(/\bFamily:\s*/g, "For the family lane, ")
+    .replace(/\bNext move:\s*/g, "Next, ")
+    .replace(/\bLast thread I remember:\s*/g, "One thing I still remember: ")
+    .trim();
+
+  if (!compact) return "I’m here.";
+
+  const pieces = compact.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [compact];
+  const spoken = pieces
+    .map((piece) => piece.trim())
+    .filter(Boolean)
+    .slice(0, 2)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const warm = spoken || compact;
+  if (warm.length <= 210) return warm;
+  return warm.slice(0, 207) + "...";
 }
 
 function downloadTextFile(filename: string, text: string) {
@@ -332,8 +353,8 @@ export default function HomieBuddy({
       const utterance = new SpeechSynthesisUtterance((spokenOverride || text).replace(/\*\*/g, ""));
       const voice = pickVoice(voiceProfile);
       if (voice) utterance.voice = voice;
-      utterance.rate = 0.98;
-      utterance.pitch = skin === "phoenix" ? 1.01 : skin === "terminal" ? 0.82 : 0.93;
+      utterance.rate = 0.93;
+      utterance.pitch = skin === "terminal" ? 0.86 : skin === "phoenix" ? 1.0 : 0.96;
       utterance.onstart = () => setIsSpeaking(true);
       utterance.onend = () => setIsSpeaking(false);
       utterance.onerror = () => setIsSpeaking(false);
@@ -538,8 +559,9 @@ export default function HomieBuddy({
       }
 
       emitVoiceStatus({ source, status: "transcript", message: `Heard: ${transcript}`, transcript, mode: "external" });
-      announce(`Heard: ${transcript}`, "good", false, trimForSpeech(transcript));
-      run(transcript);
+      setStatus("Heard you. I’m answering.");
+      setMood("good");
+      window.setTimeout(() => run(transcript), 90);
     } catch (error: any) {
       const code = String(error?.name || "external-transcribe-error");
       const message = classifyExternalBridgeError(`${code}: ${String(error?.message || "External/local transcription failed.")}`, externalVoiceBaseUrl);
@@ -671,8 +693,9 @@ export default function HomieBuddy({
           return;
         }
         emitVoiceStatus({ source, status: "transcript", message: `Heard: ${transcript}`, transcript, mode: "cloud" });
-        announce(`Heard: ${transcript}`, "good", false, trimForSpeech(transcript));
-        run(transcript);
+        setStatus("Heard you. I’m answering.");
+        setMood("good");
+        window.setTimeout(() => run(transcript), 90);
       };
 
       rec.onerror = (event: any) => {
@@ -920,7 +943,7 @@ export default function HomieBuddy({
           <div className="homieRebuildSectionHead">
             <div>
               <div className="assistantSectionTitle">Talk with Homie</div>
-              <div className="small">Short voice-friendly support first. Deeper support when you stay in the lane.</div>
+              <div className="small">Warm short replies first. Deeper support when you stay in the lane.</div>
             </div>
             <button
               className="tabBtn active"

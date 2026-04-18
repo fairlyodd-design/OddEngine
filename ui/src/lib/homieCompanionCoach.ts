@@ -16,20 +16,22 @@ export type HomieCompanionContext = {
   source?: "typed" | "voice" | "quick";
 };
 
-export type HomieCompanionReply = {
-  text: string;
-  mood: HomieCompanionMood;
-  tags: string[];
-  nextStep?: string;
-  artifact?: HomieLegacyArtifact;
-};
-
 export type HomieLegacyArtifact = {
   id: string;
   title: string;
   body: string;
   ts: number;
   sourceText?: string;
+};
+
+export type HomieCompanionReply = {
+  text: string;
+  displayText?: string;
+  spokenText?: string;
+  mood: HomieCompanionMood;
+  tags: string[];
+  nextStep?: string;
+  artifact?: HomieLegacyArtifact;
 };
 
 type HomieMemory = {
@@ -57,8 +59,11 @@ export type HomieCompanionMemorySnapshot = {
 };
 
 const HISTORY_KEY = "oddengine:homie:companion-history:v1";
-const MEMORY_KEY = "oddengine:homie:companion-memory:v2";
-const OLD_MEMORY_KEY = "oddengine:homie:companion-memory:v1";
+const MEMORY_KEY = "oddengine:homie:companion-memory:v3";
+const OLD_MEMORY_KEYS = [
+  "oddengine:homie:companion-memory:v2",
+  "oddengine:homie:companion-memory:v1",
+];
 const MAX_HISTORY = 18;
 const MAX_THEMES = 10;
 const MAX_ARTIFACTS = 12;
@@ -82,23 +87,9 @@ function writeJson(key: string, value: any) {
   try {
     if (typeof localStorage === "undefined") return;
     localStorage.setItem(key, JSON.stringify(value));
-  } catch {}
-}
-
-export function loadHomieCompanionHistory(): HomieCompanionMessage[] {
-  const raw = readJson<HomieCompanionMessage[]>(HISTORY_KEY, []);
-  return Array.isArray(raw) ? raw.slice(-MAX_HISTORY) : [];
-}
-
-export function saveHomieCompanionHistory(messages: HomieCompanionMessage[]) {
-  writeJson(HISTORY_KEY, messages.slice(-MAX_HISTORY));
-}
-
-function loadMemory(): HomieMemory {
-  const v2 = readJson<HomieMemory | null>(MEMORY_KEY, null);
-  if (v2) return normalizeMemory(v2);
-  const v1 = readJson<HomieMemory | null>(OLD_MEMORY_KEY, null);
-  return normalizeMemory(v1 || {});
+  } catch {
+    // ignore
+  }
 }
 
 function normalizeMemory(memory: HomieMemory): HomieMemory {
@@ -110,8 +101,27 @@ function normalizeMemory(memory: HomieMemory): HomieMemory {
   };
 }
 
+function loadMemory(): HomieMemory {
+  const current = readJson<HomieMemory | null>(MEMORY_KEY, null);
+  if (current) return normalizeMemory(current);
+  for (const key of OLD_MEMORY_KEYS) {
+    const old = readJson<HomieMemory | null>(key, null);
+    if (old) return normalizeMemory(old);
+  }
+  return normalizeMemory({});
+}
+
 function saveMemory(memory: HomieMemory) {
   writeJson(MEMORY_KEY, normalizeMemory(memory));
+}
+
+export function loadHomieCompanionHistory(): HomieCompanionMessage[] {
+  const raw = readJson<HomieCompanionMessage[]>(HISTORY_KEY, []);
+  return Array.isArray(raw) ? raw.slice(-MAX_HISTORY) : [];
+}
+
+export function saveHomieCompanionHistory(messages: HomieCompanionMessage[]) {
+  writeJson(HISTORY_KEY, messages.slice(-MAX_HISTORY));
 }
 
 export function createHomieMessage(role: HomieCompanionMessage["role"], text: string, source: HomieCompanionMessage["source"] = "typed"): HomieCompanionMessage {
@@ -128,9 +138,9 @@ export function shouldHomieCompanionAnswer(text: string): boolean {
   if (!lower) return false;
   if (lower.startsWith("homie ") || lower.startsWith("homie,") || lower.startsWith("hey homie") || lower.startsWith("coach me") || lower.startsWith("life coach")) return true;
   if (lower.includes("how am i doing") || lower.includes("i feel") || lower.includes("i'm feeling") || lower.includes("i am feeling")) return true;
-  if (lower.includes("overwhelmed") || lower.includes("stressed") || lower.includes("scared") || lower.includes("tired") || lower.includes("sad") || lower.includes("burned out")) return true;
+  if (lower.includes("overwhelmed") || lower.includes("stressed") || lower.includes("scared") || lower.includes("tired") || lower.includes("sad") || lower.includes("burned out") || lower.includes("heavy")) return true;
   if (lower.includes("help me focus") || lower.includes("check in") || lower.includes("talk to me") || lower.includes("motivate me") || lower.includes("ground me")) return true;
-  if (lower.includes("legacy") || lower.includes("family note") || lower.includes("protect my family")) return true;
+  if (lower.includes("legacy") || lower.includes("family note") || lower.includes("protect my family") || lower.includes("save this for family")) return true;
   return !commandStarters.some((starter) => lower.startsWith(starter) || lower === starter.trim());
 }
 
@@ -140,7 +150,7 @@ function detectThemes(text: string): string[] {
   if (/family|wife|kids|legacy|stacy|home|letter|note to/.test(lower)) themes.push("family");
   if (/trade|trading|money|income|budget|bills|debt|capital/.test(lower)) themes.push("money");
   if (/studio|song|book|movie|writer|creative|render|draft|outline|artifact|title/.test(lower)) themes.push("creative");
-  if (/health|doctor|pain|sick|tired|energy|medical|body|breath|water/.test(lower)) themes.push("health");
+  if (/health|doctor|pain|sick|tired|energy|medical|body|breath|water|sleep/.test(lower)) themes.push("health");
   if (/overwhelm|stress|anxious|panic|scared|sad|angry|burned out|spiral|heavy/.test(lower)) themes.push("grounding");
   if (/win|solid|great|done|passed|pushed|green|worked|checkpoint|clean/.test(lower)) themes.push("celebration");
   return Array.from(new Set(themes.length ? themes : ["general"]));
@@ -165,45 +175,56 @@ function lastTheme(memory: HomieMemory) {
 }
 
 function startsLikeRepeat(next: string, memory: HomieMemory) {
-  const last = (memory.lastReplyText || "").slice(0, 48).toLowerCase();
-  return !!last && next.slice(0, 48).toLowerCase() === last;
+  const last = (memory.lastReplyText || "").slice(0, 64).toLowerCase();
+  return !!last && next.slice(0, 64).toLowerCase() === last;
 }
 
 function openingLine(themes: string[], memory: HomieMemory, checkIn: boolean, text: string) {
   const count = memory.checkInCount || 0;
-  if (themes.includes("celebration")) return "That one counts, Homie. We lock the win before we sprint past it.";
-  if (themes.includes("grounding")) return count > 0 ? "I’m here. Let’s make this smaller again." : "I’m here with you. First we get your body out of alarm mode.";
-  if (checkIn && lastTheme(memory) === "family") return "I’m with you — and I remember the legacy lane from the last check-in.";
-  if (checkIn) return count > 0 ? "I’m with you. Body, mind, family, next move — one clean pass." : "I’m with you. Let’s do the real check-in without making it huge.";
-  if (/protect|legacy|family/i.test(text)) return "I hear the family legacy lane. That gets the calm, careful version of us.";
-  return oneOf(["I hear you, Homie.", "I’m here, Homie.", "Got you, Homie."], text);
+  const seed = [text, String(count), memory.lastNextStep || ""].join("|");
+  if (themes.includes("celebration")) {
+    return oneOf([
+      "That one counts, Homie. Let’s actually feel the win for a second.",
+      "Good. That’s a real checkpoint — breathe it in before we sprint again.",
+      "There we go. We lock the win, then we move clean."
+    ], seed);
+  }
+  if (themes.includes("grounding")) {
+    return count > 0
+      ? oneOf(["I’m here. We can make this smaller.", "Still with you. Let’s take the pressure out of it.", "I’ve got you. One breath, then one tile."], seed)
+      : oneOf(["I’m here with you. First we calm the alarm bell.", "Got you. We don’t solve everything from a clenched body.", "I’m with you. Let’s slow the room down first."], seed);
+  }
+  if (checkIn && lastTheme(memory) === "family") return "I’m with you — and I remember the family lane matters here.";
+  if (checkIn) return count > 0 ? oneOf(["I’m with you. Let’s do one clean pass.", "Right here with you. Body, mind, family, next move.", "Got you. We’ll keep it small and real."], seed) : "I’m with you. Let’s check in without making it huge.";
+  if (/protect|legacy|family/i.test(text)) return "I hear the family lane. We’ll keep this careful and useful.";
+  return oneOf(["I hear you, Homie.", "I’m here with you.", "Got you. Let’s make it easier.", "Yeah — I’m with you."], seed);
 }
 
 function bodyStep(themes: string[]) {
-  if (themes.includes("grounding") || themes.includes("health")) return "Drop your shoulders, unclench your jaw, and take one slow breath before we decide anything.";
-  return "Quick body check: breathe once, soften the shoulders, and don’t let the screen rush you.";
+  if (themes.includes("grounding") || themes.includes("health")) return "Drop your shoulders, loosen your jaw, and take one slow breath before the next decision.";
+  return "One breath first. Let the screen wait half a second.";
 }
 
 function mindStep(themes: string[]) {
-  if (themes.includes("grounding")) return "Your brain is trying to carry every tab at once; we only need the next tile.";
-  if (themes.includes("money")) return "No panic math and no revenge move; protect the floor first.";
-  if (themes.includes("creative")) return "A saved rough artifact beats a perfect idea trapped in your head.";
-  return "We shrink the mission until it is small enough to finish.";
+  if (themes.includes("grounding")) return "Your brain is trying to hold the whole board; we only need the next square.";
+  if (themes.includes("money")) return "No panic math. Protect the floor, then look for the clean setup.";
+  if (themes.includes("creative")) return "A rough saved artifact beats a perfect idea stuck in your head.";
+  return "Shrink the mission until it is small enough to finish.";
 }
 
 function familyStep(themes: string[]) {
-  if (themes.includes("family")) return "Family legacy today means leave one thing clearer, kinder, or easier to open later.";
-  if (themes.includes("creative")) return "Make it something the family can open: a note, outline, draft, checklist, or checkpoint.";
-  return "The family lane stays protected by steady choices, not by trying to finish the whole universe tonight.";
+  if (themes.includes("family")) return "Leave one thing clearer, kinder, or easier for them to open later.";
+  if (themes.includes("creative")) return "Make one thing the family could actually open: a note, draft, checklist, or checkpoint.";
+  return "The family lane is protected by steady choices, not by carrying the whole universe tonight.";
 }
 
 function nextStepFor(themes: string[], text: string) {
   const lower = text.toLowerCase();
-  if (themes.includes("grounding")) return "Get water, say the single next action out loud, then do only the first two minutes.";
-  if (themes.includes("family")) return "Save one five-line Family Legacy Note: what matters, what to open first, and one message from you.";
+  if (themes.includes("grounding")) return "Get water, name the single next action out loud, then do only two minutes.";
+  if (themes.includes("family")) return "Save one short family note: what matters, what to open first, and one message from you.";
   if (themes.includes("money")) return "Review first, size small, and only act if the setup is clean enough to explain in one sentence.";
-  if (themes.includes("creative")) return "Create one artifact today: title, outline, first draft, voice note, or checkpoint — not the whole project.";
-  if (themes.includes("health")) return "Write the body signal down; if anything feels urgent or dangerous, involve real medical help now.";
+  if (themes.includes("creative")) return "Create one saved artifact today — title, outline, first draft, voice note, or checkpoint.";
+  if (themes.includes("health")) return "Write the body signal down; if anything feels urgent or dangerous, bring in real medical help now.";
   if (lower.includes("what should")) return "Choose the move that reduces chaos, protects family, or creates a saved checkpoint.";
   return "Tell me the heaviest thing in one sentence, and I’ll cut it down to the next move.";
 }
@@ -247,7 +268,7 @@ function remember(themes: string[], text: string, replyText: string, nextStep: s
     checkInCount: (memory.checkInCount || 0) + (checkIn ? 1 : 0),
     recentThemes,
     lastUserText: text.slice(0, 600),
-    lastReplyText: replyText.slice(0, 900),
+    lastReplyText: replyText.slice(0, 1200),
     lastNextStep: nextStep,
     lastBodyStep: bodyStep(themes),
     lastMindStep: mindStep(themes),
@@ -259,39 +280,85 @@ function remember(themes: string[], text: string, replyText: string, nextStep: s
   return next;
 }
 
-function formatReply(parts: string[], source?: "typed" | "voice" | "quick") {
-  const cleaned = parts.map((p) => p.trim()).filter(Boolean);
-  if (source === "voice") return cleaned.slice(0, 5).join(" ");
-  return cleaned.join("\n\n");
+function formatDisplayReply(parts: string[]) {
+  return parts.map((p) => p.trim()).filter(Boolean).join("\n\n");
+}
+
+function formatSpokenReply(opening: string, nextStep: string, themes: string[]) {
+  const lane = themes.includes("grounding")
+    ? "Let’s steady you first."
+    : themes.includes("family")
+    ? "We stay in the legacy lane."
+    : themes.includes("money")
+    ? "We keep this calm and practical."
+    : themes.includes("creative")
+    ? "We make one real thing, not the whole universe."
+    : "One clean move at a time.";
+  return `${opening} ${lane} Next move: ${nextStep}`.replace(/\s+/g, " ").trim();
+}
+
+function softenForVoice(part: string) {
+  return part
+    .replace(/^Body:\s*/i, "First, ")
+    .replace(/^Mind:\s*/i, "Here’s the thought: ")
+    .replace(/^Family:\s*/i, "For the family lane, ")
+    .replace(/^Next move:\s*/i, "Next, ")
+    .replace(/^Last thread I remember:\s*/i, "I still remember this thread: ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function voiceCadenceReply(parts: string[]) {
+  const lead = softenForVoice(parts[0] || "I’m here with you.");
+  const body = softenForVoice(parts[1] || "One breath first.");
+  const next = softenForVoice(parts.find((part) => /^Next move:/i.test(part)) || parts[4] || "Next, tell me the heaviest thing in one sentence.");
+  const artifact = parts.find((part) => /legacy artifact|family note/i.test(part));
+  return [lead, body, next, artifact ? softenForVoice(artifact) : ""]
+    .filter(Boolean)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 export function buildHomieCompanionReply(text: string, ctx: HomieCompanionContext): HomieCompanionReply {
   const cleaned = cleanPrompt(text);
-  const themes = detectThemes(cleaned || text);
+  const workingText = cleaned || text;
+  const themes = detectThemes(workingText);
   const memory = loadMemory();
   const checkIn = /check in|how am i|how are we|life coach|coach me|ground me|help me focus|talk to me/i.test(text);
-  const nextStep = nextStepFor(themes, cleaned || text);
-  const artifact = shouldCreateLegacyArtifact(themes, text) ? buildLegacyArtifact(cleaned || text, ctx, nextStep) : undefined;
+  const nextStep = nextStepFor(themes, workingText);
+  const artifact = shouldCreateLegacyArtifact(themes, text) ? buildLegacyArtifact(workingText, ctx, nextStep) : undefined;
 
+  const opening = openingLine(themes, memory, checkIn, text);
   const parts = [
-    openingLine(themes, memory, checkIn, text),
+    opening,
     `Body: ${bodyStep(themes)}`,
     `Mind: ${mindStep(themes)}`,
     `Family: ${familyStep(themes)}`,
     `Next move: ${nextStep}`,
   ];
 
-  if (artifact) parts.push(`I also drafted a tiny legacy artifact: ${artifact.title}. You can copy/save it from this card later.`);
-  if ((memory.checkInCount || 0) > 0 && memory.lastNextStep && !themes.includes("celebration")) parts.push(`Last thread I remember: ${memory.lastNextStep}`);
-
-  let replyText = formatReply(parts, ctx.source);
-  if (startsLikeRepeat(replyText, memory)) {
-    replyText = formatReply(["Still with you, Homie — different angle this time.", ...parts.slice(1)], ctx.source);
+  if (artifact) parts.push(`I also drafted a tiny legacy artifact: ${artifact.title}. You can copy or save it from this card.`);
+  if ((memory.checkInCount || 0) > 0 && memory.lastNextStep && !themes.includes("celebration")) {
+    parts.push(`Last thread I remember: ${memory.lastNextStep}`);
   }
 
-  remember(themes, cleaned || text, replyText, nextStep, artifact, checkIn);
+  let displayText = formatDisplayReply(parts);
+  if (startsLikeRepeat(displayText, memory)) {
+    displayText = formatDisplayReply([
+      "Still with you, Homie — different angle this time.",
+      `Body: ${bodyStep(themes)}`,
+      `Mind: ${mindStep(themes)}`,
+      `Family: ${familyStep(themes)}`,
+      `Next move: ${nextStep}`,
+      artifact ? `I also drafted a tiny legacy artifact: ${artifact.title}. You can copy or save it from this card.` : "",
+    ]);
+  }
+
+  const spokenText = formatSpokenReply(opening, nextStep, themes);
+  remember(themes, workingText, displayText, nextStep, artifact, checkIn);
   const mood: HomieCompanionMood = themes.includes("grounding") || themes.includes("health") ? "warn" : "good";
-  return { text: replyText, mood, tags: themes, nextStep, artifact };
+  return { text: displayText, displayText, spokenText, mood, tags: themes, nextStep, artifact };
 }
 
 export function buildHomieCompanionCheckIn(ctx: HomieCompanionContext): HomieCompanionReply {
@@ -316,7 +383,11 @@ export function buildHomieLegacyArtifactDraft(ctx: HomieCompanionContext): Homie
   const memory = loadMemory();
   const nextStep = memory.lastNextStep || "Save one small note the family can open later.";
   const artifact = buildLegacyArtifact(memory.lastUserText || "Family legacy check-in", ctx, nextStep);
-  saveMemory({ ...memory, lastArtifactTitle: artifact.title, legacyArtifacts: [...(memory.legacyArtifacts || []), artifact].slice(-MAX_ARTIFACTS) });
+  saveMemory({
+    ...memory,
+    lastArtifactTitle: artifact.title,
+    legacyArtifacts: [...(memory.legacyArtifacts || []), artifact].slice(-MAX_ARTIFACTS),
+  });
   return artifact;
 }
 
@@ -325,6 +396,11 @@ export function exportHomieLegacyArtifactText() {
   const latest = (memory.legacyArtifacts || []).slice(-1)[0];
   if (latest) return latest.body;
   return buildHomieLegacyArtifactDraft({ activePanelTitle: "Homie", activePanelId: "Homie", status: "Ready", mood: "good", source: "quick" }).body;
+}
+
+export function downloadHomieLegacyArtifactFileName() {
+  const stamp = new Date().toISOString().slice(0, 10);
+  return `Homie_Family_Legacy_Note_${stamp}.txt`;
 }
 
 export function clearHomieCompanionHistory() {
