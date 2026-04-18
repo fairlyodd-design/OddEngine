@@ -1,0 +1,293 @@
+.homieRebuildDock{
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.homieRebuildLauncher{
+  width: 90px;
+  height: 90px;
+  border-color: rgba(154,230,255,0.34) !important;
+  box-shadow:
+    0 18px 42px rgba(0,0,0,0.42),
+    0 0 24px rgba(154,230,255,0.12),
+    0 0 44px rgba(255,170,220,0.08) !important;
+}
+
+.homieRebuildStandalone{
+  width: min(100%, 760px);
+  margin: 0 auto;
+  padding: 18px;
+}
+
+.homieRebuildPanel{
+  width: min(560px, calc(100vw - 126px));
+  max-height: min(82vh, 860px);
+  overflow: auto;
+  border-color: rgba(154,230,255,0.16) !important;
+  background:
+    radial-gradient(520px 240px at 12% 0%, rgba(154,230,255,0.09), rgba(154,230,255,0) 60%),
+    radial-gradient(420px 240px at 88% 0%, rgba(255,170,220,0.08), rgba(255,170,220,0) 60%),
+    linear-gradient(180deg, rgba(10,15,24,0.96) 0%, rgba(7,10,18,0.97) 100%) !important;
+  backdrop-filter: blur(16px);
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.42),
+    0 0 0 1px rgba(255,255,255,0.03) inset,
+    0 0 42px rgba(94,234,242,0.08);
+}
+
+.homieRebuildPanel.standalone{
+  width: 100%;
+  max-height: none;
+  min-height: calc(100vh - 72px);
+}
+
+.homieRebuildHeader{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.homieRebuildBrand{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.homieRebuildLogo{
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 0 18px rgba(94,234,242,0.14);
+}
+
+.homieRebuildHeaderActions{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.homieRebuildLayout{
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.homieRebuildStage,
+.homieRebuildConversation,
+.homieRebuildVoice{
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(154,230,255,0.14);
+  background:
+    radial-gradient(360px 160px at 12% 0%, rgba(154,230,255,0.08), rgba(154,230,255,0) 64%),
+    radial-gradient(320px 160px at 94% 0%, rgba(255,170,220,0.07), rgba(255,170,220,0) 64%),
+    rgba(8,13,22,0.88);
+}
+
+.homieRebuildStage{
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding-top: 16px;
+}
+
+.homieRebuildAura{
+  position: absolute;
+  inset: 16px 20px auto 20px;
+  height: 220px;
+  pointer-events: none;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(154,230,255,0.20), rgba(154,230,255,0) 58%),
+    radial-gradient(circle at 50% 50%, rgba(255,170,220,0.10), rgba(255,170,220,0) 68%);
+  filter: blur(10px);
+  opacity: 0.9;
+}
+
+.homieRebuildAura.mood-warn{
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255,209,102,0.18), rgba(255,209,102,0) 58%),
+    radial-gradient(circle at 50% 50%, rgba(255,170,220,0.08), rgba(255,170,220,0) 68%);
+}
+
+.homieRebuildAvatarWrap{
+  position: relative;
+  z-index: 1;
+  padding-top: 4px;
+}
+
+.homieRebuildAvatar{
+  width: 146px;
+  height: 146px;
+  animation: none;
+  box-shadow:
+    0 20px 52px rgba(0,0,0,0.38),
+    0 0 32px rgba(154,230,255,0.14),
+    0 0 60px rgba(255,170,220,0.10);
+}
+
+.homieRebuildAvatar .homieOrbCore{
+  inset: 14px;
+}
+
+.homieRebuildPresence{
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.homieRebuildStageText{
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  display: grid;
+  gap: 6px;
+}
+
+.homieRebuildMemoryGrid{
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.homieRebuildMemoryCell{
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  background: rgba(255,255,255,0.04);
+  padding: 10px 12px;
+  display: grid;
+  gap: 4px;
+}
+
+.homieRebuildMemoryCell strong{
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.homieRebuildMemoryCell.wide{
+  grid-column: 1 / -1;
+}
+
+.homieRebuildSectionHead{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.homieRebuildMessages{
+  max-height: 260px;
+  margin-top: 12px;
+}
+
+.homieRebuildComposer{
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.homieRebuildQuickActions{
+  margin-top: 10px;
+}
+
+.homieRebuildVoiceMeta{
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.035);
+}
+
+.homieRebuildDiagnostics{
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,209,102,0.14);
+  background:
+    radial-gradient(260px 120px at 0% 0%, rgba(255,209,102,0.08), rgba(255,209,102,0) 64%),
+    rgba(255,255,255,0.03);
+  display: grid;
+  gap: 6px;
+}
+
+.homieRebuildFooter{
+  margin-top: 12px;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+@media (max-width: 820px){
+  .homieRebuildPanel{
+    width: min(94vw, 520px);
+    max-height: min(86vh, 860px);
+  }
+
+  .homieRebuildHeader,
+  .homieRebuildSectionHead{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .homieRebuildHeaderActions{
+    justify-content: flex-start;
+  }
+
+  .homieRebuildComposer{
+    grid-template-columns: 1fr;
+  }
+
+  .homieRebuildMemoryGrid{
+    grid-template-columns: 1fr;
+  }
+
+  .homieRebuildMemoryCell.wide{
+    grid-column: auto;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference){
+  .homieRebuildAvatar{
+    animation: homieRebuildFloat 6s ease-in-out infinite;
+  }
+
+  .homieRebuildLauncher{
+    animation: homieRebuildFloat 5.4s ease-in-out infinite;
+  }
+
+  .homieRebuildAura.listening{
+    animation: homieRebuildPulse 1.8s ease-in-out infinite;
+  }
+
+  .homieRebuildAura.speaking{
+    animation: homieRebuildPulse 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes homieRebuildFloat{
+  0%,100%{ transform: translateY(0px); }
+  50%{ transform: translateY(-4px); }
+}
+
+@keyframes homieRebuildPulse{
+  0%,100%{ transform: scale(0.98); opacity: 0.72; }
+  50%{ transform: scale(1.03); opacity: 1; }
+}
