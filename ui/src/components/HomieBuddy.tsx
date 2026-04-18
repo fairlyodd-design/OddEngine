@@ -190,6 +190,41 @@ function downloadTextFile(filename: string, text: string) {
   window.setTimeout(() => URL.revokeObjectURL(url), 250);
 }
 
+
+// ===== v10.36.20 Homie true presence helpers =====
+type HomiePresenceEmotion = "calm" | "warm" | "focused" | "listening" | "speaking" | "concerned" | "celebrating";
+
+function getHomiePresenceEmotion(args: {
+  isListening: boolean;
+  isSpeaking: boolean;
+  mood: "idle" | "good" | "warn";
+  status: string;
+  memory: { recentThemeText?: string };
+}): HomiePresenceEmotion {
+  const status = String(args.status || "").toLowerCase();
+  const themes = String(args.memory?.recentThemeText || "").toLowerCase();
+  if (args.isListening) return "listening";
+  if (args.isSpeaking) return "speaking";
+  if (args.mood === "warn" || /overwhelm|stress|panic|scared|tired|sad|health|pain|warn|fail|blocked/.test((status + " " + themes))) return "concerned";
+  if (/win|celebration|passed|clean|green|done|worked/.test((status + " " + themes))) return "celebrating";
+  if (/focus|next move|mission|trading|build|chain|work/.test((status + " " + themes))) return "focused";
+  if (args.mood === "good" || /family|legacy|check-in|check in|ground/.test((status + " " + themes))) return "warm";
+  return "calm";
+}
+
+function getHomiePresenceLine(emotion: HomiePresenceEmotion, activeTitle: string) {
+  switch (emotion) {
+    case "listening": return "I’m listening — take your time and say it messy if you need to.";
+    case "speaking": return "Answering softly first, then we can go deeper.";
+    case "concerned": return "I’m staying steady with you. Smaller, slower, one next move.";
+    case "celebrating": return "That one counts. We lock the win and keep the room calm.";
+    case "focused": return "Focused with you on " + activeTitle + ". No extra noise.";
+    case "warm": return "Warm lane open — body, mind, family, next move.";
+    default: return "Calm companion mode — present, grounded, and ready.";
+  }
+}
+// ===== v10.36.20 Homie true presence helpers END =====
+
 export default function HomieBuddy({
   activePanelId,
   onNavigate,
@@ -249,6 +284,9 @@ export default function HomieBuddy({
   const voiceModeLabel = voiceEngineMode === "external-http" ? "Local bridge" : voiceEngineMode === "hybrid" ? "Hybrid voice" : "Cloud voice";
   const spokenStatus = isListening ? "Listening" : isSpeaking ? "Speaking" : "Ready";
   const diagnosticsVisible = showDiagnostics || !!diagnostics.lastErrorMessage;
+  const presenceEmotion = getHomiePresenceEmotion({ isListening, isSpeaking, mood, status, memory: companionMemory });
+  const presenceClass = "emotion-" + presenceEmotion;
+  const presenceLine = getHomiePresenceLine(presenceEmotion, activeTitle);
 
   function persistHomiePrefs(partial: Partial<typeof prefs.ai>) {
     const next = { ...prefs, ai: { ...prefs.ai, ...partial } };
@@ -751,12 +789,26 @@ export default function HomieBuddy({
   }, [voiceEngineMode, externalVoiceBaseUrl]);
 
   useEffect(() => {
-    if (!reduceMotion) {
-      if (isListening) setGesture("tilt");
-      else if (isSpeaking) setGesture("nod");
-      else setGesture("none");
+    if (reduceMotion) return;
+    if (isListening) {
+      setGesture("tilt");
+      return;
     }
-  }, [isListening, isSpeaking, reduceMotion]);
+    if (isSpeaking) {
+      setGesture("nod");
+      return;
+    }
+    if (mood === "warn") {
+      setGesture("tilt");
+      return;
+    }
+    if (mood === "good") {
+      setGesture("spark");
+      const id = window.setTimeout(() => setGesture("none"), 900);
+      return () => window.clearTimeout(id);
+    }
+    setGesture("none");
+  }, [isListening, isSpeaking, mood, reduceMotion]);
 
   useEffect(() => {
     if (diagnostics.lastErrorMessage) setShowDiagnostics(true);
@@ -812,7 +864,7 @@ export default function HomieBuddy({
   );
 
   const panel = (
-    <div className={`homieBuddyPanel card softCard homieRebuildPanel ${mode === "standalone" ? "standalone" : ""}`}>
+    <div className={`homieBuddyPanel card softCard homieRebuildPanel ${presenceClass} ${mode === "standalone" ? "standalone" : ""}`}>
       <div className="homieRebuildHeader">
         <div className="homieRebuildBrand">
           <img src={fairlyOddLogo} alt="FairlyOdd" className="homieRebuildLogo" />
@@ -839,9 +891,9 @@ export default function HomieBuddy({
 
       <div className="homieRebuildLayout">
         <section className="card homieRebuildStage">
-          <div className={`homieRebuildAura mood-${mood} ${isListening ? "listening" : ""} ${isSpeaking ? "speaking" : ""}`} />
+          <div className={`homieRebuildAura mood-${mood} ${presenceClass} ${isListening ? "listening" : ""} ${isSpeaking ? "speaking" : ""}`} />
           <div className="homieRebuildAvatarWrap">
-            <span className={`homieOrb homieRebuildAvatar ${avatarState}`}>
+            <span className={`homieOrb homieRebuildAvatar ${presenceClass} ${avatarState}`}>
               {avatarContents}
               <span className="homieOrbRing ringOne" />
               <span className="homieOrbRing ringTwo" />
@@ -855,6 +907,7 @@ export default function HomieBuddy({
           <div className="homieRebuildStageText">
             <div className="assistantSectionTitle">A calmer Homie lane</div>
             <div className="small">{status}</div>
+            <div className="small homieRebuildPresenceLine">{presenceLine}</div>
           </div>
           <div className="homieRebuildMemoryGrid">
             <div className="homieRebuildMemoryCell"><span className="small">Check-ins</span><strong>{companionMemory.checkInCount}</strong></div>
@@ -975,7 +1028,7 @@ export default function HomieBuddy({
   return (
     <div className={shellClass}>
       {mode === "floating" && (
-        <button className={`homieOrb homieRebuildLauncher ${avatarState}`} onClick={() => setOpen((value) => !value)} title="Homie">
+        <button className={`homieOrb homieRebuildLauncher ${presenceClass} ${avatarState}`} onClick={() => setOpen((value) => !value)} title="Homie">
           {avatarContents}
           <span className="homieOrbRing ringOne" />
           <span className="homieOrbRing ringTwo" />

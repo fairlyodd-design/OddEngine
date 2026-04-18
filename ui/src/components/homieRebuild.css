@@ -291,3 +291,245 @@
   0%,100%{ transform: scale(0.98); opacity: 0.72; }
   50%{ transform: scale(1.03); opacity: 1; }
 }
+
+/* ===== v10.36.20 Homie True Presence Face Body Emotion ===== */
+.homieRebuildPanel{
+  --homie-presence-cyan: rgba(154,230,255,0.20);
+  --homie-presence-pink: rgba(255,170,220,0.12);
+  --homie-presence-gold: rgba(255,209,102,0.14);
+}
+
+.homieRebuildPanel.emotion-warm{
+  --homie-presence-cyan: rgba(154,230,255,0.22);
+  --homie-presence-pink: rgba(255,170,220,0.18);
+}
+
+.homieRebuildPanel.emotion-focused{
+  --homie-presence-cyan: rgba(94,234,242,0.24);
+  --homie-presence-pink: rgba(143,98,255,0.12);
+}
+
+.homieRebuildPanel.emotion-concerned{
+  --homie-presence-cyan: rgba(255,209,102,0.18);
+  --homie-presence-pink: rgba(255,170,220,0.10);
+}
+
+.homieRebuildPanel.emotion-celebrating{
+  --homie-presence-cyan: rgba(94,234,242,0.24);
+  --homie-presence-pink: rgba(255,170,220,0.20);
+  --homie-presence-gold: rgba(255,209,102,0.22);
+}
+
+.homieRebuildPresenceLine{
+  color: rgba(232,241,255,0.78);
+  max-width: 420px;
+  margin: 0 auto;
+  line-height: 1.45;
+}
+
+.homieRebuildAura{
+  background:
+    radial-gradient(circle at 50% 50%, var(--homie-presence-cyan), rgba(154,230,255,0) 58%),
+    radial-gradient(circle at 50% 50%, var(--homie-presence-pink), rgba(255,170,220,0) 68%),
+    radial-gradient(circle at 50% 62%, var(--homie-presence-gold), rgba(255,209,102,0) 72%);
+}
+
+.homieRebuildAura.emotion-listening,
+.homieRebuildAura.emotion-speaking{
+  filter: blur(8px) saturate(1.08);
+}
+
+.homieRebuildAvatar,
+.homieRebuildLauncher{
+  transform-origin: 50% 70%;
+}
+
+.homieRebuildAvatar .homieOrbCore,
+.homieRebuildLauncher .homieOrbCore{
+  transition: transform 420ms ease, filter 420ms ease !important;
+}
+
+.homieRebuildAvatar .homieOrbFace,
+.homieRebuildLauncher .homieOrbFace{
+  transition: transform 420ms ease !important;
+}
+
+.homieRebuildAvatar .homieEye,
+.homieRebuildLauncher .homieEye,
+.homieRebuildAvatar .homieOrbBrow,
+.homieRebuildLauncher .homieOrbBrow,
+.homieRebuildAvatar .homieMouth,
+.homieRebuildLauncher .homieMouth,
+.homieRebuildAvatar .homieOrbCheek,
+.homieRebuildLauncher .homieOrbCheek{
+  transition: transform 260ms ease, opacity 260ms ease, box-shadow 260ms ease, border-color 260ms ease, background 260ms ease !important;
+}
+
+.homieRebuildAvatar.emotion-calm .homieOrbCore,
+.homieRebuildLauncher.emotion-calm .homieOrbCore{
+  transform: translateY(0) scale(1);
+}
+
+.homieRebuildAvatar.emotion-warm .homieOrbCore,
+.homieRebuildLauncher.emotion-warm .homieOrbCore{
+  transform: translateY(-1px) scale(1.012);
+  filter: saturate(1.06) brightness(1.04);
+}
+
+.homieRebuildAvatar.emotion-focused .homieOrbCore,
+.homieRebuildLauncher.emotion-focused .homieOrbCore{
+  transform: translateY(-1px) scale(1.006) rotate(-0.6deg);
+}
+
+.homieRebuildAvatar.emotion-concerned .homieOrbCore,
+.homieRebuildLauncher.emotion-concerned .homieOrbCore{
+  transform: translateY(1px) scale(0.992) rotate(0.8deg);
+  filter: saturate(0.95) brightness(0.98);
+}
+
+.homieRebuildAvatar.emotion-listening .homieOrbCore,
+.homieRebuildLauncher.emotion-listening .homieOrbCore{
+  transform: translateY(-2px) scale(1.025) rotate(-1deg);
+  filter: brightness(1.06) saturate(1.08);
+}
+
+.homieRebuildAvatar.emotion-speaking .homieOrbCore,
+.homieRebuildLauncher.emotion-speaking .homieOrbCore{
+  transform: translateY(-1px) scale(1.018);
+}
+
+.homieRebuildAvatar.emotion-celebrating .homieOrbCore,
+.homieRebuildLauncher.emotion-celebrating .homieOrbCore{
+  transform: translateY(-3px) scale(1.03) rotate(-1deg);
+  filter: brightness(1.08) saturate(1.12);
+}
+
+.homieRebuildAvatar.emotion-listening .homieEye,
+.homieRebuildLauncher.emotion-listening .homieEye{
+  transform: scaleY(1.14) scaleX(1.04);
+  box-shadow: 0 0 14px rgba(255,255,255,0.82), 0 0 20px rgba(154,230,255,0.24);
+}
+
+.homieRebuildAvatar.emotion-concerned .homieOrbBrow.left,
+.homieRebuildLauncher.emotion-concerned .homieOrbBrow.left{
+  transform: translateY(1px) rotate(8deg);
+}
+
+.homieRebuildAvatar.emotion-concerned .homieOrbBrow.right,
+.homieRebuildLauncher.emotion-concerned .homieOrbBrow.right{
+  transform: translateY(1px) rotate(-8deg);
+}
+
+.homieRebuildAvatar.emotion-focused .homieEye,
+.homieRebuildLauncher.emotion-focused .homieEye{
+  transform: scaleY(0.96) scaleX(1.05);
+}
+
+.homieRebuildAvatar.emotion-warm .homieOrbCheek,
+.homieRebuildLauncher.emotion-warm .homieOrbCheek,
+.homieRebuildAvatar.emotion-celebrating .homieOrbCheek,
+.homieRebuildLauncher.emotion-celebrating .homieOrbCheek{
+  opacity: 0.92;
+  background: rgba(255,170,220,0.32);
+}
+
+.homieRebuildAvatar.emotion-concerned .homieMouth,
+.homieRebuildLauncher.emotion-concerned .homieMouth{
+  transform: translateX(-50%) scaleX(0.78) translateY(1px);
+  border-bottom-color: rgba(255,209,102,0.92);
+}
+
+.homieRebuildAvatar.emotion-warm .homieMouth,
+.homieRebuildLauncher.emotion-warm .homieMouth,
+.homieRebuildAvatar.emotion-celebrating .homieMouth,
+.homieRebuildLauncher.emotion-celebrating .homieMouth{
+  transform: translateX(-50%) scaleX(1.12) translateY(-1px);
+}
+
+@media (prefers-reduced-motion: no-preference){
+  .homieRebuildAvatar,
+  .homieRebuildLauncher{
+    animation: homiePresenceBreathe 6.2s ease-in-out infinite !important;
+  }
+
+  .homieRebuildAvatar.emotion-listening,
+  .homieRebuildLauncher.emotion-listening{
+    animation: homiePresenceListen 2.1s ease-in-out infinite !important;
+  }
+
+  .homieRebuildAvatar.emotion-speaking,
+  .homieRebuildLauncher.emotion-speaking{
+    animation: homiePresenceSpeakBody 1.25s ease-in-out infinite !important;
+  }
+
+  .homieRebuildAvatar.emotion-concerned,
+  .homieRebuildLauncher.emotion-concerned{
+    animation: homiePresenceConcern 4.8s ease-in-out infinite !important;
+  }
+
+  .homieRebuildAvatar.emotion-celebrating,
+  .homieRebuildLauncher.emotion-celebrating{
+    animation: homiePresenceCelebrate 3.8s ease-in-out infinite !important;
+  }
+
+  .homieRebuildAvatar.emotion-speaking .homieMouth,
+  .homieRebuildLauncher.emotion-speaking .homieMouth{
+    animation: homiePresenceTalk 360ms ease-in-out infinite !important;
+  }
+
+  .homieRebuildAvatar.emotion-listening .homieEye,
+  .homieRebuildLauncher.emotion-listening .homieEye{
+    animation: homiePresenceEyeFocus 3.4s ease-in-out infinite !important;
+  }
+
+  .homieRebuildAvatar.emotion-calm .homieEye,
+  .homieRebuildLauncher.emotion-calm .homieEye,
+  .homieRebuildAvatar.emotion-warm .homieEye,
+  .homieRebuildLauncher.emotion-warm .homieEye,
+  .homieRebuildAvatar.emotion-focused .homieEye,
+  .homieRebuildLauncher.emotion-focused .homieEye{
+    animation: homiePresenceBlink 7.6s ease-in-out infinite !important;
+  }
+}
+
+@keyframes homiePresenceBreathe{
+  0%,100%{ transform: translateY(0px) scale(1); }
+  50%{ transform: translateY(-4px) scale(1.008); }
+}
+
+@keyframes homiePresenceListen{
+  0%,100%{ transform: translateY(0px) scale(1.01) rotate(-0.2deg); }
+  50%{ transform: translateY(-5px) scale(1.025) rotate(0.5deg); }
+}
+
+@keyframes homiePresenceSpeakBody{
+  0%,100%{ transform: translateY(-1px) scale(1.008); }
+  50%{ transform: translateY(-4px) scale(1.018); }
+}
+
+@keyframes homiePresenceConcern{
+  0%,100%{ transform: translateY(0px) rotate(0deg); }
+  50%{ transform: translateY(-2px) rotate(0.7deg); }
+}
+
+@keyframes homiePresenceCelebrate{
+  0%,100%{ transform: translateY(-1px) rotate(-0.3deg) scale(1.01); }
+  50%{ transform: translateY(-6px) rotate(0.8deg) scale(1.025); }
+}
+
+@keyframes homiePresenceTalk{
+  0%,100%{ transform: translateX(-50%) scaleY(0.9) scaleX(1.0); }
+  50%{ transform: translateX(-50%) scaleY(1.85) scaleX(1.12); }
+}
+
+@keyframes homiePresenceEyeFocus{
+  0%,100%{ transform: translateX(0px) scaleY(1.12); }
+  30%{ transform: translateX(-1px) scaleY(1.16); }
+  65%{ transform: translateX(1px) scaleY(1.12); }
+}
+
+@keyframes homiePresenceBlink{
+  0%, 46%, 52%, 100%{ transform: scaleY(1); }
+  49%{ transform: scaleY(0.18); }
+}
+/* ===== v10.36.20 Homie True Presence Face Body Emotion END ===== */
