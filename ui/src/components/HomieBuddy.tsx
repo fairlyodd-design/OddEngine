@@ -67,6 +67,18 @@ const VOICE_BIAS_TERMS = [
   "Grocery",
 ];
 
+
+const HOMIE_VOICE_MIN_EXTERNAL_RECORDING_MS = 700;
+const HOMIE_VOICE_MAX_EXTERNAL_RECORDING_MS = 30000;
+const HOMIE_VOICE_PROBE_CACHE_MS = 15000;
+const HOMIE_VOICE_MIN_AUDIO_BLOB_BYTES = 1200;
+
+type HomieExternalProbeCache = {
+  ts: number;
+  baseUrl: string;
+  result: { ok: boolean; status?: string; message?: string; model?: string };
+};
+
 function getRecognitionCtor() {
   return window.SpeechRecognition || window.webkitSpeechRecognition || null;
 }
@@ -281,6 +293,10 @@ export default function HomieBuddy({
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const mediaChunksRef = useRef<BlobPart[]>([]);
   const activeVoicePathRef = useRef<"cloud" | "external">("cloud");
+  const externalRecordingStartedAtRef = useRef(0);
+  const externalStopTimerRef = useRef<number | null>(null);
+  const voiceStartLockRef = useRef(false);
+  const lastExternalProbeRef = useRef<HomieExternalProbeCache | null>(null);
 
   const reduceMotion = useMemo(() => {
     try {
@@ -418,15 +434,7 @@ export default function HomieBuddy({
 
   function stopVoice(silent = false, source = "homie") {
     if (activeVoicePathRef.current === "external") {
-      try {
-        if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") mediaRecorderRef.current.stop();
-      } catch {
-        // ignore
-      }
-      setIsListening(false);
-      setIsHoldingToTalk(false);
-      emitVoiceStatus({ source, status: "ended", message: "Stopped local bridge recording.", mode: "external" });
-      if (!silent) announce("Stopped listening.", "idle", false, "Stopped listening.");
+      stopExternalVoice(silent, source);
       return;
     }
     try {
@@ -442,6 +450,74 @@ export default function HomieBuddy({
 
   function wantsExternalVoice() {
     return voiceEngineMode === "external-http" || voiceEngineMode === "hybrid";
+  }
+
+  function clearExternalStopTimer() {
+    if (externalStopTimerRef.current) {
+      window.clearTimeout(externalStopTimerRef.current);
+      externalStopTimerRef.current = null;
+    }
+  }
+
+  function cleanupExternalVoiceStream() {
+    clearExternalStopTimer();
+    try {
+      mediaStreamRef.current?.getTracks()?.forEach((track) => track.stop());
+    } catch {
+      // ignore
+    }
+    mediaStreamRef.current = null;
+    mediaRecorderRef.current = null;
+    externalRecordingStartedAtRef.current = 0;
+  }
+
+  function stopExternalVoice(silent = false, source = "homie") {
+    const recorder = mediaRecorderRef.current;
+    const elapsed = Date.now() - (externalRecordingStartedAtRef.current || Date.now());
+    const finish = () => {
+      clearExternalStopTimer();
+      try {
+        if (recorder && recorder.state !== "inactive") {
+          recorder.stop();
+        } else {
+          cleanupExternalVoiceStream();
+          setIsListening(false);
+          setIsHoldingToTalk(false);
+        }
+      } catch (error: any) {
+        cleanupExternalVoiceStream();
+        setIsListening(false);
+        setIsHoldingToTalk(false);
+        const message = String(error?.message || "Could not stop local bridge recording cleanly.");
+        setDiagnostics((prev) => ({ ...prev, externalBridgeState: "degraded", externalBridgeMessage: message, lastErrorCode: "external-stop-failed", lastErrorMessage: message, activeRecognitionMode: "idle" }));
+        if (!silent) announce(message, "warn", true, "Recording stop issue.");
+      }
+    };
+
+    setIsHoldingToTalk(false);
+    if (recorder && recorder.state !== "inactive" && elapsed > 0 && elapsed < HOMIE_VOICE_MIN_EXTERNAL_RECORDING_MS) {
+      const wait = HOMIE_VOICE_MIN_EXTERNAL_RECORDING_MS - elapsed;
+      setStatus("Got it. Finishing the clip.");
+      setDiagnostics((prev) => ({ ...prev, externalBridgeState: "recording", externalBridgeMessage: "Finishing a short voice clip before transcription." }));
+      window.setTimeout(finish, wait);
+      return;
+    }
+
+    finish();
+    emitVoiceStatus({ source, status: "ended", message: "Stopped local bridge recording.", mode: "external" });
+    if (!silent) setStatus("Got it. Working on that.");
+  }
+
+  async function getExternalBridgeReadiness(force = false, baseState?: VoiceDiagnostics) {
+    const cached = lastExternalProbeRef.current;
+    const now = Date.now();
+    if (!force && cached && cached.baseUrl === externalVoiceBaseUrl && now - cached.ts < HOMIE_VOICE_PROBE_CACHE_MS) {
+      return cached.result;
+    }
+    const result = await probeExternalVoice(true, baseState);
+    const normalized = { ok: !!result?.ok, status: String(result?.status || ""), message: String(result?.message || ""), model: String((result as any)?.model || "") };
+    lastExternalProbeRef.current = { ts: Date.now(), baseUrl: externalVoiceBaseUrl, result: normalized };
+    return normalized;
   }
 
   async function probeExternalVoice(silent = false, baseState?: VoiceDiagnostics) {
@@ -519,7 +595,7 @@ export default function HomieBuddy({
       errorCode: next.lastErrorCode || "",
     });
 
-    if (wantsExternalVoice()) await probeExternalVoice(true, next);
+    if (wantsExternalVoice()) await getExternalBridgeReadiness(false, next);
     return next;
   }
 
@@ -535,6 +611,12 @@ export default function HomieBuddy({
   }
 
   async function transcribeExternalBlob(blob: Blob, source = "homie") {
+    if (blob.size < HOMIE_VOICE_MIN_AUDIO_BLOB_BYTES) {
+      const message = "That voice clip was too short to transcribe reliably. Hold the mic for a beat longer and try again.";
+      setDiagnostics((prev) => ({ ...prev, externalBridgeState: "ready", externalBridgeMessage: message, lastErrorCode: "external-clip-too-short", lastErrorMessage: message, activeRecognitionMode: "idle" }));
+      announce(message, "warn", true, "Voice clip too short.");
+      return;
+    }
     if (!api.voiceBridgeTranscribe) {
       const message = "External/local voice bridge transcription is only available in desktop mode.";
       setDiagnostics((prev) => ({ ...prev, externalBridgeState: "unavailable", externalBridgeMessage: message, lastErrorCode: "external-bridge-unavailable", lastErrorMessage: message, activeRecognitionMode: "idle" }));
@@ -575,6 +657,14 @@ export default function HomieBuddy({
   }
 
   async function startExternalVoice(pushToTalk = false, source = "homie") {
+    try {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    } catch {
+      // ignore
+    }
+    setStatus(pushToTalk ? "Hold to talk is live." : "I’m listening.");
+    setMood("good");
     const latest = await refreshVoiceDiagnostics();
     if (!navigator.mediaDevices?.getUserMedia) {
       const message = "Microphone access is unavailable because getUserMedia is missing in this runtime.";
@@ -583,7 +673,7 @@ export default function HomieBuddy({
       return;
     }
 
-    const probe = await probeExternalVoice(true, latest);
+    const probe = await getExternalBridgeReadiness(false, latest);
     if (!probe.ok && strictLocalVoice) {
       const message = `${probe.message} External/local mode is strict, so Homie will not fall back to cloud speech.`;
       setDiagnostics((prev) => ({ ...prev, lastErrorCode: "external-bridge-required", lastErrorMessage: message, activeRecognitionMode: "idle" }));
@@ -633,7 +723,14 @@ export default function HomieBuddy({
         announce(message, "warn", true, "Recording failed.");
       };
 
-      recorder.start();
+      recorder.start(250);
+      externalRecordingStartedAtRef.current = Date.now();
+      clearExternalStopTimer();
+      externalStopTimerRef.current = window.setTimeout(() => {
+        if (mediaRecorderRef.current === recorder && recorder.state !== "inactive") {
+          stopExternalVoice(true, source);
+        }
+      }, HOMIE_VOICE_MAX_EXTERNAL_RECORDING_MS);
       setIsListening(true);
       if (pushToTalk) setIsHoldingToTalk(true);
       setDiagnostics((prev) => ({ ...prev, externalBridgeState: "recording", externalBridgeMessage: pushToTalk ? "Hold to talk is recording." : "Recording for the local bridge.", activeRecognitionMode: "external", lastErrorCode: "", lastErrorMessage: "" }));
@@ -647,8 +744,29 @@ export default function HomieBuddy({
   }
 
   async function startVoice(pushToTalk = false, allowBias = true, _forceLocal = false, _networkRetryUsed = false, source = "homie") {
+    if (voiceStartLockRef.current) return;
+    voiceStartLockRef.current = true;
+    window.setTimeout(() => {
+      voiceStartLockRef.current = false;
+    }, 900);
+
+    try {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    } catch {
+      // ignore
+    }
+
     const latest = await refreshVoiceDiagnostics();
-    const useExternal = wantsExternalVoice() && (voiceEngineMode === "external-http" || (voiceEngineMode === "hybrid" && diagnostics.externalBridgeState === "ready"));
+    let useExternal = false;
+    if (wantsExternalVoice()) {
+      if (voiceEngineMode === "external-http") {
+        useExternal = true;
+      } else if (voiceEngineMode === "hybrid") {
+        const bridge = await getExternalBridgeReadiness(false, latest);
+        useExternal = !!bridge.ok;
+      }
+    }
 
     if (useExternal) {
       activeVoicePathRef.current = "external";
@@ -684,6 +802,8 @@ export default function HomieBuddy({
       rec.onstart = () => {
         setIsListening(true);
         setDiagnostics((prev) => ({ ...prev, phrasesSupported: prev.phrasesSupported || biased, phraseBiasMode: biased ? "supported" : prev.recognitionAvailable ? "optional" : "unsupported", activeRecognitionMode: "cloud" }));
+        setStatus(pushToTalk ? "Hold to talk is live." : "I’m listening.");
+        setMood("good");
         emitVoiceStatus({ source, status: "started", message: pushToTalk ? "Hold to talk is live." : "Listening.", mode: "cloud" });
       };
 

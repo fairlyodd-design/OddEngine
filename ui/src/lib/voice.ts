@@ -85,11 +85,12 @@ export function getVoiceEngineBadges(snapshot: VoiceEngineSnapshot) {
 }
 
 export function summarizeVoiceEngine(snapshot: VoiceEngineSnapshot) {
-  if (snapshot.externalState === "recording") return "Homie is recording for the external/local voice bridge.";
-  if (snapshot.externalState === "transcribing") return snapshot.message || "Homie is waiting for the external/local voice bridge to transcribe the clip.";
-  if (snapshot.cloudState === "listening") return "Homie is listening for a command.";
-  if (snapshot.engineMode !== "cloud" && snapshot.externalState === "ready") return snapshot.message || `External/local voice bridge is ready at ${snapshot.externalBaseUrl}.`;
-  if (snapshot.cloudState === "degraded") return snapshot.message || "Cloud speech is degraded. Push-to-talk and typed commands stay ready.";
-  if (snapshot.cloudState === "ready") return snapshot.message || "Cloud speech, push-to-talk, and typed commands are ready.";
+  if (snapshot.externalState === "recording") return "Homie is listening through the local bridge.";
+  if (snapshot.externalState === "transcribing") return snapshot.message || "Homie heard you and is turning the clip into text.";
+  if (snapshot.cloudState === "listening") return "Homie is listening.";
+  if (snapshot.engineMode !== "cloud" && snapshot.externalState === "ready") return snapshot.message || `Local voice bridge is ready at ${snapshot.externalBaseUrl}.`;
+  if (snapshot.engineMode === "hybrid" && snapshot.externalState === "degraded" && snapshot.cloudState === "ready") return "Local bridge is shaky, but cloud voice and typing are still ready.";
+  if (snapshot.cloudState === "degraded") return snapshot.message || "Cloud speech is shaky. Push-to-talk and typing still work.";
+  if (snapshot.cloudState === "ready") return snapshot.message || "Voice, push-to-talk, and typing are ready.";
   return snapshot.message || "Voice is unavailable right now. Typed commands stay ready.";
 }
