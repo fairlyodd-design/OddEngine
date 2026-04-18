@@ -66,7 +66,7 @@ const OLD_MEMORY_KEYS = [
 ];
 const MAX_HISTORY = 18;
 const MAX_THEMES = 10;
-const MAX_ARTIFACTS = 12;
+const MAX_ARTIFACTS = 24;
 
 function nowId(prefix = "homie") {
   return `${prefix}_${Math.random().toString(36).slice(2, 8)}_${Date.now().toString(36)}`;
@@ -140,7 +140,7 @@ export function shouldHomieCompanionAnswer(text: string): boolean {
   if (lower.includes("how am i doing") || lower.includes("i feel") || lower.includes("i'm feeling") || lower.includes("i am feeling")) return true;
   if (lower.includes("overwhelmed") || lower.includes("stressed") || lower.includes("scared") || lower.includes("tired") || lower.includes("sad") || lower.includes("burned out") || lower.includes("heavy")) return true;
   if (lower.includes("help me focus") || lower.includes("check in") || lower.includes("talk to me") || lower.includes("motivate me") || lower.includes("ground me")) return true;
-  if (lower.includes("legacy") || lower.includes("family note") || lower.includes("protect my family") || lower.includes("save this for family")) return true;
+  if (lower.includes("legacy") || lower.includes("family note") || lower.includes("protect my family") || lower.includes("save this for family") || lower.includes("message for my family") || lower.includes("what should they open first") || lower.includes("what should my family open first") || lower.includes("save today") || lower.includes("today’s checkpoint") || lower.includes("todays checkpoint") || lower.includes("write a note from me")) return true;
   return !commandStarters.some((starter) => lower.startsWith(starter) || lower === starter.trim());
 }
 
@@ -231,7 +231,18 @@ function nextStepFor(themes: string[], text: string) {
 
 function shouldCreateLegacyArtifact(themes: string[], text: string) {
   const lower = text.toLowerCase();
-  return themes.includes("family") || lower.includes("legacy note") || lower.includes("protect the family") || lower.includes("save this") || lower.includes("artifact");
+  return themes.includes("family")
+    || lower.includes("legacy note")
+    || lower.includes("protect the family")
+    || lower.includes("save this")
+    || lower.includes("artifact")
+    || lower.includes("message for my family")
+    || lower.includes("what should they open first")
+    || lower.includes("what should my family open first")
+    || lower.includes("save today")
+    || lower.includes("today’s checkpoint")
+    || lower.includes("todays checkpoint")
+    || lower.includes("write a note from me");
 }
 
 function buildLegacyArtifact(text: string, ctx: HomieCompanionContext, nextStep: string): HomieLegacyArtifact {
@@ -396,6 +407,97 @@ export function exportHomieLegacyArtifactText() {
   const latest = (memory.legacyArtifacts || []).slice(-1)[0];
   if (latest) return latest.body;
   return buildHomieLegacyArtifactDraft({ activePanelTitle: "Homie", activePanelId: "Homie", status: "Ready", mood: "good", source: "quick" }).body;
+}
+
+
+export type HomieLegacyArtifactSummary = {
+  id: string;
+  title: string;
+  ts: number;
+  preview: string;
+};
+
+function latestLegacyArtifacts(limit = 6): HomieLegacyArtifact[] {
+  const memory = loadMemory();
+  return (memory.legacyArtifacts || [])
+    .slice()
+    .sort((a, b) => Number(b.ts || 0) - Number(a.ts || 0))
+    .slice(0, Math.max(1, limit));
+}
+
+export function getHomieLegacyArtifactSummaries(limit = 6): HomieLegacyArtifactSummary[] {
+  return latestLegacyArtifacts(limit).map((artifact) => ({
+    id: artifact.id,
+    title: artifact.title,
+    ts: artifact.ts,
+    preview: (artifact.body || artifact.sourceText || "").replace(/\s+/g, " ").slice(0, 140),
+  }));
+}
+
+function buildLegacyPromptArtifactBody(prompt: string, ctx: HomieCompanionContext, nextStep: string) {
+  const lower = prompt.toLowerCase();
+  const today = new Date().toLocaleDateString();
+  const isOpenFirst = lower.includes("open first") || lower.includes("what should they open");
+  const isCheckpoint = lower.includes("checkpoint") || lower.includes("save today") || lower.includes("today’s") || lower.includes("todays");
+  const isFamilyMessage = lower.includes("message") || lower.includes("note from me") || lower.includes("family");
+
+  const title = isOpenFirst
+    ? `Family Open-First Guide — ${today}`
+    : isCheckpoint
+    ? `Family Checkpoint — ${today}`
+    : isFamilyMessage
+    ? `Message For My Family — ${today}`
+    : `Family Legacy Note — ${today}`;
+
+  const message = isOpenFirst
+    ? "Start here: open OddEngine, go to Homie, then read the latest saved legacy notes before touching anything complicated."
+    : isCheckpoint
+    ? "Today’s checkpoint is simple: something real was saved, the next move was named, and the family lane stayed protected."
+    : "I love you. I was trying to build something useful, kind, and steady — something that could help even on hard days.";
+
+  const body = [
+    title,
+    "",
+    "1. Message from me:",
+    message,
+    "",
+    "2. What matters right now:",
+    cleanPrompt(prompt).slice(0, 260) || "Keep the family lane clear, kind, and easy to open.",
+    "",
+    "3. What to open first:",
+    `OddEngine → ${ctx.activePanelTitle || "Homie"} → Homie Companion → Family Legacy Notes`,
+    "",
+    "4. One protected next move:",
+    nextStep,
+    "",
+    "5. Tiny instruction:",
+    "Read one note first. Do not try to understand the whole system at once.",
+  ].join("\n");
+
+  return { title, body };
+}
+
+export function buildHomieLegacyPromptArtifact(prompt: string, ctx: HomieCompanionContext): HomieLegacyArtifact {
+  const themes = Array.from(new Set(["family", ...detectThemes(prompt)])).slice(0, MAX_THEMES);
+  const nextStep = nextStepFor(themes, prompt || "family legacy note");
+  const { title, body } = buildLegacyPromptArtifactBody(prompt, ctx, nextStep);
+  const artifact: HomieLegacyArtifact = {
+    id: nowId("legacy"),
+    title,
+    body,
+    ts: Date.now(),
+    sourceText: cleanPrompt(prompt) || "Family legacy prompt",
+  };
+  const memory = loadMemory();
+  saveMemory({
+    ...memory,
+    recentThemes: Array.from(new Set([...themes, ...(memory.recentThemes || [])])).slice(0, MAX_THEMES),
+    lastUserText: prompt.slice(0, 600),
+    lastNextStep: nextStep,
+    lastArtifactTitle: artifact.title,
+    legacyArtifacts: [...(memory.legacyArtifacts || []), artifact].slice(-MAX_ARTIFACTS),
+  });
+  return artifact;
 }
 
 export function downloadHomieLegacyArtifactFileName() {
