@@ -1897,15 +1897,9 @@ export default function HomieBuddy({
           <div className="assistantChipWrap homieRebuildQuickActions">
             <button className="tabBtn" onClick={() => runHomieDailyRhythmCheck("quick")}>Today</button>
             <button className="tabBtn" onClick={() => runHomieLegacyTimelineReview("quick")}>Timeline</button>
-            <button className="tabBtn" onClick={exportHomieLegacyTimeline}>Export timeline</button>
-
-            <button className="tabBtn" onClick={() => runHomieLegacyArtifactStudio(legacyArtifactStudioType, "quick")}>Artifact Studio</button>
             <button className="tabBtn" onClick={() => runCompanionQuick("help me focus on the next tiny move")}>Focus me</button>
             <button className="tabBtn" onClick={() => runCompanionQuick("I feel overwhelmed, ground me")}>Ground me</button>
             <button className="tabBtn" onClick={runLegacyDraft}>Legacy note</button>
-            <button className="tabBtn" onClick={() => runLegacyPrompt("write a message for my family", "Saved a message for family.")}>Family message</button>
-            <button className="tabBtn" onClick={() => runLegacyPrompt("what should my family open first", "Saved the open-first guide.")}>Open first</button>
-            <button className="tabBtn" onClick={() => runLegacyPrompt("save today’s checkpoint", "Saved today’s checkpoint.")}>Today checkpoint</button>
             <button className="tabBtn" onClick={saveForFamily}>Save for family</button>
             <button className="tabBtn" onClick={() => { setOpen(true); void startVoice(false); }}>Talk by mic</button>
           </div>
@@ -1952,21 +1946,20 @@ export default function HomieBuddy({
               <div className="small" style={{ marginTop: 10 }}>Choose a type and click Preview artifact. Homie will keep it calm, useful, and reviewable.</div>
             )}
           </div>
-        </section>
 
-
+          {/* v10.36.29b family legacy pack grouped with Artifact Studio */}
           <div className="homieLegacyVaultMini homieFamilyLegacyExportPackControls" style={{ marginTop: 12 }}>
             <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
               <div>
                 <div className="assistantSectionTitle">Family export pack</div>
-                <div className="small">Bundle the timeline, selected artifact, and vault notes into one reviewable family file.</div>
+                <div className="small">Bundle the timeline, selected artifact, and vault notes into one calm family file.</div>
               </div>
             </div>
 
             <div className="assistantChipWrap" style={{ marginTop: 10 }}>
               <button className="tabBtn active" onClick={() => runHomieFamilyLegacyExportPack("quick")}>Preview pack</button>
-              <button className="tabBtn" disabled={!legacyExportPackPreview} onClick={() => exportHomieFamilyLegacyPack("txt")}>Export pack TXT</button>
-              <button className="tabBtn" disabled={!legacyExportPackPreview} onClick={() => exportHomieFamilyLegacyPack("md")}>Export pack MD</button>
+              <button className="tabBtn" disabled={!legacyExportPackPreview} onClick={() => exportHomieFamilyLegacyPack("txt")}>Export TXT</button>
+              <button className="tabBtn" disabled={!legacyExportPackPreview} onClick={() => exportHomieFamilyLegacyPack("md")}>Export MD</button>
             </div>
 
             {legacyExportPackPreview ? (
@@ -1981,6 +1974,8 @@ export default function HomieBuddy({
               <div className="small" style={{ marginTop: 10 }}>Preview creates one clean pack from the current timeline, selected artifact, and saved legacy notes.</div>
             )}
           </div>
+        </section>
+
         <section className="card homieRebuildVoice">
           <div className="homieRebuildSectionHead">
             <div>
