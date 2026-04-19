@@ -226,6 +226,17 @@ function downloadTextFile(filename: string, text: string) {
 }
 
 
+function downloadBlobFile(filename: string, blob: Blob) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 250);
+}
+
 // ===== v10.36.20 Homie true presence helpers =====
 type HomiePresenceEmotion = "calm" | "warm" | "focused" | "listening" | "speaking" | "concerned" | "celebrating";
 
@@ -1139,6 +1150,121 @@ function buildHomieLegacyFinalManifest(args: {
 }
 // ===== v10.36.32b Homie legacy final pack index + manifest helpers END =====
 
+// ===== v10.36.33d Homie one-click family folder export helpers =====
+type HomieLegacyFamilyFolderFile = {
+  name: string;
+  text: string;
+  description: string;
+};
+
+type HomieLegacyFamilyFolderExportPreview = {
+  title: string;
+  body: string;
+  markdown: string;
+  filenameBase: string;
+  spokenText: string;
+  files: HomieLegacyFamilyFolderFile[];
+  createdAt: number;
+};
+
+function isHomieLegacyFamilyFolderExportPrompt(text: string) {
+  const lower = text.trim().toLowerCase();
+  return /\b(build family folder|family folder|legacy folder|one click family|one-click family|download family folder|export family folder|family legacy folder|zip family pack|zip legacy pack|build legacy folder|create family folder|bundle all family files|all family docs)\b/.test(lower);
+}
+
+function homieFolderCleanLine(value: any, fallback = "Not generated yet") {
+  const clean = String(value || fallback).replace(/\s+/g, " ").trim();
+  if (clean.length <= 220) return clean;
+  return clean.slice(0, 217) + "...";
+}
+
+function homieFolderMarkdownTitle(title: string) {
+  const clean = String(title || "Family legacy file").replace(/\s+/g, " ").trim();
+  return clean.startsWith("#") ? clean : "# " + clean;
+}
+
+function buildHomieLegacyFamilyFolderPreview(args: {
+  files: HomieLegacyFamilyFolderFile[];
+  openFirst: HomieFamilyOpenFirstGuide;
+  artifact: HomieLegacyArtifactStudioPreview;
+  quality: HomieLegacyQualityReview;
+  pack: HomieFamilyLegacyExportPack;
+  manifest: HomieLegacyFinalManifest;
+  memory: any;
+  activeTitle: string;
+  dailyRhythmLine: string;
+}): HomieLegacyFamilyFolderExportPreview {
+  const day = getHomieDailyRhythmDayKey();
+  const generated = new Date().toLocaleString();
+  const fileLines = args.files.map((file, index) => "• " + String(index + 1).padStart(2, "0") + " — " + file.name + ": " + file.description);
+  const qualityVerdict = args.quality?.verdict === "family-ready-draft" ? "Family-ready draft after one human read" : "Needs human edit before final use";
+  const themes = homieFolderCleanLine(args.memory?.recentThemeText || "general", "general");
+  const nextMove = homieFolderCleanLine(args.memory?.lastNextStep || args.dailyRhythmLine || "Choose one small next move.");
+
+  const body = [
+    "Homie One-Click Family Folder",
+    "Generated: " + generated,
+    "",
+    "What this does",
+    "This one action prepares the family-facing legacy documents together so they can be saved in one folder and opened without developer context.",
+    "",
+    "Files included",
+    ...fileLines,
+    "",
+    "Suggested folder name",
+    "Family_Legacy_Pack_" + day,
+    "",
+    "Reading order",
+    "1. Open 01_Open_This_First first.",
+    "2. Read 02_Legacy_Timeline for context.",
+    "3. Read 03_Selected_Artifact as the main family draft.",
+    "4. Read 04_Quality_Review before treating anything as final.",
+    "5. Keep 05_Family_Export_Pack as the bundled copy.",
+    "6. Use 06_Final_Index as the file map.",
+    "",
+    "Current quality verdict",
+    qualityVerdict,
+    "",
+    "Current Homie context",
+    "• Active panel/thread: " + homieFolderCleanLine(args.activeTitle || "Homie", "Homie"),
+    "• Recent themes: " + themes,
+    "• Remembered next move: " + nextMove,
+    "• Daily rhythm: " + args.dailyRhythmLine,
+    "",
+    "Human review reminder",
+    "[ ] Human edited?",
+    "[ ] True?",
+    "[ ] Kind?",
+    "[ ] Useful?",
+    "[ ] Easy for the family to understand?",
+    "[ ] Saved somewhere the family can actually find?",
+    "",
+    "Trust note",
+    "Homie is bundling local app memory, visible drafts, generated exports, and review helpers. Homie is not claiming these files are final, family-approved, or emotionally perfect. A human should read and edit the final copy.",
+  ].join("\n");
+
+  const markdown = body
+    .split("\n")
+    .map((line, index) => {
+      const trimmed = line.trim();
+      if (index === 0) return homieFolderMarkdownTitle(trimmed);
+      if (["What this does", "Files included", "Suggested folder name", "Reading order", "Current quality verdict", "Current Homie context", "Human review reminder", "Trust note"].includes(trimmed)) return "## " + trimmed;
+      return line;
+    })
+    .join("\n");
+
+  return {
+    title: "One-click family folder",
+    body,
+    markdown,
+    filenameBase: "Homie_Family_Legacy_Folder_" + day,
+    spokenText: "Family folder is ready. I bundled the open-first guide, timeline, artifact, quality review, export pack, and final index into one family-ready folder package.",
+    files: args.files,
+    createdAt: Date.now(),
+  };
+}
+// ===== v10.36.33d Homie one-click family folder export helpers END =====
+
 
 
 
@@ -1177,6 +1303,7 @@ export default function HomieBuddy({
   const [openFirstGuidePreview, setOpenFirstGuidePreview] = useState<HomieFamilyOpenFirstGuide | null>(null);
   const [legacyQualityReview, setLegacyQualityReview] = useState<HomieLegacyQualityReview | null>(null);
   const [legacyFinalManifestPreview, setLegacyFinalManifestPreview] = useState<HomieLegacyFinalManifest | null>(null);
+  const [legacyFamilyFolderPreview, setLegacyFamilyFolderPreview] = useState<HomieLegacyFamilyFolderExportPreview | null>(null);
 
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<any>(null);
@@ -1601,9 +1728,106 @@ export default function HomieBuddy({
   }
 
 
+  function buildCurrentHomieLegacyFamilyFolderBundle() {
+    const timeline = buildCurrentHomieLegacyTimeline();
+    const openFirst = openFirstGuidePreview || buildCurrentHomieFamilyOpenFirstGuide();
+    const artifact = legacyArtifactPreview || buildCurrentHomieLegacyArtifactStudioPreview(legacyArtifactStudioType);
+    const pack = legacyExportPackPreview || buildCurrentHomieFamilyLegacyExportPack(artifact);
+    const quality = buildHomieLegacyQualityReview({
+      sourceLabel: "Family export pack",
+      sourceTitle: pack.title,
+      sourceText: pack.body,
+      memory: companionMemory,
+      activeTitle,
+      dailyRhythmLine,
+    });
+    const manifest = buildHomieLegacyFinalManifest({
+      openFirst,
+      timeline,
+      artifact,
+      quality,
+      pack,
+      memory: companionMemory,
+      activeTitle,
+      dailyRhythmLine,
+    });
+    const files: HomieLegacyFamilyFolderFile[] = [
+      { name: "01_Open_This_First.txt", text: openFirst.body, description: "Plain-language starting guide for FairlyOdd and Homie." },
+      { name: "01_Open_This_First.md", text: openFirst.markdown, description: "Markdown copy of the starting guide." },
+      { name: "02_Legacy_Timeline.txt", text: timeline.exportText, description: "Timeline and current mission context." },
+      { name: "03_Selected_Artifact.txt", text: artifact.body, description: "The selected family artifact draft." },
+      { name: "03_Selected_Artifact.md", text: artifact.markdown, description: "Markdown copy of the selected family artifact." },
+      { name: "04_Quality_Review.txt", text: quality.cleanedText, description: "Human-edit checklist and cleaned draft copy." },
+      { name: "04_Quality_Review.md", text: quality.markdown, description: "Markdown quality review and cleaned draft copy." },
+      { name: "05_Family_Export_Pack.txt", text: pack.body, description: "Bundled family export pack." },
+      { name: "05_Family_Export_Pack.md", text: pack.markdown, description: "Markdown family export pack." },
+      { name: "06_Final_Index.txt", text: manifest.body, description: "Final file map, reading order, and trust note." },
+      { name: "06_Final_Index.md", text: manifest.markdown, description: "Markdown final file map." },
+    ];
+    const preview = buildHomieLegacyFamilyFolderPreview({ files, openFirst, artifact, quality, pack, manifest, memory: companionMemory, activeTitle, dailyRhythmLine });
+    return { openFirst, timeline, artifact, pack, quality, manifest, preview };
+  }
+
+  function syncHomieLegacyFamilyFolderBundleState(bundle: ReturnType<typeof buildCurrentHomieLegacyFamilyFolderBundle>) {
+    setOpenFirstGuidePreview(bundle.openFirst);
+    setLegacyArtifactPreview(bundle.artifact);
+    setLegacyExportPackPreview(bundle.pack);
+    setLegacyQualityReview(bundle.quality);
+    setLegacyFinalManifestPreview(bundle.manifest);
+    setLegacyFamilyFolderPreview(bundle.preview);
+  }
+
+  function runHomieLegacyFamilyFolderExport(source: "typed" | "voice" | "quick" = "quick", prompt = "Homie, build the family folder", exportAfter = true) {
+    const bundle = buildCurrentHomieLegacyFamilyFolderBundle();
+    syncHomieLegacyFamilyFolderBundleState(bundle);
+    appendCompanionMessages([
+      createHomieMessage("user", prompt, source),
+      createHomieMessage("homie", bundle.preview.body, source),
+    ]);
+    announce("Family folder is ready.", "good", source === "voice" || voiceEnabled, bundle.preview.spokenText);
+    if (exportAfter) void exportHomieLegacyFamilyFolderZip(bundle.preview);
+    return bundle.preview;
+  }
+
+  async function exportHomieLegacyFamilyFolderZip(forcedPreview?: HomieLegacyFamilyFolderExportPreview) {
+    const preview = forcedPreview || legacyFamilyFolderPreview || buildCurrentHomieLegacyFamilyFolderBundle().preview;
+    setLegacyFamilyFolderPreview(preview);
+    try {
+      const jszipModule: any = await import("jszip");
+      const JSZipCtor = (jszipModule as any).default || jszipModule;
+      const zip = new JSZipCtor();
+      const folderName = preview.filenameBase.replace(/^Homie_/, "").replace(/[^A-Za-z0-9_-]+/g, "_");
+      const rootFolder = zip.folder(folderName) || zip;
+      preview.files.forEach((file) => rootFolder.file(file.name, file.text));
+      rootFolder.file("00_Folder_ReadMe.txt", preview.body);
+      rootFolder.file("00_Folder_ReadMe.md", preview.markdown);
+      const blob = await zip.generateAsync({ type: "blob" });
+      downloadBlobFile(preview.filenameBase + ".zip", blob);
+      try {
+        void navigator.clipboard?.writeText(preview.body);
+      } catch {
+        // ignore
+      }
+      announce("Downloaded the family folder ZIP.", "good", true, "Downloaded the family folder zip.");
+    } catch {
+      preview.files.forEach((file, index) => {
+        window.setTimeout(() => downloadTextFile(file.name, file.text), index * 120);
+      });
+      window.setTimeout(() => downloadTextFile("00_Folder_ReadMe.txt", preview.body), preview.files.length * 120);
+      announce("ZIP bundling was not available, so I exported the family files one by one.", "warn", true, "ZIP unavailable. Exported files one by one.");
+    }
+  }
+
+
   function handleCompanionConversation(text: string, source: "typed" | "voice" | "quick" = "typed") {
     const trimmed = text.trim();
     if (!trimmed) return false;
+
+    if (isHomieLegacyFamilyFolderExportPrompt(trimmed)) {
+      const shouldDownload = !/\b(preview|show|list only|do not download)\b/i.test(trimmed) || /\b(build|export|share|download|save|zip)\b/i.test(trimmed);
+      runHomieLegacyFamilyFolderExport(source, trimmed, shouldDownload);
+      return true;
+    }
 
     if (isHomieLegacyFinalManifestPrompt(trimmed)) {
       runHomieLegacyFinalManifest(source, trimmed, /\b(export|share|download|save)\b/i.test(trimmed));
@@ -2635,6 +2859,35 @@ export default function HomieBuddy({
           </div>
 
         </section>
+
+          <div className="homieLegacyVaultMini homieFamilyFolderExportControls" style={{ marginTop: 12 }}>
+            <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
+              <div>
+                <div className="assistantSectionTitle">One-click family folder</div>
+                <div className="small">Build one ZIP with Open First, Timeline, Selected Artifact, Quality Review, Family Export Pack, and Final Index.</div>
+              </div>
+            </div>
+
+            <div className="assistantChipWrap" style={{ marginTop: 10 }}>
+              <button className="tabBtn active" onClick={() => runHomieLegacyFamilyFolderExport("quick", "Homie, build the family folder", true)}>Build family folder</button>
+            </div>
+
+            {legacyFamilyFolderPreview ? (
+              <div className="homieLegacyVaultList" style={{ marginTop: 10 }}>
+                <div className="homieLegacyVaultItem" style={{ alignItems: "stretch" }}>
+                  <strong>{legacyFamilyFolderPreview.title}</strong>
+                  <span>{legacyFamilyFolderPreview.files.length} files prepared inside one family folder package.</span>
+                  {legacyFamilyFolderPreview.files.slice(0, 6).map((file) => (
+                    <span key={file.name}>{file.name} — {file.description}</span>
+                  ))}
+                  <span className="small">ZIP uses local browser packaging only. If ZIP fails, Homie falls back to exporting the files one by one.</span>
+                </div>
+              </div>
+            ) : (
+              <div className="small" style={{ marginTop: 10 }}>One click prepares every family-facing legacy file and downloads them together as a ZIP.</div>
+            )}
+          </div>
+
 
         <section className="card homieRebuildVoice">
           <div className="homieRebuildSectionHead">
