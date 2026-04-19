@@ -1301,8 +1301,8 @@ export default function HomieBuddy({
   const [legacyQualityReview, setLegacyQualityReview] = useState<HomieLegacyQualityReview | null>(null);
   const [legacyFinalManifestPreview, setLegacyFinalManifestPreview] = useState<HomieLegacyFinalManifest | null>(null);
   const [legacyFamilyFolderPreview, setLegacyFamilyFolderPreview] = useState<HomieLegacyFamilyFolderExportPreview | null>(null);
-const [legacyFamilyFolderExportStatus, setLegacyFamilyFolderExportStatus] = useState("Family folder ZIP has not run yet.");
-  const [homieCameraPresenceStatus, setHomieCameraPresenceStatus] = useState("Camera presence is off. Homie only opens it when you click Camera presence.");
+  const [legacyFamilyFolderExportStatus, setLegacyFamilyFolderExportStatus] = useState("Family folder ZIP has not run yet.");
+  const [homieCameraPresenceStatus, setHomieCameraPresenceStatus] = useState("Camera is off. Homie only opens it when you click Camera.");
 
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<any>(null);
@@ -2449,7 +2449,7 @@ const [legacyFamilyFolderExportStatus, setLegacyFamilyFolderExportStatus] = useS
       announce(message, "warn", true, "Mic test failed.");
     }
   }
-async function launchCompanion() {
+  async function launchCompanion() {
     if (!api.openWindow) {
       announce("Companion pop-out is only available in desktop mode.", "warn", true, "Pop-out unavailable.");
       return;
@@ -2942,7 +2942,7 @@ async function launchCompanion() {
             </button>
             <button className="tabBtn" onClick={() => void runMicTest()}>Mic test</button>
             <button className="tabBtn" onClick={() => void runHomieRuntimeSelfCheck("quick")}>Self check</button>
-            <button className="tabBtn" onClick={() => void runHomieCameraPresenceCheck()}>Camera presence</button>
+            <button className="tabBtn" onClick={() => void runHomieCameraPresenceCheck()}>Camera</button>
             <button className="tabBtn" onClick={() => { const digest = buildMorningDigest(); announce(digest, "good", true, trimForSpeech(digest)); }}>Read digest</button>
             {mode === "floating" && <button className="tabBtn" onClick={launchCompanion}>Pop out</button>}
           </div>
@@ -2951,7 +2951,8 @@ async function launchCompanion() {
             <div className="small"><b>Voice engine:</b> {diagnostics.recognitionName} • {voiceModeLabel}</div>
             <div className="small"><b>Last transcript:</b> {diagnostics.lastTranscript || "—"}</div>
             <div className="small"><b>Bridge:</b> {diagnostics.externalBridgeState} • {diagnostics.externalBridgeBaseUrl}</div>
-            <div className="small"><b>Camera presence:</b> {homieCameraPresenceStatus}</div>
+            <div className="small"><b>Camera:</b> {homieCameraPresenceStatus}</div>
+            <div className="small"><b>Camera note:</b> Camera is opt-in. Homie does not analyze or save video.</div>
           </div>
 
           {diagnosticsVisible && (
