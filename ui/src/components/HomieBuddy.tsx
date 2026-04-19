@@ -749,6 +749,109 @@ function buildHomieFamilyLegacyExportPack(args: {
 }
 // ===== v10.36.28 Homie family legacy export pack + vault polish helpers END =====
 
+// ===== v10.36.30b Homie family onboarding README + open-first pack helpers =====
+type HomieFamilyOpenFirstGuide = {
+  title: string;
+  body: string;
+  markdown: string;
+  filenameBase: string;
+  spokenText: string;
+  createdAt: number;
+};
+
+function isHomieFamilyOpenFirstGuidePrompt(text: string) {
+  const lower = text.trim().toLowerCase();
+  return /\b(open first guide|open-first guide|open this first guide|family readme|family read me|family onboarding|first open pack|first-open pack|what is fairlyodd|what is homie|how do i use homie|how should my family use this|explain this to my family|start here guide|family start guide)\b/.test(lower);
+}
+
+function homieOpenFirstLine(value: any, fallback = "Not saved yet") {
+  const clean = String(value || fallback).replace(/\s+/g, " ").trim();
+  if (clean.length <= 180) return clean;
+  return clean.slice(0, 177) + "...";
+}
+
+function buildHomieFamilyOpenFirstGuide(args: {
+  memory: any;
+  artifacts: any[];
+  activeTitle: string;
+  dailyRhythmLine: string;
+}): HomieFamilyOpenFirstGuide {
+  const generated = new Date().toLocaleString();
+  const themes = homieOpenFirstLine(args.memory?.recentThemeText || "general", "general");
+  const nextMove = homieOpenFirstLine(args.memory?.lastNextStep || args.dailyRhythmLine || "Start with one small check-in.");
+  const activePanel = homieOpenFirstLine(args.activeTitle || "Homie", "Homie");
+  const checkIns = Number(args.memory?.checkInCount || 0);
+  const legacyCount = Number(args.memory?.legacyArtifactCount || (Array.isArray(args.artifacts) ? args.artifacts.length : 0) || 0);
+  const savedPreview = Array.isArray(args.artifacts) && args.artifacts.length
+    ? args.artifacts.slice(0, 4).map((item) => "• " + homieOpenFirstLine(item.title, "Family note") + " — " + homieOpenFirstLine(item.preview, "Saved family note"))
+    : ["• No family notes are visible yet. Use Legacy note or Save for family when something matters."];
+
+  const body = [
+    "Open this first — FairlyOdd / Homie",
+    "Generated: " + generated,
+    "",
+    "Dear family,",
+    "",
+    "This is a simple starting guide for FairlyOdd OS and Homie. You do not need developer context to use it. Treat this as a calm map, not a technical manual.",
+    "",
+    "What FairlyOdd OS is",
+    "FairlyOdd OS is a home-and-life dashboard. It gathers useful panels in one place: family, money, creative work, routines, tools, and the pieces of everyday life that can feel scattered.",
+    "",
+    "What Homie is",
+    "Homie is the warm companion lane inside the OS. Homie is not human, and Homie should not pretend to know things it cannot see. Homie can help with check-ins, grounding, voice, memory notes, family artifacts, and one small next move.",
+    "",
+    "What to click first",
+    "1. Click Today for a gentle check-in: body, family, money, or creative.",
+    "2. Click Timeline to see what has been built and what changed recently.",
+    "3. Use Artifact Studio when you want a letter, memory note, life lesson, open-first note, or project status draft.",
+    "4. Use Family export pack when you want one bundled file with the timeline, selected artifact, and saved notes.",
+    "5. Use Self check or Voice details only when mic, speaker, or bridge behavior feels off.",
+    "",
+    "How to use the legacy tools",
+    "Timeline: gives a calm review of recent Homie memory, saved family notes, the current mission thread, what changed today, and what to do next.",
+    "Artifact Studio: turns the timeline into a cleaner family artifact. Preview it first, then export TXT or MD.",
+    "Family export pack: bundles the timeline, selected artifact, and vault notes into one reviewable family file.",
+    "Save for family: exports the latest family note as a plain text file and copies it when possible.",
+    "",
+    "Current Homie memory snapshot",
+    "• Visible check-ins: " + checkIns,
+    "• Visible family artifacts: " + legacyCount,
+    "• Recent themes: " + themes,
+    "• Current panel/thread: " + activePanel,
+    "• Remembered next move: " + nextMove,
+    "• Today prompt: " + args.dailyRhythmLine,
+    "",
+    "Saved family note preview",
+    ...savedPreview,
+    "",
+    "Trust note",
+    "Homie is summarizing local app memory and visible runtime state only. Homie is not claiming your family has read, approved, or confirmed anything unless someone says so. Please review important notes like human family documents before relying on them.",
+    "",
+    "Gentle next step",
+    "Open Homie, click Today, then choose one thing: body, family, money, or creative. One small useful move is enough.",
+  ].join("\n");
+
+  const markdown = body
+    .split("\n")
+    .map((line, index) => {
+      const trimmed = line.trim();
+      if (index === 0) return "# " + trimmed;
+      if (["What FairlyOdd OS is", "What Homie is", "What to click first", "How to use the legacy tools", "Current Homie memory snapshot", "Saved family note preview", "Trust note", "Gentle next step"].includes(trimmed)) return "## " + trimmed;
+      return line;
+    })
+    .join("\n");
+
+  return {
+    title: "Open this first",
+    body,
+    markdown,
+    filenameBase: "Homie_Open_This_First_" + getHomieDailyRhythmDayKey(),
+    spokenText: "Open-this-first guide is ready. It explains FairlyOdd, Homie, what to click first, and how to use the family legacy tools without developer context.",
+    createdAt: Date.now(),
+  };
+}
+// ===== v10.36.30b Homie family onboarding README + open-first pack helpers END =====
+
 
 
 
@@ -783,6 +886,7 @@ export default function HomieBuddy({
   const [legacyArtifactStudioType, setLegacyArtifactStudioType] = useState<HomieLegacyArtifactStudioType>("letter");
   const [legacyArtifactPreview, setLegacyArtifactPreview] = useState<HomieLegacyArtifactStudioPreview | null>(null);
   const [legacyExportPackPreview, setLegacyExportPackPreview] = useState<HomieFamilyLegacyExportPack | null>(null);
+  const [openFirstGuidePreview, setOpenFirstGuidePreview] = useState<HomieFamilyOpenFirstGuide | null>(null);
 
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<any>(null);
@@ -1041,11 +1145,52 @@ export default function HomieBuddy({
     announce("Exported the family legacy pack as " + (isMarkdown ? "Markdown." : "text."), "good", true, isMarkdown ? "Exported the pack as markdown." : "Exported the pack as text.");
   }
 
+  function buildCurrentHomieFamilyOpenFirstGuide() {
+    return buildHomieFamilyOpenFirstGuide({
+      memory: companionMemory,
+      artifacts: legacyArtifactSummaries,
+      activeTitle,
+      dailyRhythmLine,
+    });
+  }
+
+  function runHomieFamilyOpenFirstGuide(source: "typed" | "voice" | "quick" = "quick", prompt = "Homie, build the open-this-first family guide", exportAfter = false) {
+    const guide = buildCurrentHomieFamilyOpenFirstGuide();
+    setOpenFirstGuidePreview(guide);
+    appendCompanionMessages([
+      createHomieMessage("user", prompt, source),
+      createHomieMessage("homie", guide.body, source),
+    ]);
+    announce("Open-this-first guide is ready.", "good", source === "voice" || voiceEnabled, guide.spokenText);
+    if (exportAfter) exportHomieFamilyOpenFirstGuide("txt", guide);
+    return guide;
+  }
+
+  function exportHomieFamilyOpenFirstGuide(format: "txt" | "md" = "txt", forcedGuide?: HomieFamilyOpenFirstGuide) {
+    const guide = forcedGuide || openFirstGuidePreview || buildCurrentHomieFamilyOpenFirstGuide();
+    setOpenFirstGuidePreview(guide);
+    const isMarkdown = format === "md";
+    const text = isMarkdown ? guide.markdown : guide.body;
+    const filename = guide.filenameBase + (isMarkdown ? ".md" : ".txt");
+    downloadTextFile(filename, text);
+    try {
+      void navigator.clipboard?.writeText(text);
+    } catch {
+      // ignore
+    }
+    announce("Exported the open-this-first guide as " + (isMarkdown ? "Markdown." : "text."), "good", true, isMarkdown ? "Exported the guide as markdown." : "Exported the guide as text.");
+  }
+
+
 
 
   function handleCompanionConversation(text: string, source: "typed" | "voice" | "quick" = "typed") {
     const trimmed = text.trim();
     if (!trimmed) return false;
+    if (isHomieFamilyOpenFirstGuidePrompt(trimmed)) {
+      runHomieFamilyOpenFirstGuide(source, trimmed, /\b(export|share|download|save)\b/i.test(trimmed));
+      return true;
+    }
     if (isHomieFamilyLegacyExportPackPrompt(trimmed)) {
       runHomieFamilyLegacyExportPack(source, trimmed, /\b(export|share|download|save)\b/i.test(trimmed));
       return true;
@@ -1896,6 +2041,7 @@ export default function HomieBuddy({
 
           <div className="assistantChipWrap homieRebuildQuickActions">
             <button className="tabBtn" onClick={() => runHomieDailyRhythmCheck("quick")}>Today</button>
+            <button className="tabBtn" onClick={() => runHomieFamilyOpenFirstGuide("quick")}>Open first</button>
             <button className="tabBtn" onClick={() => runHomieLegacyTimelineReview("quick")}>Timeline</button>
             <button className="tabBtn" onClick={() => runCompanionQuick("help me focus on the next tiny move")}>Focus me</button>
             <button className="tabBtn" onClick={() => runCompanionQuick("I feel overwhelmed, ground me")}>Ground me</button>
@@ -1904,7 +2050,34 @@ export default function HomieBuddy({
             <button className="tabBtn" onClick={() => { setOpen(true); void startVoice(false); }}>Talk by mic</button>
           </div>
 
-          <div className="homieLegacyVaultMini homieArtifactStudioVisibleControls" style={{ marginTop: 12 }}>
+
+
+          <div className="homieLegacyVaultMini homieFamilyOpenFirstGuideControls" style={{ marginTop: 12 }}>
+            <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
+              <div>
+                <div className="assistantSectionTitle">Open this first</div>
+                <div className="small">A plain-language family guide for what FairlyOdd and Homie are, what to click first, and how to use the legacy tools.</div>
+              </div>
+            </div>
+
+            <div className="assistantChipWrap" style={{ marginTop: 10 }}>
+              <button className="tabBtn active" onClick={() => runHomieFamilyOpenFirstGuide("quick")}>Preview guide</button>
+              <button className="tabBtn" disabled={!openFirstGuidePreview} onClick={() => exportHomieFamilyOpenFirstGuide("txt")}>Export TXT</button>
+              <button className="tabBtn" disabled={!openFirstGuidePreview} onClick={() => exportHomieFamilyOpenFirstGuide("md")}>Export MD</button>
+            </div>
+
+            {openFirstGuidePreview ? (
+              <div className="homieLegacyVaultList" style={{ marginTop: 10 }}>
+                <div className="homieLegacyVaultItem" style={{ alignItems: "stretch" }}>
+                  <strong>{openFirstGuidePreview.title}</strong>
+                  <span>{openFirstGuidePreview.body.length > 560 ? openFirstGuidePreview.body.slice(0, 557) + "..." : openFirstGuidePreview.body}</span>
+                  <span className="small">Built for family use: simple, gentle, and reviewable before relying on it.</span>
+                </div>
+              </div>
+            ) : (
+              <div className="small" style={{ marginTop: 10 }}>Preview creates a gentle starting guide that explains Homie, Timeline, Artifact Studio, and Family export pack.</div>
+            )}
+          </div>          <div className="homieLegacyVaultMini homieArtifactStudioVisibleControls" style={{ marginTop: 12 }}>
             <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
               <div>
                 <div className="assistantSectionTitle">Artifact Studio</div>
