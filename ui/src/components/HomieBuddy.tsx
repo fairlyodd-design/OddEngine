@@ -645,6 +645,110 @@ function buildHomieFamilyLegacyArtifactStudioPreview(args: {
 }
 // ===== v10.36.27 Homie family legacy artifact studio helpers END =====
 
+// ===== v10.36.28 Homie family legacy export pack + vault polish helpers =====
+type HomieFamilyLegacyExportPack = {
+  title: string;
+  body: string;
+  markdown: string;
+  filenameBase: string;
+  spokenText: string;
+  createdAt: number;
+};
+
+function isHomieFamilyLegacyExportPackPrompt(text: string) {
+  const lower = text.trim().toLowerCase();
+  return /\b(family export pack|legacy export pack|export pack|vault pack|family vault pack|download pack|share pack|save pack|bundle timeline|bundle artifact|bundle notes|family packet|legacy packet)\b/.test(lower);
+}
+
+function homiePackSafeSection(title: string, lines: string[]) {
+  const body = lines.map((line) => String(line || "").trim()).filter(Boolean);
+  return [title, "", ...(body.length ? body : ["Nothing saved here yet."])].join("\n");
+}
+
+function buildHomieFamilyLegacyExportPack(args: {
+  timeline: HomieLegacyTimelineReview;
+  artifact?: HomieLegacyArtifactStudioPreview | null;
+  memory: any;
+  artifacts: any[];
+  notesText: string;
+  activeTitle: string;
+  dailyRhythmLine: string;
+}): HomieFamilyLegacyExportPack {
+  const dateLine = new Date().toLocaleString();
+  const artifact = args.artifact || null;
+  const artifacts = Array.isArray(args.artifacts) ? args.artifacts.slice(0, 8) : [];
+  const themes = homieCleanTimelineText(args.memory?.recentThemeText || "general", "general");
+  const nextMove = homieCleanTimelineText(args.memory?.lastNextStep || args.dailyRhythmLine || "Choose one small next move.");
+  const checkIns = Number(args.memory?.checkInCount || 0);
+  const legacyCount = Number(args.memory?.legacyArtifactCount || artifacts.length || 0);
+  const activePanel = homieCleanTimelineText(args.activeTitle || "Homie", "Homie");
+  const savedArtifactLines = artifacts.length
+    ? artifacts.map((item) => "• " + homieCleanTimelineText(item.title, "Family note") + " — " + homieCleanTimelineText(item.preview, "Saved family artifact"))
+    : ["• No saved family artifact summaries are visible yet."];
+  const artifactBody = artifact
+    ? artifact.body
+    : "No selected Artifact Studio draft was visible, so this pack includes the timeline and legacy notes only. Preview an artifact first if you want a letter, memory note, open-first guide, life lesson, or project status included.";
+  const notesText = String(args.notesText || "").trim() || "No raw legacy note export is visible yet. Use Legacy note, Family message, or Save for family when something matters.";
+
+  const sections = [
+    "FairlyOdd / Homie Family Legacy Export Pack",
+    "Generated: " + dateLine,
+    "",
+    homiePackSafeSection("Start here", [
+      "This pack bundles the current Homie legacy timeline, the selected Artifact Studio draft, and the family vault notes into one reviewable family document.",
+      "Open this slowly. Start with the selected artifact, then read the timeline, then review the vault notes.",
+      "Homie is summarizing local app memory and visible runtime context only. The family should edit and confirm anything important.",
+    ]),
+    "",
+    homiePackSafeSection("Current mission thread", [
+      "Active panel: " + activePanel + ".",
+      "Recent themes: " + themes + ".",
+      "Remembered next move: " + nextMove,
+      "Daily rhythm: " + args.dailyRhythmLine,
+    ]),
+    "",
+    homiePackSafeSection("Selected family artifact", [artifact ? artifact.title : "No selected artifact preview yet.", "", artifactBody]),
+    "",
+    homiePackSafeSection("Legacy timeline", [args.timeline.exportText || args.timeline.displayText]),
+    "",
+    homiePackSafeSection("Saved vault summaries", savedArtifactLines),
+    "",
+    homiePackSafeSection("Raw legacy notes export", [notesText]),
+    "",
+    homiePackSafeSection("What to do next", [
+      "1. Read the selected artifact and edit it like a human family document.",
+      "2. Keep the timeline as context, not as proof of anything outside the app.",
+      "3. Save one clean copy somewhere your family can actually find.",
+      "4. Come back to Homie for one small next move: body, family, money, or creative.",
+    ]),
+    "",
+    homiePackSafeSection("Trust and review note", [
+      "This pack is generated from local Homie memory, visible timeline state, selected artifact preview, and legacy note export helpers.",
+      "Homie is not claiming your family has read anything, opened anything, or confirmed anything unless you tell it so.",
+      "Review before final family use.",
+    ]),
+    "",
+    "Counts:",
+    "• Check-ins visible to Homie memory: " + checkIns,
+    "• Legacy artifacts visible to Homie memory: " + legacyCount,
+  ];
+
+  const body = sections.join("\n");
+  const markdown = body
+    .split("\n")
+    .map((line, index) => {
+      if (index === 0) return "# " + line;
+      if (["Start here", "Current mission thread", "Selected family artifact", "Legacy timeline", "Saved vault summaries", "Raw legacy notes export", "What to do next", "Trust and review note", "Counts:"].includes(line.trim())) return "## " + line.trim().replace(/:$/, "");
+      return line;
+    })
+    .join("\n");
+  const filenameBase = "Homie_Family_Legacy_Export_Pack_" + getHomieDailyRhythmDayKey();
+  const spokenText = "Family legacy export pack preview is ready. It bundles the timeline, selected artifact, and vault notes into one reviewable family document.";
+
+  return { title: "Family Legacy Export Pack", body, markdown, filenameBase, spokenText, createdAt: Date.now() };
+}
+// ===== v10.36.28 Homie family legacy export pack + vault polish helpers END =====
+
 
 
 
@@ -678,6 +782,7 @@ export default function HomieBuddy({
   const [dailyRhythm, setDailyRhythm] = useState<HomieDailyRhythmState>(() => loadHomieDailyRhythmState());
   const [legacyArtifactStudioType, setLegacyArtifactStudioType] = useState<HomieLegacyArtifactStudioType>("letter");
   const [legacyArtifactPreview, setLegacyArtifactPreview] = useState<HomieLegacyArtifactStudioPreview | null>(null);
+  const [legacyExportPackPreview, setLegacyExportPackPreview] = useState<HomieFamilyLegacyExportPack | null>(null);
 
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<any>(null);
@@ -893,10 +998,58 @@ export default function HomieBuddy({
   }
 
 
+  function buildCurrentHomieFamilyLegacyExportPack(artifact: HomieLegacyArtifactStudioPreview | null = legacyArtifactPreview || buildCurrentHomieLegacyArtifactStudioPreview(legacyArtifactStudioType)) {
+    return buildHomieFamilyLegacyExportPack({
+      timeline: buildCurrentHomieLegacyTimeline(),
+      artifact,
+      memory: companionMemory,
+      artifacts: legacyArtifactSummaries,
+      notesText: exportHomieLegacyArtifactText(),
+      activeTitle,
+      dailyRhythmLine,
+    });
+  }
+
+  function runHomieFamilyLegacyExportPack(source: "typed" | "voice" | "quick" = "quick", prompt = "Homie, build the family legacy export pack", exportAfter = false) {
+    const artifact = legacyArtifactPreview || buildCurrentHomieLegacyArtifactStudioPreview(legacyArtifactStudioType);
+    if (!legacyArtifactPreview) setLegacyArtifactPreview(artifact);
+    const pack = buildCurrentHomieFamilyLegacyExportPack(artifact);
+    setLegacyExportPackPreview(pack);
+    appendCompanionMessages([
+      createHomieMessage("user", prompt, source),
+      createHomieMessage("homie", pack.body, source),
+    ]);
+    announce("Family legacy export pack preview ready.", "good", source === "voice" || voiceEnabled, pack.spokenText);
+    if (exportAfter) exportHomieFamilyLegacyPack("txt", pack);
+    return pack;
+  }
+
+  function exportHomieFamilyLegacyPack(format: "txt" | "md" = "txt", forcedPack?: HomieFamilyLegacyExportPack) {
+    const artifact = legacyArtifactPreview || buildCurrentHomieLegacyArtifactStudioPreview(legacyArtifactStudioType);
+    if (!legacyArtifactPreview) setLegacyArtifactPreview(artifact);
+    const pack = forcedPack || legacyExportPackPreview || buildCurrentHomieFamilyLegacyExportPack(artifact);
+    setLegacyExportPackPreview(pack);
+    const isMarkdown = format === "md";
+    const text = isMarkdown ? pack.markdown : pack.body;
+    const filename = pack.filenameBase + (isMarkdown ? ".md" : ".txt");
+    downloadTextFile(filename, text);
+    try {
+      void navigator.clipboard?.writeText(text);
+    } catch {
+      // ignore
+    }
+    announce("Exported the family legacy pack as " + (isMarkdown ? "Markdown." : "text."), "good", true, isMarkdown ? "Exported the pack as markdown." : "Exported the pack as text.");
+  }
+
+
 
   function handleCompanionConversation(text: string, source: "typed" | "voice" | "quick" = "typed") {
     const trimmed = text.trim();
     if (!trimmed) return false;
+    if (isHomieFamilyLegacyExportPackPrompt(trimmed)) {
+      runHomieFamilyLegacyExportPack(source, trimmed, /\b(export|share|download|save)\b/i.test(trimmed));
+      return true;
+    }
     if (isHomieLegacyArtifactStudioPrompt(trimmed)) {
       const type = inferHomieLegacyArtifactStudioType(trimmed);
       runHomieLegacyArtifactStudio(type, source, trimmed);
@@ -1801,6 +1954,33 @@ export default function HomieBuddy({
           </div>
         </section>
 
+
+          <div className="homieLegacyVaultMini homieFamilyLegacyExportPackControls" style={{ marginTop: 12 }}>
+            <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
+              <div>
+                <div className="assistantSectionTitle">Family export pack</div>
+                <div className="small">Bundle the timeline, selected artifact, and vault notes into one reviewable family file.</div>
+              </div>
+            </div>
+
+            <div className="assistantChipWrap" style={{ marginTop: 10 }}>
+              <button className="tabBtn active" onClick={() => runHomieFamilyLegacyExportPack("quick")}>Preview pack</button>
+              <button className="tabBtn" disabled={!legacyExportPackPreview} onClick={() => exportHomieFamilyLegacyPack("txt")}>Export pack TXT</button>
+              <button className="tabBtn" disabled={!legacyExportPackPreview} onClick={() => exportHomieFamilyLegacyPack("md")}>Export pack MD</button>
+            </div>
+
+            {legacyExportPackPreview ? (
+              <div className="homieLegacyVaultList" style={{ marginTop: 10 }}>
+                <div className="homieLegacyVaultItem" style={{ alignItems: "stretch" }}>
+                  <strong>{legacyExportPackPreview.title}</strong>
+                  <span>{legacyExportPackPreview.body.length > 560 ? legacyExportPackPreview.body.slice(0, 557) + "..." : legacyExportPackPreview.body}</span>
+                  <span className="small">Includes timeline + selected artifact + vault notes. Review before final family use.</span>
+                </div>
+              </div>
+            ) : (
+              <div className="small" style={{ marginTop: 10 }}>Preview creates one clean pack from the current timeline, selected artifact, and saved legacy notes.</div>
+            )}
+          </div>
         <section className="card homieRebuildVoice">
           <div className="homieRebuildSectionHead">
             <div>
