@@ -1012,6 +1012,134 @@ function buildHomieLegacyQualityReview(args: {
 }
 // ===== v10.36.31 Homie family legacy quality review + human edit helpers END =====
 
+// ===== v10.36.32b Homie legacy final pack index + manifest helpers =====
+type HomieLegacyFinalManifest = {
+  title: string;
+  body: string;
+  markdown: string;
+  filenameBase: string;
+  spokenText: string;
+  createdAt: number;
+};
+
+function isHomieLegacyFinalManifestPrompt(text: string) {
+  const lower = text.trim().toLowerCase();
+  return /\b(final family index|family final index|final index|final manifest|family manifest|legacy manifest|pack index|final pack index|generate final index|create final index|what files should exist|read this first then timeline|final family packet|family file list)\b/.test(lower);
+}
+
+function homieManifestCleanLine(value: any, fallback = "Not generated yet") {
+  const clean = String(value || fallback).replace(/\s+/g, " ").trim();
+  if (clean.length <= 190) return clean;
+  return clean.slice(0, 187) + "...";
+}
+
+function homieManifestFileLine(label: string, filenameBase: string, formats = "TXT / MD") {
+  const cleanBase = homieManifestCleanLine(filenameBase, "Generate this item first");
+  return "• " + label + ": " + cleanBase + " (" + formats + ")";
+}
+
+function buildHomieLegacyFinalManifest(args: {
+  openFirst: HomieFamilyOpenFirstGuide;
+  timeline: HomieLegacyTimelineReview;
+  artifact: HomieLegacyArtifactStudioPreview;
+  quality: HomieLegacyQualityReview;
+  pack: HomieFamilyLegacyExportPack;
+  memory: any;
+  activeTitle: string;
+  dailyRhythmLine: string;
+}): HomieLegacyFinalManifest {
+  const generated = new Date().toLocaleString();
+  const day = getHomieDailyRhythmDayKey();
+  const themes = homieManifestCleanLine(args.memory?.recentThemeText || "general", "general");
+  const nextMove = homieManifestCleanLine(args.memory?.lastNextStep || args.dailyRhythmLine || "Choose one small next move.");
+  const activePanel = homieManifestCleanLine(args.activeTitle || "Homie", "Homie");
+  const qualityVerdict = args.quality?.verdict === "family-ready-draft" ? "Family-ready draft after one human read" : "Needs human edit before final use";
+  const checklistLines = Array.isArray(args.quality?.checklist)
+    ? args.quality.checklist.map((item) => "• " + (item.ok ? "✓" : "Needs edit") + " — " + item.label + " " + item.note)
+    : ["• Run Family quality review before final sharing."];
+
+  const expectedFiles = [
+    homieManifestFileLine("Open This First", args.openFirst?.filenameBase || "Homie_Open_This_First_" + day, "TXT / MD"),
+    "• Timeline: Homie_Legacy_Timeline_" + day + ".txt (TXT)",
+    homieManifestFileLine("Selected Artifact", args.artifact?.filenameBase || "Homie_selected_artifact_" + day, "TXT / MD"),
+    homieManifestFileLine("Quality Review", args.quality?.filenameBase || "Homie_Family_Quality_Review_" + day, "TXT / MD"),
+    homieManifestFileLine("Family Export Pack", args.pack?.filenameBase || "Homie_Family_Legacy_Export_Pack_" + day, "TXT / MD"),
+  ];
+
+  const body = [
+    "Final Family Legacy Pack Index",
+    "Generated: " + generated,
+    "",
+    "Purpose",
+    "This index is the simple front door for the family legacy files. It tells someone what to open first, what each file is for, and what still needs human review.",
+    "",
+    "Expected files",
+    ...expectedFiles,
+    "",
+    "Reading order",
+    "1. Read Open This First.",
+    "2. Then read the Timeline for context.",
+    "3. Then read the Selected Artifact, like the letter, memory note, life lesson, open-first note, or project status.",
+    "4. Then read the Quality Review notes before treating anything as final.",
+    "5. Then read or save the Family Export Pack as the bundled copy.",
+    "",
+    "Human review checklist",
+    "[ ] Human edited?",
+    "[ ] Checked for truth?",
+    "[ ] Checked for kindness?",
+    "[ ] Checked for usefulness?",
+    "[ ] Easy for the family to understand?",
+    "[ ] Saved somewhere the family can actually find?",
+    "[ ] Shared only after a human has reviewed it?",
+    "",
+    "Latest quality review verdict",
+    qualityVerdict,
+    "",
+    "Quality checklist notes",
+    ...checklistLines,
+    "",
+    "Current Homie context",
+    "• Active panel/thread: " + activePanel,
+    "• Recent themes: " + themes,
+    "• Remembered next move: " + nextMove,
+    "• Daily rhythm: " + args.dailyRhythmLine,
+    "",
+    "What this pack includes",
+    "• Open First guide: " + homieManifestCleanLine(args.openFirst?.title, "Open this first"),
+    "• Timeline summary: " + homieManifestCleanLine(args.timeline?.displayText || args.timeline?.exportText, "Timeline ready"),
+    "• Selected artifact: " + homieManifestCleanLine(args.artifact?.title, "Selected artifact"),
+    "• Quality review: " + homieManifestCleanLine(args.quality?.title, "Quality review"),
+    "• Export pack: " + homieManifestCleanLine(args.pack?.title, "Family export pack"),
+    "",
+    "Trust note",
+    "Homie is organizing local app memory, visible draft previews, and review helpers. Homie is not claiming these files are complete, emotionally perfect, or family-approved. A human should read, edit, and confirm the final version.",
+    "",
+    "Gentle next step",
+    "Export the index, then export the five files listed above. Keep them together in one folder named Family Legacy Pack.",
+  ].join("\n");
+
+  const markdown = body
+    .split("\n")
+    .map((line, index) => {
+      const trimmed = line.trim();
+      if (index === 0) return "# " + trimmed;
+      if (["Purpose", "Expected files", "Reading order", "Human review checklist", "Latest quality review verdict", "Quality checklist notes", "Current Homie context", "What this pack includes", "Trust note", "Gentle next step"].includes(trimmed)) return "## " + trimmed;
+      return line;
+    })
+    .join("\n");
+
+  return {
+    title: "Final Family Legacy Pack Index",
+    body,
+    markdown,
+    filenameBase: "Homie_Final_Family_Legacy_Pack_Index_" + day,
+    spokenText: "Final family index is ready. It lists the files, the reading order, the human-edited checklist, and the trust note.",
+    createdAt: Date.now(),
+  };
+}
+// ===== v10.36.32b Homie legacy final pack index + manifest helpers END =====
+
+
 
 
 
@@ -1048,6 +1176,7 @@ export default function HomieBuddy({
   const [legacyExportPackPreview, setLegacyExportPackPreview] = useState<HomieFamilyLegacyExportPack | null>(null);
   const [openFirstGuidePreview, setOpenFirstGuidePreview] = useState<HomieFamilyOpenFirstGuide | null>(null);
   const [legacyQualityReview, setLegacyQualityReview] = useState<HomieLegacyQualityReview | null>(null);
+  const [legacyFinalManifestPreview, setLegacyFinalManifestPreview] = useState<HomieLegacyFinalManifest | null>(null);
 
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<any>(null);
@@ -1415,9 +1544,71 @@ export default function HomieBuddy({
     announce("Exported the cleaned family review as " + (isMarkdown ? "Markdown." : "text."), "good", true, isMarkdown ? "Exported cleaned markdown." : "Exported cleaned text.");
   }
 
+  function buildCurrentHomieLegacyFinalManifestBundle() {
+    const openFirst = openFirstGuidePreview || buildCurrentHomieFamilyOpenFirstGuide();
+    const artifact = legacyArtifactPreview || buildCurrentHomieLegacyArtifactStudioPreview(legacyArtifactStudioType);
+    const pack = legacyExportPackPreview || buildCurrentHomieFamilyLegacyExportPack(artifact);
+    const quality = legacyQualityReview || buildHomieLegacyQualityReview({
+      sourceLabel: "Family export pack",
+      sourceTitle: pack.title,
+      sourceText: pack.body,
+      memory: companionMemory,
+      activeTitle,
+      dailyRhythmLine,
+    });
+    const manifest = buildHomieLegacyFinalManifest({
+      openFirst,
+      timeline: buildCurrentHomieLegacyTimeline(),
+      artifact,
+      quality,
+      pack,
+      memory: companionMemory,
+      activeTitle,
+      dailyRhythmLine,
+    });
+    return { openFirst, artifact, pack, quality, manifest };
+  }
+
+  function runHomieLegacyFinalManifest(source: "typed" | "voice" | "quick" = "quick", prompt = "Homie, generate the final family index", exportAfter = false) {
+    const bundle = buildCurrentHomieLegacyFinalManifestBundle();
+    if (!openFirstGuidePreview) setOpenFirstGuidePreview(bundle.openFirst);
+    if (!legacyArtifactPreview) setLegacyArtifactPreview(bundle.artifact);
+    if (!legacyExportPackPreview) setLegacyExportPackPreview(bundle.pack);
+    if (!legacyQualityReview) setLegacyQualityReview(bundle.quality);
+    setLegacyFinalManifestPreview(bundle.manifest);
+    appendCompanionMessages([
+      createHomieMessage("user", prompt, source),
+      createHomieMessage("homie", bundle.manifest.body, source),
+    ]);
+    announce("Final family index is ready.", "good", source === "voice" || voiceEnabled, bundle.manifest.spokenText);
+    if (exportAfter) exportHomieLegacyFinalManifest("txt", bundle.manifest);
+    return bundle.manifest;
+  }
+
+  function exportHomieLegacyFinalManifest(format: "txt" | "md" = "txt", forcedManifest?: HomieLegacyFinalManifest) {
+    const manifest = forcedManifest || legacyFinalManifestPreview || buildCurrentHomieLegacyFinalManifestBundle().manifest;
+    setLegacyFinalManifestPreview(manifest);
+    const isMarkdown = format === "md";
+    const text = isMarkdown ? manifest.markdown : manifest.body;
+    const filename = manifest.filenameBase + (isMarkdown ? ".md" : ".txt");
+    downloadTextFile(filename, text);
+    try {
+      void navigator.clipboard?.writeText(text);
+    } catch {
+      // ignore
+    }
+    announce("Exported the final family index as " + (isMarkdown ? "Markdown." : "text."), "good", true, isMarkdown ? "Exported final index markdown." : "Exported final index text.");
+  }
+
+
   function handleCompanionConversation(text: string, source: "typed" | "voice" | "quick" = "typed") {
     const trimmed = text.trim();
     if (!trimmed) return false;
+
+    if (isHomieLegacyFinalManifestPrompt(trimmed)) {
+      runHomieLegacyFinalManifest(source, trimmed, /\b(export|share|download|save)\b/i.test(trimmed));
+      return true;
+    }
     if (isHomieLegacyQualityReviewPrompt(trimmed)) {
       const review = runHomieLegacyQualityReview(source, trimmed);
       if (/\b(copy|cleaned|clipboard)\b/i.test(trimmed)) copyHomieLegacyQualityCleanedVersion(review);
@@ -2415,6 +2606,34 @@ export default function HomieBuddy({
               <div className="small" style={{ marginTop: 10 }}>Review checks the latest Open First guide, Artifact Studio draft, or Family export pack before you treat it like final.</div>
             )}
           </div>
+
+          <div className="homieLegacyVaultMini homieFamilyFinalManifestControls" style={{ marginTop: 12 }}>
+            <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
+              <div>
+                <div className="assistantSectionTitle">Final family index</div>
+                <div className="small">A simple manifest for the files your family should open, in the right order, with human-edited checkbox language.</div>
+              </div>
+            </div>
+
+            <div className="assistantChipWrap" style={{ marginTop: 10 }}>
+              <button className="tabBtn active" onClick={() => runHomieLegacyFinalManifest("quick")}>Generate final index</button>
+              <button className="tabBtn" disabled={!legacyFinalManifestPreview} onClick={() => exportHomieLegacyFinalManifest("txt")}>Export TXT</button>
+              <button className="tabBtn" disabled={!legacyFinalManifestPreview} onClick={() => exportHomieLegacyFinalManifest("md")}>Export MD</button>
+            </div>
+
+            {legacyFinalManifestPreview ? (
+              <div className="homieLegacyVaultList" style={{ marginTop: 10 }}>
+                <div className="homieLegacyVaultItem" style={{ alignItems: "stretch" }}>
+                  <strong>{legacyFinalManifestPreview.title}</strong>
+                  <span>{legacyFinalManifestPreview.body.length > 640 ? legacyFinalManifestPreview.body.slice(0, 637) + "..." : legacyFinalManifestPreview.body}</span>
+                  <span className="small">Includes file list, reading order, human-edited checklist, and trust note. Review before final family use.</span>
+                </div>
+              </div>
+            ) : (
+              <div className="small" style={{ marginTop: 10 }}>Generate this after Open First, Artifact Studio, Family export pack, and Quality Review are previewed.</div>
+            )}
+          </div>
+
         </section>
 
         <section className="card homieRebuildVoice">
