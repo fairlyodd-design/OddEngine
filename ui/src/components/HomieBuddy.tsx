@@ -294,6 +294,84 @@ function bridgePlainLabel(state: VoiceDiagnostics["externalBridgeState"]) {
 }
 // ===== v10.36.24 Homie runtime self-check + trust helpers END =====
 
+
+// ===== v10.36.25b Homie daily rhythm + proactive check-in helpers =====
+type HomieDailyRhythmState = {
+  lastGreetingDay?: string;
+  lastPromptDay?: string;
+  lastCheckInDay?: string;
+  dismissedDay?: string;
+  lastPromptAt?: number;
+};
+
+const HOMIE_DAILY_RHYTHM_KEY = "oddengine:homie:daily-rhythm:v1";
+
+function getHomieDailyRhythmDayKey(date = new Date()) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return y + "-" + m + "-" + d;
+}
+
+function getHomieDayPart(date = new Date()) {
+  const hour = date.getHours();
+  if (hour < 5) return "late night";
+  if (hour < 12) return "morning";
+  if (hour < 17) return "afternoon";
+  if (hour < 21) return "evening";
+  return "night";
+}
+
+function loadHomieDailyRhythmState(): HomieDailyRhythmState {
+  try {
+    const raw = localStorage.getItem(HOMIE_DAILY_RHYTHM_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw) || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveHomieDailyRhythmState(next: HomieDailyRhythmState) {
+  try {
+    localStorage.setItem(HOMIE_DAILY_RHYTHM_KEY, JSON.stringify(next));
+  } catch {
+    // ignore
+  }
+  return next;
+}
+
+function isHomieDailyRhythmPrompt(text: string) {
+  const lower = text.trim().toLowerCase();
+  return /\b(what matters today|daily check|daily rhythm|today check|today's check|todays check|morning check|evening check|start my day|body family money creative|family body money creative)\b/.test(lower);
+}
+
+function buildHomieDailyRhythmPrompt(activeTitle: string) {
+  return [
+    "Homie, daily rhythm check in with me.",
+    "Ask what matters today, then scan body, family, money, and creative next move.",
+    "Keep it gentle, short first, no nagging, and do not claim you noticed anything without evidence.",
+    "Current panel: " + activeTitle + ".",
+  ].join(" ");
+}
+
+function buildHomieDailyRhythmLine(state: HomieDailyRhythmState, memory: { checkInCount?: number; lastCheckInLabel?: string; recentThemeText?: string }) {
+  const today = getHomieDailyRhythmDayKey();
+  if (state.lastCheckInDay === today) return "Daily rhythm is already checked in for today.";
+  if (state.lastPromptDay === today) return "Today’s rhythm prompt is open — answer only what feels useful.";
+  if ((memory.checkInCount || 0) > 0) return "Ready for a gentle today scan: body, family, money, creative.";
+  return "When you’re ready: what matters today?";
+}
+
+function buildHomieDailyGreetingStatus(state: HomieDailyRhythmState, memory: { checkInCount?: number; recentThemeText?: string }) {
+  const part = getHomieDayPart();
+  const today = getHomieDailyRhythmDayKey();
+  if (state.lastCheckInDay === today) return "Today’s rhythm is already checked in. I’m here if you need the next move.";
+  const theme = memory.recentThemeText && memory.recentThemeText !== "general" ? " Last saved themes: " + memory.recentThemeText + "." : "";
+  return "Good " + part + ". When you’re ready: what matters today — body, family, money, or creative?" + theme;
+}
+// ===== v10.36.25b Homie daily rhythm + proactive check-in helpers END =====
+
 export default function HomieBuddy({
   activePanelId,
   onNavigate,
@@ -321,6 +399,7 @@ export default function HomieBuddy({
   const [companionMessages, setCompanionMessages] = useState<HomieCompanionMessage[]>(() => loadHomieCompanionHistory());
   const [companionMemory, setCompanionMemory] = useState(() => getHomieCompanionMemorySnapshot());
   const [legacyArtifactSummaries, setLegacyArtifactSummaries] = useState(() => getHomieLegacyArtifactSummaries(4));
+  const [dailyRhythm, setDailyRhythm] = useState<HomieDailyRhythmState>(() => loadHomieDailyRhythmState());
 
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<any>(null);
@@ -361,6 +440,7 @@ export default function HomieBuddy({
   const presenceEmotion = getHomiePresenceEmotion({ isListening, isSpeaking, mood, status, memory: companionMemory });
   const presenceClass = "emotion-" + presenceEmotion;
   const presenceLine = getHomiePresenceLine(presenceEmotion, activeTitle);
+  const dailyRhythmLine = buildHomieDailyRhythmLine(dailyRhythm, companionMemory);
 
   function persistHomiePrefs(partial: Partial<typeof prefs.ai>) {
     const next = { ...prefs, ai: { ...prefs.ai, ...partial } };
@@ -432,6 +512,30 @@ export default function HomieBuddy({
       setLegacyArtifactSummaries(getHomieLegacyArtifactSummaries(4));
       return next;
     });
+  }
+
+
+  function updateDailyRhythm(partial: HomieDailyRhythmState) {
+    setDailyRhythm((prev) => {
+      const next = saveHomieDailyRhythmState({ ...prev, ...partial });
+      return next;
+    });
+  }
+
+  function runHomieDailyRhythmCheck(source: "typed" | "voice" | "quick" = "quick", prompt?: string) {
+    const day = getHomieDailyRhythmDayKey();
+    const rhythmPrompt = prompt?.trim() || buildHomieDailyRhythmPrompt(activeTitle);
+    const ctx = { activePanelTitle: activeTitle, activePanelId, status, mood, source };
+    const reply = buildHomieCompanionReply(rhythmPrompt, ctx);
+    appendCompanionMessages([
+      createHomieMessage("user", rhythmPrompt, source),
+      createHomieMessage("homie", reply.text, source),
+    ]);
+    updateDailyRhythm({ lastPromptDay: day, lastCheckInDay: day, lastPromptAt: Date.now() });
+    setCompanionMemory(getHomieCompanionMemorySnapshot());
+    setLegacyArtifactSummaries(getHomieLegacyArtifactSummaries(4));
+    announce(reply.text, reply.mood, source === "voice" || voiceEnabled, trimForSpeech(reply.spokenText || reply.text));
+    return true;
   }
 
   function handleCompanionConversation(text: string, source: "typed" | "voice" | "quick" = "typed") {
@@ -1088,6 +1192,23 @@ export default function HomieBuddy({
     if (diagnostics.lastErrorMessage) setShowDiagnostics(true);
   }, [diagnostics.lastErrorMessage]);
 
+
+  useEffect(() => {
+    const shouldGreet = open || mode === "standalone";
+    if (!shouldGreet) return;
+    const today = getHomieDailyRhythmDayKey();
+    if (dailyRhythm.lastGreetingDay === today || dailyRhythm.dismissedDay === today) return;
+    const id = window.setTimeout(() => {
+      setDailyRhythm((prev) => {
+        if (prev.lastGreetingDay === today || prev.dismissedDay === today) return prev;
+        return saveHomieDailyRhythmState({ ...prev, lastGreetingDay: today });
+      });
+      setStatus(buildHomieDailyGreetingStatus(dailyRhythm, companionMemory));
+      setMood("good");
+    }, 750);
+    return () => window.clearTimeout(id);
+  }, [open, mode, dailyRhythm.lastGreetingDay, dailyRhythm.dismissedDay, dailyRhythm.lastCheckInDay, companionMemory.checkInCount, companionMemory.recentThemeText]);
+
   useEffect(() => {
     const hydrateVoices = () => setPrefs(loadPrefs());
     try {
@@ -1182,6 +1303,7 @@ export default function HomieBuddy({
             <div className="assistantSectionTitle">A calmer Homie lane</div>
             <div className="small">{status}</div>
             <div className="small homieRebuildPresenceLine">{presenceLine}</div>
+            <div className="small homieDailyRhythmLine">{dailyRhythmLine}</div>
           </div>
           <div className="homieRebuildMemoryGrid">
             <div className="homieRebuildMemoryCell"><span className="small">Check-ins</span><strong>{companionMemory.checkInCount}</strong></div>
@@ -1251,6 +1373,7 @@ export default function HomieBuddy({
           </div>
 
           <div className="assistantChipWrap homieRebuildQuickActions">
+            <button className="tabBtn" onClick={() => runHomieDailyRhythmCheck("quick")}>Today</button>
             <button className="tabBtn" onClick={() => runCompanionQuick("help me focus on the next tiny move")}>Focus me</button>
             <button className="tabBtn" onClick={() => runCompanionQuick("I feel overwhelmed, ground me")}>Ground me</button>
             <button className="tabBtn" onClick={runLegacyDraft}>Legacy note</button>
