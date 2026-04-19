@@ -496,6 +496,156 @@ function buildHomieLegacyTimelineReview(args: {
 }
 // ===== v10.36.26b Homie deep memory review + legacy timeline helpers END =====
 
+// ===== v10.36.27 Homie family legacy artifact studio helpers =====
+type HomieLegacyArtifactStudioType = "letter" | "memory-note" | "open-first" | "life-lesson" | "project-status";
+
+type HomieLegacyArtifactStudioPreview = {
+  type: HomieLegacyArtifactStudioType;
+  title: string;
+  body: string;
+  markdown: string;
+  filenameBase: string;
+  spokenText: string;
+  createdAt: number;
+};
+
+const HOMIE_LEGACY_ARTIFACT_TYPE_LABELS: Record<HomieLegacyArtifactStudioType, string> = {
+  letter: "Letter",
+  "memory-note": "Memory note",
+  "open-first": "Open this first",
+  "life-lesson": "Life lesson",
+  "project-status": "Project status",
+};
+
+function isHomieLegacyArtifactStudioPrompt(text: string) {
+  const lower = text.trim().toLowerCase();
+  return /\b(artifact studio|family artifact|legacy artifact|make a letter|write a letter|memory note|open this first|life lesson|project status|status note|preview artifact|export artifact|legacy studio)\b/.test(lower);
+}
+
+function inferHomieLegacyArtifactStudioType(text: string): HomieLegacyArtifactStudioType {
+  const lower = text.trim().toLowerCase();
+  if (/\b(open this first|open-first|first thing|start here)\b/.test(lower)) return "open-first";
+  if (/\b(life lesson|lesson|what i learned|teach them)\b/.test(lower)) return "life-lesson";
+  if (/\b(project status|status note|where the project stands|what we built|build status)\b/.test(lower)) return "project-status";
+  if (/\b(memory note|remember this|save this memory|family memory)\b/.test(lower)) return "memory-note";
+  return "letter";
+}
+
+function homieLegacyArtifactFileSlug(type: HomieLegacyArtifactStudioType) {
+  return type.replace(/[^a-z0-9]+/gi, "_").replace(/^_+|_+$/g, "") || "artifact";
+}
+
+function buildHomieFamilyLegacyArtifactStudioPreview(args: {
+  type: HomieLegacyArtifactStudioType;
+  timeline: HomieLegacyTimelineReview;
+  memory: any;
+  activeTitle: string;
+  dailyRhythmLine: string;
+}): HomieLegacyArtifactStudioPreview {
+  const type = args.type || "letter";
+  const label = HOMIE_LEGACY_ARTIFACT_TYPE_LABELS[type] || "Legacy artifact";
+  const dateLine = new Date().toLocaleString();
+  const themes = homieCleanTimelineText(args.memory?.recentThemeText || "general", "general");
+  const lastNextMove = homieCleanTimelineText(args.memory?.lastNextStep || args.dailyRhythmLine || "Choose one small next move and keep going.");
+  const activePanel = homieCleanTimelineText(args.activeTitle || "Homie", "Homie");
+  const timelineSummary = homieCleanTimelineText(args.timeline.displayText, "Local Homie timeline is ready.");
+
+  let title = "Family legacy artifact";
+  let bodyLines: string[] = [];
+
+  if (type === "letter") {
+    title = "A letter for my family";
+    bodyLines = [
+      "Dear family,",
+      "",
+      "I wanted there to be a calm place you could open when life feels loud. FairlyOdd OS and Homie are part of that: a companion lane for memory, next moves, and the things that matter.",
+      "",
+      "What matters in this moment: body, mind, family, and one small next move. You do not have to understand everything at once. Start with the open-first notes, then follow the timeline slowly.",
+      "",
+      "Current Homie themes: " + themes + ".",
+      "Current next move: " + lastNextMove,
+      "",
+      "Trust note: this was generated from local Homie memory and the visible timeline. It should be reviewed by the family before being treated as final."
+    ];
+  } else if (type === "memory-note") {
+    title = "Memory note for the family vault";
+    bodyLines = [
+      "Memory note",
+      "",
+      "This note captures the current Homie memory lane without pretending to know anything outside the app.",
+      "",
+      "Recent themes: " + themes + ".",
+      "Current panel/thread: " + activePanel + ".",
+      "Next move remembered by Homie: " + lastNextMove,
+      "",
+      "Timeline preview: " + timelineSummary,
+      "",
+      "Family instruction: keep what feels true, edit what needs human context, and save the cleaned version."
+    ];
+  } else if (type === "open-first") {
+    title = "Open this first";
+    bodyLines = [
+      "Open this first",
+      "",
+      "Start here if you are trying to understand what this system is for.",
+      "",
+      "1. Homie is the calm companion lane. Use it for check-ins, grounding, family notes, and the next move.",
+      "2. The timeline shows what has been built and what changed recently.",
+      "3. The legacy vault holds saved family notes and artifacts.",
+      "4. Do not rush. Pick one note, one panel, or one next move at a time.",
+      "",
+      "Today’s gentle prompt: " + args.dailyRhythmLine,
+      "",
+      "Trust note: Homie can summarize saved local memory, but the family decides what is final."
+    ];
+  } else if (type === "life-lesson") {
+    title = "Life lesson from this build";
+    bodyLines = [
+      "Life lesson",
+      "",
+      "The lesson inside this build is simple: when everything feels too big, make the next move small enough to actually do.",
+      "",
+      "Body first. Then mind. Then family. Then money or creative work. That order keeps the room human.",
+      "",
+      "Homie’s remembered next move: " + lastNextMove,
+      "Recent themes: " + themes + ".",
+      "",
+      "Keep this as a family reminder: progress does not have to be loud to be real."
+    ];
+  } else {
+    title = "Project status for FairlyOdd / Homie";
+    bodyLines = [
+      "Project status",
+      "",
+      "Homie is being shaped into a warm, non-human companion for check-ins, voice, legacy memory, and family artifacts.",
+      "",
+      "Current panel/thread: " + activePanel + ".",
+      "Recent themes: " + themes + ".",
+      "Current next move: " + lastNextMove,
+      "",
+      "What exists now: daily rhythm, runtime self-check, trust language, legacy timeline, artifact preview, and export flow.",
+      "",
+      "What to verify next: voice reliability, artifact quality, and whether the family can open the saved notes without needing developer context."
+    ];
+  }
+
+  const footer = [
+    "",
+    "Generated by Homie Artifact Studio",
+    "Generated: " + dateLine,
+    "Source: local Homie memory, current timeline preview, and visible runtime context.",
+    "Review note: please edit this before treating it as a final family document."
+  ];
+  const body = bodyLines.concat(footer).join("\n");
+  const markdown = ["# " + title, "", body].join("\n");
+  const filenameBase = "Homie_" + homieLegacyArtifactFileSlug(type) + "_" + getHomieDailyRhythmDayKey();
+  const spokenText = label + " preview is ready. Review it first, then export as text or markdown.";
+
+  return { type, title, body, markdown, filenameBase, spokenText, createdAt: Date.now() };
+}
+// ===== v10.36.27 Homie family legacy artifact studio helpers END =====
+
+
 
 
 export default function HomieBuddy({
@@ -526,6 +676,8 @@ export default function HomieBuddy({
   const [companionMemory, setCompanionMemory] = useState(() => getHomieCompanionMemorySnapshot());
   const [legacyArtifactSummaries, setLegacyArtifactSummaries] = useState(() => getHomieLegacyArtifactSummaries(4));
   const [dailyRhythm, setDailyRhythm] = useState<HomieDailyRhythmState>(() => loadHomieDailyRhythmState());
+  const [legacyArtifactStudioType, setLegacyArtifactStudioType] = useState<HomieLegacyArtifactStudioType>("letter");
+  const [legacyArtifactPreview, setLegacyArtifactPreview] = useState<HomieLegacyArtifactStudioPreview | null>(null);
 
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<any>(null);
@@ -703,10 +855,53 @@ export default function HomieBuddy({
   }
 
 
+  function buildCurrentHomieLegacyArtifactStudioPreview(type: HomieLegacyArtifactStudioType = legacyArtifactStudioType) {
+    return buildHomieFamilyLegacyArtifactStudioPreview({
+      type,
+      timeline: buildCurrentHomieLegacyTimeline(),
+      memory: companionMemory,
+      activeTitle,
+      dailyRhythmLine,
+    });
+  }
+
+  function runHomieLegacyArtifactStudio(type: HomieLegacyArtifactStudioType = legacyArtifactStudioType, source: "typed" | "voice" | "quick" = "quick", prompt = "Homie, preview a family legacy artifact") {
+    const preview = buildCurrentHomieLegacyArtifactStudioPreview(type);
+    setLegacyArtifactStudioType(preview.type);
+    setLegacyArtifactPreview(preview);
+    appendCompanionMessages([
+      createHomieMessage("user", prompt, source),
+      createHomieMessage("homie", "Artifact studio preview ready: " + preview.title + "\n\n" + preview.body, source),
+    ]);
+    announce("Artifact studio preview ready: " + preview.title, "good", source === "voice" || voiceEnabled, preview.spokenText);
+    return preview;
+  }
+
+  function exportHomieLegacyArtifactStudio(format: "txt" | "md" = "txt") {
+    const preview = legacyArtifactPreview || buildCurrentHomieLegacyArtifactStudioPreview(legacyArtifactStudioType);
+    setLegacyArtifactPreview(preview);
+    const isMarkdown = format === "md";
+    const text = isMarkdown ? preview.markdown : preview.body;
+    const filename = preview.filenameBase + (isMarkdown ? ".md" : ".txt");
+    downloadTextFile(filename, text);
+    try {
+      void navigator.clipboard?.writeText(text);
+    } catch {
+      // ignore
+    }
+    announce("Exported the family artifact preview as " + (isMarkdown ? "Markdown." : "text."), "good", true, isMarkdown ? "Exported as markdown." : "Exported as text.");
+  }
+
+
 
   function handleCompanionConversation(text: string, source: "typed" | "voice" | "quick" = "typed") {
     const trimmed = text.trim();
     if (!trimmed) return false;
+    if (isHomieLegacyArtifactStudioPrompt(trimmed)) {
+      const type = inferHomieLegacyArtifactStudioType(trimmed);
+      runHomieLegacyArtifactStudio(type, source, trimmed);
+      return true;
+    }
     if (isHomieLegacyTimelinePrompt(trimmed)) {
       runHomieLegacyTimelineReview(source, trimmed, /\b(export|share|download|save)\b/i.test(trimmed));
       return true;
