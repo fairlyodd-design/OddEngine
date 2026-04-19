@@ -372,6 +372,132 @@ function buildHomieDailyGreetingStatus(state: HomieDailyRhythmState, memory: { c
 }
 // ===== v10.36.25b Homie daily rhythm + proactive check-in helpers END =====
 
+// ===== v10.36.26b Homie deep memory review + legacy timeline helpers =====
+type HomieLegacyTimelineReview = {
+  displayText: string;
+  spokenText: string;
+  exportText: string;
+};
+
+function isHomieLegacyTimelinePrompt(text: string) {
+  const lower = text.trim().toLowerCase();
+  return /\b(memory review|deep memory|legacy timeline|family timeline|timeline review|what we have been building|what we've been building|what we’ve been building|what changed today|what changed|current mission thread|mission thread|what to do next|export timeline|share timeline|share family timeline|download timeline|save timeline)\b/.test(lower);
+}
+
+function homieTimelineStamp(value: any) {
+  const raw = value || Date.now();
+  try {
+    const date = new Date(raw);
+    if (Number.isNaN(date.getTime())) return "recent";
+    return date.toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  } catch {
+    return "recent";
+  }
+}
+
+function homieCleanTimelineText(text: any, fallback = "Saved memory item") {
+  const clean = String(text || fallback).replace(/\s+/g, " ").trim();
+  if (clean.length <= 180) return clean;
+  return clean.slice(0, 177) + "...";
+}
+
+function homieTimelineBullet(label: string, value: string) {
+  return "• " + label + ": " + value;
+}
+
+function buildHomieLegacyTimelineReview(args: {
+  messages: HomieCompanionMessage[];
+  memory: any;
+  artifacts: any[];
+  dailyRhythm: HomieDailyRhythmState;
+  activeTitle: string;
+  status: string;
+  dailyRhythmLine: string;
+}): HomieLegacyTimelineReview {
+  const messages = Array.isArray(args.messages) ? args.messages : [];
+  const recentMessages = messages.slice(Math.max(0, messages.length - 10));
+  const userMessages = recentMessages.filter((msg) => msg.role === "user").slice(-4);
+  const artifacts = (Array.isArray(args.artifacts) ? args.artifacts : []).slice(0, 5);
+  const today = getHomieDailyRhythmDayKey();
+  const checkInCount = Number(args.memory?.checkInCount || 0);
+  const legacyCount = Number(args.memory?.legacyArtifactCount || artifacts.length || 0);
+  const themes = homieCleanTimelineText(args.memory?.recentThemeText || "general", "general");
+  const lastNextMove = homieCleanTimelineText(args.memory?.lastNextStep || args.dailyRhythmLine || "Choose one small next move and keep going.");
+  const activeThread = homieCleanTimelineText(args.status || "Homie is here with you.");
+  const checkedToday = args.dailyRhythm?.lastCheckInDay === today;
+  const promptedToday = args.dailyRhythm?.lastPromptDay === today;
+  const greetedToday = args.dailyRhythm?.lastGreetingDay === today;
+
+  const recentCheckIns = userMessages.length
+    ? userMessages.map((msg) => homieTimelineBullet(homieTimelineStamp((msg as any).createdAt || (msg as any).ts || (msg as any).time), homieCleanTimelineText(msg.text, "Check-in")))
+    : ["• No recent check-in messages are visible in this local Homie window yet."];
+
+  const savedNotes = artifacts.length
+    ? artifacts.map((artifact) => homieTimelineBullet(homieCleanTimelineText(artifact.title, "Family note"), homieCleanTimelineText(artifact.preview, "Saved family artifact")))
+    : ["• No saved family artifact summary is visible yet. Use Legacy note or Save for family when something matters."];
+
+  const todayChanges = [
+    checkedToday ? "Daily rhythm check-in is marked complete today." : "Daily rhythm check-in is not marked complete today yet.",
+    promptedToday ? "Today’s prompt has been opened." : "Today’s prompt has not been opened yet.",
+    greetedToday ? "Homie already gave today’s calm greeting." : "Homie has not recorded a greeting for today yet.",
+    "Current panel context is " + args.activeTitle + ".",
+  ];
+
+  const currentMission = [
+    "Keep Homie calm, grounded, useful, and family-safe.",
+    "Current thread: " + activeThread,
+    "Recent themes: " + themes,
+    "Last next move: " + lastNextMove,
+  ];
+
+  const nextMoves = [
+    "Do one tiny check-in: body, family, money, or creative.",
+    legacyCount > 0 ? "Review one saved family artifact and decide whether it should be exported." : "Create one first legacy note for the family vault.",
+    "Use Self check if mic, speaker, or bridge confidence feels shaky.",
+    "Keep the OS lane clean before adding another big feature.",
+  ];
+
+  const displayText = [
+    "Legacy timeline review — what we’ve been building.",
+    "",
+    "Recent check-ins:",
+    ...recentCheckIns,
+    "",
+    "Saved family notes / artifacts:",
+    ...savedNotes,
+    "",
+    "Current mission thread:",
+    ...currentMission.map((line) => "• " + line),
+    "",
+    "What changed today:",
+    ...todayChanges.map((line) => "• " + line),
+    "",
+    "What to do next:",
+    ...nextMoves.map((line) => "• " + line),
+    "",
+    "Trust note: I’m summarizing local Homie memory and visible runtime state. I’m not claiming your family has seen anything unless you confirm it.",
+  ].join("\n");
+
+  const exportText = [
+    "FairlyOdd / Homie Legacy Timeline",
+    "Generated: " + new Date().toLocaleString(),
+    "",
+    displayText,
+    "",
+    "Counts:",
+    "• Check-ins visible to Homie memory: " + checkInCount,
+    "• Legacy artifacts visible to Homie memory: " + legacyCount,
+    "• Active panel: " + args.activeTitle,
+  ].join("\n");
+
+  const spokenText = "Here’s the calm legacy timeline. I can see the recent Homie memory lane, saved family artifacts, today’s rhythm state, and the next tiny move. I’m not claiming anything outside those signals.";
+
+  return { displayText, spokenText, exportText };
+}
+// ===== v10.36.26b Homie deep memory review + legacy timeline helpers END =====
+
+
+
 export default function HomieBuddy({
   activePanelId,
   onNavigate,
@@ -538,9 +664,57 @@ export default function HomieBuddy({
     return true;
   }
 
+  function buildCurrentHomieLegacyTimeline() {
+    return buildHomieLegacyTimelineReview({
+      messages: companionMessages,
+      memory: companionMemory,
+      artifacts: legacyArtifactSummaries,
+      dailyRhythm,
+      activeTitle,
+      status,
+      dailyRhythmLine,
+    });
+  }
+
+  function runHomieLegacyTimelineReview(source: "typed" | "voice" | "quick" = "quick", prompt = "Homie, show the legacy timeline", exportAfter = false) {
+    const timeline = buildCurrentHomieLegacyTimeline();
+    appendCompanionMessages([
+      createHomieMessage("user", prompt, source),
+      createHomieMessage("homie", timeline.displayText, source),
+    ]);
+    announce(timeline.displayText, "good", source === "voice" || voiceEnabled, timeline.spokenText);
+    if (exportAfter) {
+      const stamp = new Date().toISOString().slice(0, 10);
+      downloadTextFile("Homie_Legacy_Timeline_" + stamp + ".txt", timeline.exportText);
+    }
+    return timeline;
+  }
+
+  function exportHomieLegacyTimeline() {
+    const timeline = buildCurrentHomieLegacyTimeline();
+    const stamp = new Date().toISOString().slice(0, 10);
+    downloadTextFile("Homie_Legacy_Timeline_" + stamp + ".txt", timeline.exportText);
+    try {
+      void navigator.clipboard?.writeText(timeline.exportText);
+    } catch {
+      // ignore
+    }
+    announce("Exported the family legacy timeline and copied it too.", "good", true, "Exported the family legacy timeline.");
+  }
+
+
+
   function handleCompanionConversation(text: string, source: "typed" | "voice" | "quick" = "typed") {
     const trimmed = text.trim();
     if (!trimmed) return false;
+    if (isHomieLegacyTimelinePrompt(trimmed)) {
+      runHomieLegacyTimelineReview(source, trimmed, /\b(export|share|download|save)\b/i.test(trimmed));
+      return true;
+    }
+    if (isHomieDailyRhythmPrompt(trimmed)) {
+      runHomieDailyRhythmCheck(source, trimmed);
+      return true;
+    }
     if (isHomieRuntimeSelfCheckPrompt(trimmed)) {
       void runHomieRuntimeSelfCheck(source, trimmed);
       return true;
@@ -1374,6 +1548,9 @@ export default function HomieBuddy({
 
           <div className="assistantChipWrap homieRebuildQuickActions">
             <button className="tabBtn" onClick={() => runHomieDailyRhythmCheck("quick")}>Today</button>
+            <button className="tabBtn" onClick={() => runHomieLegacyTimelineReview("quick")}>Timeline</button>
+            <button className="tabBtn" onClick={exportHomieLegacyTimeline}>Export timeline</button>
+
             <button className="tabBtn" onClick={() => runCompanionQuick("help me focus on the next tiny move")}>Focus me</button>
             <button className="tabBtn" onClick={() => runCompanionQuick("I feel overwhelmed, ground me")}>Ground me</button>
             <button className="tabBtn" onClick={runLegacyDraft}>Legacy note</button>
