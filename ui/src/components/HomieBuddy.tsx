@@ -852,6 +852,166 @@ function buildHomieFamilyOpenFirstGuide(args: {
 }
 // ===== v10.36.30b Homie family onboarding README + open-first pack helpers END =====
 
+// ===== v10.36.31 Homie family legacy quality review + human edit helpers =====
+type HomieLegacyQualityReviewVerdict = "needs-human-edit" | "family-ready-draft";
+
+type HomieLegacyQualityChecklistItem = {
+  key: "true" | "kind" | "useful" | "understandable";
+  label: string;
+  ok: boolean;
+  note: string;
+};
+
+type HomieLegacyQualityReview = {
+  title: string;
+  sourceLabel: string;
+  verdict: HomieLegacyQualityReviewVerdict;
+  checklist: HomieLegacyQualityChecklistItem[];
+  body: string;
+  cleanedText: string;
+  markdown: string;
+  filenameBase: string;
+  spokenText: string;
+  createdAt: number;
+};
+
+function isHomieLegacyQualityReviewPrompt(text: string) {
+  const lower = text.trim().toLowerCase();
+  return /\b(quality review|human edit|review latest|review this draft|review family draft|family-ready|family ready|needs human edit|need human edit|true kind useful|is this true|is this kind|is this useful|would my family understand|copy cleaned version|cleaned version|clean family version|final review)\b/.test(lower);
+}
+
+function homieQualityCleanText(text: any, fallback = "No draft text visible yet.") {
+  return String(text || fallback).replace(/\r\n/g, "\n").replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+function homieQualityPreviewText(text: any, limit = 220) {
+  const clean = homieQualityCleanText(text, "No draft text visible yet.").replace(/\s+/g, " ").trim();
+  if (clean.length <= limit) return clean;
+  return clean.slice(0, Math.max(0, limit - 3)) + "...";
+}
+
+function homieQualityChecklistLine(item: HomieLegacyQualityChecklistItem) {
+  return (item.ok ? "✓ " : "Needs edit — ") + item.label + ": " + item.note;
+}
+
+function buildHomieLegacyQualityReview(args: {
+  sourceLabel: string;
+  sourceTitle: string;
+  sourceText: string;
+  memory: any;
+  activeTitle: string;
+  dailyRhythmLine: string;
+}): HomieLegacyQualityReview {
+  const sourceText = homieQualityCleanText(args.sourceText);
+  const lower = sourceText.toLowerCase();
+  const hasSource = sourceText.length > 80;
+  const hasAbsoluteClaims = /\b(always|never|guaranteed|definitely|everyone will|nobody will|proof that|i know for sure)\b/i.test(sourceText);
+  const hasTrustLanguage = /\b(review|confirm|local|visible|not claiming|trust note|human|edit)\b/i.test(sourceText);
+  const hasHarshLanguage = /\b(stupid|idiot|worthless|hate|fault|blame|shame)\b/i.test(sourceText);
+  const hasNextStep = /\b(click|start|review|save|open|use|next|today|timeline|artifact|pack|family)\b/i.test(sourceText);
+  const tooTechnical = /\b(TypeScript|runtime import|tsx|vite|node\.js|stack trace|undefined|anchor not found|git push|npm --prefix)\b/i.test(sourceText);
+
+  const checklist: HomieLegacyQualityChecklistItem[] = [
+    {
+      key: "true",
+      label: "Is this true?",
+      ok: hasSource && !hasAbsoluteClaims && hasTrustLanguage,
+      note: hasSource ? (hasAbsoluteClaims ? "Soften absolute claims and add what needs confirmation." : hasTrustLanguage ? "Uses review/confirmation language instead of fake certainty." : "Add a short trust note about what Homie can and cannot know.") : "There is not enough draft text visible to review yet.",
+    },
+    {
+      key: "kind",
+      label: "Is this kind?",
+      ok: hasSource && !hasHarshLanguage,
+      note: hasHarshLanguage ? "Remove blame/shame language before family use." : "Tone looks gentle enough for a family-facing draft.",
+    },
+    {
+      key: "useful",
+      label: "Is this useful?",
+      ok: hasSource && hasNextStep,
+      note: hasNextStep ? "Includes practical next steps or what to click/use." : "Add one clear next step so the family knows what to do.",
+    },
+    {
+      key: "understandable",
+      label: "Would my family understand it?",
+      ok: hasSource && !tooTechnical && sourceText.length < 9000,
+      note: tooTechnical ? "Remove developer/debug language before family use." : sourceText.length >= 9000 ? "Shorten the draft before giving it to family." : "Language looks understandable without developer context.",
+    },
+  ];
+
+  const familyReady = checklist.every((item) => item.ok);
+  const verdict: HomieLegacyQualityReviewVerdict = familyReady ? "family-ready-draft" : "needs-human-edit";
+  const verdictLine = familyReady
+    ? "Family-ready draft — still review like a human document before final use."
+    : "Needs human edit — do not treat this as final yet.";
+  const sourceLabel = args.sourceLabel || "latest family draft";
+  const sourceTitle = args.sourceTitle || "Family draft";
+  const generated = new Date().toLocaleString();
+  const themes = homieQualityPreviewText(args.memory?.recentThemeText || "general", 120);
+  const nextMove = homieQualityPreviewText(args.memory?.lastNextStep || args.dailyRhythmLine || "Choose one small next move.", 160);
+
+  const cleanedText = [
+    "Family legacy draft — human-edited copy",
+    "Source: " + sourceLabel + " / " + sourceTitle,
+    "Generated: " + generated,
+    "Verdict: " + verdictLine,
+    "",
+    "Human edit checklist:",
+    ...checklist.map(homieQualityChecklistLine),
+    "",
+    "Cleaned family draft:",
+    sourceText,
+    "",
+    "Final human review reminder:",
+    "Before sharing this with family, read it once out loud. Keep what is true, kind, useful, and easy to understand. Edit anything that needs human context.",
+  ].join("\n");
+
+  const body = [
+    "Family legacy quality review",
+    "",
+    "Source: " + sourceLabel + " — " + sourceTitle,
+    "Verdict: " + verdictLine,
+    "",
+    "Checklist:",
+    ...checklist.map(homieQualityChecklistLine),
+    "",
+    "Current memory context:",
+    "• Active panel/thread: " + homieQualityPreviewText(args.activeTitle || "Homie", 120),
+    "• Recent themes: " + themes,
+    "• Remembered next move: " + nextMove,
+    "",
+    "Preview of draft being reviewed:",
+    homieQualityPreviewText(sourceText, 700),
+    "",
+    "Trust note: this review is a helper pass over visible Homie draft text. It cannot know private family context unless you add it.",
+  ].join("\n");
+
+  const markdown = cleanedText
+    .split("\n")
+    .map((line, index) => {
+      const trimmed = line.trim();
+      if (index === 0) return "# " + trimmed;
+      if (["Human edit checklist:", "Cleaned family draft:", "Final human review reminder:"].includes(trimmed)) return "## " + trimmed.replace(/:$/, "");
+      return line;
+    })
+    .join("\n");
+
+  return {
+    title: "Family quality review",
+    sourceLabel,
+    verdict,
+    checklist,
+    body,
+    cleanedText,
+    markdown,
+    filenameBase: "Homie_Family_Quality_Review_" + getHomieDailyRhythmDayKey(),
+    spokenText: familyReady
+      ? "Family quality review is ready. It looks family-ready as a draft, but still needs one human read before final use."
+      : "Family quality review is ready. This one needs a human edit before it becomes final.",
+    createdAt: Date.now(),
+  };
+}
+// ===== v10.36.31 Homie family legacy quality review + human edit helpers END =====
+
 
 
 
@@ -887,6 +1047,7 @@ export default function HomieBuddy({
   const [legacyArtifactPreview, setLegacyArtifactPreview] = useState<HomieLegacyArtifactStudioPreview | null>(null);
   const [legacyExportPackPreview, setLegacyExportPackPreview] = useState<HomieFamilyLegacyExportPack | null>(null);
   const [openFirstGuidePreview, setOpenFirstGuidePreview] = useState<HomieFamilyOpenFirstGuide | null>(null);
+  const [legacyQualityReview, setLegacyQualityReview] = useState<HomieLegacyQualityReview | null>(null);
 
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<any>(null);
@@ -1182,11 +1343,86 @@ export default function HomieBuddy({
   }
 
 
+  function buildCurrentHomieLegacyQualityReview() {
+    let sourceLabel = "Open First guide";
+    let sourceTitle = "Open this first";
+    let sourceText = "";
 
+    if (legacyExportPackPreview) {
+      sourceLabel = "Family export pack";
+      sourceTitle = legacyExportPackPreview.title;
+      sourceText = legacyExportPackPreview.body;
+    } else if (legacyArtifactPreview) {
+      sourceLabel = "Artifact Studio draft";
+      sourceTitle = legacyArtifactPreview.title;
+      sourceText = legacyArtifactPreview.body;
+    } else if (openFirstGuidePreview) {
+      sourceLabel = "Open First guide";
+      sourceTitle = openFirstGuidePreview.title;
+      sourceText = openFirstGuidePreview.body;
+    } else {
+      const guide = buildCurrentHomieFamilyOpenFirstGuide();
+      setOpenFirstGuidePreview(guide);
+      sourceLabel = "Open First guide";
+      sourceTitle = guide.title;
+      sourceText = guide.body;
+    }
+
+    return buildHomieLegacyQualityReview({
+      sourceLabel,
+      sourceTitle,
+      sourceText,
+      memory: companionMemory,
+      activeTitle,
+      dailyRhythmLine,
+    });
+  }
+
+  function runHomieLegacyQualityReview(source: "typed" | "voice" | "quick" = "quick", prompt = "Homie, review the family draft") {
+    const review = buildCurrentHomieLegacyQualityReview();
+    setLegacyQualityReview(review);
+    appendCompanionMessages([
+      createHomieMessage("user", prompt, source),
+      createHomieMessage("homie", review.body, source),
+    ]);
+    announce(review.verdict === "family-ready-draft" ? "Family quality review: family-ready draft." : "Family quality review: needs human edit.", review.verdict === "family-ready-draft" ? "good" : "warn", source === "voice" || voiceEnabled, review.spokenText);
+    return review;
+  }
+
+  function copyHomieLegacyQualityCleanedVersion(forcedReview?: HomieLegacyQualityReview) {
+    const review = forcedReview || legacyQualityReview || buildCurrentHomieLegacyQualityReview();
+    setLegacyQualityReview(review);
+    try {
+      void navigator.clipboard?.writeText(review.cleanedText);
+    } catch {
+      // ignore
+    }
+    announce("Copied the cleaned family draft for human editing.", "good", true, "Copied the cleaned family draft.");
+  }
+
+  function exportHomieLegacyQualityCleanedVersion(format: "txt" | "md" = "txt", forcedReview?: HomieLegacyQualityReview) {
+    const review = forcedReview || legacyQualityReview || buildCurrentHomieLegacyQualityReview();
+    setLegacyQualityReview(review);
+    const isMarkdown = format === "md";
+    const text = isMarkdown ? review.markdown : review.cleanedText;
+    const filename = review.filenameBase + (isMarkdown ? ".md" : ".txt");
+    downloadTextFile(filename, text);
+    try {
+      void navigator.clipboard?.writeText(text);
+    } catch {
+      // ignore
+    }
+    announce("Exported the cleaned family review as " + (isMarkdown ? "Markdown." : "text."), "good", true, isMarkdown ? "Exported cleaned markdown." : "Exported cleaned text.");
+  }
 
   function handleCompanionConversation(text: string, source: "typed" | "voice" | "quick" = "typed") {
     const trimmed = text.trim();
     if (!trimmed) return false;
+    if (isHomieLegacyQualityReviewPrompt(trimmed)) {
+      const review = runHomieLegacyQualityReview(source, trimmed);
+      if (/\b(copy|cleaned|clipboard)\b/i.test(trimmed)) copyHomieLegacyQualityCleanedVersion(review);
+      return true;
+    }
     if (isHomieFamilyOpenFirstGuidePrompt(trimmed)) {
       runHomieFamilyOpenFirstGuide(source, trimmed, /\b(export|share|download|save)\b/i.test(trimmed));
       return true;
@@ -2042,6 +2278,7 @@ export default function HomieBuddy({
           <div className="assistantChipWrap homieRebuildQuickActions">
             <button className="tabBtn" onClick={() => runHomieDailyRhythmCheck("quick")}>Today</button>
             <button className="tabBtn" onClick={() => runHomieFamilyOpenFirstGuide("quick")}>Open first</button>
+            <button className="tabBtn" onClick={() => runHomieLegacyQualityReview("quick")}>Review draft</button>
             <button className="tabBtn" onClick={() => runHomieLegacyTimelineReview("quick")}>Timeline</button>
             <button className="tabBtn" onClick={() => runCompanionQuick("help me focus on the next tiny move")}>Focus me</button>
             <button className="tabBtn" onClick={() => runCompanionQuick("I feel overwhelmed, ground me")}>Ground me</button>
@@ -2145,6 +2382,37 @@ export default function HomieBuddy({
               </div>
             ) : (
               <div className="small" style={{ marginTop: 10 }}>Preview creates one clean pack from the current timeline, selected artifact, and saved legacy notes.</div>
+            )}
+          </div>
+
+
+          <div className="homieLegacyVaultMini homieFamilyQualityReviewControls" style={{ marginTop: 12 }}>
+            <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
+              <div>
+                <div className="assistantSectionTitle">Family quality review</div>
+                <div className="small">Before anything becomes final, check whether it is true, kind, useful, and understandable.</div>
+              </div>
+            </div>
+
+            <div className="assistantChipWrap" style={{ marginTop: 10 }}>
+              <button className="tabBtn active" onClick={() => runHomieLegacyQualityReview("quick")}>Review latest</button>
+              <button className="tabBtn" disabled={!legacyQualityReview} onClick={() => copyHomieLegacyQualityCleanedVersion()}>Copy cleaned</button>
+              <button className="tabBtn" disabled={!legacyQualityReview} onClick={() => exportHomieLegacyQualityCleanedVersion("txt")}>Export TXT</button>
+              <button className="tabBtn" disabled={!legacyQualityReview} onClick={() => exportHomieLegacyQualityCleanedVersion("md")}>Export MD</button>
+            </div>
+
+            {legacyQualityReview ? (
+              <div className="homieLegacyVaultList" style={{ marginTop: 10 }}>
+                <div className="homieLegacyVaultItem" style={{ alignItems: "stretch" }}>
+                  <strong>{legacyQualityReview.verdict === "family-ready-draft" ? "Family-ready draft" : "Needs human edit"}</strong>
+                  {legacyQualityReview.checklist.map((item) => (
+                    <span key={item.key}>{item.ok ? "✓" : "Needs edit"} — {item.label} {item.note}</span>
+                  ))}
+                  <span className="small">Source: {legacyQualityReview.sourceLabel}. Copy cleaned gives you a human-editable version before final family use.</span>
+                </div>
+              </div>
+            ) : (
+              <div className="small" style={{ marginTop: 10 }}>Review checks the latest Open First guide, Artifact Studio draft, or Family export pack before you treat it like final.</div>
             )}
           </div>
         </section>
