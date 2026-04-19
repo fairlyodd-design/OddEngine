@@ -1746,6 +1746,7 @@ export default function HomieBuddy({
             <button className="tabBtn" onClick={() => runHomieLegacyTimelineReview("quick")}>Timeline</button>
             <button className="tabBtn" onClick={exportHomieLegacyTimeline}>Export timeline</button>
 
+            <button className="tabBtn" onClick={() => runHomieLegacyArtifactStudio(legacyArtifactStudioType, "quick")}>Artifact Studio</button>
             <button className="tabBtn" onClick={() => runCompanionQuick("help me focus on the next tiny move")}>Focus me</button>
             <button className="tabBtn" onClick={() => runCompanionQuick("I feel overwhelmed, ground me")}>Ground me</button>
             <button className="tabBtn" onClick={runLegacyDraft}>Legacy note</button>
@@ -1754,6 +1755,49 @@ export default function HomieBuddy({
             <button className="tabBtn" onClick={() => runLegacyPrompt("save today’s checkpoint", "Saved today’s checkpoint.")}>Today checkpoint</button>
             <button className="tabBtn" onClick={saveForFamily}>Save for family</button>
             <button className="tabBtn" onClick={() => { setOpen(true); void startVoice(false); }}>Talk by mic</button>
+          </div>
+
+          <div className="homieLegacyVaultMini homieArtifactStudioVisibleControls" style={{ marginTop: 12 }}>
+            <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
+              <div>
+                <div className="assistantSectionTitle">Artifact Studio</div>
+                <div className="small">Turn the timeline and check-ins into one family-ready draft. Preview first, then export.</div>
+              </div>
+              <select
+                className="tabBtn"
+                value={legacyArtifactStudioType}
+                onChange={(event) => {
+                  const nextType = event.target.value as HomieLegacyArtifactStudioType;
+                  setLegacyArtifactStudioType(nextType);
+                  setLegacyArtifactPreview(buildCurrentHomieLegacyArtifactStudioPreview(nextType));
+                }}
+                aria-label="Choose family artifact type"
+              >
+                <option value="letter">Letter</option>
+                <option value="memory-note">Memory note</option>
+                <option value="open-first">Open this first</option>
+                <option value="life-lesson">Life lesson</option>
+                <option value="project-status">Project status</option>
+              </select>
+            </div>
+
+            <div className="assistantChipWrap" style={{ marginTop: 10 }}>
+              <button className="tabBtn active" onClick={() => runHomieLegacyArtifactStudio(legacyArtifactStudioType, "quick")}>Preview artifact</button>
+              <button className="tabBtn" disabled={!legacyArtifactPreview} onClick={() => exportHomieLegacyArtifactStudio("txt")}>Export TXT</button>
+              <button className="tabBtn" disabled={!legacyArtifactPreview} onClick={() => exportHomieLegacyArtifactStudio("md")}>Export MD</button>
+            </div>
+
+            {legacyArtifactPreview ? (
+              <div className="homieLegacyVaultList" style={{ marginTop: 10 }}>
+                <div className="homieLegacyVaultItem" style={{ alignItems: "stretch" }}>
+                  <strong>{legacyArtifactPreview.title}</strong>
+                  <span>{legacyArtifactPreview.body.length > 520 ? legacyArtifactPreview.body.slice(0, 517) + "..." : legacyArtifactPreview.body}</span>
+                  <span className="small">Review note: this is a draft from local Homie memory and timeline signals. Edit before final family use.</span>
+                </div>
+              </div>
+            ) : (
+              <div className="small" style={{ marginTop: 10 }}>Choose a type and click Preview artifact. Homie will keep it calm, useful, and reviewable.</div>
+            )}
           </div>
         </section>
 
