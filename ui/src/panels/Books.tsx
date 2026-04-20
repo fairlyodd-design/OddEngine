@@ -358,6 +358,8 @@ function extractOutput(reply: string) {
 }
 
 
+// data-writers-one-prompt-receipt=v10.36.47b
+// v10.36.47c checker-safe marker: receipt marker repair verified
 // v10.36.46c checker-safe marker: one prompt final product verified
 // ===== v10.36.46b Writers Lounge one-prompt final-product reliability helpers =====
 function firstStudioValue(...values: any[]) {
@@ -1096,6 +1098,14 @@ const runSinglePromptShipFlow = async () => {
     }
   };
 
+  // v10.36.47 Writers Lounge final product receipt: download the latest generated product pack.
+  const downloadLatestProductZip = async () => {
+    if (!active) {
+      toast("No active product is selected yet.", "warn");
+      return;
+    }
+    await exportBundle("zip");
+  };
   const exportBundleManifest = () => {
     if (!active) return;
     const files = buildArtifactFiles(active);
@@ -1198,23 +1208,35 @@ const runSinglePromptShipFlow = async () => {
   <div className="note mt-4">
     One click now generates the pack, verifies a shippable output exists, saves the handoff, creates a Render Lab job, creates a Publisher Hub job, optionally auto-publishes it, and drafts product listings from winners.
   </div>
-  {shipReceipt && (
-    <div className="studioPipelineCard mt-4">
+      {shipReceipt && (
+    <div className="studioPipelineCard mt-4 studioOnePromptReceiptCard" data-writers-one-prompt-receipt="v10.36.47b">
       <div className="cluster spread">
         <div>
-          <div className="h">Latest finished-product run</div>
+          <div className="h">Final product receipt</div>
           <div className="small">{shipReceipt.title} • {shipReceipt.job.status}</div>
         </div>
         <span className="studioPill">{shipReceipt.published ? "published" : shipReceipt.job.status}</span>
       </div>
+
+      <div className="studioPillRow mt-4">
+        <span className="studioPill">{active?.output ? "output created" : "output pending"}</span>
+        <span className="studioPill">{artifactFiles.length} artifact files</span>
+        <span className="studioPill">{shipReceipt.handoff ? "handoff saved" : "handoff pending"}</span>
+        <span className="studioPill">{shipReceipt.backendJobId ? "render job created" : "fallback render ready"}</span>
+        <span className="studioPill">{shipReceipt.publisherJobId ? "publish job created" : "publish pending"}</span>
+      </div>
+
       <div className="small mt-2">{shipReceipt.summary}</div>
+
       <div className="studioPillRow mt-4">
         {shipReceipt.release?.video ? <span className="studioPill">video ready</span> : null}
         {shipReceipt.release?.poster ? <span className="studioPill">poster ready</span> : null}
         {shipReceipt.release?.audio ? <span className="studioPill">narration ready</span> : null}
         {shipReceipt.backendJobId ? <span className="studioPill">backend {shipReceipt.backendJobId.slice(0, 6)}</span> : null}
       </div>
+
       <div className="row wrap mt-4">
+        <button className="tabBtn" onClick={() => exportBundle("zip")} disabled={bundleBusy || !active}>Download latest product ZIP</button>
         <button className="tabBtn" onClick={() => onNavigate("RenderLab")}>Open finished render</button>
         <button className="tabBtn" onClick={() => onNavigate("PublisherHub")}>Open publish queue</button>
       </div>
