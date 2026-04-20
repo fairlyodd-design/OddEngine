@@ -1302,7 +1302,7 @@ export default function HomieBuddy({
   const [legacyFinalManifestPreview, setLegacyFinalManifestPreview] = useState<HomieLegacyFinalManifest | null>(null);
   const [legacyFamilyFolderPreview, setLegacyFamilyFolderPreview] = useState<HomieLegacyFamilyFolderExportPreview | null>(null);
   const [legacyFamilyFolderExportStatus, setLegacyFamilyFolderExportStatus] = useState("Family folder ZIP has not run yet.");
-  const [homieCameraPresenceStatus, setHomieCameraPresenceStatus] = useState("Camera is off. Homie only opens it when you click Camera.");
+  const [homieCameraPresenceStatus, setHomieCameraPresenceStatus] = useState("Camera is off. Camera opens only when clicked. No video is analyzed or saved.");
 
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<any>(null);
@@ -2413,7 +2413,7 @@ export default function HomieBuddy({
 
 
   async function runHomieCameraPresenceCheck() {
-    setHomieCameraPresenceStatus("Checking camera permission...");
+    setHomieCameraPresenceStatus("Checking camera permission. Camera opens only when clicked.");
     try {
       if (!navigator.mediaDevices?.getUserMedia) throw new Error("Camera access is unavailable in this runtime.");
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
@@ -2422,9 +2422,9 @@ export default function HomieBuddy({
       } catch {
         // ignore
       }
-      const message = "Camera lane is available. I’m not analyzing or saving video yet — this only confirms Homie can ask for camera presence when you choose it.";
+      const message = "Camera opens only when clicked. No video is analyzed or saved. Camera lane is available.";
       setHomieCameraPresenceStatus(message);
-      announce(message, "good", true, "Camera lane is available. I will only use it when you choose it.");
+      announce(message, "good", true, "Camera lane is available. I only open it when clicked.");
     } catch (error: any) {
       const code = String(error?.name || error?.code || "camera-check-failed");
       const message = code + ": " + String(error?.message || "Camera check failed or permission was blocked.");
@@ -2643,10 +2643,20 @@ export default function HomieBuddy({
             <span className="badge">{voiceModeLabel}</span>
             <span className={`badge ${diagnostics.permissionState === "granted" ? "good" : diagnostics.permissionState === "denied" ? "warn" : ""}`}>Mic {diagnostics.permissionState}</span>
           </div>
+          <div className="homiePresenceConsentRow" aria-label="Homie presence consent">
+            <span className="homiePresenceConsentPill"><b>Mic:</b> opt-in</span>
+            <span className="homiePresenceConsentPill"><b>Camera:</b> opt-in</span>
+            <span className="homiePresenceConsentPill"><b>Memory:</b> local</span>
+          </div>
+
+
           <div className="homieRebuildStageText">
             <div className="assistantSectionTitle">A calmer Homie lane</div>
             <div className="small">{status}</div>
             <div className="small homieRebuildPresenceLine">{presenceLine}</div>
+            <div className="small homieTolanIdlePresenceLine">I’m here. We can stay quiet, talk by mic, or take one small next move.</div>
+
+
             <div className="small homieDailyRhythmLine">{dailyRhythmLine}</div>
           </div>
           <div className="homieRebuildMemoryGrid">
@@ -3011,7 +3021,7 @@ export default function HomieBuddy({
             <div className="small"><b>Last transcript:</b> {diagnostics.lastTranscript || "—"}</div>
             <div className="small"><b>Bridge:</b> {diagnostics.externalBridgeState} • {diagnostics.externalBridgeBaseUrl}</div>
             <div className="small"><b>Camera:</b> {homieCameraPresenceStatus}</div>
-            <div className="small"><b>Camera note:</b> Camera is opt-in. Homie does not analyze or save video.</div>
+            <div className="small"><b>Camera note:</b> Camera opens only when clicked. No video is analyzed or saved.</div>
           </div>
 
           {diagnosticsVisible && (

@@ -750,3 +750,41 @@
 }
 /* ===== v10.36.38 Homie Legacy Tool Collapse Micro Style Defaults END ===== */
 
+/* ===== v10.36.39e Homie Presence Consent Final Dedup Repair ===== */
+.homiePresenceConsentRow {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 7px;
+  margin-top: -2px;
+}
+
+.homiePresenceConsentPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(154, 230, 255, 0.105);
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(226, 238, 255, 0.70);
+  font-size: 0.72rem;
+  line-height: 1;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.012) inset;
+}
+
+.homiePresenceConsentPill b {
+  color: rgba(240, 248, 255, 0.92);
+  font-weight: 800;
+}
+
+.homieTolanIdlePresenceLine {
+  color: rgba(226, 238, 255, 0.66);
+  max-width: 46ch;
+  margin: 0 auto;
+  line-height: 1.42;
+}
+/* ===== v10.36.39e Homie Presence Consent Final Dedup Repair END ===== */
+
