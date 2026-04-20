@@ -787,7 +787,8 @@
   line-height: 1.42;
 }
 /* ===== v10.36.39e Homie Presence Consent Final Dedup Repair END ===== */
-/* ===== v10.36.40c Homie Family Mode Soft Launch ===== */
+
+/* ===== v10.36.40e Homie Family Mode Duplicate Encoding Anchorless Cleanup ===== */
 .homieFamilyModeSoftLaunchCard {
   margin-top: 12px;
   padding: 12px;
@@ -852,6 +853,20 @@
   line-height: 1.4;
 }
 
+.homiePresenceConsentRow > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(154, 230, 255, 0.105);
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(226, 238, 255, 0.70);
+  font-size: 0.72rem;
+  line-height: 1;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.012) inset;
+}
+
 @media (max-width: 620px) {
   .homieFamilyModeFirstUseFlow {
     grid-template-columns: 1fr;
@@ -863,4 +878,4 @@
     transition: none;
   }
 }
-/* ===== v10.36.40c Homie Family Mode Soft Launch END ===== */
+/* ===== v10.36.40e Homie Family Mode Duplicate Encoding Anchorless Cleanup END ===== */
