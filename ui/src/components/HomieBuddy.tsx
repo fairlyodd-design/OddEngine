@@ -1961,6 +1961,13 @@ export default function HomieBuddy({
     handleCompanionConversation(text, "quick");
   }
 
+
+  // v10.36.42b Family-facing mic entry: try local bridge, but fall back gently for this click.
+  async function startHomieFamilyTalkByMic() {
+    setOpen(true);
+    await startVoice(false, true, false, false, "family-mic", true);
+  }
+
   function run(text: string) {
     if (companionMode && shouldHomieCompanionAnswer(text)) {
       handleCompanionConversation(text, "voice");
@@ -2287,7 +2294,7 @@ export default function HomieBuddy({
     }
   }
 
-  async function startVoice(pushToTalk = false, allowBias = true, _forceLocal = false, _networkRetryUsed = false, source = "homie") {
+  async function startVoice(pushToTalk = false, allowBias = true, _forceLocal = false, _networkRetryUsed = false, source = "homie", familyFriendlyVoiceFallback = false) {
     if (voiceStartLockRef.current) return;
     voiceStartLockRef.current = true;
     window.setTimeout(() => {
@@ -2305,7 +2312,31 @@ export default function HomieBuddy({
     let useExternal = false;
     if (wantsExternalVoice()) {
       if (voiceEngineMode === "external-http") {
-        useExternal = true;
+        // v10.36.42b family friendly strict local fallback
+        // Family-facing Talk by mic should not dead-end on “voice bridge required”.
+        // Normal Start listening / strict local bridge behavior stays unchanged.
+        if (familyFriendlyVoiceFallback) {
+          const bridge = await getExternalBridgeReadiness(false, latest);
+          if (bridge.ok) {
+            useExternal = true;
+          } else {
+            const friendlyMessage = "Voice bridge is not running. Trying regular mic for this family click.";
+            setDiagnostics((prev) => ({
+              ...prev,
+              externalBridgeConfigured: true,
+              externalBridgeBaseUrl: externalVoiceBaseUrl,
+              externalBridgeState: "degraded",
+              externalBridgeMessage: (bridge.message || "External/local voice bridge is unavailable.") + " " + friendlyMessage,
+              lastErrorCode: "",
+              lastErrorMessage: "",
+              activeRecognitionMode: "idle",
+            }));
+            setStatus(friendlyMessage);
+            setMood("good");
+          }
+        } else {
+          useExternal = true;
+        }
       } else if (voiceEngineMode === "hybrid") {
         const bridge = await getExternalBridgeReadiness(false, latest);
         useExternal = !!bridge.ok;
@@ -2735,7 +2766,7 @@ export default function HomieBuddy({
             <button className="tabBtn" onClick={() => runCompanionQuick("I feel overwhelmed, ground me")}>Ground me</button>
             <button className="tabBtn" onClick={runLegacyDraft}>Legacy note</button>
             <button className="tabBtn" onClick={saveForFamily}>Save for family</button>
-            <button className="tabBtn" onClick={() => { setOpen(true); void startVoice(false); }}>Talk by mic</button>
+            <button className="tabBtn" onClick={() => { void startHomieFamilyTalkByMic(); }}>Talk by mic</button>
           </div>
           {/* v10.36.40f Homie family mode soft launch first-use flow */}
           <div className="homieFamilyModeSoftLaunchCard" aria-label="Family mode first minute">
@@ -2769,7 +2800,7 @@ export default function HomieBuddy({
                 <strong>3. Build family folder</strong>
                 <span>Bundle Open First, Timeline, Artifact, Review, Export Pack, and Index.</span>
               </button>
-              <button className="homieFamilyModeStep" onClick={() => { setOpen(true); void startVoice(false); }}>
+              <button className="homieFamilyModeStep" onClick={() => { void startHomieFamilyTalkByMic(); }}>
                 <strong>4. Talk by mic</strong>
                 <span>Mic opens only when clicked. Camera stays separate and opt-in.</span>
               </button>
