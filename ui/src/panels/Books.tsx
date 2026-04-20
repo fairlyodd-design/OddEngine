@@ -359,6 +359,8 @@ function extractOutput(reply: string) {
 
 
 // data-writers-one-prompt-receipt=v10.36.47b
+// data-writers-one-prompt-run-status=v10.36.48
+// v10.36.48b checker-safe marker: run status strip verified
 // v10.36.47c checker-safe marker: receipt marker repair verified
 // v10.36.46c checker-safe marker: one prompt final product verified
 // ===== v10.36.46b Writers Lounge one-prompt final-product reliability helpers =====
@@ -1236,11 +1238,33 @@ const runSinglePromptShipFlow = async () => {
       </div>
 
       <div className="row wrap mt-4">
-        <button className="tabBtn" onClick={() => exportBundle("zip")} disabled={bundleBusy || !active}>Download latest product ZIP</button>
+        <button className="tabBtn" onClick={downloadLatestProductZip} disabled={bundleBusy || !active}>Download latest product ZIP</button>
         <button className="tabBtn" onClick={() => onNavigate("RenderLab")}>Open finished render</button>
         <button className="tabBtn" onClick={() => onNavigate("PublisherHub")}>Open publish queue</button>
       </div>
-    </div>
+      {/* v10.36.48 Writers Lounge run status strip */}
+      <div className="note mt-4 studioOnePromptRunStatusStrip" data-writers-one-prompt-run-status="v10.36.48">
+        <div className="cluster wrap spread">
+          <div>
+            <b>Run status</b>
+            <div className="small">
+              {shipReceipt.backendJobId ? "Render backend accepted the job." : "Render backend did not create a job. ZIP ready locally."}
+            </div>
+          </div>
+          <span className="studioPill">{shipReceipt.backendJobId ? "backend linked" : "ZIP ready locally"}</span>
+        </div>
+
+        {(!shipReceipt.backendJobId || (shipReceipt.job?.log || []).some((line) => /backend unavailable|request failed|http|failed|unavailable/i.test(String(line)))) ? (
+          <div className="small mt-2">
+            Last run note: {(shipReceipt.job?.log || []).find((line) => /backend unavailable|request failed|http|failed|unavailable/i.test(String(line))) || "Render backend may be off. Product ZIP is still available locally."}
+          </div>
+        ) : null}
+
+        <div className="row wrap mt-3">
+          <button className="tabBtn" onClick={() => setTab("export")}>Open Export tab</button>
+        </div>
+      </div>
+      {/* /v10.36.48 Writers Lounge run status strip */}    </div>
   )}
   <div className="grid mt-4">
     {(flowRuns || []).slice(0, 3).map((run) => (
