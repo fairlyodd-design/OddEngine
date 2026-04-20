@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+﻿import React, { useEffect, useMemo, useRef, useState } from "react";
 import { buildMorningDigest, getPanelMeta } from "../lib/brain";
 import { executeCommand } from "../lib/commandCenter";
 import {
@@ -191,13 +191,13 @@ function trimForSpeech(text: string) {
     .replace(/\*\*/g, "")
     .replace(/\s+/g, " ")
     .replace(/\bBody:\s*/g, "First, ")
-    .replace(/\bMind:\s*/g, "Here’s the thought: ")
+    .replace(/\bMind:\s*/g, "Hereâ€™s the thought: ")
     .replace(/\bFamily:\s*/g, "For the family lane, ")
     .replace(/\bNext move:\s*/g, "Next, ")
     .replace(/\bLast thread I remember:\s*/g, "One thing I still remember: ")
     .trim();
 
-  if (!compact) return "I’m here.";
+  if (!compact) return "Iâ€™m here.";
 
   const pieces = compact.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [compact];
   const spoken = pieces
@@ -260,13 +260,13 @@ function getHomiePresenceEmotion(args: {
 
 function getHomiePresenceLine(emotion: HomiePresenceEmotion, activeTitle: string) {
   switch (emotion) {
-    case "listening": return "I’m listening — take your time and say it messy if you need to.";
+    case "listening": return "Iâ€™m listening â€” take your time and say it messy if you need to.";
     case "speaking": return "Answering softly first, then we can go deeper.";
-    case "concerned": return "I’m staying steady with you. Smaller, slower, one next move.";
+    case "concerned": return "Iâ€™m staying steady with you. Smaller, slower, one next move.";
     case "celebrating": return "That one counts. We lock the win and keep the room calm.";
     case "focused": return "Focused with you on " + activeTitle + ". No extra noise.";
-    case "warm": return "Warm lane open — body, mind, family, next move.";
-    default: return "Calm companion mode — present, grounded, and ready.";
+    case "warm": return "Warm lane open â€” body, mind, family, next move.";
+    default: return "Calm companion mode â€” present, grounded, and ready.";
   }
 }
 // ===== v10.36.20 Homie true presence helpers END =====
@@ -369,17 +369,17 @@ function buildHomieDailyRhythmPrompt(activeTitle: string) {
 function buildHomieDailyRhythmLine(state: HomieDailyRhythmState, memory: { checkInCount?: number; lastCheckInLabel?: string; recentThemeText?: string }) {
   const today = getHomieDailyRhythmDayKey();
   if (state.lastCheckInDay === today) return "Daily rhythm is already checked in for today.";
-  if (state.lastPromptDay === today) return "Today’s rhythm prompt is open — answer only what feels useful.";
+  if (state.lastPromptDay === today) return "Todayâ€™s rhythm prompt is open â€” answer only what feels useful.";
   if ((memory.checkInCount || 0) > 0) return "Ready for a gentle today scan: body, family, money, creative.";
-  return "When you’re ready: what matters today?";
+  return "When youâ€™re ready: what matters today?";
 }
 
 function buildHomieDailyGreetingStatus(state: HomieDailyRhythmState, memory: { checkInCount?: number; recentThemeText?: string }) {
   const part = getHomieDayPart();
   const today = getHomieDailyRhythmDayKey();
-  if (state.lastCheckInDay === today) return "Today’s rhythm is already checked in. I’m here if you need the next move.";
+  if (state.lastCheckInDay === today) return "Todayâ€™s rhythm is already checked in. Iâ€™m here if you need the next move.";
   const theme = memory.recentThemeText && memory.recentThemeText !== "general" ? " Last saved themes: " + memory.recentThemeText + "." : "";
-  return "Good " + part + ". When you’re ready: what matters today — body, family, money, or creative?" + theme;
+  return "Good " + part + ". When youâ€™re ready: what matters today â€” body, family, money, or creative?" + theme;
 }
 // ===== v10.36.25b Homie daily rhythm + proactive check-in helpers END =====
 
@@ -392,7 +392,7 @@ type HomieLegacyTimelineReview = {
 
 function isHomieLegacyTimelinePrompt(text: string) {
   const lower = text.trim().toLowerCase();
-  return /\b(memory review|deep memory|legacy timeline|family timeline|timeline review|what we have been building|what we've been building|what we’ve been building|what changed today|what changed|current mission thread|mission thread|what to do next|export timeline|share timeline|share family timeline|download timeline|save timeline)\b/.test(lower);
+  return /\b(memory review|deep memory|legacy timeline|family timeline|timeline review|what we have been building|what we've been building|what weâ€™ve been building|what changed today|what changed|current mission thread|mission thread|what to do next|export timeline|share timeline|share family timeline|download timeline|save timeline)\b/.test(lower);
 }
 
 function homieTimelineStamp(value: any) {
@@ -413,7 +413,7 @@ function homieCleanTimelineText(text: any, fallback = "Saved memory item") {
 }
 
 function homieTimelineBullet(label: string, value: string) {
-  return "• " + label + ": " + value;
+  return "â€¢ " + label + ": " + value;
 }
 
 function buildHomieLegacyTimelineReview(args: {
@@ -441,16 +441,16 @@ function buildHomieLegacyTimelineReview(args: {
 
   const recentCheckIns = userMessages.length
     ? userMessages.map((msg) => homieTimelineBullet(homieTimelineStamp((msg as any).createdAt || (msg as any).ts || (msg as any).time), homieCleanTimelineText(msg.text, "Check-in")))
-    : ["• No recent check-in messages are visible in this local Homie window yet."];
+    : ["â€¢ No recent check-in messages are visible in this local Homie window yet."];
 
   const savedNotes = artifacts.length
     ? artifacts.map((artifact) => homieTimelineBullet(homieCleanTimelineText(artifact.title, "Family note"), homieCleanTimelineText(artifact.preview, "Saved family artifact")))
-    : ["• No saved family artifact summary is visible yet. Use Legacy note or Save for family when something matters."];
+    : ["â€¢ No saved family artifact summary is visible yet. Use Legacy note or Save for family when something matters."];
 
   const todayChanges = [
     checkedToday ? "Daily rhythm check-in is marked complete today." : "Daily rhythm check-in is not marked complete today yet.",
-    promptedToday ? "Today’s prompt has been opened." : "Today’s prompt has not been opened yet.",
-    greetedToday ? "Homie already gave today’s calm greeting." : "Homie has not recorded a greeting for today yet.",
+    promptedToday ? "Todayâ€™s prompt has been opened." : "Todayâ€™s prompt has not been opened yet.",
+    greetedToday ? "Homie already gave todayâ€™s calm greeting." : "Homie has not recorded a greeting for today yet.",
     "Current panel context is " + args.activeTitle + ".",
   ];
 
@@ -469,7 +469,7 @@ function buildHomieLegacyTimelineReview(args: {
   ];
 
   const displayText = [
-    "Legacy timeline review — what we’ve been building.",
+    "Legacy timeline review â€” what weâ€™ve been building.",
     "",
     "Recent check-ins:",
     ...recentCheckIns,
@@ -478,15 +478,15 @@ function buildHomieLegacyTimelineReview(args: {
     ...savedNotes,
     "",
     "Current mission thread:",
-    ...currentMission.map((line) => "• " + line),
+    ...currentMission.map((line) => "â€¢ " + line),
     "",
     "What changed today:",
-    ...todayChanges.map((line) => "• " + line),
+    ...todayChanges.map((line) => "â€¢ " + line),
     "",
     "What to do next:",
-    ...nextMoves.map((line) => "• " + line),
+    ...nextMoves.map((line) => "â€¢ " + line),
     "",
-    "Trust note: I’m summarizing local Homie memory and visible runtime state. I’m not claiming your family has seen anything unless you confirm it.",
+    "Trust note: Iâ€™m summarizing local Homie memory and visible runtime state. Iâ€™m not claiming your family has seen anything unless you confirm it.",
   ].join("\n");
 
   const exportText = [
@@ -496,12 +496,12 @@ function buildHomieLegacyTimelineReview(args: {
     displayText,
     "",
     "Counts:",
-    "• Check-ins visible to Homie memory: " + checkInCount,
-    "• Legacy artifacts visible to Homie memory: " + legacyCount,
-    "• Active panel: " + args.activeTitle,
+    "â€¢ Check-ins visible to Homie memory: " + checkInCount,
+    "â€¢ Legacy artifacts visible to Homie memory: " + legacyCount,
+    "â€¢ Active panel: " + args.activeTitle,
   ].join("\n");
 
-  const spokenText = "Here’s the calm legacy timeline. I can see the recent Homie memory lane, saved family artifacts, today’s rhythm state, and the next tiny move. I’m not claiming anything outside those signals.";
+  const spokenText = "Hereâ€™s the calm legacy timeline. I can see the recent Homie memory lane, saved family artifacts, todayâ€™s rhythm state, and the next tiny move. Iâ€™m not claiming anything outside those signals.";
 
   return { displayText, spokenText, exportText };
 }
@@ -605,7 +605,7 @@ function buildHomieFamilyLegacyArtifactStudioPreview(args: {
       "3. The legacy vault holds saved family notes and artifacts.",
       "4. Do not rush. Pick one note, one panel, or one next move at a time.",
       "",
-      "Today’s gentle prompt: " + args.dailyRhythmLine,
+      "Todayâ€™s gentle prompt: " + args.dailyRhythmLine,
       "",
       "Trust note: Homie can summarize saved local memory, but the family decides what is final."
     ];
@@ -618,7 +618,7 @@ function buildHomieFamilyLegacyArtifactStudioPreview(args: {
       "",
       "Body first. Then mind. Then family. Then money or creative work. That order keeps the room human.",
       "",
-      "Homie’s remembered next move: " + lastNextMove,
+      "Homieâ€™s remembered next move: " + lastNextMove,
       "Recent themes: " + themes + ".",
       "",
       "Keep this as a family reminder: progress does not have to be loud to be real."
@@ -694,8 +694,8 @@ function buildHomieFamilyLegacyExportPack(args: {
   const legacyCount = Number(args.memory?.legacyArtifactCount || artifacts.length || 0);
   const activePanel = homieCleanTimelineText(args.activeTitle || "Homie", "Homie");
   const savedArtifactLines = artifacts.length
-    ? artifacts.map((item) => "• " + homieCleanTimelineText(item.title, "Family note") + " — " + homieCleanTimelineText(item.preview, "Saved family artifact"))
-    : ["• No saved family artifact summaries are visible yet."];
+    ? artifacts.map((item) => "â€¢ " + homieCleanTimelineText(item.title, "Family note") + " â€” " + homieCleanTimelineText(item.preview, "Saved family artifact"))
+    : ["â€¢ No saved family artifact summaries are visible yet."];
   const artifactBody = artifact
     ? artifact.body
     : "No selected Artifact Studio draft was visible, so this pack includes the timeline and legacy notes only. Preview an artifact first if you want a letter, memory note, open-first guide, life lesson, or project status included.";
@@ -740,8 +740,8 @@ function buildHomieFamilyLegacyExportPack(args: {
     ]),
     "",
     "Counts:",
-    "• Check-ins visible to Homie memory: " + checkIns,
-    "• Legacy artifacts visible to Homie memory: " + legacyCount,
+    "â€¢ Check-ins visible to Homie memory: " + checkIns,
+    "â€¢ Legacy artifacts visible to Homie memory: " + legacyCount,
   ];
 
   const body = sections.join("\n");
@@ -794,11 +794,11 @@ function buildHomieFamilyOpenFirstGuide(args: {
   const checkIns = Number(args.memory?.checkInCount || 0);
   const legacyCount = Number(args.memory?.legacyArtifactCount || (Array.isArray(args.artifacts) ? args.artifacts.length : 0) || 0);
   const savedPreview = Array.isArray(args.artifacts) && args.artifacts.length
-    ? args.artifacts.slice(0, 4).map((item) => "• " + homieOpenFirstLine(item.title, "Family note") + " — " + homieOpenFirstLine(item.preview, "Saved family note"))
-    : ["• No family notes are visible yet. Use Legacy note or Save for family when something matters."];
+    ? args.artifacts.slice(0, 4).map((item) => "â€¢ " + homieOpenFirstLine(item.title, "Family note") + " â€” " + homieOpenFirstLine(item.preview, "Saved family note"))
+    : ["â€¢ No family notes are visible yet. Use Legacy note or Save for family when something matters."];
 
   const body = [
-    "Open this first — FairlyOdd / Homie",
+    "Open this first â€” FairlyOdd / Homie",
     "Generated: " + generated,
     "",
     "Dear family,",
@@ -825,12 +825,12 @@ function buildHomieFamilyOpenFirstGuide(args: {
     "Save for family: exports the latest family note as a plain text file and copies it when possible.",
     "",
     "Current Homie memory snapshot",
-    "• Visible check-ins: " + checkIns,
-    "• Visible family artifacts: " + legacyCount,
-    "• Recent themes: " + themes,
-    "• Current panel/thread: " + activePanel,
-    "• Remembered next move: " + nextMove,
-    "• Today prompt: " + args.dailyRhythmLine,
+    "â€¢ Visible check-ins: " + checkIns,
+    "â€¢ Visible family artifacts: " + legacyCount,
+    "â€¢ Recent themes: " + themes,
+    "â€¢ Current panel/thread: " + activePanel,
+    "â€¢ Remembered next move: " + nextMove,
+    "â€¢ Today prompt: " + args.dailyRhythmLine,
     "",
     "Saved family note preview",
     ...savedPreview,
@@ -902,7 +902,7 @@ function homieQualityPreviewText(text: any, limit = 220) {
 }
 
 function homieQualityChecklistLine(item: HomieLegacyQualityChecklistItem) {
-  return (item.ok ? "✓ " : "Needs edit — ") + item.label + ": " + item.note;
+  return (item.ok ? "âœ“ " : "Needs edit â€” ") + item.label + ": " + item.note;
 }
 
 function buildHomieLegacyQualityReview(args: {
@@ -952,8 +952,8 @@ function buildHomieLegacyQualityReview(args: {
   const familyReady = checklist.every((item) => item.ok);
   const verdict: HomieLegacyQualityReviewVerdict = familyReady ? "family-ready-draft" : "needs-human-edit";
   const verdictLine = familyReady
-    ? "Family-ready draft — still review like a human document before final use."
-    : "Needs human edit — do not treat this as final yet.";
+    ? "Family-ready draft â€” still review like a human document before final use."
+    : "Needs human edit â€” do not treat this as final yet.";
   const sourceLabel = args.sourceLabel || "latest family draft";
   const sourceTitle = args.sourceTitle || "Family draft";
   const generated = new Date().toLocaleString();
@@ -961,7 +961,7 @@ function buildHomieLegacyQualityReview(args: {
   const nextMove = homieQualityPreviewText(args.memory?.lastNextStep || args.dailyRhythmLine || "Choose one small next move.", 160);
 
   const cleanedText = [
-    "Family legacy draft — human-edited copy",
+    "Family legacy draft â€” human-edited copy",
     "Source: " + sourceLabel + " / " + sourceTitle,
     "Generated: " + generated,
     "Verdict: " + verdictLine,
@@ -979,16 +979,16 @@ function buildHomieLegacyQualityReview(args: {
   const body = [
     "Family legacy quality review",
     "",
-    "Source: " + sourceLabel + " — " + sourceTitle,
+    "Source: " + sourceLabel + " â€” " + sourceTitle,
     "Verdict: " + verdictLine,
     "",
     "Checklist:",
     ...checklist.map(homieQualityChecklistLine),
     "",
     "Current memory context:",
-    "• Active panel/thread: " + homieQualityPreviewText(args.activeTitle || "Homie", 120),
-    "• Recent themes: " + themes,
-    "• Remembered next move: " + nextMove,
+    "â€¢ Active panel/thread: " + homieQualityPreviewText(args.activeTitle || "Homie", 120),
+    "â€¢ Recent themes: " + themes,
+    "â€¢ Remembered next move: " + nextMove,
     "",
     "Preview of draft being reviewed:",
     homieQualityPreviewText(sourceText, 700),
@@ -1046,7 +1046,7 @@ function homieManifestCleanLine(value: any, fallback = "Not generated yet") {
 
 function homieManifestFileLine(label: string, filenameBase: string, formats = "TXT / MD") {
   const cleanBase = homieManifestCleanLine(filenameBase, "Generate this item first");
-  return "• " + label + ": " + cleanBase + " (" + formats + ")";
+  return "â€¢ " + label + ": " + cleanBase + " (" + formats + ")";
 }
 
 function buildHomieLegacyFinalManifest(args: {
@@ -1066,12 +1066,12 @@ function buildHomieLegacyFinalManifest(args: {
   const activePanel = homieManifestCleanLine(args.activeTitle || "Homie", "Homie");
   const qualityVerdict = args.quality?.verdict === "family-ready-draft" ? "Family-ready draft after one human read" : "Needs human edit before final use";
   const checklistLines = Array.isArray(args.quality?.checklist)
-    ? args.quality.checklist.map((item) => "• " + (item.ok ? "✓" : "Needs edit") + " — " + item.label + " " + item.note)
-    : ["• Run Family quality review before final sharing."];
+    ? args.quality.checklist.map((item) => "â€¢ " + (item.ok ? "âœ“" : "Needs edit") + " â€” " + item.label + " " + item.note)
+    : ["â€¢ Run Family quality review before final sharing."];
 
   const expectedFiles = [
     homieManifestFileLine("Open This First", args.openFirst?.filenameBase || "Homie_Open_This_First_" + day, "TXT / MD"),
-    "• Timeline: Homie_Legacy_Timeline_" + day + ".txt (TXT)",
+    "â€¢ Timeline: Homie_Legacy_Timeline_" + day + ".txt (TXT)",
     homieManifestFileLine("Selected Artifact", args.artifact?.filenameBase || "Homie_selected_artifact_" + day, "TXT / MD"),
     homieManifestFileLine("Quality Review", args.quality?.filenameBase || "Homie_Family_Quality_Review_" + day, "TXT / MD"),
     homieManifestFileLine("Family Export Pack", args.pack?.filenameBase || "Homie_Family_Legacy_Export_Pack_" + day, "TXT / MD"),
@@ -1110,17 +1110,17 @@ function buildHomieLegacyFinalManifest(args: {
     ...checklistLines,
     "",
     "Current Homie context",
-    "• Active panel/thread: " + activePanel,
-    "• Recent themes: " + themes,
-    "• Remembered next move: " + nextMove,
-    "• Daily rhythm: " + args.dailyRhythmLine,
+    "â€¢ Active panel/thread: " + activePanel,
+    "â€¢ Recent themes: " + themes,
+    "â€¢ Remembered next move: " + nextMove,
+    "â€¢ Daily rhythm: " + args.dailyRhythmLine,
     "",
     "What this pack includes",
-    "• Open First guide: " + homieManifestCleanLine(args.openFirst?.title, "Open this first"),
-    "• Timeline summary: " + homieManifestCleanLine(args.timeline?.displayText || args.timeline?.exportText, "Timeline ready"),
-    "• Selected artifact: " + homieManifestCleanLine(args.artifact?.title, "Selected artifact"),
-    "• Quality review: " + homieManifestCleanLine(args.quality?.title, "Quality review"),
-    "• Export pack: " + homieManifestCleanLine(args.pack?.title, "Family export pack"),
+    "â€¢ Open First guide: " + homieManifestCleanLine(args.openFirst?.title, "Open this first"),
+    "â€¢ Timeline summary: " + homieManifestCleanLine(args.timeline?.displayText || args.timeline?.exportText, "Timeline ready"),
+    "â€¢ Selected artifact: " + homieManifestCleanLine(args.artifact?.title, "Selected artifact"),
+    "â€¢ Quality review: " + homieManifestCleanLine(args.quality?.title, "Quality review"),
+    "â€¢ Export pack: " + homieManifestCleanLine(args.pack?.title, "Family export pack"),
     "",
     "Trust note",
     "Homie is organizing local app memory, visible draft previews, and review helpers. Homie is not claiming these files are complete, emotionally perfect, or family-approved. A human should read, edit, and confirm the final version.",
@@ -1196,7 +1196,7 @@ function buildHomieLegacyFamilyFolderPreview(args: {
 }): HomieLegacyFamilyFolderExportPreview {
   const day = getHomieDailyRhythmDayKey();
   const generated = new Date().toLocaleString();
-  const fileLines = args.files.map((file, index) => "• " + String(index + 1).padStart(2, "0") + " — " + file.name + ": " + file.description);
+  const fileLines = args.files.map((file, index) => "â€¢ " + String(index + 1).padStart(2, "0") + " â€” " + file.name + ": " + file.description);
   const qualityVerdict = args.quality?.verdict === "family-ready-draft" ? "Family-ready draft after one human read" : "Needs human edit before final use";
   const themes = homieFolderCleanLine(args.memory?.recentThemeText || "general", "general");
   const nextMove = homieFolderCleanLine(args.memory?.lastNextStep || args.dailyRhythmLine || "Choose one small next move.");
@@ -1226,10 +1226,10 @@ function buildHomieLegacyFamilyFolderPreview(args: {
     qualityVerdict,
     "",
     "Current Homie context",
-    "• Active panel/thread: " + homieFolderCleanLine(args.activeTitle || "Homie", "Homie"),
-    "• Recent themes: " + themes,
-    "• Remembered next move: " + nextMove,
-    "• Daily rhythm: " + args.dailyRhythmLine,
+    "â€¢ Active panel/thread: " + homieFolderCleanLine(args.activeTitle || "Homie", "Homie"),
+    "â€¢ Recent themes: " + themes,
+    "â€¢ Remembered next move: " + nextMove,
+    "â€¢ Daily rhythm: " + args.dailyRhythmLine,
     "",
     "Human review reminder",
     "[ ] Human edited?",
@@ -1929,21 +1929,21 @@ export default function HomieBuddy({
 
     const allGreen = latest.microphoneApiAvailable && latest.permissionState !== "denied" && speechAvailable && (!wantsExternalVoice() || !!bridge.ok);
     const displayText = [
-      allGreen ? "Runtime self-check: I look okay from the signals I can actually see." : "Runtime self-check: I’m present, but at least one voice signal needs attention.",
+      allGreen ? "Runtime self-check: I look okay from the signals I can actually see." : "Runtime self-check: Iâ€™m present, but at least one voice signal needs attention.",
       "",
       "What I know:",
-      ...known.map((line) => `• ${line}`),
+      ...known.map((line) => `â€¢ ${line}`),
       "",
-      "What I’m guessing / not claiming:",
-      ...guessing.map((line) => `• ${line}`),
+      "What Iâ€™m guessing / not claiming:",
+      ...guessing.map((line) => `â€¢ ${line}`),
       "",
       "What needs your confirmation:",
-      ...needsConfirmation.map((line) => `• ${line}`),
+      ...needsConfirmation.map((line) => `â€¢ ${line}`),
     ].join("\n");
 
     const spokenText = allGreen
       ? "I look okay from the runtime signals I can actually see. I still need you to confirm that you can hear me and that the mic catches your words."
-      : "I’m here, but one voice signal needs attention. I’ll show what I know, what I’m guessing, and what needs your confirmation.";
+      : "Iâ€™m here, but one voice signal needs attention. Iâ€™ll show what I know, what Iâ€™m guessing, and what needs your confirmation.";
 
     appendCompanionMessages([
       createHomieMessage("user", prompt, source),
@@ -2076,7 +2076,7 @@ export default function HomieBuddy({
       return { ok: false, status: nextState, message };
     }
 
-    setDiagnostics((prev) => ({ ...prev, externalBridgeConfigured: true, externalBridgeBaseUrl: externalVoiceBaseUrl, externalBridgeState: "configuring", externalBridgeMessage: `Checking ${externalVoiceBaseUrl}…` }));
+    setDiagnostics((prev) => ({ ...prev, externalBridgeConfigured: true, externalBridgeBaseUrl: externalVoiceBaseUrl, externalBridgeState: "configuring", externalBridgeMessage: `Checking ${externalVoiceBaseUrl}â€¦` }));
     const result = await api.voiceBridgeProbe({ baseUrl: externalVoiceBaseUrl, timeoutMs: Math.min(externalVoiceTimeoutMs, 8000) });
 
     if (result?.ok) {
@@ -2097,7 +2097,7 @@ export default function HomieBuddy({
     next.externalBridgeConfigured = wantsExternalVoice();
     next.externalBridgeBaseUrl = externalVoiceBaseUrl;
     next.externalBridgeState = wantsExternalVoice() ? "configuring" : "disabled";
-    next.externalBridgeMessage = wantsExternalVoice() ? `Checking ${externalVoiceBaseUrl}…` : "External/local bridge is idle because Homie is set to cloud mode.";
+    next.externalBridgeMessage = wantsExternalVoice() ? `Checking ${externalVoiceBaseUrl}â€¦` : "External/local bridge is idle because Homie is set to cloud mode.";
 
     try {
       if (navigator.permissions?.query) {
@@ -2169,7 +2169,7 @@ export default function HomieBuddy({
     }
 
     try {
-      setDiagnostics((prev) => ({ ...prev, externalBridgeState: "transcribing", externalBridgeMessage: `Transcribing with ${externalVoiceBaseUrl}…`, activeRecognitionMode: "external" }));
+      setDiagnostics((prev) => ({ ...prev, externalBridgeState: "transcribing", externalBridgeMessage: `Transcribing with ${externalVoiceBaseUrl}â€¦`, activeRecognitionMode: "external" }));
       const audioBase64 = await blobToBase64(blob);
       const result = await api.voiceBridgeTranscribe({ baseUrl: externalVoiceBaseUrl, timeoutMs: externalVoiceTimeoutMs, mimeType: blob.type || "audio/webm", audioBase64 });
 
@@ -2189,7 +2189,7 @@ export default function HomieBuddy({
       }
 
       emitVoiceStatus({ source, status: "transcript", message: `Heard: ${transcript}`, transcript, mode: "external" });
-      setStatus("Heard you. I’m answering.");
+      setStatus("Heard you. Iâ€™m answering.");
       setMood("good");
       window.setTimeout(() => run(transcript), 90);
     } catch (error: any) {
@@ -2207,7 +2207,7 @@ export default function HomieBuddy({
     } catch {
       // ignore
     }
-    setStatus(pushToTalk ? "Hold to talk is live." : "I’m listening.");
+    setStatus(pushToTalk ? "Hold to talk is live." : "Iâ€™m listening.");
     setMood("good");
     const latest = await refreshVoiceDiagnostics();
     if (!navigator.mediaDevices?.getUserMedia) {
@@ -2346,7 +2346,7 @@ export default function HomieBuddy({
       rec.onstart = () => {
         setIsListening(true);
         setDiagnostics((prev) => ({ ...prev, phrasesSupported: prev.phrasesSupported || biased, phraseBiasMode: biased ? "supported" : prev.recognitionAvailable ? "optional" : "unsupported", activeRecognitionMode: "cloud" }));
-        setStatus(pushToTalk ? "Hold to talk is live." : "I’m listening.");
+        setStatus(pushToTalk ? "Hold to talk is live." : "Iâ€™m listening.");
         setMood("good");
         emitVoiceStatus({ source, status: "started", message: pushToTalk ? "Hold to talk is live." : "Listening.", mode: "cloud" });
       };
@@ -2361,7 +2361,7 @@ export default function HomieBuddy({
           return;
         }
         emitVoiceStatus({ source, status: "transcript", message: `Heard: ${transcript}`, transcript, mode: "cloud" });
-        setStatus("Heard you. I’m answering.");
+        setStatus("Heard you. Iâ€™m answering.");
         setMood("good");
         window.setTimeout(() => run(transcript), 90);
       };
@@ -2609,7 +2609,7 @@ export default function HomieBuddy({
           <img src={fairlyOddLogo} alt="FairlyOdd" className="homieRebuildLogo" />
           <div>
             <div className="assistantTitle">Homie</div>
-            <div className="small">Companion • {activeTitle}</div>
+            <div className="small">Companion â€¢ {activeTitle}</div>
           </div>
         </div>
         <div className="homieRebuildHeaderActions">
@@ -2644,17 +2644,16 @@ export default function HomieBuddy({
             <span className={`badge ${diagnostics.permissionState === "granted" ? "good" : diagnostics.permissionState === "denied" ? "warn" : ""}`}>Mic {diagnostics.permissionState}</span>
           </div>
           <div className="homiePresenceConsentRow" aria-label="Homie presence consent">
-            <span className="homiePresenceConsentPill"><b>Mic:</b> opt-in</span>
-            <span className="homiePresenceConsentPill"><b>Camera:</b> opt-in</span>
-            <span className="homiePresenceConsentPill"><b>Memory:</b> local</span>
+            <span>Mic: opt-in</span>
+            <span>Camera: opt-in</span>
+            <span>Memory: local</span>
           </div>
-
-
-          <div className="homieRebuildStageText">
+          <div className="small homiePresenceIdleLine">Iâ€™m here. We can stay quiet, talk by mic, or take one small next move.</div>
+<div className="homieRebuildStageText">
             <div className="assistantSectionTitle">A calmer Homie lane</div>
             <div className="small">{status}</div>
             <div className="small homieRebuildPresenceLine">{presenceLine}</div>
-            <div className="small homieTolanIdlePresenceLine">I’m here. We can stay quiet, talk by mic, or take one small next move.</div>
+            <div className="small homieTolanIdlePresenceLine">Iâ€™m here. We can stay quiet, talk by mic, or take one small next move.</div>
 
 
             <div className="small homieDailyRhythmLine">{dailyRhythmLine}</div>
@@ -2665,7 +2664,7 @@ export default function HomieBuddy({
             <div className="homieRebuildMemoryCell wide"><span className="small">Last next move</span><strong>{companionMemory.lastNextStep}</strong></div>
           </div>
           <div className="homieLegacyVaultMini">
-            <div className="small"><b>Family legacy vault</b> • {companionMemory.legacyArtifactCount} saved</div>
+            <div className="small"><b>Family legacy vault</b> â€¢ {companionMemory.legacyArtifactCount} saved</div>
             {legacyArtifactSummaries.length ? (
               <div className="homieLegacyVaultList">
                 {legacyArtifactSummaries.slice(0, 3).map((artifact) => (
@@ -2702,7 +2701,7 @@ export default function HomieBuddy({
 
           <div className="homieCompanionMessages homieRebuildMessages">
             {companionMessages.length === 0 ? (
-              <div className="homieCompanionEmpty small">Say “Homie, check in with me” or tell me what feels heavy. I’ll answer like a companion first.</div>
+              <div className="homieCompanionEmpty small">Say â€œHomie, check in with meâ€ or tell me what feels heavy. Iâ€™ll answer like a companion first.</div>
             ) : (
               companionMessages.slice(-6).map((msg) => (
                 <div key={msg.id} className={`homieCompanionMsg ${msg.role}`}><span>{msg.text}</span></div>
@@ -2752,7 +2751,7 @@ export default function HomieBuddy({
                 <span className="homieLegacyToolSummaryTitle">Open First</span>
                 <span className="homieLegacyToolSummaryMeta">Family starting guide</span>
               </span>
-              <span className="homieLegacyToolSummaryIcon" aria-hidden="true">›</span>
+              <span className="homieLegacyToolSummaryIcon" aria-hidden="true">â€º</span>
             </summary>
             <div className="homieLegacyToolBody">
             <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
@@ -2788,7 +2787,7 @@ export default function HomieBuddy({
                 <span className="homieLegacyToolSummaryTitle">Artifact Studio</span>
                 <span className="homieLegacyToolSummaryMeta">Draft letter, memory note, lesson, or status</span>
               </span>
-              <span className="homieLegacyToolSummaryIcon" aria-hidden="true">›</span>
+              <span className="homieLegacyToolSummaryIcon" aria-hidden="true">â€º</span>
             </summary>
             <div className="homieLegacyToolBody">
               <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
@@ -2841,7 +2840,7 @@ export default function HomieBuddy({
                 <span className="homieLegacyToolSummaryTitle">Export Pack</span>
                 <span className="homieLegacyToolSummaryMeta">Bundle timeline, artifact, and vault notes</span>
               </span>
-              <span className="homieLegacyToolSummaryIcon" aria-hidden="true">›</span>
+              <span className="homieLegacyToolSummaryIcon" aria-hidden="true">â€º</span>
             </summary>
             <div className="homieLegacyToolBody">
               <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
@@ -2878,7 +2877,7 @@ export default function HomieBuddy({
                 <span className="homieLegacyToolSummaryTitle">Quality Review</span>
                 <span className="homieLegacyToolSummaryMeta">Check true, kind, useful, understandable</span>
               </span>
-              <span className="homieLegacyToolSummaryIcon" aria-hidden="true">›</span>
+              <span className="homieLegacyToolSummaryIcon" aria-hidden="true">â€º</span>
             </summary>
             <div className="homieLegacyToolBody">
               <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
@@ -2900,7 +2899,7 @@ export default function HomieBuddy({
                 <div className="homieLegacyVaultItem" style={{ alignItems: "stretch" }}>
                   <strong>{legacyQualityReview.verdict === "family-ready-draft" ? "Family-ready draft" : "Needs human edit"}</strong>
                   {legacyQualityReview.checklist.map((item) => (
-                    <span key={item.key}>{item.ok ? "✓" : "Needs edit"} — {item.label} {item.note}</span>
+                    <span key={item.key}>{item.ok ? "âœ“" : "Needs edit"} â€” {item.label} {item.note}</span>
                   ))}
                   <span className="small">Source: {legacyQualityReview.sourceLabel}. Copy cleaned gives you a human-editable version before final family use.</span>
                 </div>
@@ -2917,7 +2916,7 @@ export default function HomieBuddy({
                 <span className="homieLegacyToolSummaryTitle">Final Index</span>
                 <span className="homieLegacyToolSummaryMeta">Reading order and file manifest</span>
               </span>
-              <span className="homieLegacyToolSummaryIcon" aria-hidden="true">›</span>
+              <span className="homieLegacyToolSummaryIcon" aria-hidden="true">â€º</span>
             </summary>
             <div className="homieLegacyToolBody">
               <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
@@ -2953,7 +2952,7 @@ export default function HomieBuddy({
                 <span className="homieLegacyToolSummaryTitle">Family Folder</span>
                 <span className="homieLegacyToolSummaryMeta">One-click ZIP/fallback export</span>
               </span>
-              <span className="homieLegacyToolSummaryIcon" aria-hidden="true">›</span>
+              <span className="homieLegacyToolSummaryIcon" aria-hidden="true">â€º</span>
             </summary>
             <div className="homieLegacyToolBody">
               <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
@@ -2974,7 +2973,7 @@ export default function HomieBuddy({
                   <strong>{legacyFamilyFolderPreview.title}</strong>
                   <span>{legacyFamilyFolderPreview.files.length} files prepared inside one family folder package.</span>
                   {legacyFamilyFolderPreview.files.slice(0, 6).map((file) => (
-                    <span key={file.name}>{file.name} — {file.description}</span>
+                    <span key={file.name}>{file.name} â€” {file.description}</span>
                   ))}
                   <span className="small">ZIP uses local browser packaging only. If ZIP fails, Homie falls back to exporting the files one by one.</span>
                 </div>
@@ -3017,9 +3016,9 @@ export default function HomieBuddy({
           </div>
 
           <div className="homieRebuildVoiceMeta">
-            <div className="small"><b>Voice engine:</b> {diagnostics.recognitionName} • {voiceModeLabel}</div>
-            <div className="small"><b>Last transcript:</b> {diagnostics.lastTranscript || "—"}</div>
-            <div className="small"><b>Bridge:</b> {diagnostics.externalBridgeState} • {diagnostics.externalBridgeBaseUrl}</div>
+            <div className="small"><b>Voice engine:</b> {diagnostics.recognitionName} â€¢ {voiceModeLabel}</div>
+            <div className="small"><b>Last transcript:</b> {diagnostics.lastTranscript || "â€”"}</div>
+            <div className="small"><b>Bridge:</b> {diagnostics.externalBridgeState} â€¢ {diagnostics.externalBridgeBaseUrl}</div>
             <div className="small"><b>Camera:</b> {homieCameraPresenceStatus}</div>
             <div className="small"><b>Camera note:</b> Camera opens only when clicked. No video is analyzed or saved.</div>
           </div>
@@ -3042,7 +3041,7 @@ export default function HomieBuddy({
         </section>
       </div>
 
-      <div className="homieRebuildFooter small">Operator mode still works. Say things like “open trading” or “open mission control” when you want Homie to route commands instead of coach.</div>
+      <div className="homieRebuildFooter small">Operator mode still works. Say things like â€œopen tradingâ€ or â€œopen mission controlâ€ when you want Homie to route commands instead of coach.</div>
     </div>
   );
 
@@ -3059,4 +3058,5 @@ export default function HomieBuddy({
     </div>
   );
 }
+
 
