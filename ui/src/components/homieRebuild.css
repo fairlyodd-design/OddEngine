@@ -879,3 +879,32 @@
   }
 }
 /* ===== v10.36.40e Homie Family Mode Duplicate Encoding Anchorless Cleanup END ===== */
+
+/* ===== v10.36.41 Homie Legacy Family Flow Smoke Test Readiness Badge ===== */
+.homieFamilyFlowReadinessBadge {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: center;
+  margin-top: -2px;
+}
+
+.homieFamilyFlowReadinessBadge > span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(154, 230, 255, 0.11);
+  background: rgba(255, 255, 255, 0.034);
+  color: rgba(226, 238, 255, 0.72);
+  font-size: 0.72rem;
+  line-height: 1;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.012) inset;
+}
+
+.homieFamilyFlowReadyLine {
+  color: rgba(226, 238, 255, 0.66);
+  line-height: 1.4;
+}
+/* ===== v10.36.41 Homie Legacy Family Flow Smoke Test Readiness Badge END ===== */

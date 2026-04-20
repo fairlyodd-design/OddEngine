@@ -2746,7 +2746,17 @@ export default function HomieBuddy({
               </div>
               <span className="badge good">Soft launch</span>
             </div>
-            <div className="homieFamilyModeFirstUseFlow">
+
+          {/* v10.36.41 Homie family flow readiness smoke badge */}
+          <div className="homieFamilyFlowReadinessBadge" aria-label="Homie legacy family flow readiness">
+            <span>Open First ready</span>
+            <span>Family Folder ready</span>
+            <span>Voice opt-in</span>
+          </div>
+          <div className="small homieFamilyFlowReadyLine">Family flow is ready. Start with Open First, build the family folder when you’re ready, then use mic only by choice.</div>
+          {/* v10.36.41 Homie family flow readiness smoke badge END */}
+
+<div className="homieFamilyModeFirstUseFlow">
               <button className="homieFamilyModeStep" onClick={() => runHomieFamilyOpenFirstGuide("quick")}>
                 <strong>1. Open this first</strong>
                 <span>Plain-language guide for what FairlyOdd OS and Homie are.</span>
