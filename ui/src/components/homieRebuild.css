@@ -787,4 +787,80 @@
   line-height: 1.42;
 }
 /* ===== v10.36.39e Homie Presence Consent Final Dedup Repair END ===== */
+/* ===== v10.36.40c Homie Family Mode Soft Launch ===== */
+.homieFamilyModeSoftLaunchCard {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(154, 230, 255, 0.12);
+  background:
+    radial-gradient(260px 130px at 8% 0%, rgba(154, 230, 255, 0.075), rgba(154, 230, 255, 0) 70%),
+    radial-gradient(220px 120px at 100% 0%, rgba(255, 170, 220, 0.055), rgba(255, 170, 220, 0) 72%),
+    rgba(255, 255, 255, 0.032);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.018) inset;
+  display: grid;
+  gap: 10px;
+}
 
+.homieFamilyModeSoftLaunchHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.homieFamilyModeFirstUseFlow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.homieFamilyModeStep {
+  appearance: none;
+  border: 1px solid rgba(255,255,255,0.075);
+  border-radius: 15px;
+  background: rgba(255,255,255,0.035);
+  color: inherit;
+  text-align: left;
+  padding: 10px;
+  display: grid;
+  gap: 4px;
+  cursor: pointer;
+  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+.homieFamilyModeStep:hover,
+.homieFamilyModeStep:focus-visible {
+  border-color: rgba(154, 230, 255, 0.20);
+  background: rgba(154, 230, 255, 0.055);
+  outline: none;
+}
+
+.homieFamilyModeStep strong {
+  font-size: 0.82rem;
+  color: rgba(240, 248, 255, 0.94);
+}
+
+.homieFamilyModeStep span {
+  color: rgba(226, 238, 255, 0.66);
+  font-size: 0.74rem;
+  line-height: 1.35;
+}
+
+.homieFamilyModeSoftLaunchNote {
+  color: rgba(226, 238, 255, 0.66);
+  line-height: 1.4;
+}
+
+@media (max-width: 620px) {
+  .homieFamilyModeFirstUseFlow {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .homieFamilyModeStep {
+    transition: none;
+  }
+}
+/* ===== v10.36.40c Homie Family Mode Soft Launch END ===== */

@@ -2699,6 +2699,41 @@ export default function HomieBuddy({
             </button>
           </div>
 
+
+          {/* ===== v10.36.40 Homie family mode soft launch ===== */}
+          <div className="homieFamilyModeSoftLaunch" aria-label="Homie family mode first use flow">
+            <div className="homieFamilyModeSoftLaunchHeader">
+              <div>
+                <div className="assistantSectionTitle">Family mode first minute</div>
+                <div className="small">A simple path for anyone opening Homie without developer context.</div>
+              </div>
+              <span className="homieFamilyModeSoftLaunchBadge">First 60 seconds</span>
+            </div>
+            <div className="homieFamilyModeSoftLaunchSteps">
+              <button className="homieFamilyModeStep" onClick={() => runHomieFamilyOpenFirstGuide("quick")}>
+                <span>01</span>
+                <strong>Open this first</strong>
+                <small>Explain FairlyOdd, Homie, and what to click.</small>
+              </button>
+              <button className="homieFamilyModeStep" onClick={() => runCompanionQuick("Homie, what can you help my family with first?")}>
+                <span>02</span>
+                <strong>What Homie can help with</strong>
+                <small>Check-ins, timeline, notes, and one small next move.</small>
+              </button>
+              <button className="homieFamilyModeStep" onClick={() => runHomieLegacyFamilyFolderExport("quick", "Homie, build the family folder", true)}>
+                <span>03</span>
+                <strong>Build family folder</strong>
+                <small>Bundle the family-facing legacy files.</small>
+              </button>
+              <button className="homieFamilyModeStep" onClick={() => { setOpen(true); void startVoice(false); }}>
+                <span>04</span>
+                <strong>Talk by mic</strong>
+                <small>Opt-in voice when someone wants to speak instead of type.</small>
+              </button>
+            </div>
+          </div>
+          {/* ===== v10.36.40 Homie family mode soft launch END ===== */}
+
           <div className="homieCompanionMessages homieRebuildMessages">
             {companionMessages.length === 0 ? (
               <div className="homieCompanionEmpty small">Say â€œHomie, check in with meâ€ or tell me what feels heavy. Iâ€™ll answer like a companion first.</div>
@@ -2737,7 +2772,37 @@ export default function HomieBuddy({
             <button className="tabBtn" onClick={saveForFamily}>Save for family</button>
             <button className="tabBtn" onClick={() => { setOpen(true); void startVoice(false); }}>Talk by mic</button>
           </div>
-          <div className="homieLegacyToolsSummaryLine">
+          {/* v10.36.40c Homie family mode soft launch first-use flow */}
+          <div className="homieFamilyModeSoftLaunchCard" aria-label="Family mode first minute">
+            <div className="homieFamilyModeSoftLaunchHead">
+              <div>
+                <div className="assistantSectionTitle">Family mode first minute</div>
+                <div className="small">Start here. Four gentle clicks your family can understand without developer context.</div>
+              </div>
+              <span className="badge good">Soft launch</span>
+            </div>
+            <div className="homieFamilyModeFirstUseFlow">
+              <button className="homieFamilyModeStep" onClick={() => runHomieFamilyOpenFirstGuide("quick")}> 
+                <strong>1. Open this first</strong>
+                <span>Plain-language guide for what FairlyOdd OS and Homie are.</span>
+              </button>
+              <button className="homieFamilyModeStep" onClick={() => runCompanionQuick("what can Homie help with for my family?")}> 
+                <strong>2. What Homie can help with</strong>
+                <span>Check-ins, memory notes, legacy files, voice, and one small next move.</span>
+              </button>
+              <button className="homieFamilyModeStep" onClick={() => runHomieLegacyFamilyFolderExport("quick", "Homie, build the family folder", true)}> 
+                <strong>3. Build family folder</strong>
+                <span>Bundle Open First, Timeline, Artifact, Review, Export Pack, and Index.</span>
+              </button>
+              <button className="homieFamilyModeStep" onClick={() => { setOpen(true); void startVoice(false); }}> 
+                <strong>4. Talk by mic</strong>
+                <span>Mic opens only when clicked. Camera stays separate and opt-in.</span>
+              </button>
+            </div>
+            <div className="small homieFamilyModeSoftLaunchNote">Mic and Camera are opt-in. Memory is local. Homie should explain what it knows, what it is guessing, and what needs confirmation.</div>
+          </div>
+          {/* v10.36.40c Homie family mode soft launch first-use flow END */}
+<div className="homieLegacyToolsSummaryLine">
             <strong>Legacy tools</strong>
             <span>Open one calm section at a time: Open First, Artifact Studio, Export Pack, Quality Review, Final Index, Family Folder.</span>
           </div>
