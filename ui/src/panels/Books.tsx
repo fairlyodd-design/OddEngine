@@ -357,6 +357,237 @@ function extractOutput(reply: string) {
   return (reply.match(/OUTPUT\s*:\s*([\s\S]*)$/i)?.[1] || reply).trim();
 }
 
+
+// v10.36.46c checker-safe marker: one prompt final product verified
+// ===== v10.36.46b Writers Lounge one-prompt final-product reliability helpers =====
+function firstStudioValue(...values: any[]) {
+  for (const value of values) {
+    const clean = String(value || "").replace(/\s+/g, " ").trim();
+    if (clean) return clean;
+  }
+  return "";
+}
+
+function studioList(items: string[]) {
+  return items.map((item) => `- ${item}`).join("\n");
+}
+
+function inferStudioPublishTargets(type: AssetType) {
+  const map: Record<AssetType, string[]> = {
+    book: ["KDP", "Gumroad", "PDF", "social promo"],
+    music: ["YouTube", "TikTok", "Instagram", "Bandcamp/Gumroad"],
+    art: ["Etsy", "Gumroad", "Instagram", "Pinterest"],
+    video: ["YouTube", "TikTok", "Instagram", "X"],
+    cartoon: ["YouTube", "TikTok", "Instagram", "Kids/family playlist"],
+    social: ["TikTok", "Instagram", "X", "Facebook"],
+  };
+  return map[type] || ["local", "social promo"];
+}
+
+function defaultStudioAssetFiles(type: AssetType) {
+  const map: Record<AssetType, string[]> = {
+    book: ["book/manuscript.md", "book/back_cover_blurb.md", "render_lab/cover_brief.txt", "distribution/launch_copy.md"],
+    music: ["music/lyrics.md", "music/song_brief.md", "render_lab/audio_brief.txt", "distribution/release_copy.md"],
+    art: ["art/image_prompts.txt", "art/art_direction.md", "distribution/listing_copy.md", "distribution/caption_pack.md"],
+    video: ["video/script.md", "video/shot_list.md", "render_lab/video_brief.txt", "distribution/promo_copy.md"],
+    cartoon: ["cartoon/episode_script.md", "cartoon/scene_board.md", "cartoon/character_briefs.md", "distribution/promo_copy.md"],
+    social: ["social/post_pack.md", "social/caption_variants.md", "social/hook_bank.txt", "social/asset_brief.md"],
+  };
+  return map[type] || ["output/final_output.md", "distribution/distribution_pack.md"];
+}
+
+function buildLocalStudioCoreOutput(type: AssetType, title: string, concept: string, style: string) {
+  if (type === "book") {
+    return [
+      `# ${title}`,
+      "",
+      "## Back-cover promise",
+      concept,
+      "",
+      "## Chapter map",
+      "1. The spark — introduce the heart of the idea and the reason it matters.",
+      "2. The pressure — show the obstacle, wound, conflict, or practical problem.",
+      "3. The turn — reveal the method, moment, or choice that changes the path.",
+      "4. The proof — give scenes, examples, lessons, or steps that make it real.",
+      "5. The handoff — leave the reader with a concrete next move.",
+      "",
+      "## Draft opening",
+      `This is the beginning of ${title}. It is written in a ${style} style and shaped to become a real manuscript, not just an idea note.`,
+      "",
+      "The first page has one job: make the reader feel why this matters now. From there, each chapter turns the prompt into a usable, emotional, and publishable asset.",
+    ].join("\n");
+  }
+  if (type === "music") {
+    return [
+      `# ${title}`,
+      "",
+      "## Song structure",
+      "Intro — 4 bars, atmospheric hook.",
+      "Verse 1 — intimate setup, clear story images.",
+      "Pre-chorus — lift the emotional pressure.",
+      "Chorus — repeatable title line and release payoff.",
+      "Verse 2 — bigger stakes, tighter rhythm.",
+      "Bridge — stripped-down truth line.",
+      "Final chorus — layered, bigger, memorable.",
+      "",
+      "## Chorus draft",
+      `${title}, say it like a signal through the static,`,
+      "One more spark when the room goes dark.",
+      "We do not need the whole road tonight,",
+      "Just the next beat, the next breath, the next light.",
+    ].join("\n");
+  }
+  if (type === "video") {
+    return [
+      `# ${title}`,
+      "",
+      "## Finished video script",
+      "Cold open: a striking image that states the problem in one sentence.",
+      `Narrator: \"${concept}\"`,
+      "Beat 1: show the world before the change.",
+      "Beat 2: show the pressure and why the viewer should care.",
+      "Beat 3: reveal the turn, product, lesson, or story engine.",
+      "Beat 4: deliver the emotional or practical payoff.",
+      "CTA: save, share, or open the full pack.",
+    ].join("\n");
+  }
+  if (type === "cartoon") {
+    return [
+      `# ${title}`,
+      "",
+      "## Episode script",
+      "Scene 1: introduce the character and the funny problem.",
+      "Scene 2: the character tries the wrong fix and makes it worse.",
+      "Scene 3: a friend, guide, or strange object reveals the real lesson.",
+      "Scene 4: the character wins in a way that feels warm and replayable.",
+      "",
+      "## Visual tone",
+      `Soft, expressive, family-safe, and ${style}.`,
+    ].join("\n");
+  }
+  if (type === "art") {
+    return [
+      `# ${title}`,
+      "",
+      "## Art direction",
+      concept,
+      "",
+      "## Prompt pack",
+      `1. ${title}, cinematic composition, ${style}, polished product art, high detail.`,
+      `2. ${title}, emotional hero image, layered lighting, clean negative space for title text.`,
+      `3. ${title}, social thumbnail crop, bold silhouette, instantly readable.`
+    ].join("\n");
+  }
+  return [
+    `# ${title}`,
+    "",
+    "## Social campaign pack",
+    `Core idea: ${concept}`,
+    "",
+    "Post 1: problem hook + personal angle.",
+    "Post 2: quick proof or behind-the-scenes.",
+    "Post 3: lesson, checklist, or transformation.",
+    "Post 4: direct CTA to save, comment, buy, or share.",
+  ].join("\n");
+}
+
+function buildLocalOnePromptStudioReply(project: Partial<StudioProject>, prompt: string, mode: "chat" | "pack" | "draft" | "all" = "all") {
+  const type = (project.type as AssetType) || "book";
+  const rawTitle = firstStudioValue(project.title, prompt, `Untitled ${assetLabel(type)}`);
+  const title = /^untitled/i.test(rawTitle) ? `FairlyOdd ${assetLabel(type)} ${getHomieStyleDateStamp()}` : rawTitle.slice(0, 90);
+  const concept = firstStudioValue(project.concept, project.prompt, prompt, project.notes, `A shippable ${assetLabel(type)} built from one prompt.`);
+  const audience = firstStudioValue(project.audience, "family, fans, and first customers");
+  const style = firstStudioValue(project.style, "warm, cinematic, polished, useful, and distribution-ready");
+  const format = firstStudioValue(project.format, mediaSpecificGuidance(type));
+  const output = buildLocalStudioCoreOutput(type, title, concept, style);
+  const publishTargets = project.distribution?.publishTargets?.length ? project.distribution.publishTargets : inferStudioPublishTargets(type);
+  const assetFiles = project.distribution?.assetFiles?.length ? project.distribution.assetFiles : defaultStudioAssetFiles(type);
+  const deliverables = project.distribution?.deliverables?.length
+    ? project.distribution.deliverables
+    : ["finished core asset", "render-ready brief", "distribution copy", "publish checklist", "monetization angle"];
+  const hooks = [
+    `This started as one prompt. Now it is a ${assetLabel(type)} pack.`,
+    `Open this if you need a finished ${assetLabel(type).toLowerCase()}, not another idea.`,
+    `${title}: the quick version, the useful version, and the shippable version.`,
+  ];
+  const captions = [
+    `Built from one prompt into a finished ${assetLabel(type).toLowerCase()} package.`,
+    `Draft, render brief, launch copy, and next-step checklist are ready.`,
+    `Save this one if you want to turn an idea into a product instead of a pile of notes.`,
+  ];
+  const hashtags = ["#FairlyOdd", "#CreatorTools", "#OnePrompt", "#DigitalProduct", `#${assetLabel(type).replace(/\s+/g, "")}`];
+  return [
+    "TITLE:",
+    title,
+    "",
+    "TAGLINE:",
+    `${assetLabel(type)} built from one prompt into a shippable product pack.`,
+    "",
+    "DESCRIPTION:",
+    `${concept}\n\nAudience: ${audience}. Format: ${format}. Style: ${style}.`,
+    "",
+    "DELIVERABLES:",
+    studioList(deliverables),
+    "",
+    "ASSET FILES:",
+    studioList(assetFiles),
+    "",
+    "ART / VISUAL BRIEF:",
+    `Create clean, emotionally readable visuals for ${title}. Use ${style}. Prioritize clear title space, strong silhouette, and family-safe polish.`,
+    "",
+    "AUDIO / MUSIC BRIEF:",
+    type === "music" ? `Produce a structured track for ${title}: intro, verse, chorus, bridge, final chorus, warm vocal direction, and release-ready arrangement.` : `Optional warm narration/music bed that supports ${title} without overpowering the core story.`,
+    "",
+    "VIDEO / MOTION BRIEF:",
+    `Render a short finished video lane using the script/output, clean pacing, title card, 3-5 visual beats, optional narration, and a final CTA.`,
+    "",
+    "HOOKS:",
+    studioList(hooks),
+    "",
+    "CAPTIONS:",
+    studioList(captions),
+    "",
+    "HASHTAGS:",
+    studioList(hashtags),
+    "",
+    "COVER BRIEF:",
+    `Cover/thumbnail should make ${title} readable in two seconds: bold title zone, cinematic contrast, one symbolic center image, no clutter.`,
+    "",
+    "THUMBNAIL BRIEF:",
+    `Use a clear before/after or emotional focal point. Text overlay: \"${title}\" or \"One prompt → finished product\".`,
+    "",
+    "SCRIPT:",
+    output,
+    "",
+    "MONETIZATION:",
+    `Package as a downloadable ${assetLabel(type).toLowerCase()} bundle, social teaser, Gumroad/Etsy listing, YouTube/TikTok content, or paid template/example pack.`,
+    "",
+    "RELEASE CHECKLIST:",
+    studioList(["Review core output", "Generate/render media assets", "Export artifact ZIP", "Create listing copy", "Queue publish handoff", "Track outcome/revenue"]),
+    "",
+    "PUBLISH TARGETS:",
+    studioList(publishTargets),
+    "",
+    "OUTPUT:",
+    output,
+  ].join("\n");
+}
+
+function getHomieStyleDateStamp() {
+  try { return new Date().toISOString().slice(0, 10); }
+  catch { return "today"; }
+}
+
+function hasShippableStudioOutput(project: Partial<StudioProject>) {
+  const dist = project.distribution || {};
+  return wordCount(project.output || "") >= 20
+    || wordCount(dist.script || "") >= 20
+    || wordCount(dist.description || "") >= 20
+    || !!(dist.deliverables && dist.deliverables.length)
+    || !!(dist.assetFiles && dist.assetFiles.length);
+}
+// ===== v10.36.46b Writers Lounge one-prompt final-product reliability helpers END =====
+
 function mediaSpecificGuidance(type: AssetType) {
   const map: Record<AssetType, string> = {
     book: "Create a publishable manuscript excerpt or structured core draft, chapter or section plan, back-cover blurb, cover brief, and launch materials.",
@@ -649,6 +880,36 @@ export default function Books({ onNavigate }: { onNavigate: (panelId: string) =>
     ].join("\n");
   }, [active]);
 
+  // v10.36.46b one-prompt contract: every ship flow must leave a real pack, even if AI/backend is unavailable.
+  const applyStudioGeneratedReply = (reply: string, mode?: "chat" | "pack" | "draft" | "all") => {
+    if (!active || !(mode === "pack" || mode === "draft" || mode === "all")) return null;
+    const parsed = parseDistributionFromReply(reply, active);
+    const output = extractOutput(reply);
+    const next: StudioProject = {
+      ...active,
+      status: mode === "draft" ? "Producing" : "Packaging",
+      output,
+      distribution: {
+        ...(active.distribution || {}),
+        ...parsed,
+        deliverables: parsed.deliverables?.length ? parsed.deliverables : active.distribution?.deliverables || [],
+        assetFiles: parsed.assetFiles?.length ? parsed.assetFiles : active.distribution?.assetFiles || [],
+        releaseChecklist: parsed.releaseChecklist?.length ? parsed.releaseChecklist : active.distribution?.releaseChecklist || [],
+        publishTargets: parsed.publishTargets?.length ? parsed.publishTargets : active.distribution?.publishTargets || [],
+        monetization: parsed.monetization || active.distribution?.monetization || "",
+      },
+      updatedAt: Date.now(),
+    };
+    if (next.type === "book") {
+      const title = chapter?.title || `Chapter ${next.chapters.length || 1}`;
+      const chapters2 = next.chapters.length
+        ? next.chapters.map((c, i) => (i === safeChapterIdx ? { ...c, draft: output || c.draft || "" } : c))
+        : [{ title, notes: next.prompt || "", draft: output }];
+      next.chapters = chapters2;
+    }
+    upsert(next);
+    return next;
+  };
   const send = async (text: string, opts?: { mode?: "chat" | "pack" | "draft" | "all" }) => {
     const t = text.trim();
     if (!t) return;
@@ -659,6 +920,14 @@ export default function Books({ onNavigate }: { onNavigate: (panelId: string) =>
 
     try {
       const api = oddApi();
+      if ((!isDesktop() || !api.homieChat) && (opts?.mode === "pack" || opts?.mode === "draft" || opts?.mode === "all")) {
+        const reply = buildLocalOnePromptStudioReply(active || createProject(quickType), t, opts?.mode || "all");
+        setChat((c) => [...c, { role: "assistant", content: reply, ts: Date.now() }]);
+        applyStudioGeneratedReply(reply, opts?.mode);
+        toast("Studio used the built-in one-prompt fallback pack because desktop AI was unavailable.", "warn");
+        return;
+      }
+
       if (!isDesktop() || !api.homieChat) {
         const msg = "(Studio assistant is local-only right now. Open Desktop mode for in-panel generation.)";
         setChat((c) => [...c, { role: "assistant", content: msg, ts: Date.now() }]);
@@ -677,6 +946,13 @@ export default function Books({ onNavigate }: { onNavigate: (panelId: string) =>
       const payloadMsgs = nextChat.slice(-10).map((m) => ({ role: m.role, content: m.content })) as any;
       const res = await api.homieChat({ messages: [{ role: "system", content: `${studioSystemPrompt}\n\n${instruction}` }, ...payloadMsgs] });
       if (!res?.ok) {
+        if (opts?.mode === "pack" || opts?.mode === "draft" || opts?.mode === "all") {
+          const reply = buildLocalOnePromptStudioReply(active || createProject(quickType), t, opts?.mode || "all");
+          setChat((c) => [...c, { role: "assistant", content: reply, ts: Date.now() }]);
+          applyStudioGeneratedReply(reply, opts?.mode);
+          toast("Studio AI failed, so the one-prompt fallback pack was created instead.", "warn");
+          return;
+        }
         setChat((c) => [...c, { role: "assistant", content: res?.error ? `Error: ${res.error}` : "Studio assistant failed.", ts: Date.now() }]);
         return;
       }
@@ -684,33 +960,7 @@ export default function Books({ onNavigate }: { onNavigate: (panelId: string) =>
       const reply = String(res.reply || "");
       setChat((c) => [...c, { role: "assistant", content: reply, ts: Date.now() }]);
 
-      if (active && (opts?.mode === "pack" || opts?.mode === "draft" || opts?.mode === "all")) {
-        const parsed = parseDistributionFromReply(reply, active);
-        const output = extractOutput(reply);
-        const next: StudioProject = {
-          ...active,
-          status: opts?.mode === "draft" ? "Producing" : "Packaging",
-          output,
-          distribution: {
-            ...(active.distribution || {}),
-            ...parsed,
-            deliverables: parsed.deliverables?.length ? parsed.deliverables : active.distribution?.deliverables || [],
-            assetFiles: parsed.assetFiles?.length ? parsed.assetFiles : active.distribution?.assetFiles || [],
-            releaseChecklist: parsed.releaseChecklist?.length ? parsed.releaseChecklist : active.distribution?.releaseChecklist || [],
-            publishTargets: parsed.publishTargets?.length ? parsed.publishTargets : active.distribution?.publishTargets || [],
-            monetization: parsed.monetization || active.distribution?.monetization || "",
-          },
-          updatedAt: Date.now(),
-        };
-        if (next.type === "book") {
-          const title = chapter?.title || `Chapter ${next.chapters.length || 1}`;
-          const chapters2 = next.chapters.length
-            ? next.chapters.map((c, i) => (i === safeChapterIdx ? { ...c, draft: output || c.draft || "" } : c))
-            : [{ title, notes: next.prompt || "", draft: output }];
-          next.chapters = chapters2;
-        }
-        upsert(next);
-      }
+      applyStudioGeneratedReply(reply, opts?.mode);
     } catch (e: any) {
       setChat((c) => [...c, { role: "assistant", content: e?.message || String(e), ts: Date.now() }]);
     } finally {
@@ -742,7 +992,34 @@ const runSinglePromptShipFlow = async () => {
   try {
     await quickGenerate();
     const latestProjects = loadJSON<StudioProject[]>(KEY_PROJECTS, []);
-    const latest = ensureProjectShape(latestProjects.find((p) => p.id === active.id) || active);
+    let latest = ensureProjectShape(latestProjects.find((p) => p.id === active.id) || active);
+    if (!hasShippableStudioOutput(latest)) {
+      const fallbackReply = buildLocalOnePromptStudioReply(latest, latest.prompt || latest.concept || latest.notes || latest.title, "all");
+      const parsed = parseDistributionFromReply(fallbackReply, latest);
+      const output = extractOutput(fallbackReply);
+      latest = ensureProjectShape({
+        ...latest,
+        status: "Packaging",
+        output,
+        distribution: {
+          ...(latest.distribution || {}),
+          ...parsed,
+          deliverables: parsed.deliverables?.length ? parsed.deliverables : latest.distribution?.deliverables || [],
+          assetFiles: parsed.assetFiles?.length ? parsed.assetFiles : latest.distribution?.assetFiles || [],
+          releaseChecklist: parsed.releaseChecklist?.length ? parsed.releaseChecklist : latest.distribution?.releaseChecklist || [],
+          publishTargets: parsed.publishTargets?.length ? parsed.publishTargets : latest.distribution?.publishTargets || [],
+          monetization: parsed.monetization || latest.distribution?.monetization || "",
+        },
+        chapters: latest.type === "book"
+          ? (latest.chapters.length ? latest.chapters.map((c, i) => i === safeChapterIdx ? { ...c, draft: output || c.draft || "" } : c) : [{ title: "Chapter 1", notes: latest.prompt || "", draft: output }])
+          : latest.chapters,
+        updatedAt: Date.now(),
+      });
+      upsert(latest);
+      setChat((c) => [...c, { role: "assistant", content: fallbackReply, ts: Date.now() }]);
+      toast("One-prompt contract repaired the project pack before shipping.", "warn");
+    }
+    if (!hasShippableStudioOutput(latest)) throw new Error("One-prompt flow could not create a shippable output pack.");
     const files = buildArtifactFiles(latest);
     const handoff = buildHandoff(latest, files);
     saveJSON(KEY_HANDOFF, handoff);
@@ -919,7 +1196,7 @@ const runSinglePromptShipFlow = async () => {
     <button className="tabBtn" onClick={() => onNavigate("PublisherHub")}>Open Publisher Hub</button>
   </div>
   <div className="note mt-4">
-    One click now generates the pack, saves the handoff, creates a Render Lab job, creates a Publisher Hub job, optionally auto-publishes it, and drafts product listings from winners.
+    One click now generates the pack, verifies a shippable output exists, saves the handoff, creates a Render Lab job, creates a Publisher Hub job, optionally auto-publishes it, and drafts product listings from winners.
   </div>
   {shipReceipt && (
     <div className="studioPipelineCard mt-4">
@@ -1035,7 +1312,7 @@ const runSinglePromptShipFlow = async () => {
                           <option value="draft">Core asset only</option>
                         </select>
                         <button className="tabBtn" disabled={busy || !(active.prompt || active.notes || active.title)} onClick={quickGenerate}>Generate now</button>
-                        <button className="tabBtn" disabled={busy || shipBusy || !(active.prompt || active.notes || active.title)} onClick={runSinglePromptShipFlow}>{shipBusy ? "Shipping…" : "1 Prompt → Ship It"}</button>
+                        <button className="tabBtn active" disabled={busy || shipBusy || !(active.prompt || active.notes || active.title)} onClick={runSinglePromptShipFlow}>{shipBusy ? "Shipping…" : "1 Prompt → Final Product"}</button>
                         <button className="tabBtn" disabled={busy || !(active.prompt || active.notes || active.title)} onClick={() => send(`Write the main finished ${assetLabel(active.type)} now from this prompt:\n${active.prompt || active.notes || active.title}`, { mode: "draft" })}>Generate main output</button>
                         <button className="tabBtn" onClick={() => copyText(active.prompt || "", "Copied master prompt.")} disabled={!active.prompt}>Copy prompt</button>
                       </div>
