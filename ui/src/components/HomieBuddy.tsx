@@ -2728,10 +2728,23 @@ export default function HomieBuddy({
             <button className="tabBtn" onClick={saveForFamily}>Save for family</button>
             <button className="tabBtn" onClick={() => { setOpen(true); void startVoice(false); }}>Talk by mic</button>
           </div>
+          <div className="homieLegacyToolsSummaryLine">
+            <strong>Legacy tools</strong>
+            <span>Open one calm section at a time: Open First, Artifact Studio, Export Pack, Quality Review, Final Index, Family Folder.</span>
+          </div>
 
 
 
-          <div className="homieLegacyVaultMini homieFamilyOpenFirstGuideControls" style={{ marginTop: 12 }}>
+
+          <details className="homieLegacyVaultMini homieLegacyToolDisclosure homieFamilyOpenFirstGuideControls" style={{ marginTop: 12 }}>
+            <summary className="homieLegacyToolSummary">
+              <span>
+                <span className="homieLegacyToolSummaryTitle">Open First</span>
+                <span className="homieLegacyToolSummaryMeta">Family starting guide</span>
+              </span>
+              <span className="homieLegacyToolSummaryIcon" aria-hidden="true">›</span>
+            </summary>
+            <div className="homieLegacyToolBody">
             <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
               <div>
                 <div className="assistantSectionTitle">Open this first</div>
@@ -2756,9 +2769,19 @@ export default function HomieBuddy({
             ) : (
               <div className="small" style={{ marginTop: 10 }}>Preview creates a gentle starting guide that explains Homie, Timeline, Artifact Studio, and Family export pack.</div>
             )}
-          </div>
+          
+            </div>
+          </details>
 
-          <div className="homieLegacyVaultMini homieArtifactStudioVisibleControls" style={{ marginTop: 12 }}>
+          <details className="homieLegacyVaultMini homieLegacyToolDisclosure homieArtifactStudioVisibleControls" style={{ marginTop: 12 }}>
+            <summary className="homieLegacyToolSummary">
+              <span>
+                <span className="homieLegacyToolSummaryTitle">Artifact Studio</span>
+                <span className="homieLegacyToolSummaryMeta">Draft letter, memory note, lesson, or status</span>
+              </span>
+              <span className="homieLegacyToolSummaryIcon" aria-hidden="true">›</span>
+            </summary>
+            <div className="homieLegacyToolBody">
             <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
               <div>
                 <div className="assistantSectionTitle">Artifact Studio</div>
@@ -2799,10 +2822,20 @@ export default function HomieBuddy({
             ) : (
               <div className="small" style={{ marginTop: 10 }}>Choose a type and click Preview artifact. Homie will keep it calm, useful, and reviewable.</div>
             )}
-          </div>
+          
+            </div>
+          </details>
 
           {/* v10.36.29b family legacy pack grouped with Artifact Studio */}
-          <div className="homieLegacyVaultMini homieFamilyLegacyExportPackControls" style={{ marginTop: 12 }}>
+          <details className="homieLegacyVaultMini homieLegacyToolDisclosure homieFamilyLegacyExportPackControls" style={{ marginTop: 12 }}>
+            <summary className="homieLegacyToolSummary">
+              <span>
+                <span className="homieLegacyToolSummaryTitle">Export Pack</span>
+                <span className="homieLegacyToolSummaryMeta">Bundle timeline, artifact, and vault notes</span>
+              </span>
+              <span className="homieLegacyToolSummaryIcon" aria-hidden="true">›</span>
+            </summary>
+            <div className="homieLegacyToolBody">
             <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
               <div>
                 <div className="assistantSectionTitle">Family export pack</div>
@@ -2827,10 +2860,20 @@ export default function HomieBuddy({
             ) : (
               <div className="small" style={{ marginTop: 10 }}>Preview creates one clean pack from the current timeline, selected artifact, and saved legacy notes.</div>
             )}
-          </div>
+          
+            </div>
+          </details>
 
 
-          <div className="homieLegacyVaultMini homieFamilyQualityReviewControls" style={{ marginTop: 12 }}>
+          <details className="homieLegacyVaultMini homieLegacyToolDisclosure homieFamilyQualityReviewControls" style={{ marginTop: 12 }}>
+            <summary className="homieLegacyToolSummary">
+              <span>
+                <span className="homieLegacyToolSummaryTitle">Quality Review</span>
+                <span className="homieLegacyToolSummaryMeta">Check true, kind, useful, understandable</span>
+              </span>
+              <span className="homieLegacyToolSummaryIcon" aria-hidden="true">›</span>
+            </summary>
+            <div className="homieLegacyToolBody">
             <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
               <div>
                 <div className="assistantSectionTitle">Family quality review</div>
@@ -2858,9 +2901,19 @@ export default function HomieBuddy({
             ) : (
               <div className="small" style={{ marginTop: 10 }}>Review checks the latest Open First guide, Artifact Studio draft, or Family export pack before you treat it like final.</div>
             )}
-          </div>
+          
+            </div>
+          </details>
 
-          <div className="homieLegacyVaultMini homieFamilyFinalManifestControls" style={{ marginTop: 12 }}>
+          <details className="homieLegacyVaultMini homieLegacyToolDisclosure homieFamilyFinalManifestControls" style={{ marginTop: 12 }}>
+            <summary className="homieLegacyToolSummary">
+              <span>
+                <span className="homieLegacyToolSummaryTitle">Final Index</span>
+                <span className="homieLegacyToolSummaryMeta">Reading order and file manifest</span>
+              </span>
+              <span className="homieLegacyToolSummaryIcon" aria-hidden="true">›</span>
+            </summary>
+            <div className="homieLegacyToolBody">
             <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
               <div>
                 <div className="assistantSectionTitle">Final family index</div>
@@ -2885,9 +2938,19 @@ export default function HomieBuddy({
             ) : (
               <div className="small" style={{ marginTop: 10 }}>Generate this after Open First, Artifact Studio, Family export pack, and Quality Review are previewed.</div>
             )}
-          </div>
+          
+            </div>
+          </details>
 
-          <div className="homieLegacyVaultMini homieFamilyFolderExportControls" style={{ marginTop: 12 }}>
+          <details className="homieLegacyVaultMini homieLegacyToolDisclosure homieFamilyFolderExportControls" style={{ marginTop: 12 }}>
+            <summary className="homieLegacyToolSummary">
+              <span>
+                <span className="homieLegacyToolSummaryTitle">Family Folder</span>
+                <span className="homieLegacyToolSummaryMeta">One-click ZIP/fallback export</span>
+              </span>
+              <span className="homieLegacyToolSummaryIcon" aria-hidden="true">›</span>
+            </summary>
+            <div className="homieLegacyToolBody">
             <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
               <div>
                 <div className="assistantSectionTitle">One-click family folder</div>
@@ -2914,7 +2977,9 @@ export default function HomieBuddy({
             ) : (
               <div className="small" style={{ marginTop: 10 }}>One click prepares every family-facing legacy file and downloads them together as a ZIP.</div>
             )}
-          </div>
+          
+            </div>
+          </details>
 
         </section>
 
