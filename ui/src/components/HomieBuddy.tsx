@@ -2769,7 +2769,6 @@ export default function HomieBuddy({
             ) : (
               <div className="small" style={{ marginTop: 10 }}>Preview creates a gentle starting guide that explains Homie, Timeline, Artifact Studio, and Family export pack.</div>
             )}
-          
             </div>
           </details>
 
@@ -2782,7 +2781,7 @@ export default function HomieBuddy({
               <span className="homieLegacyToolSummaryIcon" aria-hidden="true">›</span>
             </summary>
             <div className="homieLegacyToolBody">
-            <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
+              <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
               <div>
                 <div className="assistantSectionTitle">Artifact Studio</div>
                 <div className="small">Turn the timeline and check-ins into one family-ready draft. Preview first, then export.</div>
@@ -2822,7 +2821,6 @@ export default function HomieBuddy({
             ) : (
               <div className="small" style={{ marginTop: 10 }}>Choose a type and click Preview artifact. Homie will keep it calm, useful, and reviewable.</div>
             )}
-          
             </div>
           </details>
 
@@ -2836,7 +2834,7 @@ export default function HomieBuddy({
               <span className="homieLegacyToolSummaryIcon" aria-hidden="true">›</span>
             </summary>
             <div className="homieLegacyToolBody">
-            <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
+              <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
               <div>
                 <div className="assistantSectionTitle">Family export pack</div>
                 <div className="small">Bundle the timeline, selected artifact, and vault notes into one calm family file.</div>
@@ -2860,7 +2858,6 @@ export default function HomieBuddy({
             ) : (
               <div className="small" style={{ marginTop: 10 }}>Preview creates one clean pack from the current timeline, selected artifact, and saved legacy notes.</div>
             )}
-          
             </div>
           </details>
 
@@ -2874,7 +2871,7 @@ export default function HomieBuddy({
               <span className="homieLegacyToolSummaryIcon" aria-hidden="true">›</span>
             </summary>
             <div className="homieLegacyToolBody">
-            <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
+              <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
               <div>
                 <div className="assistantSectionTitle">Family quality review</div>
                 <div className="small">Before anything becomes final, check whether it is true, kind, useful, and understandable.</div>
@@ -2901,7 +2898,6 @@ export default function HomieBuddy({
             ) : (
               <div className="small" style={{ marginTop: 10 }}>Review checks the latest Open First guide, Artifact Studio draft, or Family export pack before you treat it like final.</div>
             )}
-          
             </div>
           </details>
 
@@ -2914,7 +2910,7 @@ export default function HomieBuddy({
               <span className="homieLegacyToolSummaryIcon" aria-hidden="true">›</span>
             </summary>
             <div className="homieLegacyToolBody">
-            <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
+              <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
               <div>
                 <div className="assistantSectionTitle">Final family index</div>
                 <div className="small">A simple manifest for the files your family should open, in the right order, with human-edited checkbox language.</div>
@@ -2938,7 +2934,6 @@ export default function HomieBuddy({
             ) : (
               <div className="small" style={{ marginTop: 10 }}>Generate this after Open First, Artifact Studio, Family export pack, and Quality Review are previewed.</div>
             )}
-          
             </div>
           </details>
 
@@ -2951,7 +2946,7 @@ export default function HomieBuddy({
               <span className="homieLegacyToolSummaryIcon" aria-hidden="true">›</span>
             </summary>
             <div className="homieLegacyToolBody">
-            <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
+              <div className="homieRebuildSectionHead" style={{ gap: 10, alignItems: "flex-start" }}>
               <div>
                 <div className="assistantSectionTitle">One-click family folder</div>
                 <div className="small">Build one ZIP with Open First, Timeline, Selected Artifact, Quality Review, Family Export Pack, and Final Index.</div>
@@ -2977,7 +2972,6 @@ export default function HomieBuddy({
             ) : (
               <div className="small" style={{ marginTop: 10 }}>One click prepares every family-facing legacy file and downloads them together as a ZIP.</div>
             )}
-          
             </div>
           </details>
 

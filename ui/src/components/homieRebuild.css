@@ -644,3 +644,109 @@
   margin-top: 10px;
 }
 
+/* ===== v10.36.38 Homie Legacy Tool Collapse Micro Style Defaults ===== */
+.homieLegacyToolsSummaryLine {
+  margin-top: 14px;
+  padding: 12px 13px;
+  border-color: rgba(154, 230, 255, 0.11);
+  border-radius: 18px;
+  background:
+    radial-gradient(240px 120px at 8% 0%, rgba(154, 230, 255, 0.07), rgba(154, 230, 255, 0) 68%),
+    radial-gradient(220px 120px at 100% 0%, rgba(255, 170, 220, 0.055), rgba(255, 170, 220, 0) 70%),
+    rgba(255, 255, 255, 0.032);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.018) inset;
+}
+
+.homieLegacyToolsSummaryLine strong {
+  color: rgba(236, 246, 255, 0.94);
+  font-size: 0.82rem;
+  letter-spacing: 0.012em;
+}
+
+.homieLegacyToolsSummaryLine span {
+  max-width: 48ch;
+  color: rgba(226, 238, 255, 0.68);
+}
+
+.homieLegacyToolDisclosure {
+  border-color: rgba(154, 230, 255, 0.105);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.043), rgba(255,255,255,0.026)),
+    radial-gradient(260px 120px at 10% 0%, rgba(154, 230, 255, 0.045), rgba(154, 230, 255, 0) 68%);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.014) inset;
+  transition: border-color 180ms ease, background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.homieLegacyToolDisclosure:hover,
+.homieLegacyToolDisclosure:focus-within {
+  border-color: rgba(154, 230, 255, 0.18);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.032)),
+    radial-gradient(260px 120px at 10% 0%, rgba(154, 230, 255, 0.07), rgba(154, 230, 255, 0) 70%);
+}
+
+.homieLegacyToolDisclosure[open] {
+  border-color: rgba(255, 217, 150, 0.16);
+}
+
+.homieLegacyToolDisclosure > summary.homieLegacyToolSummary {
+  min-height: 42px;
+  padding: 1px 0;
+  border-radius: 14px;
+  outline: none;
+}
+
+.homieLegacyToolDisclosure > summary.homieLegacyToolSummary:focus-visible {
+  box-shadow: 0 0 0 2px rgba(154, 230, 255, 0.20);
+}
+
+.homieLegacyToolSummaryTitle {
+  color: rgba(240, 248, 255, 0.93);
+  font-size: 0.86rem;
+}
+
+.homieLegacyToolSummaryMeta {
+  color: rgba(226, 238, 255, 0.62);
+  font-size: 0.75rem;
+}
+
+.homieLegacyToolSummaryIcon {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,0.045);
+  border: 1px solid rgba(255,255,255,0.07);
+  transform: rotate(0deg);
+  transition: transform 180ms ease, opacity 180ms ease, background 180ms ease, border-color 180ms ease;
+}
+
+.homieLegacyToolDisclosure:hover .homieLegacyToolSummaryIcon,
+.homieLegacyToolDisclosure:focus-within .homieLegacyToolSummaryIcon {
+  opacity: 0.95;
+  background: rgba(154, 230, 255, 0.07);
+  border-color: rgba(154, 230, 255, 0.13);
+}
+
+.homieLegacyToolDisclosure[open] .homieLegacyToolSummaryIcon {
+  transform: rotate(90deg);
+  opacity: 1;
+  background: rgba(255, 217, 150, 0.08);
+  border-color: rgba(255, 217, 150, 0.14);
+}
+
+.homieLegacyToolBody {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.065);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .homieLegacyToolDisclosure,
+  .homieLegacyToolSummaryIcon {
+    transition: none;
+  }
+}
+/* ===== v10.36.38 Homie Legacy Tool Collapse Micro Style Defaults END ===== */
+
