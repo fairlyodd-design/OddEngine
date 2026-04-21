@@ -367,6 +367,17 @@ function extractOutput(reply: string) {
 // data-writers-advanced-collapse=v10.36.53
 // data-writers-receipt-advanced-collapse=v10.36.53
 // data-writers-family-backend-copy=v10.36.53
+// data-writers-zip-contents-preview=v10.36.54
+// data-writers-zip-export-audit=v10.36.54
+// data-writers-zip-missing-files=v10.36.54
+// data-writers-family-open-first=v10.36.55
+// data-writers-family-product-templates=v10.36.56
+// data-writers-cover-poster-instructions=v10.36.57
+// data-writers-legacy-archive=v10.36.58
+// data-writers-legacy-archive-shelf=v10.36.59
+// data-writers-family-lock-checkpoint=v10.36.60
+// v10.36.60 checker-safe marker: Writers Lounge family legacy completion arc verified
+// v10.36.54 checker-safe marker: Writers Lounge ZIP reality check and export audit verified
 // v10.36.53 checker-safe marker: family-proof copy and Advanced collapse verified
 // data-writers-receipt-explainer=v10.36.52
 // data-writers-friendly-empty=v10.36.52
@@ -696,6 +707,157 @@ function buildHandoff(project: StudioProject, files: GenFile[]): StudioHandoff {
     },
   };
 }
+
+// ===== v10.36.55-60 Writers Lounge family legacy package helpers =====
+function buildFamilyLegacyGuideFiles(project: StudioProject, dist: DistributionPack): GenFile[] {
+  const title = project.title || "Untitled Project";
+  const typeLabel = assetLabel(project.type);
+  const summary = firstStudioValue(dist.description, project.concept, project.prompt, project.notes, "A FairlyOdd Studio product pack created from one prompt.");
+  const nextSteps = [
+    "Open OPEN_ME_FIRST.md first.",
+    "Read FAMILY_README.md to understand what this project is.",
+    "Open output/final_output.md for the finished main work.",
+    "Open distribution/distribution_pack.md if you want to post, list, sell, or share it.",
+    "Open render_lab/ if you want images, video, narration, cover art, or poster assets made from it.",
+    "Keep this ZIP somewhere safe as the family copy."
+  ];
+  const familyTemplates = [
+    "# Family Legacy Product Templates",
+    "",
+    "Use these prompts in Writers Lounge when you want another meaningful product pack.",
+    "",
+    "## Message to my family",
+    "Create a warm, clear legacy letter for my family. Make it loving, practical, and easy to keep.",
+    "",
+    "## Bedtime story",
+    "Create a family-safe bedtime story that teaches courage, kindness, humor, and hope.",
+    "",
+    "## Family memory book",
+    "Create a small memory book from these notes. Include chapters, photo prompts, and a printable keepsake section.",
+    "",
+    "## Life lessons guide",
+    "Turn my advice and values into a practical guide my family can come back to when life gets hard.",
+    "",
+    "## Song for the family",
+    "Create lyrics, a song brief, cover art direction, and release notes for a heartfelt family song.",
+    "",
+    "## Kids cartoon short",
+    "Create a warm, funny cartoon episode with a simple lesson, scene board, character notes, and promo copy.",
+  ].join("\n");
+  const coverPosterBrief = [
+    "# Cover / Thumbnail / Poster Instructions",
+    "",
+    "Project: " + title,
+    "Type: " + typeLabel,
+    "",
+    "Make the visual simple, emotional, and readable in two seconds.",
+    "",
+    "## Cover",
+    firstStudioValue(dist.coverBrief, dist.artBrief, "Use one strong central image, clean title space, warm premium lighting, and no clutter."),
+    "",
+    "## Thumbnail",
+    firstStudioValue(dist.thumbnailBrief, "Use a bold face/object/symbol, high contrast, short text, and clear emotional meaning."),
+    "",
+    "## Poster",
+    "Create a printable poster version with the title, a symbolic center image, and enough quiet space to feel calm and premium.",
+    "",
+    "## Family-safe rule",
+    "Keep it warm, respectful, non-scary, and easy for a family member to understand without extra explanation.",
+  ].join("\n");
+  const archiveManifest = {
+    generatedAt: new Date().toISOString(),
+    title,
+    type: project.type,
+    familyFirstFile: "OPEN_ME_FIRST.md",
+    safeToKeep: true,
+    importantFiles: [
+      "OPEN_ME_FIRST.md",
+      "FAMILY_README.md",
+      "WHAT_TO_DO_NEXT.txt",
+      "PRINTABLE_CHECKLIST.md",
+      "output/final_output.md",
+      "distribution/distribution_pack.md",
+      "design/cover_thumbnail_poster_brief.md",
+      "templates/family_legacy_templates.md",
+      "project.json"
+    ],
+    note: "This ZIP is intended to be understandable without knowing the backend. Open OPEN_ME_FIRST.md first."
+  };
+  return [
+    {
+      path: "OPEN_ME_FIRST.md",
+      content: [
+        "# Open this first: " + title,
+        "",
+        "This ZIP is the family-safe product pack created by FairlyOdd Studio.",
+        "",
+        "You do not need to understand OddEngine, the backend, rendering, or publishing tools to use this.",
+        "",
+        "## What this is",
+        typeLabel + " pack: " + summary,
+        "",
+        "## Start here",
+        nextSteps.map((step, idx) => String(idx + 1) + ". " + step).join("\n"),
+        "",
+        "## Most important file",
+        "Open output/final_output.md for the main finished work.",
+        "",
+        "## Keep this safe",
+        "Save this ZIP in a family folder, backup drive, cloud folder, or printed archive plan."
+      ].join("\n")
+    },
+    {
+      path: "FAMILY_README.md",
+      content: [
+        "# Family README: " + title,
+        "",
+        "Type: " + typeLabel,
+        "Stage: " + project.status,
+        "",
+        "## Plain English summary",
+        summary,
+        "",
+        "## What is inside",
+        "- The finished main output",
+        "- A distribution pack for sharing or selling",
+        "- Render briefs for cover, poster, video, audio, or thumbnails",
+        "- A printable checklist",
+        "- Family legacy templates for making more packs later",
+        "",
+        "## What to do if something looks technical",
+        "Ignore the technical files unless someone is helping publish, render, or rebuild the project. The plain-English files are enough to understand the pack."
+      ].join("\n")
+    },
+    {
+      path: "WHAT_TO_DO_NEXT.txt",
+      content: nextSteps.join("\n") + "\n"
+    },
+    {
+      path: "PRINTABLE_CHECKLIST.md",
+      content: [
+        "# Printable Checklist: " + title,
+        "",
+        "- [ ] Open OPEN_ME_FIRST.md",
+        "- [ ] Read FAMILY_README.md",
+        "- [ ] Review output/final_output.md",
+        "- [ ] Save a backup copy of the ZIP",
+        "- [ ] Decide whether this should be printed, shared, published, or kept private",
+        "- [ ] Use distribution/distribution_pack.md if posting or selling",
+        "- [ ] Use design/cover_thumbnail_poster_brief.md if making artwork",
+        "- [ ] Use templates/family_legacy_templates.md to make another family pack later"
+      ].join("\n")
+    },
+    { path: "templates/family_legacy_templates.md", content: familyTemplates },
+    { path: "design/cover_thumbnail_poster_brief.md", content: coverPosterBrief },
+    { path: "archive/legacy_archive_manifest.json", content: JSON.stringify(archiveManifest, null, 2) },
+    {
+      path: "archive/KEEP_THIS_ZIP_SAFE.txt",
+      content: "This is the family/archive copy. Keep the ZIP and open OPEN_ME_FIRST.md first.\n"
+    }
+  ];
+}
+// ===== v10.36.55-60 Writers Lounge family legacy package helpers END =====
+
 function buildArtifactFiles(project: StudioProject): GenFile[] {
   const safe = ensureProjectShape(project);
   const dist = safe.distribution || {};
@@ -715,6 +877,7 @@ function buildArtifactFiles(project: StudioProject): GenFile[] {
     "- distribution kit",
     "- handoff package",
   ].join("\n");
+  files.push(...buildFamilyLegacyGuideFiles(safe, dist));
   files.push({ path: "README.md", content: readme });
   files.push({ path: "project.json", content: JSON.stringify(safe, null, 2) });
   files.push({ path: "prompts/master_prompt.txt", content: safe.prompt || "" });
@@ -777,6 +940,100 @@ function buildArtifactFiles(project: StudioProject): GenFile[] {
   return files;
 }
 
+// ===== v10.36.54 Writers Lounge ZIP reality check helpers =====
+type StudioZipAuditItem = {
+  path: string;
+  ok: boolean;
+  empty: boolean;
+  required: boolean;
+  label: "ready" | "empty" | "MISSING";
+};
+
+type StudioZipAudit = {
+  ready: boolean;
+  fileCount: number;
+  expectedCount: number;
+  missingCount: number;
+  emptyCount: number;
+  items: StudioZipAuditItem[];
+  preview: StudioZipAuditItem[];
+  missing: StudioZipAuditItem[];
+  familySummary: string;
+};
+
+function expectedStudioZipFiles(project: Partial<StudioProject>) {
+  const type = (project.type as AssetType) || "book";
+  const common = [
+    "OPEN_ME_FIRST.md",
+    "FAMILY_README.md",
+    "WHAT_TO_DO_NEXT.txt",
+    "PRINTABLE_CHECKLIST.md",
+    "templates/family_legacy_templates.md",
+    "design/cover_thumbnail_poster_brief.md",
+    "archive/legacy_archive_manifest.json",
+    "archive/KEEP_THIS_ZIP_SAFE.txt",
+    "README.md",
+    "project.json",
+    "prompts/master_prompt.txt",
+    "prompts/creative_notes.txt",
+    "output/final_output.md",
+    "distribution/distribution_pack.md",
+    "distribution/release_checklist.txt",
+    "render_lab/script.md",
+    "handoff/render_lab.json",
+    "handoff/distribution.json",
+    "handoff/studio_handoff.json",
+    "handoff/publisher_checklist.md",
+  ];
+  const byType: Record<AssetType, string[]> = {
+    book: ["book/manuscript.md", "book/back_cover_blurb.md"],
+    music: ["music/lyrics.md", "music/song_brief.md", "music/production_notes.md", "music/cover_art_brief.txt"],
+    art: ["art/art_direction.md", "art/image_prompts.txt", "art/listing_copy.md"],
+    video: ["video/script.md", "video/shot_list.md", "video/thumbnail_brief.txt", "video/distribution_copy.md"],
+    cartoon: ["cartoon/episode_script.md", "cartoon/scene_board.md", "cartoon/character_briefs.md", "cartoon/promo_copy.md"],
+    social: ["social/post_pack.md", "social/caption_variants.md", "social/hook_bank.txt", "social/asset_brief.md"],
+  };
+  return Array.from(new Set([...common, ...(byType[type] || [])]));
+}
+
+function auditStudioZipContents(project: Partial<StudioProject>, files: GenFile[]): StudioZipAudit {
+  const normalizedFiles = Array.isArray(files) ? files : [];
+  const fileMap = new Map(normalizedFiles.map((file) => [String(file.path || "").replace(new RegExp("^/+"), ""), String(file.content ?? "")]));
+  const items = expectedStudioZipFiles(project).map((filePath) => {
+    const ok = fileMap.has(filePath);
+    const empty = ok && !String(fileMap.get(filePath) || "").trim();
+    return {
+      path: filePath,
+      ok,
+      empty,
+      required: true,
+      label: !ok ? "MISSING" : empty ? "empty" : "ready",
+    } as StudioZipAuditItem;
+  });
+  const missing = items.filter((item) => !item.ok);
+  const empty = items.filter((item) => item.ok && item.empty);
+  const familyFirst = ["OPEN_ME_FIRST.md", "FAMILY_README.md", "WHAT_TO_DO_NEXT.txt", "PRINTABLE_CHECKLIST.md"];
+  const familyItems = familyFirst.map((filePath) => items.find((item) => item.path === filePath)).filter(Boolean) as StudioZipAuditItem[];
+  const firstItems = items.filter((item) => !familyFirst.includes(item.path)).slice(0, 10);
+  const urgentItems = [...missing, ...empty].filter((item) => !familyItems.some((x) => x.path === item.path) && !firstItems.some((x) => x.path === item.path));
+  const preview = [...familyItems, ...firstItems, ...urgentItems].slice(0, 16);
+  const ready = missing.length === 0;
+  const familySummary = ready
+    ? String(normalizedFiles.length) + " files prepared. Expected files are present."
+    : String(normalizedFiles.length) + " files prepared. " + String(missing.length) + " expected file" + (missing.length === 1 ? " is" : "s are") + " missing.";
+  return {
+    ready,
+    fileCount: normalizedFiles.length,
+    expectedCount: items.length,
+    missingCount: missing.length,
+    emptyCount: empty.length,
+    items,
+    preview,
+    missing,
+    familySummary,
+  };
+}
+// ===== v10.36.54 Writers Lounge ZIP reality check helpers END =====
 export default function Books({ onNavigate }: { onNavigate: (panelId: string) => void }) {
   const [projects, setProjects] = useState<StudioProject[]>(() => loadInitialProjects().map(ensureProjectShape));
   const [activeId, setActiveId] = useState<string>(() => loadJSON<string>(KEY_ACTIVE, ""));
@@ -806,6 +1063,7 @@ export default function Books({ onNavigate }: { onNavigate: (panelId: string) =>
   const outputWords = wordCount(active?.output || chapter?.draft || "");
   const outputMinutes = estimateMinutes(outputWords);
   const artifactFiles = useMemo(() => (active ? buildArtifactFiles(active) : []), [active]);
+  const zipAudit = useMemo(() => (active ? auditStudioZipContents(active, artifactFiles) : null), [active, artifactFiles]);
   const handoffPreview = useMemo(() => (active ? buildHandoff(active, artifactFiles) : null), [active, artifactFiles]);
 
   // v10.36.50 Writers Lounge final product mode Go/No-Go checklist.
@@ -819,6 +1077,7 @@ export default function Books({ onNavigate }: { onNavigate: (panelId: string) =>
       active?.distribution?.assetFiles?.length
     );
     const zipAvailable = !!active && artifactFiles.length > 0;
+    const zipContentsVerified = !!zipAudit && zipAudit.missingCount === 0;
     const renderOptional = true;
     const publishHandoffReady = !!(
       shipReceipt?.publisherJobId ||
@@ -830,11 +1089,12 @@ export default function Books({ onNavigate }: { onNavigate: (panelId: string) =>
       { label: "Prompt present", ok: promptPresent },
       { label: "Pack generated", ok: packGenerated },
       { label: "ZIP available", ok: zipAvailable },
+      { label: "ZIP contents verified", ok: zipContentsVerified },
       { label: "Render optional", ok: renderOptional },
       { label: "Publish handoff ready", ok: publishHandoffReady },
     ];
     return { items, ready: items.every((item) => item.ok) };
-  }, [active, artifactFiles.length, handoffPreview, shipReceipt]);
+  }, [active, artifactFiles.length, handoffPreview, shipReceipt, zipAudit]);
 
   useEffect(() => {
     if (!activeId && projects[0]?.id) {
@@ -1055,6 +1315,11 @@ const flowRuns = useMemo(() => {
   return listOnePromptFlowRuns();
 }, [flowTick]);
 
+const lastBundleShelf = useMemo(() => {
+  void flowTick;
+  return loadJSON<any>(KEY_LAST_BUNDLE, null as any);
+}, [flowTick]);
+
 const runSinglePromptShipFlow = async () => {
   if (!active || busy || shipBusy) return;
   setShipBusy(true);
@@ -1147,16 +1412,18 @@ const runSinglePromptShipFlow = async () => {
     setBundleBusy(true);
     try {
       const files = buildArtifactFiles(active);
+      const bundleAudit = auditStudioZipContents(active, files);
       const root = `${slugify(active.title)}-studio-pack`;
       const handoff = buildHandoff(active, files);
       saveJSON(KEY_HANDOFF, handoff);
-      saveJSON(KEY_LAST_BUNDLE, { at: Date.now(), title: active.title, type: active.type, files: files.length, root });
+      saveJSON(KEY_LAST_BUNDLE, { at: Date.now(), title: active.title, type: active.type, files: files.length, root, mode: "legacy-archive", openFirst: "OPEN_ME_FIRST.md", zipAudit: { ready: bundleAudit.ready, missing: bundleAudit.missing.map((item) => item.path), expected: bundleAudit.expectedCount } });
+      setFlowTick((x) => x + 1);
       if (mode === "zip") {
         await downloadZip(`${root}.zip`, files, root);
-        toast(`Downloaded ${files.length} studio artifacts as ZIP.`, "ok");
+        toast(bundleAudit.ready ? "Downloaded " + files.length + " studio artifacts as ZIP. ZIP contents verified." : "Downloaded " + files.length + " studio artifacts as ZIP, but " + bundleAudit.missingCount + " expected files are missing.", bundleAudit.ready ? "ok" : "warn");
       } else {
         await exportToFolderBrowser(root, files);
-        toast(`Exported ${files.length} studio artifacts to folder.`, "ok");
+        toast(bundleAudit.ready ? "Exported " + files.length + " studio artifacts to folder. ZIP contents verified." : "Exported " + files.length + " studio artifacts, but " + bundleAudit.missingCount + " expected files are missing.", bundleAudit.ready ? "ok" : "warn");
       }
     } catch (e: any) {
       toast(`Bundle export failed: ${e?.message || String(e)}`, "warn");
@@ -1371,8 +1638,41 @@ const runSinglePromptShipFlow = async () => {
     <div className="row wrap">
     <button className="tabBtn" disabled={busy || shipBusy || !active} onClick={runSinglePromptShipFlow}>{shipBusy ? "Shipping…" : "Ship final product"}</button>
     <button className="tabBtn" onClick={downloadLatestProductZip} disabled={bundleBusy || !active}>Download ZIP</button>
+    <button className="tabBtn active" onClick={downloadLatestProductZip} disabled={bundleBusy || !active} data-writers-legacy-archive="v10.36.58">Download Legacy Archive</button>
   </div>
   <div className="small mt-3" data-writers-family-backend-copy="v10.36.53">You do not need to understand the backend. Just download the ZIP.</div>
+  <div className="note mt-4 studioFamilyOpenFirst" data-writers-family-open-first="v10.36.55">
+    <div className="cluster wrap spread">
+      <div>
+        <b>Family handoff</b>
+        <div className="small">After downloading, open <b>OPEN_ME_FIRST.md</b>. It explains the pack without backend or developer language.</div>
+      </div>
+      <span className="studioPill">Open first: OPEN_ME_FIRST.md</span>
+    </div>
+  </div>
+  {zipAudit && (
+    <div className="note mt-4 studioZipContentsPreview" data-writers-zip-contents-preview="v10.36.54">
+      <div className="cluster wrap spread">
+        <div>
+          <b>ZIP contents</b>
+          <div className="small">{zipAudit.familySummary}</div>
+        </div>
+        <span className="studioPill">{zipAudit.ready ? "ZIP verified" : String(zipAudit.missingCount) + " missing"}</span>
+      </div>
+      <div className="studioPillRow mt-3">
+        {zipAudit.preview.map((item) => (
+          <span key={item.path} className="studioPill" title={item.path}>
+            {item.ok ? (item.empty ? "○" : "✓") : "⚠"} {item.path}
+          </span>
+        ))}
+      </div>
+      {zipAudit.missing.length ? (
+        <div className="small mt-2" data-writers-zip-missing-files="v10.36.54">
+          Missing expected files: {zipAudit.missing.map((item) => item.path).join(", ")}
+        </div>
+      ) : null}
+    </div>
+  )}
   <details className="note mt-4 studioAdvancedProductLinks" data-writers-advanced-collapse="v10.36.53">
     <summary>Advanced</summary>
     <div className="row wrap mt-3">
@@ -1436,6 +1736,24 @@ const runSinglePromptShipFlow = async () => {
       </div>
 
       <div className="small mt-2">{shipReceipt.summary}</div>
+      <div className="small mt-2" data-writers-family-open-first="v10.36.55">Family copy note: after downloading, open OPEN_ME_FIRST.md first.</div>
+
+      {zipAudit && (
+        <div className="note mt-4 studioReceiptZipAudit" data-writers-zip-export-audit="v10.36.54">
+          <div className="cluster wrap spread">
+            <div>
+              <b>ZIP export audit</b>
+              <div className="small">{zipAudit.ready ? "Expected files are present in the downloadable pack." : "Some expected files are missing. The missing paths are shown below."}</div>
+            </div>
+            <span className="studioPill">{zipAudit.ready ? "complete" : String(zipAudit.missingCount) + " missing"}</span>
+          </div>
+          {zipAudit.missing.length ? (
+            <div className="small mt-2" data-writers-zip-missing-files="v10.36.54">
+              Missing expected files: {zipAudit.missing.map((item) => item.path).join(", ")}
+            </div>
+          ) : null}
+        </div>
+      )}
 
       <details className="note mt-4 studioReceiptExplainer" data-writers-receipt-explainer="v10.36.52">
         <summary>What happened?</summary>
@@ -1710,9 +2028,33 @@ const runSinglePromptShipFlow = async () => {
                       <button className="tabBtn" onClick={exportBundleManifest}>Download manifest</button>
                     </div>
 
+
+                    <div className="note mt-4 studioLegacyArchiveShelf" data-writers-legacy-archive-shelf="v10.36.59">
+                      <div className="cluster wrap spread">
+                        <div>
+                          <b>Legacy Archive</b>
+                          <div className="small">This creates a family-safe archive ZIP with OPEN_ME_FIRST, README, checklist, templates, and cover/poster instructions.</div>
+                        </div>
+                        <button className="tabBtn active" disabled={bundleBusy} onClick={() => exportBundle("zip")} data-writers-legacy-archive="v10.36.58">Download Legacy Archive ZIP</button>
+                      </div>
+                      <div className="studioPillRow mt-3">
+                        <span className="studioPill" data-writers-family-product-templates="v10.36.56">family templates included</span>
+                        <span className="studioPill" data-writers-cover-poster-instructions="v10.36.57">cover/poster instructions included</span>
+                        <span className="studioPill">open first file included</span>
+                        <span className="studioPill" data-writers-family-lock-checkpoint="v10.36.60">family lock checkpoint</span>
+                      </div>
+                      {lastBundleShelf ? (
+                        <div className="small mt-3">
+                          Last ZIP shelf: {lastBundleShelf.title || "Untitled"} • {lastBundleShelf.files || 0} files • {lastBundleShelf.openFirst || "OPEN_ME_FIRST.md"}
+                        </div>
+                      ) : (
+                        <div className="small mt-3">No ZIP saved to the shelf yet. Download a Legacy Archive ZIP once and this shelf will show the last pack.</div>
+                      )}
+                    </div>
+
                     <div className="studioExportBlock mt-4">
                       <div className="small">Artifact bundle preview</div>
-                      <pre>{artifactFiles.map((f) => f.path).join("\n") || "No artifact files yet."}</pre>
+                      <pre>{zipAudit ? zipAudit.items.map((item) => (item.ok ? (item.empty ? "○ EMPTY" : "✓ READY") : "⚠ MISSING") + " " + item.path).join("\n") : artifactFiles.map((f) => f.path).join("\n") || "No artifact files yet."}</pre>
                     </div>
 
                     <div className="studioExportBlock mt-4">
