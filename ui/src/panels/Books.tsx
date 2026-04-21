@@ -364,6 +364,10 @@ function extractOutput(reply: string) {
 // data-writers-go-nogo=v10.36.50
 // data-writers-first-use=v10.36.51
 // data-writers-live-smoke=v10.36.52
+// data-writers-advanced-collapse=v10.36.53
+// data-writers-receipt-advanced-collapse=v10.36.53
+// data-writers-family-backend-copy=v10.36.53
+// v10.36.53 checker-safe marker: family-proof copy and Advanced collapse verified
 // data-writers-receipt-explainer=v10.36.52
 // data-writers-friendly-empty=v10.36.52
 // v10.36.52 checker-safe marker: live sample smoke, friendly empty states, and receipt explainer verified
@@ -1364,11 +1368,18 @@ const runSinglePromptShipFlow = async () => {
           </CardFrame>
 
 <CardFrame title="Make a product" subtitle="Type an idea, generate the pack, ship it, then download the ZIP." storageKey="writers:onePromptFlow" className="softCard" defaultCollapsed={false}>
-  <div className="row wrap">
+    <div className="row wrap">
     <button className="tabBtn" disabled={busy || shipBusy || !active} onClick={runSinglePromptShipFlow}>{shipBusy ? "Shipping…" : "Ship final product"}</button>
-    <button className="tabBtn" onClick={() => onNavigate("RenderLab")}>Open Render Lab</button>
-    <button className="tabBtn" onClick={() => onNavigate("PublisherHub")}>Open Publisher Hub</button>
+    <button className="tabBtn" onClick={downloadLatestProductZip} disabled={bundleBusy || !active}>Download ZIP</button>
   </div>
+  <div className="small mt-3" data-writers-family-backend-copy="v10.36.53">You do not need to understand the backend. Just download the ZIP.</div>
+  <details className="note mt-4 studioAdvancedProductLinks" data-writers-advanced-collapse="v10.36.53">
+    <summary>Advanced</summary>
+    <div className="row wrap mt-3">
+      <button className="tabBtn" onClick={() => onNavigate("RenderLab")}>Open Render Lab</button>
+      <button className="tabBtn" onClick={() => onNavigate("PublisherHub")}>Open Publisher Hub</button>
+    </div>
+  </details>
   <div className="note mt-4 studioFirstUseWalkthrough" data-writers-first-use="v10.36.51">
     <div className="cluster wrap spread">
       <div>
@@ -1440,11 +1451,16 @@ const runSinglePromptShipFlow = async () => {
         {shipReceipt.backendJobId ? <span className="studioPill">backend {shipReceipt.backendJobId.slice(0, 6)}</span> : null}
       </div>
 
-      <div className="row wrap mt-4">
+            <div className="row wrap mt-4">
         <button className="tabBtn" onClick={downloadLatestProductZip} disabled={bundleBusy || !active}>Download ZIP</button>
-        <button className="tabBtn" onClick={() => onNavigate("RenderLab")}>Open finished render</button>
-        <button className="tabBtn" onClick={() => onNavigate("PublisherHub")}>Open publish queue</button>
       </div>
+      <details className="note mt-4 studioReceiptAdvancedLinks" data-writers-receipt-advanced-collapse="v10.36.53">
+        <summary>Advanced</summary>
+        <div className="row wrap mt-3">
+          <button className="tabBtn" onClick={() => onNavigate("RenderLab")}>Open finished render</button>
+          <button className="tabBtn" onClick={() => onNavigate("PublisherHub")}>Open publish queue</button>
+        </div>
+      </details>
       {/* v10.36.48 Writers Lounge run status strip */}
       <div className="note mt-4 studioOnePromptRunStatusStrip" data-writers-one-prompt-run-status="v10.36.48">
         <div className="cluster wrap spread">
@@ -1482,7 +1498,7 @@ const runSinglePromptShipFlow = async () => {
         <div className="small mt-2">{run.summary}</div>
       </div>
     ))}
-    {!flowRuns?.length ? <div className="small">No product runs yet. Try sample product or type an idea, then click Ship final product.</div> : null}
+    {!flowRuns?.length ? <div className="small">No product runs yet. Try sample product, or type one idea and follow the four steps. The ZIP is the thing your family should keep.</div> : null}
   </div>
 </CardFrame>
         </div>
@@ -1735,7 +1751,7 @@ const runSinglePromptShipFlow = async () => {
                 <div key={i} className={"writersBubble " + (m.role === "user" ? "user" : "assistant")} title={new Date(m.ts).toLocaleString()}>{m.content}</div>
               )) : (
                 <div className="small" style={{ opacity: 0.85 }}>
-                  Ask for a product pack, a script, a book chapter, a song idea, a cartoon scene, or social posts. Plain ideas are enough.
+                  Ask for a product pack, script, book chapter, song idea, cartoon scene, or social posts. Plain ideas are enough — Homie will turn them into a pack.
                 </div>
               )}
               <div ref={chatEndRef} />
