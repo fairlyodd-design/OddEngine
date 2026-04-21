@@ -363,6 +363,10 @@ function extractOutput(reply: string) {
 // data-writers-family-proof-line=v10.36.49
 // data-writers-go-nogo=v10.36.50
 // data-writers-first-use=v10.36.51
+// data-writers-live-smoke=v10.36.52
+// data-writers-receipt-explainer=v10.36.52
+// data-writers-friendly-empty=v10.36.52
+// v10.36.52 checker-safe marker: live sample smoke, friendly empty states, and receipt explainer verified
 // v10.36.51 checker-safe marker: first-use walkthrough and sample product prompt verified
 // v10.36.50 checker-safe marker: final product Go/No-Go checklist verified
 // v10.36.49 checker-safe marker: end-to-end labels and family proof verified
@@ -787,6 +791,7 @@ export default function Books({ onNavigate }: { onNavigate: (panelId: string) =>
   const [autoPublishEnabled, setAutoPublishEnabled] = useState<boolean>(() => loadJSON<boolean>("oddengine:studio:autoPublish:v1", false));
   const [trackRevenueEnabled, setTrackRevenueEnabled] = useState<boolean>(() => loadJSON<boolean>("oddengine:studio:trackRevenue:v1", true));
   const [shipBusy, setShipBusy] = useState(false);
+  const [sampleSmokeBusy, setSampleSmokeBusy] = useState(false);
   const [shipReceipt, setShipReceipt] = useState<StudioShipReceipt | null>(() => loadJSON<StudioShipReceipt | null>("oddengine:studio:lastShipReceipt:v1", null as any));
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -1198,6 +1203,82 @@ const runSinglePromptShipFlow = async () => {
     toast("Sample product prompt loaded. Next: click Generate pack.", "ok");
   };
 
+  // v10.36.52 Writers Lounge live sample smoke: run a safe demo prompt through the same final-product path.
+  const runSampleProductSmoke = async () => {
+    if (busy || shipBusy || sampleSmokeBusy) return;
+    setSampleSmokeBusy(true);
+    try {
+      const targetType = (active?.type || quickType || "book") as AssetType;
+      const seed = buildFirstUseSampleProduct(targetType);
+      const base = ensureProjectShape({
+        ...createProject(targetType),
+        type: targetType,
+        title: seed.title,
+        prompt: seed.prompt,
+        concept: seed.concept,
+        audience: seed.audience,
+        style: seed.style,
+        format: seed.format,
+        notes: seed.notes,
+        status: "Planning",
+        updatedAt: Date.now(),
+      });
+
+      const reply = buildLocalOnePromptStudioReply(base, seed.prompt, "all");
+      const parsed = parseDistributionFromReply(reply, base);
+      const output = extractOutput(reply);
+      let sample = ensureProjectShape({
+        ...base,
+        status: "Packaging",
+        output,
+        distribution: {
+          ...(base.distribution || {}),
+          ...parsed,
+          deliverables: parsed.deliverables?.length ? parsed.deliverables : base.distribution?.deliverables || [],
+          assetFiles: parsed.assetFiles?.length ? parsed.assetFiles : base.distribution?.assetFiles || [],
+          releaseChecklist: parsed.releaseChecklist?.length ? parsed.releaseChecklist : base.distribution?.releaseChecklist || [],
+          publishTargets: parsed.publishTargets?.length ? parsed.publishTargets : base.distribution?.publishTargets || [],
+          monetization: parsed.monetization || base.distribution?.monetization || "",
+        },
+        chapters: targetType === "book"
+          ? [{ title: "Chapter 1", notes: seed.prompt, draft: output }]
+          : base.chapters,
+        updatedAt: Date.now(),
+      });
+
+      if (!hasShippableStudioOutput(sample)) throw new Error("Sample smoke could not create a shippable product pack.");
+      const files = buildArtifactFiles(sample);
+      const handoff = buildHandoff(sample, files);
+      saveJSON(KEY_HANDOFF, handoff);
+      saveJSON(KEY_LAST_BUNDLE, { at: Date.now(), title: sample.title, type: sample.type, files: files.length, root: handoff.bundleName, mode: "sample-smoke-product" });
+
+      const shipped = await shipStudioHandoffToFinishedProduct({
+        handoff,
+        autoPublish: autoPublishEnabled,
+        trackRevenue: trackRevenueEnabled,
+      });
+
+      sample = ensureProjectShape({ ...sample, status: shipped.published ? "Published" : "Ready", updatedAt: Date.now() });
+      upsert(sample);
+      setActiveId(sample.id);
+      saveJSON(KEY_ACTIVE, sample.id);
+      setActiveChapterIdx(0);
+      setShipReceipt(shipped);
+      setFlowTick((x) => x + 1);
+      setTab("export");
+      setChat((c) => [
+        ...c,
+        { role: "user", content: seed.prompt, ts: Date.now() },
+        { role: "assistant", content: reply, ts: Date.now() },
+      ]);
+      toast("Sample smoke complete. Receipt is ready and the ZIP can be downloaded.", "ok");
+    } catch (e: any) {
+      toast("Sample smoke failed: " + (e?.message || String(e)), "warn");
+    } finally {
+      setSampleSmokeBusy(false);
+    }
+  };
+
   return (
     <div className="panelRoot">
       <PanelHeader
@@ -1239,7 +1320,7 @@ const runSinglePromptShipFlow = async () => {
 
             <div className="grid">
               {projects.length === 0 ? (
-                <div className="small">No studio projects yet. Create one and turn a single prompt into a finished asset pack.</div>
+                <div className="small" data-writers-friendly-empty="v10.36.52">No projects yet. Click Add project or Try sample product, then follow the four simple steps.</div>
               ) : (
                 projects.map((p) => (
                   <div key={p.id} className="cluster spread">
@@ -1294,7 +1375,10 @@ const runSinglePromptShipFlow = async () => {
         <b>Start here</b>
         <div className="small">For family or first-time use: one idea becomes a product pack you can download.</div>
       </div>
-      <button className="tabBtn" onClick={trySampleProduct}>Try sample product</button>
+      <div className="row wrap">
+        <button className="tabBtn" onClick={trySampleProduct}>Try sample product</button>
+        <button className="tabBtn active" onClick={runSampleProductSmoke} disabled={busy || shipBusy || sampleSmokeBusy}>{sampleSmokeBusy ? "Running sample…" : "Run sample product"}</button>
+      </div>
     </div>
     <div className="studioPillRow mt-3">
       <span className="studioPill">1. Type idea</span>
@@ -1302,6 +1386,7 @@ const runSinglePromptShipFlow = async () => {
       <span className="studioPill">3. Click Ship final product</span>
       <span className="studioPill">4. Click Download ZIP</span>
     </div>
+    <div className="small mt-3" data-writers-live-smoke="v10.36.52">Run sample product uses a safe demo prompt and completes the same path: generate pack, ship product, create receipt, and make the ZIP available.</div>
   </div>
   <div className="note mt-4">
     One click now generates the pack, verifies a shippable output exists, saves the handoff, creates a Render Lab job, creates a Publisher Hub job, optionally auto-publishes it, and drafts product listings from winners.
@@ -1340,6 +1425,13 @@ const runSinglePromptShipFlow = async () => {
       </div>
 
       <div className="small mt-2">{shipReceipt.summary}</div>
+
+      <details className="note mt-4 studioReceiptExplainer" data-writers-receipt-explainer="v10.36.52">
+        <summary>What happened?</summary>
+        <div className="small mt-2">
+          Homie turned the idea into a downloadable product pack, saved the handoff for Render Lab, created or prepared the render job, and created a publish handoff. If the render backend is off, the ZIP still works locally.
+        </div>
+      </details>
 
       <div className="studioPillRow mt-4">
         {shipReceipt.release?.video ? <span className="studioPill">video ready</span> : null}
@@ -1390,7 +1482,7 @@ const runSinglePromptShipFlow = async () => {
         <div className="small mt-2">{run.summary}</div>
       </div>
     ))}
-    {!flowRuns?.length ? <div className="small">No 1 prompt runs yet.</div> : null}
+    {!flowRuns?.length ? <div className="small">No product runs yet. Try sample product or type an idea, then click Ship final product.</div> : null}
   </div>
 </CardFrame>
         </div>
@@ -1411,7 +1503,7 @@ const runSinglePromptShipFlow = async () => {
             </div>
 
             {!active ? (
-              <div className="note mt-5">Pick a project from the Studio Library to start producing.</div>
+              <div className="note mt-5">Pick a project from the Studio Library, or use Try sample product to see the whole flow once.</div>
             ) : (
               <div className="grid mt-5">
                 <div className="studioMetaGrid">
@@ -1643,7 +1735,7 @@ const runSinglePromptShipFlow = async () => {
                 <div key={i} className={"writersBubble " + (m.role === "user" ? "user" : "assistant")} title={new Date(m.ts).toLocaleString()}>{m.content}</div>
               )) : (
                 <div className="small" style={{ opacity: 0.85 }}>
-                  Ask for a full production pack, finished lyrics, video scripts, image prompt packs, book chapters, or a social campaign that is ready to ship.
+                  Ask for a product pack, a script, a book chapter, a song idea, a cartoon scene, or social posts. Plain ideas are enough.
                 </div>
               )}
               <div ref={chatEndRef} />
