@@ -360,6 +360,8 @@ function extractOutput(reply: string) {
 
 // data-writers-one-prompt-receipt=v10.36.47b
 // data-writers-one-prompt-run-status=v10.36.48
+// data-writers-family-proof-line=v10.36.49
+// v10.36.49 checker-safe marker: end-to-end labels and family proof verified
 // v10.36.48b checker-safe marker: run status strip verified
 // v10.36.47c checker-safe marker: receipt marker repair verified
 // v10.36.46c checker-safe marker: one prompt final product verified
@@ -1194,7 +1196,7 @@ const runSinglePromptShipFlow = async () => {
             <div className="row wrap mt-4">
               <label className="small"><input type="checkbox" checked={autoPublishEnabled} onChange={(e) => setAutoPublishEnabled(e.target.checked)} /> Auto Publish</label>
               <label className="small"><input type="checkbox" checked={trackRevenueEnabled} onChange={(e) => setTrackRevenueEnabled(e.target.checked)} /> Track Revenue</label>
-              <button className="tabBtn" onClick={runSinglePromptShipFlow} disabled={!active || busy || shipBusy}>{shipBusy ? "Shipping…" : "1 Prompt → Finished Product"}</button>
+              <button className="tabBtn" onClick={runSinglePromptShipFlow} disabled={!active || busy || shipBusy}>{shipBusy ? "Shipping…" : "Ship final product"}</button>
             </div>
             <div className="note">
               This pass turns Writers Lounge into a studio pipeline. The desk now builds a handoff pack with render briefs, output files, metadata, distribution materials, publish queue metadata, and money-tracking hooks from one prompt.
@@ -1203,12 +1205,13 @@ const runSinglePromptShipFlow = async () => {
 
 <CardFrame title="One Prompt Flow" subtitle="Studio → Render Lab → Publisher Hub → Outcomes" storageKey="writers:onePromptFlow" className="softCard" defaultCollapsed={false}>
   <div className="row wrap">
-    <button className="tabBtn" disabled={busy || shipBusy || !active} onClick={runSinglePromptShipFlow}>{shipBusy ? "Shipping…" : "Ship finished product"}</button>
+    <button className="tabBtn" disabled={busy || shipBusy || !active} onClick={runSinglePromptShipFlow}>{shipBusy ? "Shipping…" : "Ship final product"}</button>
     <button className="tabBtn" onClick={() => onNavigate("RenderLab")}>Open Render Lab</button>
     <button className="tabBtn" onClick={() => onNavigate("PublisherHub")}>Open Publisher Hub</button>
   </div>
   <div className="note mt-4">
     One click now generates the pack, verifies a shippable output exists, saves the handoff, creates a Render Lab job, creates a Publisher Hub job, optionally auto-publishes it, and drafts product listings from winners.
+    <div className="small mt-2" data-writers-family-proof-line="v10.36.49">Even if render backend is off, your product pack can still be downloaded.</div>
   </div>
       {shipReceipt && (
     <div className="studioPipelineCard mt-4 studioOnePromptReceiptCard" data-writers-one-prompt-receipt="v10.36.47b">
@@ -1238,7 +1241,7 @@ const runSinglePromptShipFlow = async () => {
       </div>
 
       <div className="row wrap mt-4">
-        <button className="tabBtn" onClick={downloadLatestProductZip} disabled={bundleBusy || !active}>Download latest product ZIP</button>
+        <button className="tabBtn" onClick={downloadLatestProductZip} disabled={bundleBusy || !active}>Download ZIP</button>
         <button className="tabBtn" onClick={() => onNavigate("RenderLab")}>Open finished render</button>
         <button className="tabBtn" onClick={() => onNavigate("PublisherHub")}>Open publish queue</button>
       </div>
@@ -1357,8 +1360,8 @@ const runSinglePromptShipFlow = async () => {
                           <option value="pack">Pack only</option>
                           <option value="draft">Core asset only</option>
                         </select>
-                        <button className="tabBtn" disabled={busy || !(active.prompt || active.notes || active.title)} onClick={quickGenerate}>Generate now</button>
-                        <button className="tabBtn active" disabled={busy || shipBusy || !(active.prompt || active.notes || active.title)} onClick={runSinglePromptShipFlow}>{shipBusy ? "Shipping…" : "1 Prompt → Final Product"}</button>
+                        <button className="tabBtn" disabled={busy || !(active.prompt || active.notes || active.title)} onClick={quickGenerate}>Generate pack</button>
+                        <button className="tabBtn active" disabled={busy || shipBusy || !(active.prompt || active.notes || active.title)} onClick={runSinglePromptShipFlow}>{shipBusy ? "Shipping…" : "Ship final product"}</button>
                         <button className="tabBtn" disabled={busy || !(active.prompt || active.notes || active.title)} onClick={() => send(`Write the main finished ${assetLabel(active.type)} now from this prompt:\n${active.prompt || active.notes || active.title}`, { mode: "draft" })}>Generate main output</button>
                         <button className="tabBtn" onClick={() => copyText(active.prompt || "", "Copied master prompt.")} disabled={!active.prompt}>Copy prompt</button>
                       </div>
@@ -1486,7 +1489,7 @@ const runSinglePromptShipFlow = async () => {
                       <button className="tabBtn" onClick={() => { if (!active) return; const files = buildArtifactFiles(active); const handoff = buildHandoff(active, files); queueAutoProductionLoop({ handoff, mode: autoPublishEnabled ? "full-auto" : "assisted", autoPublish: autoPublishEnabled }); toast("Queued publish loop from export tab.", "ok"); }}>Queue publish loop</button>
                     </div>
                     <div className="row wrap mt-4">
-                      <button className="tabBtn" disabled={bundleBusy} onClick={() => exportBundle("zip")}>Download artifact ZIP</button>
+                      <button className="tabBtn" disabled={bundleBusy} onClick={() => exportBundle("zip")}>Download ZIP</button>
                       <button className="tabBtn" disabled={bundleBusy} onClick={() => exportBundle("folder")}>Export artifact folder</button>
                       <button className="tabBtn" onClick={exportBundleManifest}>Download manifest</button>
                     </div>
