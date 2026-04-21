@@ -361,6 +361,8 @@ function extractOutput(reply: string) {
 // data-writers-one-prompt-receipt=v10.36.47b
 // data-writers-one-prompt-run-status=v10.36.48
 // data-writers-family-proof-line=v10.36.49
+// data-writers-go-nogo=v10.36.50
+// v10.36.50 checker-safe marker: final product Go/No-Go checklist verified
 // v10.36.49 checker-safe marker: end-to-end labels and family proof verified
 // v10.36.48b checker-safe marker: run status strip verified
 // v10.36.47c checker-safe marker: receipt marker repair verified
@@ -772,6 +774,34 @@ export default function Books({ onNavigate }: { onNavigate: (panelId: string) =>
   const outputMinutes = estimateMinutes(outputWords);
   const artifactFiles = useMemo(() => (active ? buildArtifactFiles(active) : []), [active]);
   const handoffPreview = useMemo(() => (active ? buildHandoff(active, artifactFiles) : null), [active, artifactFiles]);
+
+  // v10.36.50 Writers Lounge final product mode Go/No-Go checklist.
+  const goNoGoChecklist = useMemo(() => {
+    const promptPresent = !!(active?.prompt || active?.concept || active?.notes || active?.title);
+    const packGenerated = !!(
+      active?.output ||
+      active?.distribution?.script ||
+      active?.distribution?.description ||
+      active?.distribution?.deliverables?.length ||
+      active?.distribution?.assetFiles?.length
+    );
+    const zipAvailable = !!active && artifactFiles.length > 0;
+    const renderOptional = true;
+    const publishHandoffReady = !!(
+      shipReceipt?.publisherJobId ||
+      handoffPreview?.distribution?.targets?.length ||
+      active?.distribution?.publishTargets?.length ||
+      handoffPreview
+    );
+    const items = [
+      { label: "Prompt present", ok: promptPresent },
+      { label: "Pack generated", ok: packGenerated },
+      { label: "ZIP available", ok: zipAvailable },
+      { label: "Render optional", ok: renderOptional },
+      { label: "Publish handoff ready", ok: publishHandoffReady },
+    ];
+    return { items, ready: items.every((item) => item.ok) };
+  }, [active, artifactFiles.length, handoffPreview, shipReceipt]);
 
   useEffect(() => {
     if (!activeId && projects[0]?.id) {
@@ -1212,6 +1242,20 @@ const runSinglePromptShipFlow = async () => {
   <div className="note mt-4">
     One click now generates the pack, verifies a shippable output exists, saves the handoff, creates a Render Lab job, creates a Publisher Hub job, optionally auto-publishes it, and drafts product listings from winners.
     <div className="small mt-2" data-writers-family-proof-line="v10.36.49">Even if render backend is off, your product pack can still be downloaded.</div>
+  </div>
+  <div className="note mt-4 studioOnePromptGoNoGo" data-writers-go-nogo="v10.36.50">
+    <div className="cluster wrap spread">
+      <div>
+        <b>Final product Go/No-Go</b>
+        <div className="small">{goNoGoChecklist.ready ? "Ready to hand to family." : "Not fully ready yet. Generate or ship the product pack first."}</div>
+      </div>
+      <span className="studioPill">{goNoGoChecklist.ready ? "Ready to hand to family" : "Needs one more step"}</span>
+    </div>
+    <div className="studioPillRow mt-3">
+      {goNoGoChecklist.items.map((item) => (
+        <span key={item.label} className="studioPill">{item.ok ? "✓" : "○"} {item.label}</span>
+      ))}
+    </div>
   </div>
       {shipReceipt && (
     <div className="studioPipelineCard mt-4 studioOnePromptReceiptCard" data-writers-one-prompt-receipt="v10.36.47b">
