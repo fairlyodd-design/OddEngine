@@ -362,6 +362,8 @@ function extractOutput(reply: string) {
 // data-writers-one-prompt-run-status=v10.36.48
 // data-writers-family-proof-line=v10.36.49
 // data-writers-go-nogo=v10.36.50
+// data-writers-first-use=v10.36.51
+// v10.36.51 checker-safe marker: first-use walkthrough and sample product prompt verified
 // v10.36.50 checker-safe marker: final product Go/No-Go checklist verified
 // v10.36.49 checker-safe marker: end-to-end labels and family proof verified
 // v10.36.48b checker-safe marker: run status strip verified
@@ -608,6 +610,28 @@ function mediaSpecificGuidance(type: AssetType) {
   return map[type];
 }
 
+
+// v10.36.51 Writers Lounge first-use sample product prompt helper.
+function buildFirstUseSampleProduct(type: AssetType) {
+  const label = assetLabel(type);
+  const title = "FairlyOdd " + label + " Starter Pack";
+  const prompt = [
+    "Create a friendly, family-safe " + label + " called \"" + title + "\".",
+    "Make it simple enough for someone new to FairlyOdd Studio to understand.",
+    "Turn one idea into a finished downloadable product pack with a core output, render brief, launch copy, and publish checklist.",
+    "Keep the tone warm, clear, useful, and ready for a family member or first customer to open.",
+    "Include practical next steps and avoid developer language."
+  ].join("\n");
+  return {
+    title,
+    prompt,
+    concept: "A calm starter product that demonstrates how one idea becomes a finished FairlyOdd Studio pack.",
+    audience: "family, friends, and first customers",
+    style: "warm, clear, polished, gentle, and easy to follow",
+    format: mediaSpecificGuidance(type),
+    notes: "Sample product prompt added by the first-use walkthrough. After loading it, click Generate pack, then Ship final product, then Download ZIP."
+  };
+}
 function buildProjectMarkdown(project: StudioProject) {
   const sections = [
     `# ${project.title}`,
@@ -1149,6 +1173,31 @@ const runSinglePromptShipFlow = async () => {
 
   const exportProjectMarkdown = (project: StudioProject) => buildProjectMarkdown(project);
 
+  const trySampleProduct = () => {
+    const targetType = (active?.type || quickType || "book") as AssetType;
+    const seed = buildFirstUseSampleProduct(targetType);
+    const base = active || createProject(targetType);
+    const next = ensureProjectShape({
+      ...base,
+      type: targetType,
+      title: /^untitled/i.test(base.title || "") ? seed.title : base.title || seed.title,
+      prompt: seed.prompt,
+      concept: seed.concept,
+      audience: seed.audience,
+      style: seed.style,
+      format: seed.format,
+      notes: seed.notes,
+      status: "Planning",
+      updatedAt: Date.now(),
+    });
+    upsert(next);
+    setActiveId(next.id);
+    saveJSON(KEY_ACTIVE, next.id);
+    setActiveChapterIdx(0);
+    setTab("desk");
+    toast("Sample product prompt loaded. Next: click Generate pack.", "ok");
+  };
+
   return (
     <div className="panelRoot">
       <PanelHeader
@@ -1215,7 +1264,7 @@ const runSinglePromptShipFlow = async () => {
             </div>
           </CardFrame>
 
-          <CardFrame title="Pipeline Launch" subtitle="Push the current project into render, assets, publishing, money, or final distribution handoff" storageKey="writers:tools" className="softCard" defaultCollapsed={false}>
+          <CardFrame title="Advanced handoff tools" subtitle="Optional: send the current project to render, publishing, money, notes, or deadlines" storageKey="writers:tools" className="softCard" defaultCollapsed={true}>
             <div className="row wrap">
               <button className="tabBtn" onClick={() => handoffTo("RenderLab")} disabled={!active}>🎞️ Legacy Mode ▶ Real Video</button>
               <button className="tabBtn" onClick={() => handoffTo("PublisherHub")} disabled={!active}>🚀 Publisher Hub</button>
@@ -1233,11 +1282,26 @@ const runSinglePromptShipFlow = async () => {
             </div>
           </CardFrame>
 
-<CardFrame title="One Prompt Flow" subtitle="Studio → Render Lab → Publisher Hub → Outcomes" storageKey="writers:onePromptFlow" className="softCard" defaultCollapsed={false}>
+<CardFrame title="Make a product" subtitle="Type an idea, generate the pack, ship it, then download the ZIP." storageKey="writers:onePromptFlow" className="softCard" defaultCollapsed={false}>
   <div className="row wrap">
     <button className="tabBtn" disabled={busy || shipBusy || !active} onClick={runSinglePromptShipFlow}>{shipBusy ? "Shipping…" : "Ship final product"}</button>
     <button className="tabBtn" onClick={() => onNavigate("RenderLab")}>Open Render Lab</button>
     <button className="tabBtn" onClick={() => onNavigate("PublisherHub")}>Open Publisher Hub</button>
+  </div>
+  <div className="note mt-4 studioFirstUseWalkthrough" data-writers-first-use="v10.36.51">
+    <div className="cluster wrap spread">
+      <div>
+        <b>Start here</b>
+        <div className="small">For family or first-time use: one idea becomes a product pack you can download.</div>
+      </div>
+      <button className="tabBtn" onClick={trySampleProduct}>Try sample product</button>
+    </div>
+    <div className="studioPillRow mt-3">
+      <span className="studioPill">1. Type idea</span>
+      <span className="studioPill">2. Click Generate pack</span>
+      <span className="studioPill">3. Click Ship final product</span>
+      <span className="studioPill">4. Click Download ZIP</span>
+    </div>
   </div>
   <div className="note mt-4">
     One click now generates the pack, verifies a shippable output exists, saves the handoff, creates a Render Lab job, creates a Publisher Hub job, optionally auto-publishes it, and drafts product listings from winners.
@@ -1368,7 +1432,7 @@ const runSinglePromptShipFlow = async () => {
                 {tab === "desk" && (
                   <>
                     <input className="input" value={active.subtitle || ""} onChange={(e) => upsert({ ...active, subtitle: e.target.value, updatedAt: Date.now() })} placeholder="Tagline / subtitle" />
-                    <textarea className="input" style={{ minHeight: 110 }} value={active.prompt || ""} onChange={(e) => upsert({ ...active, prompt: e.target.value, concept: active.concept || e.target.value, updatedAt: Date.now() })} placeholder="Single master prompt: what should this desk create and ship?" />
+                    <textarea className="input" style={{ minHeight: 110 }} value={active.prompt || ""} onChange={(e) => upsert({ ...active, prompt: e.target.value, concept: active.concept || e.target.value, updatedAt: Date.now() })} placeholder="Step 1: type one idea here. Example: a bedtime story, song, video, cartoon, guide, or product pack." />
                     <div className="studioMetaGrid">
                       <input className="input" value={active.audience || ""} onChange={(e) => upsert({ ...active, audience: e.target.value, updatedAt: Date.now() })} placeholder="Audience" />
                       <input className="input" value={active.style || ""} onChange={(e) => upsert({ ...active, style: e.target.value, updatedAt: Date.now() })} placeholder="Style / tone" />
