@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+// v10.36.81 checker-safe marker: premium warm local TTS + cleaner panel personality installed
+// v10.36.80 checker-safe marker: warm local TTS voice shaping installed
 import { buildMorningDigest, getPanelMeta } from "../lib/brain";
 import { executeCommand } from "../lib/commandCenter";
 import {
@@ -124,7 +126,7 @@ function mapRecognitionError(code: string) {
     case "audio-capture":
       return "Homie could not capture audio from the microphone. Check the default input device and try the mic test.";
     case "no-speech":
-      return "The microphone started, but no speech was detected before recognition ended.";
+      return "The microphone opened, but I did not catch words. Camera does not carry voice here. Try Start listening, say one short sentence clearly, or check your Windows input device.";
     case "network":
       return "Speech recognition hit a network or service issue. Try again, type instead, or use the external/local voice bridge.";
     case "aborted":
@@ -213,6 +215,42 @@ function trimForSpeech(text: string) {
   return warm.slice(0, 207) + "...";
 }
 
+
+function applyHomieWarmTtsStyle(utter: SpeechSynthesisUtterance) {
+  try {
+    utter.rate = 0.92;
+    utter.pitch = 0.98;
+    utter.volume = 1;
+    utter.text = String(utter.text || "")
+      .replace(/\s+/g, " ")
+      .replace(/,\s+/g, ", ")
+      .replace(/\s*—\s*/g, ". ")
+      .replace(/\s*\|\s*/g, ". ")
+      .replace(/:\s+/g, ", ")
+      .trim();
+  } catch {
+    // ignore
+  }
+}
+
+
+function applyHomiePremiumWarmTtsStyle(utter: SpeechSynthesisUtterance) {
+  try {
+    utter.rate = 0.9;
+    utter.pitch = 0.97;
+    utter.volume = 1;
+    utter.text = String(utter.text || "")
+      .replace(/\s+/g, " ")
+      .replace(/\s*—\s*/g, ". ")
+      .replace(/\s*\|\s*/g, ". ")
+      .replace(/:\s+/g, ", ")
+      .replace(/,\s+/g, ", ")
+      .trim();
+  } catch {
+    // ignore
+  }
+}
+
 function downloadTextFile(filename: string, text: string) {
   const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -265,8 +303,8 @@ function getHomiePresenceLine(emotion: HomiePresenceEmotion, activeTitle: string
     case "concerned": return "I’m staying steady with you. Smaller, slower, one next move.";
     case "celebrating": return "That one counts. We lock the win and keep the room calm.";
     case "focused": return "Focused with you on " + activeTitle + ". No extra noise.";
-    case "warm": return "Warm lane open — body, mind, family, next move.";
-    default: return "Calm companion mode — present, grounded, and ready.";
+    case "warm": return "Warm companion lane open — body, mind, family, next move.";
+    default: return "Calm companion mode — present, warm, and ready.";
   }
 }
 // ===== v10.36.20 Homie true presence helpers END =====
@@ -1266,6 +1304,15 @@ function buildHomieLegacyFamilyFolderPreview(args: {
 // ===== v10.36.33d Homie one-click family folder export helpers END =====
 
 
+// v10.36.63 checker-safe marker: Homie Buddy big-stage full-body companion avatar installed
+// v10.36.66b checker-safe marker: true camera preview and launcher gate installed
+// v10.36.67 checker-safe marker: mic reality and camera-not-a-mic guidance installed
+// v10.36.68 checker-safe marker: mic proof meter and normal companion mode installed
+// v10.36.70 checker-safe marker: direct browser voice bridge fallback installed
+// v10.36.70b checker-safe marker: visible bridge switch and direct browser fallback installed
+// v10.36.72b checker-safe marker: bridge dedupe repair installed
+// v10.36.73c checker-safe marker: bridge launcher and say test crash hotfix installed
+// v10.36.77 checker-safe marker: direct bridge probe/transcribe and bridge-required dead-end fix installed
 export default function HomieBuddy({
   activePanelId,
   onNavigate,
@@ -1302,7 +1349,23 @@ export default function HomieBuddy({
   const [legacyFinalManifestPreview, setLegacyFinalManifestPreview] = useState<HomieLegacyFinalManifest | null>(null);
   const [legacyFamilyFolderPreview, setLegacyFamilyFolderPreview] = useState<HomieLegacyFamilyFolderExportPreview | null>(null);
   const [legacyFamilyFolderExportStatus, setLegacyFamilyFolderExportStatus] = useState("Family folder ZIP has not run yet.");
-  const [homieCameraPresenceStatus, setHomieCameraPresenceStatus] = useState("Camera is off. Camera opens only when clicked. No video is analyzed or saved.");
+  const [homieCameraPresenceStatus, setHomieCameraPresenceStatus] = useState("Camera is off. Camera is visual only; use mic buttons for hearing. No video is saved.");
+  const [homieMicProofStatus, setHomieMicProofStatus] = useState("Mic proof has not run yet.");
+  const [homieMicLevel, setHomieMicLevel] = useState(0);
+  const [homieMicPeak, setHomieMicPeak] = useState(0);
+  const [homieCameraLive, setHomieCameraLive] = useState(false);
+  const [homieCameraSignal, setHomieCameraSignal] = useState("Camera preview is off. Camera is visual only; Homie is not listening through it.");
+  const homieCameraVideoRef = useRef<HTMLVideoElement | null>(null);
+  const homieCameraCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const homieCameraStreamRef = useRef<MediaStream | null>(null);
+  const homieCameraSampleTimerRef = useRef<number | null>(null);
+  const homieCameraLastBrightnessRef = useRef<number | null>(null);
+  const homieMicProofStreamRef = useRef<MediaStream | null>(null);
+  const homieMicProofAudioCtxRef = useRef<AudioContext | null>(null);
+  const homieMicProofRafRef = useRef<number | null>(null);
+  const homieMicProofTimerRef = useRef<number | null>(null);
+  const homieMicProofPeakRef = useRef(0);
+  const homieMicProofActiveRef = useRef(false);
 
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<any>(null);
@@ -1388,6 +1451,8 @@ export default function HomieBuddy({
     try {
       if (!force && !voiceEnabled) return;
       const utterance = new SpeechSynthesisUtterance((spokenOverride || text).replace(/\*\*/g, ""));
+    applyHomiePremiumWarmTtsStyle(utterance);
+    applyHomieWarmTtsStyle(utterance);
       const voice = pickVoice(voiceProfile);
       if (voice) utterance.voice = voice;
       utterance.rate = 0.93;
@@ -2059,6 +2124,184 @@ export default function HomieBuddy({
     if (!silent) setStatus("Got it. Working on that.");
   }
 
+
+  // ===== v10.36.70b Homie visible local bridge helpers =====
+  function normalizeHomieBridgeBaseUrl(baseUrl: string) {
+    return String(baseUrl || "http://127.0.0.1:8765").trim().replace(/\/+$/, "") || "http://127.0.0.1:8765";
+  }
+
+  function isDesktopBridgeUnavailable(result: any) {
+    const hay = String(result?.error || result?.message || result?.detail || "").toLowerCase();
+    return hay.includes("not available in browser") || hay.includes("not available") || hay.includes("desktop mode");
+  }
+
+  async function homieBridgeFetchJson(url: string, init: RequestInit = {}, timeoutMs = 8000) {
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), Math.max(1500, timeoutMs));
+    try {
+      const res = await fetch(url, { ...init, signal: controller.signal });
+      const text = await res.text();
+      let parsed: any = null;
+      try { parsed = text ? JSON.parse(text) : null; } catch { /* ignore */ }
+      if (!res.ok) return { ok: false, error: "HTTP " + res.status + " from " + url, detail: text || res.statusText };
+      return parsed && typeof parsed === "object" ? parsed : { ok: true, text };
+    } catch (error: any) {
+      return { ok: false, error: String(error?.name || "fetch-failed") + ": " + String(error?.message || "Could not reach " + url) };
+    } finally {
+      window.clearTimeout(timer);
+    }
+  }
+
+  async function callHomieVoiceBridgeProbe(payload: any, forceDirect = false) {
+    let desktopResult: any = null;
+    if (!forceDirect) {
+      try { desktopResult = await api.voiceBridgeProbe?.(payload); }
+      catch (error: any) { desktopResult = { ok: false, error: String(error?.message || error || "Desktop bridge probe failed.") }; }
+      if (desktopResult?.ok) return desktopResult;
+    }
+
+    const shouldTryDirect = forceDirect || !api.isDesktop?.() || isDesktopBridgeUnavailable(desktopResult);
+    if (!shouldTryDirect) return desktopResult || { ok: false, error: "Desktop bridge probe failed." };
+
+    const baseUrl = normalizeHomieBridgeBaseUrl(payload?.baseUrl || externalVoiceBaseUrl);
+    const health = await homieBridgeFetchJson(baseUrl + "/health", { method: "GET" }, Math.min(Number(payload?.timeoutMs || externalVoiceTimeoutMs || 8000), 10000));
+    if (health?.ok) {
+      return {
+        ...health,
+        ok: true,
+        status: "ready",
+        detail: "Direct browser bridge is ready at " + baseUrl + ".",
+        model: health?.stt?.modelHint || health?.model || "",
+        browserDirect: true,
+      };
+    }
+    return { ...(health || {}), ok: false, error: health?.error || "Direct browser bridge did not answer at " + baseUrl + ". Keep RUN_HOMIE_VOICE_BRIDGE_v10.36.45.bat open.", browserDirect: true };
+  }
+
+  async function callHomieVoiceBridgeTranscribe(payload: any) {
+    let desktopResult: any = null;
+    try { desktopResult = await api.voiceBridgeTranscribe?.(payload); }
+    catch (error: any) { desktopResult = { ok: false, error: String(error?.message || error || "Desktop bridge transcribe failed.") }; }
+    if (desktopResult?.ok) return desktopResult;
+
+    const shouldTryDirect = !api.isDesktop?.() || isDesktopBridgeUnavailable(desktopResult);
+    if (!shouldTryDirect) return desktopResult || { ok: false, error: "Desktop bridge transcribe failed." };
+
+    const baseUrl = normalizeHomieBridgeBaseUrl(payload?.baseUrl || externalVoiceBaseUrl);
+    const result = await homieBridgeFetchJson(baseUrl + "/transcribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ audioBase64: payload?.audioBase64 || "", mimeType: payload?.mimeType || "audio/webm" }),
+    }, Math.max(Number(payload?.timeoutMs || externalVoiceTimeoutMs || 120000), 120000));
+    return { ...(result || {}), browserDirect: true };
+  }
+
+  async function activateHomieLocalBridgeNow() {
+    const baseUrl = normalizeHomieBridgeBaseUrl(externalVoiceBaseUrl || "http://127.0.0.1:8765");
+    persistHomiePrefs({ homieVoiceEngineMode: "external-http", homieExternalVoiceBaseUrl: baseUrl, homieExternalVoiceTimeoutMs: 120000 } as any);
+    setDiagnostics((prev) => ({
+      ...prev,
+      externalBridgeConfigured: true,
+      externalBridgeBaseUrl: baseUrl,
+      externalBridgeState: "configuring",
+      externalBridgeMessage: "Checking direct local bridge at " + baseUrl + "…",
+      lastErrorCode: "",
+      lastErrorMessage: "",
+    }));
+    setStatus("Switching Homie to local bridge mode at " + baseUrl + ".");
+    const result = await callHomieVoiceBridgeProbe({ baseUrl, timeoutMs: 8000 }, true);
+    if (result?.ok) {
+      const message = result.detail || "Direct browser bridge is ready at " + baseUrl + ".";
+      setDiagnostics((prev) => ({
+        ...prev,
+        externalBridgeConfigured: true,
+        externalBridgeBaseUrl: baseUrl,
+        externalBridgeState: "ready",
+        externalBridgeMessage: message,
+        externalBridgeModel: result.model || prev.externalBridgeModel || "tiny.en",
+        lastErrorCode: "",
+        lastErrorMessage: "",
+      }));
+      announce(message + " Use Start listening or Hold to talk now.", "good", true, "Local bridge ready.");
+      return;
+    }
+    const message = classifyExternalBridgeError(result?.error || "Direct local bridge did not answer.", baseUrl);
+    setDiagnostics((prev) => ({
+      ...prev,
+      externalBridgeConfigured: true,
+      externalBridgeBaseUrl: baseUrl,
+      externalBridgeState: "degraded",
+      externalBridgeMessage: message,
+      lastErrorCode: "direct-bridge-unreachable",
+      lastErrorMessage: message,
+    }));
+    announce(message, "warn", true, "Local bridge issue.");
+  }
+  // ===== v10.36.70b Homie visible local bridge helpers END =====
+
+  // ===== v10.36.73c Homie bridge say test helper =====
+  async function runHomieLocalBridgeSayTest() {
+    persistHomiePrefs({ homieVoiceEngineMode: "external-http", homieExternalVoiceBaseUrl: externalVoiceBaseUrl || "http://127.0.0.1:8765", homieExternalVoiceTimeoutMs: 120000 } as any);
+    setStatus("Bridge say test is listening — say one clear sentence, then click Stop listening.");
+    setDiagnostics((prev) => ({ ...prev, externalBridgeConfigured: true, externalBridgeBaseUrl: externalVoiceBaseUrl, externalBridgeState: "recording", externalBridgeMessage: "Bridge say test records audio and sends it to /transcribe.", lastErrorCode: "", lastErrorMessage: "" }));
+    await startVoice(false, true, false, false, "bridge-say-test");
+  }
+  // ===== v10.36.73c Homie bridge say test helper END =====
+
+  // ===== v10.36.77 direct bridge helpers =====
+  function homieV77BridgeBaseUrl(baseUrl: string) {
+    return String(baseUrl || "http://127.0.0.1:8765").trim().replace(/\/+$/, "") || "http://127.0.0.1:8765";
+  }
+  function homieV77BridgeError(errorLike: any, baseUrl: string) {
+    const raw = String(errorLike || "Bridge did not answer.");
+    const lower = raw.toLowerCase();
+    if (lower.includes("failed to fetch") || lower.includes("fetch failed") || lower.includes("econnrefused") || lower.includes("abort")) {
+      return "Local voice bridge is not reachable at " + baseUrl + ". Start the bridge BAT, keep that window open, then click Probe 8765.";
+    }
+    return classifyExternalBridgeError(raw, baseUrl);
+  }
+  async function homieV77FetchJson(url: string, init: RequestInit = {}, timeoutMs = 12000) {
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), Math.max(2000, timeoutMs));
+    try {
+      const res = await fetch(url, { ...init, signal: controller.signal });
+      const text = await res.text();
+      let parsed: any = null;
+      try { parsed = text ? JSON.parse(text) : null; } catch { /* keep text */ }
+      if (!res.ok) return { ok: false, error: "HTTP " + res.status + " from " + url, detail: text || res.statusText };
+      return parsed && typeof parsed === "object" ? parsed : { ok: true, text };
+    } catch (error: any) {
+      return { ok: false, error: String(error?.name || "fetch-failed") + ": " + String(error?.message || "Could not reach " + url) };
+    } finally { window.clearTimeout(timer); }
+  }
+  async function homieV77ProbeBridge(baseUrl = externalVoiceBaseUrl, timeoutMs = 12000) {
+    const cleanBase = homieV77BridgeBaseUrl(baseUrl);
+    const result = await homieV77FetchJson(cleanBase + "/health", { method: "GET" }, timeoutMs);
+    if (result?.ok) return { ...result, ok: true, status: "ready", baseUrl: cleanBase, detail: result.detail || "Direct browser bridge is ready at " + cleanBase + ".", model: result?.stt?.modelHint || result?.model || result?.sttModel || "", browserDirect: true };
+    return { ...(result || {}), ok: false, status: "degraded", baseUrl: cleanBase, error: homieV77BridgeError(result?.error || result?.detail, cleanBase), browserDirect: true };
+  }
+  async function homieV77TranscribeBridge(payload: any) {
+    const cleanBase = homieV77BridgeBaseUrl(payload?.baseUrl || externalVoiceBaseUrl);
+    const result = await homieV77FetchJson(cleanBase + "/transcribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ audioBase64: payload?.audioBase64 || "", mimeType: payload?.mimeType || "audio/webm" }) }, Math.max(Number(payload?.timeoutMs || externalVoiceTimeoutMs || 180000), 180000));
+    return { ...(result || {}), browserDirect: true };
+  }
+  async function homieV77UseLocalBridgeNow() {
+    const baseUrl = homieV77BridgeBaseUrl(externalVoiceBaseUrl || "http://127.0.0.1:8765");
+    persistHomiePrefs({ homieVoiceEngineMode: "external-http", homieExternalVoiceBaseUrl: baseUrl, homieExternalVoiceTimeoutMs: 180000 } as any);
+    setDiagnostics((prev) => ({ ...prev, externalBridgeConfigured: true, externalBridgeBaseUrl: baseUrl, externalBridgeState: "configuring", externalBridgeMessage: "Checking local bridge at " + baseUrl + "…", lastErrorCode: "", lastErrorMessage: "" }));
+    const result = await homieV77ProbeBridge(baseUrl, 12000);
+    if (result?.ok) {
+      const message = result.detail || "Local voice bridge is ready at " + baseUrl + ".";
+      setDiagnostics((prev) => ({ ...prev, externalBridgeConfigured: true, externalBridgeBaseUrl: baseUrl, externalBridgeState: "ready", externalBridgeMessage: message, externalBridgeModel: result.model || prev.externalBridgeModel || "", lastErrorCode: "", lastErrorMessage: "" }));
+      announce(message + " Now use Bridge say test.", "good", true, "Local bridge ready.");
+      return;
+    }
+    const message = result?.error || "Local bridge did not answer at " + baseUrl + ".";
+    setDiagnostics((prev) => ({ ...prev, externalBridgeConfigured: true, externalBridgeBaseUrl: baseUrl, externalBridgeState: "degraded", externalBridgeMessage: message, lastErrorCode: "bridge-unreachable", lastErrorMessage: message }));
+    announce(message, "warn", true, "Local bridge not reachable.");
+  }
+  // ===== v10.36.77 direct bridge helpers END =====
+
   async function getExternalBridgeReadiness(force = false, baseState?: VoiceDiagnostics) {
     const cached = lastExternalProbeRef.current;
     const now = Date.now();
@@ -2071,40 +2314,39 @@ export default function HomieBuddy({
     return normalized;
   }
 
+
   async function probeExternalVoice(silent = false, baseState?: VoiceDiagnostics) {
     const current = baseState || diagnostics;
-    if (!api.voiceBridgeProbe || !wantsExternalVoice()) {
-      const message = voiceEngineMode === "cloud"
-        ? "External/local bridge is idle because Homie is set to cloud mode."
-        : "External/local bridge probing is only available in desktop mode.";
-      const nextState = voiceEngineMode === "cloud" ? "disabled" : "unavailable";
-      setDiagnostics((prev) => ({ ...prev, externalBridgeConfigured: wantsExternalVoice(), externalBridgeBaseUrl: externalVoiceBaseUrl, externalBridgeState: nextState, externalBridgeMessage: message, externalBridgeModel: "" }));
-      if (!silent) announce(message, "warn", true, "Voice bridge unavailable.");
-      return { ok: false, status: nextState, message };
+    const baseUrl = homieV77BridgeBaseUrl(externalVoiceBaseUrl || "http://127.0.0.1:8765");
+    if (!wantsExternalVoice()) {
+      const message = "External/local bridge is idle because Homie is set to cloud mode. Click Use local bridge to use 127.0.0.1:8765.";
+      setDiagnostics((prev) => ({ ...prev, ...current, externalBridgeConfigured: false, externalBridgeBaseUrl: baseUrl, externalBridgeState: "disabled", externalBridgeMessage: message, externalBridgeModel: "" }));
+      if (!silent) announce(message, "idle", true, "Local bridge is idle.");
+      return { ok: false, status: "disabled", message };
     }
-
-    setDiagnostics((prev) => ({ ...prev, externalBridgeConfigured: true, externalBridgeBaseUrl: externalVoiceBaseUrl, externalBridgeState: "configuring", externalBridgeMessage: `Checking ${externalVoiceBaseUrl}…` }));
-    const result = await api.voiceBridgeProbe({ baseUrl: externalVoiceBaseUrl, timeoutMs: Math.min(externalVoiceTimeoutMs, 8000) });
-
+    setDiagnostics((prev) => ({ ...prev, ...current, externalBridgeConfigured: true, externalBridgeBaseUrl: baseUrl, externalBridgeState: "configuring", externalBridgeMessage: "Checking " + baseUrl + "…", lastErrorCode: "", lastErrorMessage: "" }));
+    let result: any = null;
+    try { if (api.voiceBridgeProbe) result = await api.voiceBridgeProbe({ baseUrl, timeoutMs: Math.min(externalVoiceTimeoutMs, 12000) }); }
+    catch (error: any) { result = { ok: false, error: String(error?.message || error || "Desktop bridge probe failed.") }; }
+    if (!result?.ok) result = await homieV77ProbeBridge(baseUrl, 12000);
     if (result?.ok) {
-      const message = result.detail || `External/local voice bridge is ready at ${externalVoiceBaseUrl}.`;
-      setDiagnostics((prev) => ({ ...prev, ...current, externalBridgeConfigured: true, externalBridgeBaseUrl: externalVoiceBaseUrl, externalBridgeState: "ready", externalBridgeMessage: message, externalBridgeModel: result.model || "" }));
+      const message = result.detail || "Direct browser bridge is ready at " + baseUrl + ".";
+      setDiagnostics((prev) => ({ ...prev, ...current, externalBridgeConfigured: true, externalBridgeBaseUrl: baseUrl, externalBridgeState: "ready", externalBridgeMessage: message, externalBridgeModel: result.model || prev.externalBridgeModel || "", lastErrorCode: "", lastErrorMessage: "" }));
       if (!silent) announce(message, "good", true, "Voice bridge ready.");
-      return { ok: true, status: "ready", message };
+      return { ok: true, status: "ready", message, model: result.model || "" };
     }
-
-    const message = classifyExternalBridgeError(result?.error || `External/local voice bridge did not respond at ${externalVoiceBaseUrl}.`, externalVoiceBaseUrl);
-    setDiagnostics((prev) => ({ ...prev, ...current, externalBridgeConfigured: true, externalBridgeBaseUrl: externalVoiceBaseUrl, externalBridgeState: "degraded", externalBridgeMessage: message, externalBridgeModel: "", lastErrorCode: prev.lastErrorCode || "external-bridge-unreachable", lastErrorMessage: prev.lastErrorMessage || message }));
-    if (!silent) announce(message, "warn", true, "Voice bridge issue.");
+    const message = homieV77BridgeError(result?.error || result?.detail || "External/local voice bridge did not respond.", baseUrl);
+    setDiagnostics((prev) => ({ ...prev, ...current, externalBridgeConfigured: true, externalBridgeBaseUrl: baseUrl, externalBridgeState: "degraded", externalBridgeMessage: message, externalBridgeModel: "", lastErrorCode: "external-bridge-unreachable", lastErrorMessage: message, activeRecognitionMode: "idle" }));
+    if (!silent) announce(message, "warn", true, "Voice bridge not reachable.");
     return { ok: false, status: "degraded", message };
   }
 
-  async function refreshVoiceDiagnostics() {
+async function refreshVoiceDiagnostics() {
     const next = createBaseDiagnostics();
     next.externalBridgeConfigured = wantsExternalVoice();
     next.externalBridgeBaseUrl = externalVoiceBaseUrl;
     next.externalBridgeState = wantsExternalVoice() ? "configuring" : "disabled";
-    next.externalBridgeMessage = wantsExternalVoice() ? `Checking ${externalVoiceBaseUrl}…` : "External/local bridge is idle because Homie is set to cloud mode.";
+    next.externalBridgeMessage = wantsExternalVoice() ? `Checking ${externalVoiceBaseUrl}…` : "External/local bridge is idle because Homie is set to cloud mode. Click Use local bridge to use 127.0.0.1:8765.";
 
     try {
       if (navigator.permissions?.query) {
@@ -2161,60 +2403,51 @@ export default function HomieBuddy({
     return window.btoa(binary);
   }
 
+
   async function transcribeExternalBlob(blob: Blob, source = "homie") {
     if (blob.size < HOMIE_VOICE_MIN_AUDIO_BLOB_BYTES) {
-      const message = "That voice clip was too short to transcribe reliably. Hold the mic for a beat longer and try again.";
+      const message = "That voice clip was too short to transcribe reliably. Use Bridge say test, speak one clear full sentence, then click Stop listening.";
       setDiagnostics((prev) => ({ ...prev, externalBridgeState: "ready", externalBridgeMessage: message, lastErrorCode: "external-clip-too-short", lastErrorMessage: message, activeRecognitionMode: "idle" }));
       announce(message, "warn", true, "Voice clip too short.");
       return;
     }
-    if (!api.voiceBridgeTranscribe) {
-      const message = "External/local voice bridge transcription is only available in desktop mode.";
-      setDiagnostics((prev) => ({ ...prev, externalBridgeState: "unavailable", externalBridgeMessage: message, lastErrorCode: "external-bridge-unavailable", lastErrorMessage: message, activeRecognitionMode: "idle" }));
-      announce(message, "warn", true, "Voice bridge unavailable.");
-      return;
-    }
-
     try {
-      setDiagnostics((prev) => ({ ...prev, externalBridgeState: "transcribing", externalBridgeMessage: `Transcribing with ${externalVoiceBaseUrl}…`, activeRecognitionMode: "external" }));
+      const baseUrl = homieV77BridgeBaseUrl(externalVoiceBaseUrl || "http://127.0.0.1:8765");
+      setDiagnostics((prev) => ({ ...prev, externalBridgeState: "transcribing", externalBridgeMessage: "Transcribing with " + baseUrl + "…", activeRecognitionMode: "external" }));
       const audioBase64 = await blobToBase64(blob);
-      const result = await api.voiceBridgeTranscribe({ baseUrl: externalVoiceBaseUrl, timeoutMs: externalVoiceTimeoutMs, mimeType: blob.type || "audio/webm", audioBase64 });
-
+      let result: any = null;
+      try { if (api.voiceBridgeTranscribe) result = await api.voiceBridgeTranscribe({ baseUrl, timeoutMs: externalVoiceTimeoutMs, mimeType: blob.type || "audio/webm", audioBase64 }); }
+      catch (error: any) { result = { ok: false, error: String(error?.message || error || "Desktop bridge transcribe failed.") }; }
+      if (!result?.ok) result = await homieV77TranscribeBridge({ baseUrl, timeoutMs: externalVoiceTimeoutMs, mimeType: blob.type || "audio/webm", audioBase64 });
       if (!result?.ok || !result.text) {
-        const message = result?.error || "External/local voice bridge returned no transcript.";
+        const message = homieV77BridgeError(result?.error || result?.detail || "External/local voice bridge returned no transcript.", baseUrl);
         setDiagnostics((prev) => ({ ...prev, externalBridgeState: "degraded", externalBridgeMessage: message, lastErrorCode: "external-transcribe-failed", lastErrorMessage: message, activeRecognitionMode: "idle" }));
         announce(message, "warn", true, "Voice bridge transcription failed.");
         return;
       }
-
       const transcript = String(result.text || "").trim();
-      setDiagnostics((prev) => ({ ...prev, externalBridgeState: "ready", externalBridgeMessage: result.detail || `External/local voice bridge ready at ${externalVoiceBaseUrl}.`, externalBridgeModel: result.model || prev.externalBridgeModel, lastTranscript: transcript || prev.lastTranscript, lastErrorCode: "", lastErrorMessage: "", activeRecognitionMode: "idle" }));
-
-      if (!transcript) {
-        announce("The bridge heard audio but returned an empty transcript.", "warn", true, "No transcript returned.");
-        return;
-      }
-
-      emitVoiceStatus({ source, status: "transcript", message: `Heard: ${transcript}`, transcript, mode: "external" });
-      setStatus("Heard you. I’m answering.");
+      setDiagnostics((prev) => ({ ...prev, externalBridgeState: "ready", externalBridgeMessage: result.detail || "External/local voice bridge ready at " + baseUrl + ".", externalBridgeModel: result.model || prev.externalBridgeModel, lastTranscript: transcript || prev.lastTranscript, lastErrorCode: "", lastErrorMessage: "", activeRecognitionMode: "idle" }));
+      if (!transcript) { announce("The bridge heard audio but returned an empty transcript.", "warn", true, "No transcript returned."); return; }
+      emitVoiceStatus({ source, status: "transcript", message: "Heard: " + transcript, transcript, mode: "external" });
+      setStatus("Bridge heard: " + transcript + ". Answering now.");
       setMood("good");
       window.setTimeout(() => run(transcript), 90);
     } catch (error: any) {
       const code = String(error?.name || "external-transcribe-error");
-      const message = classifyExternalBridgeError(`${code}: ${String(error?.message || "External/local transcription failed.")}`, externalVoiceBaseUrl);
+      const message = homieV77BridgeError(code + ": " + String(error?.message || "External/local transcription failed."), externalVoiceBaseUrl);
       setDiagnostics((prev) => ({ ...prev, externalBridgeState: "degraded", externalBridgeMessage: message, lastErrorCode: code, lastErrorMessage: message, activeRecognitionMode: "idle" }));
       announce(message, "warn", true, "Voice bridge issue.");
     }
   }
 
-  async function startExternalVoice(pushToTalk = false, source = "homie") {
+async function startExternalVoice(pushToTalk = false, source = "homie") {
     try {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
     } catch {
       // ignore
     }
-    setStatus(pushToTalk ? "Hold to talk is live." : "I’m listening.");
+    setStatus(pushToTalk ? "Hold to talk is live — speak while holding." : "Listening — say one short sentence now.");
     setMood("good");
     const latest = await refreshVoiceDiagnostics();
     if (!navigator.mediaDevices?.getUserMedia) {
@@ -2226,9 +2459,9 @@ export default function HomieBuddy({
 
     const probe = await getExternalBridgeReadiness(false, latest);
     if (!probe.ok && strictLocalVoice) {
-      const message = `${probe.message} External/local mode is strict, so Homie will not fall back to cloud speech.`;
+      const message = `${probe.message} Start the local bridge BAT, keep that window open, then click Probe 8765. Or click Cloud mode if you want browser speech instead.`;
       setDiagnostics((prev) => ({ ...prev, lastErrorCode: "external-bridge-required", lastErrorMessage: message, activeRecognitionMode: "idle" }));
-      announce(message, "warn", true, "Voice bridge required.");
+      announce(message, "warn", true, "Voice bridge not reachable.");
       return;
     }
     if (!probe.ok && !strictLocalVoice) {
@@ -2379,7 +2612,7 @@ export default function HomieBuddy({
         setDiagnostics((prev) => ({ ...prev, phrasesSupported: prev.phrasesSupported || biased, phraseBiasMode: biased ? "supported" : prev.recognitionAvailable ? "optional" : "unsupported", activeRecognitionMode: "cloud" }));
         setStatus(pushToTalk ? "Hold to talk is live." : "I’m listening.");
         setMood("good");
-        emitVoiceStatus({ source, status: "started", message: pushToTalk ? "Hold to talk is live." : "Listening.", mode: "cloud" });
+        emitVoiceStatus({ source, status: "started", message: pushToTalk ? "Hold to talk is live — speak while holding." : "Listening — say one short sentence now.", mode: "cloud" });
       };
 
       rec.onresult = (event: any) => {
@@ -2419,6 +2652,7 @@ export default function HomieBuddy({
         setIsHoldingToTalk(false);
         setDiagnostics((prev) => ({ ...prev, activeRecognitionMode: "idle", lastErrorCode: code, lastErrorMessage: message }));
         emitVoiceStatus({ source, status: "error", message, errorCode: code, mode: "cloud" });
+        if (homieMicProofActiveRef.current) finishHomieMicProofWithoutTranscript(code);
         announce(message, "warn", true, "Voice recognition issue.");
       };
 
@@ -2427,6 +2661,7 @@ export default function HomieBuddy({
         setIsHoldingToTalk(false);
         setDiagnostics((prev) => ({ ...prev, activeRecognitionMode: "idle" }));
         emitVoiceStatus({ source, status: "ended", message: "Voice session ended.", mode: "cloud" });
+        if (homieMicProofActiveRef.current) finishHomieMicProofWithoutTranscript("speech-end");
       };
 
       rec.start();
@@ -2443,26 +2678,244 @@ export default function HomieBuddy({
   }
 
 
-  async function runHomieCameraPresenceCheck() {
-    setHomieCameraPresenceStatus("Checking camera permission. Camera opens only when clicked.");
+  // ===== v10.36.66b Homie Buddy true opt-in camera preview + honest visual signal =====
+  function stopHomieCameraPreview(silent = false) {
+    try {
+      if (homieCameraSampleTimerRef.current) {
+        window.clearInterval(homieCameraSampleTimerRef.current);
+        homieCameraSampleTimerRef.current = null;
+      }
+    } catch {
+      // ignore
+    }
+
+    try {
+      homieCameraStreamRef.current?.getTracks()?.forEach((track) => track.stop());
+    } catch {
+      // ignore
+    }
+
+    homieCameraStreamRef.current = null;
+    homieCameraLastBrightnessRef.current = null;
+
+    try {
+      if (homieCameraVideoRef.current) homieCameraVideoRef.current.srcObject = null;
+    } catch {
+      // ignore
+    }
+
+    setHomieCameraLive(false);
+    setHomieCameraSignal("Camera preview is off. Camera is visual only; Homie is not listening through it.");
+    setHomieCameraPresenceStatus("Camera is off. Camera is visual only; use mic buttons for hearing. No video is saved.");
+    if (!silent) announce("Camera preview is off.", "idle", true, "Camera preview off.");
+  }
+
+  function sampleHomieCameraFrame() {
+    const video = homieCameraVideoRef.current;
+    const canvas = homieCameraCanvasRef.current;
+    if (!video || !canvas || video.readyState < 2) return;
+
+    const width = 96;
+    const height = 54;
+    canvas.width = width;
+    canvas.height = height;
+
+    const ctx = canvas.getContext("2d") as CanvasRenderingContext2D | null;
+    if (!ctx) return;
+
+    try {
+      ctx.drawImage(video, 0, 0, width, height);
+      const pixels = ctx.getImageData(0, 0, width, height).data;
+      let total = 0;
+      for (let i = 0; i < pixels.length; i += 4) {
+        total += (pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3;
+      }
+      const brightness = Math.round(total / (pixels.length / 4));
+      const last = homieCameraLastBrightnessRef.current;
+      homieCameraLastBrightnessRef.current = brightness;
+      const delta = last == null ? 0 : Math.abs(brightness - last);
+
+      const lightLabel = brightness < 44 ? "dim room" : brightness > 170 ? "bright room" : "normal room light";
+      const motionLabel = delta > 18 ? "movement/light change detected" : delta > 8 ? "small visual change" : "steady frame";
+
+      setHomieCameraSignal(lightLabel + " • " + motionLabel + " • brightness " + brightness);
+      setHomieCameraPresenceStatus("Camera preview is live and local. Camera is visual only. Homie is only sampling simple brightness/motion signals: " + lightLabel + ", " + motionLabel + ". No video is saved.");
+    } catch {
+      setHomieCameraSignal("Camera frame could not be sampled. Preview may still be visible.");
+    }
+  }
+
+  async function startHomieCameraPreview() {
+    setHomieCameraPresenceStatus("Requesting camera permission. Camera opens only when clicked.");
+    setHomieCameraSignal("Requesting camera permission...");
     try {
       if (!navigator.mediaDevices?.getUserMedia) throw new Error("Camera access is unavailable in this runtime.");
+
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      homieCameraStreamRef.current = stream;
+      setHomieCameraLive(true);
+      setHomieCameraSignal("Camera preview starting. Homie will sample brightness/motion only.");
+      setHomieCameraPresenceStatus("Camera preview is live and local. Camera is visual only; Homie listens only through the mic buttons. No video is saved.");
+
+      window.setTimeout(() => {
+        const video = homieCameraVideoRef.current;
+        if (!video) return;
+        try {
+          video.srcObject = stream;
+          video.muted = true;
+          video.play?.().catch(() => undefined);
+        } catch {
+          // ignore
+        }
+
+        sampleHomieCameraFrame();
+        if (homieCameraSampleTimerRef.current) window.clearInterval(homieCameraSampleTimerRef.current);
+        homieCameraSampleTimerRef.current = window.setInterval(sampleHomieCameraFrame, 1200);
+      }, 80);
+
+      announce("Camera preview is live. I am only sampling brightness and motion. I am not listening through the camera or saving video.", "good", true, "Camera preview live. Mic is separate.");
+    } catch (error: any) {
+      const code = String(error?.name || error?.code || "camera-preview-failed");
+      const message = code + ": " + String(error?.message || "Camera preview failed or permission was blocked.");
+      setHomieCameraLive(false);
+      setHomieCameraSignal(message);
+      setHomieCameraPresenceStatus(message);
+      announce(message, "warn", true, "Camera preview needs permission.");
+    }
+  }
+
+  // ===== v10.36.68 Homie mic proof meter helpers =====
+  function stopHomieMicLevelProbe(silent = false) {
+    try {
+      if (homieMicProofRafRef.current) window.cancelAnimationFrame(homieMicProofRafRef.current);
+    } catch {
+      // ignore
+    }
+    try {
+      if (homieMicProofTimerRef.current) window.clearTimeout(homieMicProofTimerRef.current);
+    } catch {
+      // ignore
+    }
+    homieMicProofRafRef.current = null;
+    homieMicProofTimerRef.current = null;
+    try {
+      homieMicProofStreamRef.current?.getTracks()?.forEach((track) => track.stop());
+    } catch {
+      // ignore
+    }
+    homieMicProofStreamRef.current = null;
+    try {
+      void homieMicProofAudioCtxRef.current?.close?.();
+    } catch {
+      // ignore
+    }
+    homieMicProofAudioCtxRef.current = null;
+    setHomieMicLevel(0);
+    if (!silent) setHomieMicProofStatus("Mic proof stopped.");
+  }
+
+  function finishHomieMicProofWithoutTranscript(reason = "ended") {
+    if (!homieMicProofActiveRef.current) return;
+    const peak = homieMicProofPeakRef.current || 0;
+    homieMicProofActiveRef.current = false;
+    const pct = Math.round(Math.min(1, peak) * 100);
+    if (peak > 0.035) {
+      const message = "Mic level detected (" + pct + "% peak), but SpeechRecognition did not return words. Your input device is probably sending audio; the browser speech transcript path is the weak link. Try Say test again, speak one short sentence, or switch to the local voice bridge."; 
+      setHomieMicProofStatus(message);
+      setDiagnostics((prev) => ({ ...prev, lastErrorCode: "mic-audio-no-transcript", lastErrorMessage: message }));
+      announce(message, "warn", true, "Mic level detected, but no transcript returned.");
+    } else {
+      const message = "No useful mic level detected during the proof test. Check Windows input device, browser mic permission, and whether the right microphone is selected."; 
+      setHomieMicProofStatus(message);
+      setDiagnostics((prev) => ({ ...prev, lastErrorCode: "mic-level-too-low", lastErrorMessage: message }));
+      announce(message, "warn", true, "No useful mic level detected.");
+    }
+    stopHomieMicLevelProbe(true);
+  }
+
+  async function startHomieMicLevelProbe(durationMs = 6500) {
+    stopHomieMicLevelProbe(true);
+    homieMicProofPeakRef.current = 0;
+    setHomieMicLevel(0);
+    setHomieMicPeak(0);
+    setHomieMicProofStatus("Requesting mic signal. Speak after the browser starts listening.");
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      const message = "Mic level probe is unavailable because getUserMedia is missing in this runtime."; 
+      setHomieMicProofStatus(message);
+      throw new Error(message);
+    }
+
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    homieMicProofStreamRef.current = stream;
+    const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextCtor) {
+      const message = "AudioContext is unavailable, so Homie cannot meter mic level in this runtime."; 
+      setHomieMicProofStatus(message);
+      throw new Error(message);
+    }
+
+    const ctx = new AudioContextCtor();
+    homieMicProofAudioCtxRef.current = ctx;
+    if (ctx.state === "suspended") {
+      try { await ctx.resume(); } catch { /* ignore */ }
+    }
+    const sourceNode = ctx.createMediaStreamSource(stream);
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 1024;
+    sourceNode.connect(analyser);
+    const data = new Uint8Array(analyser.fftSize);
+
+    const tick = () => {
       try {
-        stream.getTracks().forEach((track) => track.stop());
+        analyser.getByteTimeDomainData(data);
+        let sum = 0;
+        for (let i = 0; i < data.length; i += 1) {
+          const v = (data[i] - 128) / 128;
+          sum += v * v;
+        }
+        const rms = Math.sqrt(sum / data.length);
+        const level = Math.min(1, rms * 5);
+        homieMicProofPeakRef.current = Math.max(homieMicProofPeakRef.current, level);
+        setHomieMicLevel(level);
+        setHomieMicPeak(homieMicProofPeakRef.current);
       } catch {
         // ignore
       }
-      const message = "Camera opens only when clicked. No video is analyzed or saved. Camera lane is available.";
-      setHomieCameraPresenceStatus(message);
-      announce(message, "good", true, "Camera lane is available. I only open it when clicked.");
+      homieMicProofRafRef.current = window.requestAnimationFrame(tick);
+    };
+    tick();
+
+    homieMicProofTimerRef.current = window.setTimeout(() => {
+      finishHomieMicProofWithoutTranscript("timeout");
+    }, durationMs);
+  }
+
+  async function runHomieMicProofTest() {
+    homieMicProofActiveRef.current = true;
+    setDiagnostics((prev) => ({ ...prev, lastTranscript: "", lastErrorCode: "", lastErrorMessage: "" }));
+    setStatus("Mic proof is listening — say: Homie can hear me.");
+    setHomieMicProofStatus("Starting mic proof. Say: Homie can hear me.");
+    try {
+      await startHomieMicLevelProbe(7600);
+      await startVoice(false, true, false, false, "mic-proof");
     } catch (error: any) {
-      const code = String(error?.name || error?.code || "camera-check-failed");
-      const message = code + ": " + String(error?.message || "Camera check failed or permission was blocked.");
-      setHomieCameraPresenceStatus(message);
-      announce(message, "warn", true, "Camera check needs permission.");
+      homieMicProofActiveRef.current = false;
+      stopHomieMicLevelProbe(true);
+      const message = String(error?.message || "Mic proof could not start.");
+      setHomieMicProofStatus(message);
+      announce(message, "warn", true, "Mic proof could not start.");
     }
   }
+  // ===== v10.36.68 Homie mic proof meter helpers END =====
+  async function runHomieCameraPresenceCheck() {
+    if (homieCameraLive) {
+      stopHomieCameraPreview(false);
+      return;
+    }
+    await startHomieCameraPreview();
+  }
+  // ===== v10.36.66b Homie Buddy true opt-in camera preview + honest visual signal END =====
 
   async function runMicTest() {
     setDiagnostics((prev) => ({ ...prev, micTest: "running", lastErrorCode: "", lastErrorMessage: "" }));
@@ -2472,7 +2925,7 @@ export default function HomieBuddy({
       stream.getTracks().forEach((track) => track.stop());
       const fresh = await refreshVoiceDiagnostics();
       setDiagnostics((prev) => ({ ...prev, ...fresh, micTest: "pass" }));
-      announce(`Mic test passed. ${fresh.audioInputCount || 1} audio input${fresh.audioInputCount === 1 ? "" : "s"} detected.`, "good", true, "Mic test passed.");
+      announce(`Mic permission passed. ${fresh.audioInputCount || 1} audio input${fresh.audioInputCount === 1 ? "" : "s"} detected. This proves permission, not transcript. Use Say test to prove Homie heard words.`, "good", true, "Mic permission passed. Use Say test to prove transcript.");
     } catch (error: any) {
       const code = String(error?.name || error?.code || "mic-test-failed");
       const message = `${code}: ${String(error?.message || "Microphone test failed.")}`;
@@ -2600,38 +3053,44 @@ export default function HomieBuddy({
     };
   }, []);
 
-  useEffect(() => () => stopVoice(true), []);
+  useEffect(() => () => {
+    stopVoice(true);
+    stopHomieCameraPreview(true);
+    stopHomieMicLevelProbe(true);
+  }, []);
 
-  const orbFallbackFace = (
-    <span className="homieOrbFace">
-      <span className="homieOrbBrow left" />
-      <span className="homieOrbBrow right" />
-      <span className="homieEye left" />
-      <span className="homieEye right" />
-      <span className="homieMouth" />
-      <span className="homieOrbCheek left" />
-      <span className="homieOrbCheek right" />
-    </span>
-  );
-
+  // ===== v10.36.63 Homie Buddy big full-body companion avatar =====
   const avatarContents = (
-    <span className="homieOrbCore">
-      <RiveHomie
-        enabled={riveEnabled}
-        src={riveSrc}
-        artboard={riveArtboard}
-        stateMachine={riveStateMachine}
-        pointerTracking={rivePointerTracking}
-        mood={mood}
-        isSpeaking={isSpeaking}
-        isListening={isListening}
-        gesture={gesture}
-        reduceMotion={reduceMotion}
-        fallback={orbFallbackFace}
-      />
-      <span className="homieOrbLabel">Homie</span>
+    <span className="homieFullBodyCore" data-homie-buddy-fullbody-avatar="v10.36.63" aria-label="Homie full-body companion avatar">
+      <span className="homieFullBodyHalo" />
+      <span className="homieFullBodyWing left" />
+      <span className="homieFullBodyWing right" />
+      <span className="homieFullBodyShadow" />
+      <span className="homieFullBodyLeg left"><span className="homieFullBodyFoot" /></span>
+      <span className="homieFullBodyLeg right"><span className="homieFullBodyFoot" /></span>
+      <span className="homieFullBodyArm left"><span className="homieFullBodyHand" /></span>
+      <span className="homieFullBodyArm right"><span className="homieFullBodyHand" /></span>
+      <span className="homieFullBodyTorso">
+        <span className="homieFullBodyChest" />
+        <span className="homieFullBodyCoreLight" />
+      </span>
+      <span className="homieFullBodyNeck" />
+      <span className="homieFullBodyHead">
+        <span className="homieFullBodyAntenna left"><span /></span>
+        <span className="homieFullBodyAntenna right"><span /></span>
+        <span className="homieFullBodyFacePlate" />
+        <span className="homieFullBodyBrow left" />
+        <span className="homieFullBodyBrow right" />
+        <span className="homieFullBodyEye left" />
+        <span className="homieFullBodyEye right" />
+        <span className="homieFullBodyCheek left" />
+        <span className="homieFullBodyCheek right" />
+        <span className="homieFullBodyMouth" />
+      </span>
+      <span className="homieFullBodyName">HOMIE</span>
     </span>
   );
+  // ===== v10.36.63 Homie Buddy big full-body companion avatar END =====
 
   const panel = (
     <div className={`homieBuddyPanel card softCard homieRebuildPanel ${presenceClass} ${mode === "standalone" ? "standalone" : ""}`}>
@@ -2715,7 +3174,7 @@ export default function HomieBuddy({
           <div className="homieRebuildSectionHead">
             <div>
               <div className="assistantSectionTitle">Talk with Homie</div>
-              <div className="small">Warm short replies first. Deeper support when you stay in the lane.</div>
+              <div className="small">Clear family/OS companion replies. Grounding only when you ask for it.</div>
             </div>
             <button
               className="tabBtn active"
@@ -2728,7 +3187,6 @@ export default function HomieBuddy({
               Check in
             </button>
           </div>
-
 
 <div className="homieCompanionMessages homieRebuildMessages">
             {companionMessages.length === 0 ? (
@@ -2794,7 +3252,7 @@ export default function HomieBuddy({
               </button>
               <button className="homieFamilyModeStep" onClick={() => runCompanionQuick("what can Homie help with for my family?")}>
                 <strong>2. What Homie can help with</strong>
-                <span>Check-ins, memory notes, legacy files, voice, and one small next move.</span>
+                <span>Explain, organize, remember, route panels, voice, legacy files, and one small next move.</span>
               </button>
               <button className="homieFamilyModeStep" onClick={() => runHomieLegacyFamilyFolderExport("quick", "Homie, build the family folder", true)}>
                 <strong>3. Build family folder</strong>
@@ -2802,13 +3260,12 @@ export default function HomieBuddy({
               </button>
               <button className="homieFamilyModeStep" onClick={() => { void startHomieFamilyTalkByMic(); }}>
                 <strong>4. Talk by mic</strong>
-                <span>Mic opens only when clicked. Camera stays separate and opt-in.</span>
+                <span>Mic listens only when clicked. Camera is visual only and separate.</span>
               </button>
             </div>
             <div className="small homieFamilyModeSoftLaunchNote">Mic and Camera are opt-in. Memory is local. Homie should explain what it knows, what it is guessing, and what needs confirmation.</div>
           </div>
           {/* v10.36.40f Homie family mode soft launch first-use flow END */}
-
 
           <div className="homieLegacyToolsSummaryLine">
             <strong>Legacy tools</strong>
@@ -3069,7 +3526,9 @@ export default function HomieBuddy({
           </div>
 
           <div className="assistantChipWrap">
-            <button className={`tabBtn ${voiceEnabled ? "active" : ""}`} onClick={() => { const next = !voiceEnabled; setVoiceEnabled(next); persistHomiePrefs({ homieVoiceEnabled: next } as any); announce(next ? "Voice is on." : "Voice is muted.", next ? "good" : "idle", true, next ? "Voice on." : "Voice off."); }}>{voiceEnabled ? "Voice on" : "Voice off"}</button>
+                        <button className={`tabBtn ${voiceEngineMode === "external-http" ? "active" : ""}`} data-homie-top-bridge-button="v10.36.70b" onClick={() => void activateHomieLocalBridgeNow()}>{voiceEngineMode === "external-http" ? "Bridge on" : "Use bridge"}</button>
+            <button className={`tabBtn ${voiceEngineMode === "external-http" ? "active" : ""}`} data-homie-v77-top-bridge="true" onClick={() => void homieV77UseLocalBridgeNow()}>{voiceEngineMode === "external-http" ? "Bridge on" : "Use bridge"}</button>
+<button className={`tabBtn ${voiceEnabled ? "active" : ""}`} onClick={() => { const next = !voiceEnabled; setVoiceEnabled(next); persistHomiePrefs({ homieVoiceEnabled: next } as any); announce(next ? "Voice is on." : "Voice is muted.", next ? "good" : "idle", true, next ? "Voice on." : "Voice off."); }}>{voiceEnabled ? "Voice on" : "Voice off"}</button>
             <button className="tabBtn" onClick={() => { if (isListening) stopVoice(); else void startVoice(false); }}>{isListening ? "Stop listening" : "Start listening"}</button>
             <button
               className={`tabBtn ${isHoldingToTalk ? "active" : ""}`}
@@ -3081,9 +3540,11 @@ export default function HomieBuddy({
             >
               {isHoldingToTalk ? "Release to stop" : "Hold to talk"}
             </button>
-            <button className="tabBtn" onClick={() => void runMicTest()}>Mic test</button>
+            <button className={"tabBtn " + (voiceEngineMode === "external-http" ? "active" : "")} data-homie-bridge-say-test="v10.36.73c" onClick={() => { voiceEngineMode === "external-http" ? void runHomieLocalBridgeSayTest() : void startVoice(false, true, false, false, "mic-proof"); }}>{voiceEngineMode === "external-http" ? "Bridge say test" : "Say test"}</button>
+            <button className="tabBtn" onClick={() => void runMicTest()}>Mic permission</button>
+            <button className="tabBtn active" onClick={() => { void runHomieMicProofTest(); }}>Say test</button>
             <button className="tabBtn" onClick={() => void runHomieRuntimeSelfCheck("quick")}>Self check</button>
-            <button className="tabBtn" onClick={() => void runHomieCameraPresenceCheck()}>Camera</button>
+            <button className={"tabBtn " + (homieCameraLive ? "active" : "")} onClick={() => void runHomieCameraPresenceCheck()}>{homieCameraLive ? "Stop camera" : "Start camera"}</button>
             <button className="tabBtn" onClick={() => { const digest = buildMorningDigest(); announce(digest, "good", true, trimForSpeech(digest)); }}>Read digest</button>
             {mode === "floating" && <button className="tabBtn" onClick={launchCompanion}>Pop out</button>}
           </div>
@@ -3091,9 +3552,55 @@ export default function HomieBuddy({
           <div className="homieRebuildVoiceMeta">
             <div className="small"><b>Voice engine:</b> {diagnostics.recognitionName} • {voiceModeLabel}</div>
             <div className="small"><b>Last transcript:</b> {diagnostics.lastTranscript || "—"}</div>
+            <div className="small" data-homie-mic-reality="v10.36.67"><b>Mic reality:</b> Camera is visual only. For hearing, click Say test and watch Last transcript.</div>
+            <div className="homieMicProofMeter" data-homie-mic-proof="v10.36.68">
+              <div className="homieMicProofMeterHead">
+                <span><b>Mic proof:</b> {homieMicProofStatus}</span>
+                <span>{Math.round(homieMicPeak * 100)}% peak</span>
+              </div>
+              <div className="homieMicLevelTrack" aria-label="Mic signal meter">
+                <span style={{ width: Math.max(4, Math.round(homieMicLevel * 100)) + "%" }} />
+              </div>
+              <div className="small">Permission means the browser may use the mic. Signal means audio moved. Transcript means Homie caught words. If words are wrong, use Correction or high-accuracy bridge.</div>
+            </div>
             <div className="small"><b>Bridge:</b> {diagnostics.externalBridgeState} • {diagnostics.externalBridgeBaseUrl}</div>
+            <div className="assistantChipWrap homieV77BridgeControls" data-homie-v77-bridge-controls="true">
+              <button className={`tabBtn ${voiceEngineMode === "external-http" ? "active" : ""}`} onClick={() => void homieV77UseLocalBridgeNow()}>Use local bridge + check</button>
+              <button className="tabBtn" onClick={() => void probeExternalVoice(false)}>Probe 8765</button>
+              <button className={`tabBtn ${voiceEngineMode === "cloud" ? "active" : ""}`} onClick={() => { persistHomiePrefs({ homieVoiceEngineMode: "cloud" } as any); announce("Cloud mode is on. Local bridge is idle.", "idle", true, "Cloud mode."); void refreshVoiceDiagnostics(); }}>Cloud mode</button>
+            </div>
+            <div className="small homieV77BridgeHelp">If Homie says bridge not reachable: run the voice bridge BAT in a separate PowerShell and keep it open.</div>
+            <div className="homieVisibleBridgeControls assistantChipWrap" data-homie-visible-bridge-controls="v10.36.70b">
+              <button className={`tabBtn ${voiceEngineMode === "external-http" ? "active" : ""}`} onClick={() => void activateHomieLocalBridgeNow()}>Use local bridge</button>
+              <button className="tabBtn" onClick={() => void probeExternalVoice(false)}>Probe 8765</button>
+              <button className={`tabBtn ${voiceEngineMode === "cloud" ? "active" : ""}`} onClick={() => { persistHomiePrefs({ homieVoiceEngineMode: "cloud" } as any); announce("Cloud voice mode is on. Local bridge is idle.", "idle", true, "Cloud voice mode."); void refreshVoiceDiagnostics(); }}>Cloud mode</button>
+            </div>
+            <div className="small homieBridgeInlineTip">Bridge tip: your 8765 bridge can be healthy while Homie still says disabled if Cloud voice is selected. Use local bridge flips the saved mode.</div>
             <div className="small"><b>Camera:</b> {homieCameraPresenceStatus}</div>
-            <div className="small"><b>Camera note:</b> Camera opens only when clicked. No video is analyzed or saved.</div>
+            <div className="small"><b>Camera note:</b> Camera is visual only. Use Start listening, Hold to talk, or Talk by mic for voice.</div>
+          </div>
+
+          <div className={"homieCameraPreviewCard " + (homieCameraLive ? "live" : "")} data-homie-buddy-camera-preview="v10.36.66b">
+            <div className="homieCameraPreviewHead">
+              <div>
+                <div className="assistantSectionTitle">Camera presence</div>
+                <div className="small">Opt-in visual preview. Local only. Mic is separate.</div>
+              </div>
+              <span className={"badge " + (homieCameraLive ? "good" : "")}>{homieCameraLive ? "Live" : "Off"}</span>
+            </div>
+            <div className="homieCameraPreviewStage">
+              {homieCameraLive ? (
+                <video ref={homieCameraVideoRef} className="homieCameraPreviewVideo" autoPlay muted playsInline />
+              ) : (
+                <div className="homieCameraPreviewEmpty">
+                  <span>Camera off</span>
+                  <small>Click Start camera for simple light/motion signals. Use Start listening or Talk by mic for hearing.</small>
+                </div>
+              )}
+              <canvas ref={homieCameraCanvasRef} className="homieCameraPreviewCanvas" aria-hidden="true" />
+            </div>
+            <div className="small"><b>Signal:</b> {homieCameraSignal}</div>
+            <div className="small homieCameraTruthNote">Truth note: Homie is not identifying people or objects here, and the camera does not listen. This lane only reports simple brightness/motion signals unless a future vision model is explicitly added.</div>
           </div>
 
           {diagnosticsVisible && (
@@ -3120,7 +3627,7 @@ export default function HomieBuddy({
 
   return (
     <div className={shellClass}>
-      {mode === "floating" && (
+      {mode === "floating" && !open && (
         <button className={`homieOrb homieRebuildLauncher ${presenceClass} ${avatarState}`} onClick={() => setOpen((value) => !value)} title="Homie">
           {avatarContents}
           <span className="homieOrbRing ringOne" />

@@ -37,6 +37,7 @@ const FamilyHealth = lazy(() => import("./panels/FamilyHealth"));
 const GroceryMeals = lazy(() => import("./panels/GroceryMeals"));
 const Security = lazy(() => import("./panels/Security"));
 const Homie = lazy(() => import("./panels/Homie"));
+const HomieCloneStudio = lazy(() => import("./panels/HomieCloneStudio"));
 const Cannabis = lazy(() => import("./panels/Cannabis"));
 const HappyHealthy = lazy(() => import("./panels/HappyHealthy"));
 const Entertainment = lazy(() => import("./panels/Entertainment"));
@@ -70,7 +71,8 @@ function renderPanel(id: string, setActive: (id: string) => void, activeId: stri
     case "Home": return <Home onNavigate={setActive} />;
     case "OddBrain": return <OddBrain onNavigate={setActive} />;
     case "Homie": return <Homie onNavigate={setActive} activePanelId={activeId} onOpenHowTo={openHowTo} />;
-    case "DevEngine": return <DevEngine onNavigate={setActive} onOpenHowTo={openHowTo} />;
+        case "HomieCloneStudio": return <HomieCloneStudio onNavigate={setActive} />;
+case "DevEngine": return <DevEngine onNavigate={setActive} onOpenHowTo={openHowTo} />;
     case "Autopilot": return <Autopilot projectDir={null} exportBase={null} />;
     case "Builder": return <Builder />;
     case "Plugins": return <Plugins onNavigate={setActive} />;

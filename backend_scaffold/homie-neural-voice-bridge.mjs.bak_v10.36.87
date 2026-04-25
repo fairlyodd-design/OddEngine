@@ -1,0 +1,394 @@
+#!/usr/bin/env node
+// OddEngine Homie Neural Voice Bridge v10.36.86
+// Start-design pass for a local "AI clone" voice lane.
+
+import http from "node:http";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const VERSION = "v10.36.86";
+const HOST = process.env.HOMIE_NEURAL_VOICE_HOST || "127.0.0.1";
+const PORT = Number(process.env.HOMIE_NEURAL_VOICE_PORT || 8776);
+const MAX_BODY_BYTES = Number(process.env.HOMIE_NEURAL_VOICE_MAX_BODY_BYTES || 4 * 1024 * 1024);
+const PROVIDER = String(process.env.HOMIE_NEURAL_TTS_PROVIDER || "custom-http");
+const PROVIDER_ENDPOINT = String(process.env.HOMIE_NEURAL_TTS_ENDPOINT || "").trim();
+const PROVIDER_API_KEY = String(process.env.HOMIE_NEURAL_TTS_API_KEY || "").trim();
+
+const bridgeDir = path.dirname(fileURLToPath(import.meta.url));
+const profilePath = path.join(bridgeDir, "homie_clone_profile.v1.json");
+const lastRequestPath = path.join(bridgeDir, "homie_neural_voice_last_request.json");
+
+function nowIso() { return new Date().toISOString(); }
+
+function sendJson(res, status, payload) {
+  const body = JSON.stringify(payload, null, 2);
+  res.writeHead(status, {
+    "Content-Type": "application/json; charset=utf-8",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    "Cache-Control": "no-store",
+  });
+  res.end(body);
+}
+
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    let size = 0;
+    const chunks = [];
+    req.on("data", (chunk) => {
+      size += chunk.length;
+      if (size > MAX_BODY_BYTES) {
+        reject(new Error(`Request too large. Max is ${MAX_BODY_BYTES} bytes.`));
+        req.destroy();
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
+    req.on("error", reject);
+  });
+}
+
+function writeJson(filePath, payload) { fs.writeFileSync(filePath, JSON.stringify(payload, null, 2), "utf8"); }
+function readJson(filePath, fallback) {
+  try {
+    if (!fs.existsSync(filePath)) return fallback;
+    return JSON.parse(fs.readFileSync(filePath, "utf8"));
+  } catch {
+    return fallback;
+  }
+}
+
+function defaultCloneProfile() {
+  return {
+    schema: "oddengine.homie.clone-profile.v1",
+    updatedAt: nowIso(),
+    identity: {
+      displayName: "Homie",
+      relation: "family companion",
+      mission: "Keep the room calm, useful, warm, and honest.",
+      nonGoals: [
+        "Do not claim first-hand observation without evidence.",
+        "Do not talk like a therapist by default.",
+        "Do not talk like a corporate assistant."
+      ]
+    },
+    voice: {
+      targetStyle: "warm-local-neural",
+      cadence: {
+        baseRate: 0.90,
+        warmRate: 0.88,
+        focusedRate: 0.89,
+        brightRate: 0.95,
+        concernedRate: 0.86,
+        pitch: 0.98
+      },
+      blend: {
+        warmth: 0.82,
+        calm: 0.88,
+        clarity: 0.86,
+        humor: 0.34,
+        directness: 0.76
+      },
+      phrases: {
+        openers: ["I’m here with you.", "Got you.", "Let’s keep it simple."],
+        closers: ["One next move at a time.", "We keep it calm and clean.", "Say the next thing naturally."],
+        avoid: ["short answer", "as an AI language model", "I noticed", "I checked that for you"]
+      }
+    },
+    cloneDesign: {
+      familyPriorities: ["body", "mind", "family", "next move"],
+      decisionStyle: "small clear next moves over big abstract speeches",
+      emotionalLane: "warm informational companion first; deeper support only when asked",
+      humorStyle: "light, real, not clownish",
+      signatureTone: "calm, grounded, loyal, practical, slightly playful",
+      legacyIntent: "Leave something loving, useful, and easy for family to open later."
+    },
+    providerMapping: {
+      endpoint: PROVIDER_ENDPOINT || "",
+      provider: PROVIDER,
+      expectedPayloadShape: {
+        text: "string",
+        emotion: "warm|focused|bright|concerned",
+        cadence: "object",
+        voiceProfile: "object"
+      }
+    }
+  };
+}
+
+function ensureCloneProfile() {
+  if (!fs.existsSync(profilePath)) writeJson(profilePath, defaultCloneProfile());
+}
+
+function sanitizeText(value) {
+  return String(value || "").replace(/\s+/g, " ").replace(/[“”]/g, '"').replace(/[’]/g, "'").trim();
+}
+
+function detectEmotion(text = "", requested = "") {
+  const explicit = String(requested || "").trim().toLowerCase();
+  if (explicit) return explicit;
+  const lower = sanitizeText(text).toLowerCase();
+  if (/\b(win|landed|good|beautiful|love that|nice|hell yeah|celebrate)\b/.test(lower)) return "bright";
+  if (/\b(focus|next move|step|build|render|mission|lane|plan)\b/.test(lower)) return "focused";
+  if (/\b(steady|smaller|slower|breathe|ground|carry|blocked|pain|careful|warn)\b/.test(lower)) return "concerned";
+  return "warm";
+}
+
+function detectGesture(text = "", requested = "") {
+  const explicit = String(requested || "").trim().toLowerCase();
+  if (explicit) return explicit;
+  const lower = sanitizeText(text).toLowerCase();
+  if (/\b(celebrate|spark|beautiful|love that)\b/.test(lower)) return "spark";
+  if (/\b(yes|got it|yep|okay|nod)\b/.test(lower)) return "nod";
+  if (/\b(hi|hello|hey|wave)\b/.test(lower)) return "wave";
+  if (/\b(wink)\b/.test(lower)) return "wink";
+  return "none";
+}
+
+function emotionCadence(profile, emotion) {
+  const cadence = profile?.voice?.cadence || {};
+  const baseRate = Number(cadence.baseRate || 0.90);
+  const pitch = Number(cadence.pitch || 0.98);
+  if (emotion === "bright") return { rate: Number(cadence.brightRate || 0.95), pitch: Math.min(1.04, pitch + 0.03), pauseMs: 110 };
+  if (emotion === "focused") return { rate: Number(cadence.focusedRate || 0.89), pitch: Math.max(0.92, pitch - 0.01), pauseMs: 125 };
+  if (emotion === "concerned") return { rate: Number(cadence.concernedRate || 0.86), pitch: Math.max(0.90, pitch - 0.04), pauseMs: 150 };
+  return { rate: Number(cadence.warmRate || baseRate), pitch, pauseMs: 130 };
+}
+
+function shapeCloneText(text, profile, emotion) {
+  const clean = sanitizeText(text);
+  if (!clean) return "I’m here with you.";
+  const openers = profile?.voice?.phrases?.openers || [];
+  const closers = profile?.voice?.phrases?.closers || [];
+  const useOpen = openers[0] || "I’m here with you.";
+  const useClose = closers[0] || "One next move at a time.";
+  let shaped = clean
+    .replace(/\bI heard:\s*/gi, "")
+    .replace(/\bCurrent lane:\s*/gi, "Right now, ")
+    .replace(/\bNext move:\s*/gi, "Next move, ")
+    .replace(/\s*—\s*/g, ". ")
+    .replace(/\s*\|\s*/g, ". ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const lower = shaped.toLowerCase();
+  const alreadyHasWarmOpen = /^(i’m here with you|got you|let’s keep it simple|okay|alright|right now)/i.test(shaped);
+  if (!alreadyHasWarmOpen && emotion !== "focused") shaped = `${useOpen} ${shaped}`;
+  if (!/[.!?]$/.test(shaped)) shaped += ".";
+  if (!lower.includes("next move") && shaped.length < 170) shaped += ` ${useClose}`;
+  return shaped.trim();
+}
+
+async function proxyNeuralSpeak(payload) {
+  if (!PROVIDER_ENDPOINT) {
+    return {
+      ok: false,
+      error: "Neural provider endpoint is not configured.",
+      detail: "Set HOMIE_NEURAL_TTS_ENDPOINT to proxy /speak to a local or trusted neural TTS service."
+    };
+  }
+  const headers = { "Content-Type": "application/json" };
+  if (PROVIDER_API_KEY) headers["Authorization"] = `Bearer ${PROVIDER_API_KEY}`;
+  try {
+    const res = await fetch(PROVIDER_ENDPOINT, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(payload)
+    });
+    const text = await res.text();
+    let parsed = null;
+    try { parsed = text ? JSON.parse(text) : null; } catch {}
+    if (!res.ok) return { ok: false, error: `Provider HTTP ${res.status}`, detail: text || res.statusText };
+    return parsed && typeof parsed === "object" ? { ok: true, providerResponse: parsed } : { ok: true, providerResponse: { raw: text } };
+  } catch (error) {
+    return { ok: false, error: String(error?.message || error), detail: "Provider proxy failed." };
+  }
+}
+
+function cloneProfileResponse(profile) {
+  return { ok: true, service: "homie-neural-voice-bridge", version: VERSION, profile };
+}
+
+ensureCloneProfile();
+
+const server = http.createServer(async (req, res) => {
+  const url = new URL(req.url || "/", `http://${HOST}:${PORT}`);
+  if (req.method === "OPTIONS") { sendJson(res, 200, { ok: true }); return; }
+
+  if (req.method === "GET" && (url.pathname === "/" || url.pathname === "/health")) {
+    const profile = readJson(profilePath, defaultCloneProfile());
+    sendJson(res, 200, {
+      ok: true,
+      service: "homie-neural-voice-bridge",
+      version: VERSION,
+      port: PORT,
+      provider: PROVIDER,
+      providerConfigured: !!PROVIDER_ENDPOINT,
+      cloneProfilePresent: fs.existsSync(profilePath),
+      profileName: profile?.identity?.displayName || "Homie",
+      endpoints: {
+        health: `http://${HOST}:${PORT}/health`,
+        doctor: `http://${HOST}:${PORT}/doctor`,
+        cloneProfile: `http://${HOST}:${PORT}/clone-profile`,
+        preview: `http://${HOST}:${PORT}/preview`,
+        speak: `http://${HOST}:${PORT}/speak`,
+        lastRequest: `http://${HOST}:${PORT}/last-request`
+      },
+      note: "Preview/clone shaping is always available. Neural audio proxy requires HOMIE_NEURAL_TTS_ENDPOINT."
+    });
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/doctor") {
+    const profile = readJson(profilePath, defaultCloneProfile());
+    sendJson(res, 200, {
+      ok: true,
+      service: "homie-neural-voice-bridge",
+      version: VERSION,
+      provider: PROVIDER,
+      providerConfigured: !!PROVIDER_ENDPOINT,
+      providerEndpoint: PROVIDER_ENDPOINT || "",
+      cloneProfilePresent: fs.existsSync(profilePath),
+      cloneProfileSchema: profile?.schema || "",
+      readyForPreview: true,
+      readyForNeuralAudio: !!PROVIDER_ENDPOINT,
+      honestStatus: PROVIDER_ENDPOINT
+        ? "Bridge can proxy clone-shaped requests to your configured neural voice provider."
+        : "Bridge is in design/preview mode. Clone profile shaping works, but neural audio is not configured yet."
+    });
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/clone-profile") {
+    sendJson(res, 200, cloneProfileResponse(readJson(profilePath, defaultCloneProfile())));
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/last-request") {
+    sendJson(res, 200, { ok: true, service: "homie-neural-voice-bridge", version: VERSION, lastRequest: readJson(lastRequestPath, null) });
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/clone-profile") {
+    let raw = "";
+    try { raw = await readBody(req); } catch (error) {
+      sendJson(res, 413, { ok: false, error: String(error?.message || error), service: "homie-neural-voice-bridge", version: VERSION });
+      return;
+    }
+    try {
+      const incoming = JSON.parse(raw || "{}");
+      const profile = { ...defaultCloneProfile(), ...incoming, updatedAt: nowIso() };
+      writeJson(profilePath, profile);
+      sendJson(res, 200, cloneProfileResponse(profile));
+      return;
+    } catch {
+      sendJson(res, 400, { ok: false, error: "Invalid JSON body.", service: "homie-neural-voice-bridge", version: VERSION });
+      return;
+    }
+  }
+
+  if (req.method === "POST" && (url.pathname === "/preview" || url.pathname === "/speak")) {
+    let raw = "";
+    try { raw = await readBody(req); } catch (error) {
+      sendJson(res, 413, { ok: false, error: String(error?.message || error), service: "homie-neural-voice-bridge", version: VERSION });
+      return;
+    }
+    let payload = {};
+    try { payload = JSON.parse(raw || "{}"); } catch {
+      sendJson(res, 400, { ok: false, error: "Invalid JSON body.", service: "homie-neural-voice-bridge", version: VERSION });
+      return;
+    }
+
+    const profile = payload.profile && typeof payload.profile === "object"
+      ? { ...readJson(profilePath, defaultCloneProfile()), ...payload.profile }
+      : readJson(profilePath, defaultCloneProfile());
+
+    const sourceText = sanitizeText(payload.text || "");
+    const emotion = detectEmotion(sourceText, payload.emotion);
+    const gesture = detectGesture(sourceText, payload.gesture);
+    const cadence = { ...emotionCadence(profile, emotion), ...(payload.cadence && typeof payload.cadence === "object" ? payload.cadence : {}) };
+    const shapedText = shapeCloneText(sourceText, profile, emotion);
+
+    const receipt = {
+      ts: nowIso(),
+      service: "homie-neural-voice-bridge",
+      version: VERSION,
+      mode: url.pathname === "/speak" ? "speak" : "preview",
+      provider: PROVIDER,
+      providerConfigured: !!PROVIDER_ENDPOINT,
+      emotion,
+      gesture,
+      cadence,
+      sourceText,
+      shapedText,
+      profileSummary: {
+        displayName: profile?.identity?.displayName || "Homie",
+        mission: profile?.identity?.mission || "",
+        tone: profile?.cloneDesign?.signatureTone || ""
+      }
+    };
+    writeJson(lastRequestPath, receipt);
+
+    if (url.pathname === "/preview") {
+      sendJson(res, 200, {
+        ok: true,
+        service: "homie-neural-voice-bridge",
+        version: VERSION,
+        preview: {
+          sourceText, shapedText, emotion, gesture, cadence,
+          profileName: profile?.identity?.displayName || "Homie",
+          providerConfigured: !!PROVIDER_ENDPOINT,
+          note: "Preview mode shapes clone tone and emotion without pretending to generate neural audio."
+        }
+      });
+      return;
+    }
+
+    const proxied = await proxyNeuralSpeak({ text: shapedText, emotion, gesture, cadence, voiceProfile: profile });
+    if (proxied.ok) {
+      sendJson(res, 200, {
+        ok: true,
+        service: "homie-neural-voice-bridge",
+        version: VERSION,
+        speak: {
+          sourceText, shapedText, emotion, gesture, cadence,
+          provider: PROVIDER,
+          providerConfigured: true,
+          providerResponse: proxied.providerResponse
+        }
+      });
+      return;
+    }
+
+    sendJson(res, 200, {
+      ok: false,
+      service: "homie-neural-voice-bridge",
+      version: VERSION,
+      error: proxied.error || "Neural speak failed.",
+      detail: proxied.detail || "",
+      fallbackPreview: { shapedText, emotion, gesture, cadence },
+      note: "Clone shaping worked, but neural audio is not configured yet. This is the honest design-start state."
+    });
+    return;
+  }
+
+  sendJson(res, 404, { ok: false, error: "Not found", service: "homie-neural-voice-bridge", version: VERSION });
+});
+
+server.listen(PORT, HOST, () => {
+  console.log("========================================");
+  console.log(`  Homie Neural Voice Bridge ${VERSION}`);
+  console.log("========================================");
+  console.log(`Health:       http://${HOST}:${PORT}/health`);
+  console.log(`Doctor:       http://${HOST}:${PORT}/doctor`);
+  console.log(`Clone profile http://${HOST}:${PORT}/clone-profile`);
+  console.log(`Preview:      http://${HOST}:${PORT}/preview`);
+  console.log(`Speak:        http://${HOST}:${PORT}/speak`);
+  console.log(`Last request: http://${HOST}:${PORT}/last-request`);
+  console.log(PROVIDER_ENDPOINT
+    ? `Provider:     ${PROVIDER} -> ${PROVIDER_ENDPOINT}`
+    : "Provider:     preview mode only (set HOMIE_NEURAL_TTS_ENDPOINT for neural audio proxy)");
+  console.log("Press Ctrl+C to stop.");
+});

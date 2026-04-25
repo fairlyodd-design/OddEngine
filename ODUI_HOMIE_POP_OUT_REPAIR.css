@@ -1,0 +1,177 @@
+/* ===== v10.37.3 Homie Pop-Out Ownership Repair =====
+   Repairs Homie buddy after OD UI rail containment passes.
+   Goal: keep Homie button/panel fixed-size and readable while preserving rail scroll lanes.
+*/
+
+/* The floating Homie dock must not be treated like rail/card content. */
+.homieRebuildDock,
+.layoutWide > .homieRebuildDock,
+body .homieRebuildDock {
+  position: fixed !important;
+  right: max(18px, env(safe-area-inset-right)) !important;
+  bottom: max(18px, env(safe-area-inset-bottom)) !important;
+  z-index: 2147483200 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-end !important;
+  justify-content: flex-end !important;
+  gap: 12px !important;
+  width: auto !important;
+  max-width: min(96vw, 690px) !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  contain: layout style !important;
+  pointer-events: none !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+}
+
+.homieRebuildDock > * {
+  pointer-events: auto !important;
+  min-width: 0 !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+}
+
+/* Launcher should always stay a round/touchable button, never a squeezed text column. */
+.homieRebuildLauncher,
+button.homieRebuildLauncher,
+.homieRebuildDock .homieRebuildLauncher {
+  position: relative !important;
+  flex: 0 0 90px !important;
+  width: 90px !important;
+  min-width: 90px !important;
+  max-width: 90px !important;
+  height: 90px !important;
+  min-height: 90px !important;
+  max-height: 90px !important;
+  aspect-ratio: 1 / 1 !important;
+  padding: 0 !important;
+  border-radius: 999px !important;
+  display: grid !important;
+  place-items: center !important;
+  overflow: hidden !important;
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  line-height: 1 !important;
+  letter-spacing: normal !important;
+  text-align: center !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  transform-origin: 50% 70% !important;
+}
+
+.homieRebuildLauncher *,
+.homieRebuildLauncher .homieOrbCore,
+.homieRebuildLauncher .homieOrbFace,
+.homieRebuildLauncher .homieEye,
+.homieRebuildLauncher .homieMouth {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  white-space: normal !important;
+}
+
+/* Open pop-out panel gets a real width, independent scroll, and safe bottom clearance. */
+.homieRebuildDock .homieRebuildPanel:not(.standalone) {
+  flex: 0 1 560px !important;
+  width: min(560px, calc(100vw - 132px)) !important;
+  min-width: min(360px, calc(100vw - 132px)) !important;
+  max-width: calc(100vw - 132px) !important;
+  max-height: calc(100vh - 44px) !important;
+  overflow: auto !important;
+  overflow-x: hidden !important;
+  overscroll-behavior: contain !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+}
+
+.homieRebuildPanel *,
+.homieRebuildPanel button,
+.homieRebuildPanel input,
+.homieRebuildPanel textarea,
+.homieRebuildPanel select {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+}
+
+.homieRebuildPanel button,
+.homieRebuildDock button {
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  min-width: max-content;
+}
+
+.homieRebuildHeaderActions,
+.homieRebuildPresence,
+.homiePresenceConsentRow,
+.homieRebuildQuickActions,
+.homieRebuildComposer,
+.homieRebuildSectionHead,
+.homieRebuildPanel .row,
+.homieRebuildPanel .cluster {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.homieRebuildHeaderActions,
+.homieRebuildPresence,
+.homiePresenceConsentRow,
+.homieRebuildQuickActions,
+.homieRebuildPanel .row,
+.homieRebuildPanel .cluster {
+  flex-wrap: wrap !important;
+}
+
+/* Keep global cell containment from crushing all buttons into columns. */
+button,
+.tabBtn,
+.btn,
+.pinBtn,
+.helpFab,
+.godBtn,
+.godMiniBtn {
+  writing-mode: horizontal-tb;
+  text-orientation: mixed;
+  word-break: normal;
+}
+
+/* Give the right rail enough footer space so the fixed Homie dock does not hide final actions. */
+.activityRail {
+  padding-bottom: 132px !important;
+}
+
+@media (max-width: 920px) {
+  .homieRebuildDock,
+  body .homieRebuildDock {
+    right: 12px !important;
+    bottom: 12px !important;
+    max-width: calc(100vw - 24px) !important;
+  }
+
+  .homieRebuildLauncher,
+  button.homieRebuildLauncher,
+  .homieRebuildDock .homieRebuildLauncher {
+    flex-basis: 76px !important;
+    width: 76px !important;
+    min-width: 76px !important;
+    max-width: 76px !important;
+    height: 76px !important;
+    min-height: 76px !important;
+    max-height: 76px !important;
+  }
+
+  .homieRebuildDock .homieRebuildPanel:not(.standalone) {
+    width: calc(100vw - 112px) !important;
+    min-width: 0 !important;
+    max-width: calc(100vw - 112px) !important;
+  }
+}
+/* ===== v10.37.3 Homie Pop-Out Ownership Repair END ===== */

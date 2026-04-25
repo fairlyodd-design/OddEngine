@@ -1,0 +1,17 @@
+{
+  "ts": "2026-04-22T12:48:05.553Z",
+  "version": "v10.36.45",
+  "stage": "transcribe",
+  "payload": {
+    "ok": false,
+    "error": "No speech transcript returned. Hold the mic for 2 seconds and speak clearly.",
+    "detail": "language=en; duration=6.0; beam=5; best_of=5; vad=False; temp=0.0",
+    "stderr": "",
+    "exitCode": 0,
+    "audioBytes": 97065,
+    "python": "py",
+    "installHint": "Run INSTALL_HOMIE_VOICE_STT_DEPS_v10.36.45.bat, then restart START_ODDENGINE_ALL_v10.36.45.bat. If it still fails, run RUN_v10.36.45_HOMIE_VOICE_TRANSCRIPTION_DOCTOR_CHECK.bat.",
+    "service": "homie-voice-bridge",
+    "version": "v10.36.45"
+  }
+}

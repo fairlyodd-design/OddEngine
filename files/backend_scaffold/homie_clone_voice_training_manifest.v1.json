@@ -1,0 +1,7 @@
+{
+  "schema": "oddengine.homie.clone-voice-training-manifest.v1",
+  "updatedAt": "replace-on-save",
+  "sourceDir": "backend_scaffold/homie_clone_voice_training_drop",
+  "consentNote": "Only include your own voice or voices from family members who explicitly agree.",
+  "samples": []
+}

@@ -1,0 +1,604 @@
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useRive,
+  useStateMachineInput,
+  Layout,
+  Fit,
+  Alignment,
+} from "@rive-app/react-webgl2";
+
+// v10.36.82 checker-safe marker: desktop canvas avatar fallback installed
+
+export type HomieMood = "idle" | "good" | "warn";
+export type HomieGesture = "none" | "wink" | "wave" | "nod" | "tilt" | "spark";
+
+export type RiveHomieProps = {
+  enabled: boolean;
+  src: string;
+  artboard?: string;
+  stateMachine: string;
+  pointerTracking: boolean;
+  mood: HomieMood;
+  isSpeaking: boolean;
+  isListening: boolean;
+  gesture: HomieGesture;
+  reduceMotion: boolean;
+  className?: string;
+  fallback: React.ReactNode;
+};
+
+function supportsHomieWebGL() {
+  try {
+    const canvas = document.createElement("canvas");
+    const attrs: any = { alpha: true, antialias: true, powerPreference: "high-performance" };
+    const gl2 = canvas.getContext("webgl2", attrs);
+    if (gl2) return true;
+    const gl =
+      canvas.getContext("webgl", attrs) ||
+      canvas.getContext("experimental-webgl", attrs);
+    return !!gl;
+  } catch {
+    return false;
+  }
+}
+
+type CanvasFallbackProps = {
+  mood: HomieMood;
+  isSpeaking: boolean;
+  isListening: boolean;
+  pointerTracking: boolean;
+  reduceMotion: boolean;
+  className?: string;
+  badge?: string;
+  fallback?: React.ReactNode;
+};
+
+function CanvasHomieFallback({
+  mood,
+  isSpeaking,
+  isListening,
+  pointerTracking,
+  reduceMotion,
+  className,
+  badge,
+  fallback,
+}: CanvasFallbackProps) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let raf = 0;
+    const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
+
+    const handlePointer = (e: PointerEvent) => {
+      if (!pointerTracking) return;
+      const rect = canvas.getBoundingClientRect();
+      const px = ((e.clientX - rect.left) / Math.max(1, rect.width)) * 2 - 1;
+      const py = ((e.clientY - rect.top) / Math.max(1, rect.height)) * 2 - 1;
+      pointer.tx = Math.max(-1, Math.min(1, px));
+      pointer.ty = Math.max(-1, Math.min(1, py));
+    };
+
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.max(320, Math.round(rect.width * dpr));
+      canvas.height = Math.max(320, Math.round(rect.height * dpr));
+    };
+
+    resize();
+    window.addEventListener("resize", resize);
+    window.addEventListener("pointermove", handlePointer, { passive: true });
+
+    const draw = (t: number) => {
+      if (!ctx) return;
+      const w = canvas.width;
+      const h = canvas.height;
+      const cx = w * 0.5;
+      const cy = h * 0.46;
+      const breath = reduceMotion ? 0 : Math.sin(t / 1300) * 4;
+      const speakPulse = isSpeaking ? 1 + (reduceMotion ? 0 : Math.sin(t / 120) * 0.08) : 1;
+      const listenPulse = isListening ? 1 + (reduceMotion ? 0 : Math.sin(t / 320) * 0.04) : 1;
+      const auraScale = mood === "warn" ? 1.03 : mood === "good" ? 1.06 : 1.0;
+      pointer.x += (pointer.tx - pointer.x) * 0.08;
+      pointer.y += (pointer.ty - pointer.y) * 0.08;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // background aura
+      const aura = ctx.createRadialGradient(cx, cy - 20, 10, cx, cy, Math.min(w, h) * 0.42);
+      if (mood === "warn") {
+        aura.addColorStop(0, "rgba(255,209,102,0.20)");
+        aura.addColorStop(0.55, "rgba(255,170,220,0.08)");
+        aura.addColorStop(1, "rgba(10,14,24,0)");
+      } else {
+        aura.addColorStop(0, "rgba(154,230,255,0.22)");
+        aura.addColorStop(0.55, "rgba(255,170,220,0.10)");
+        aura.addColorStop(1, "rgba(10,14,24,0)");
+      }
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(auraScale * listenPulse, auraScale * listenPulse);
+      ctx.translate(-cx, -cy);
+      ctx.fillStyle = aura;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, w * 0.28, h * 0.32, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // wings / side glow
+      ctx.fillStyle = "rgba(128,110,255,0.16)";
+      ctx.beginPath();
+      ctx.ellipse(cx - 78, cy + 40, 48, 24, -0.25, 0, Math.PI * 2);
+      ctx.ellipse(cx + 78, cy + 40, 48, 24, 0.25, 0, Math.PI * 2);
+      ctx.fill();
+
+      // body
+      ctx.save();
+      ctx.translate(0, breath);
+      ctx.fillStyle = "#070614";
+      ctx.beginPath();
+      ctx.moveTo(cx - 46, cy + 8);
+      ctx.quadraticCurveTo(cx - 58, cy + 120, cx - 40, cy + 174);
+      ctx.quadraticCurveTo(cx, cy + 198, cx + 40, cy + 174);
+      ctx.quadraticCurveTo(cx + 58, cy + 120, cx + 46, cy + 8);
+      ctx.closePath();
+      ctx.fill();
+
+      // head
+      ctx.fillStyle = "#6e67a4";
+      ctx.beginPath();
+      ctx.ellipse(cx, cy - 64, 52, 66, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // antennae
+      ctx.strokeStyle = "rgba(182,236,255,0.74)";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(cx - 26, cy - 122);
+      ctx.quadraticCurveTo(cx - 38, cy - 142, cx - 18, cy - 156);
+      ctx.moveTo(cx + 26, cy - 122);
+      ctx.quadraticCurveTo(cx + 38, cy - 142, cx + 18, cy - 156);
+      ctx.stroke();
+      ctx.fillStyle = "#ffd35d";
+      ctx.beginPath();
+      ctx.arc(cx - 18, cy - 156, 7, 0, Math.PI * 2);
+      ctx.arc(cx + 18, cy - 156, 7, 0, Math.PI * 2);
+      ctx.fill();
+
+      // eyes
+      const ex = pointerTracking ? pointer.x * 4 : 0;
+      const ey = pointerTracking ? pointer.y * 2 : 0;
+      ctx.fillStyle = "#1db6ff";
+      ctx.beginPath();
+      ctx.ellipse(cx - 24 + ex, cy - 72 + ey, 14, 18, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx + 24 + ex, cy - 72 + ey, 14, 18, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // cheeks
+      ctx.fillStyle = "rgba(255,170,220,0.18)";
+      ctx.beginPath();
+      ctx.arc(cx - 24, cy - 38, 10, 0, Math.PI * 2);
+      ctx.arc(cx + 24, cy - 38, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      // brow
+      ctx.strokeStyle = "rgba(230,236,255,0.82)";
+      ctx.lineWidth = 5;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(cx - 40, cy - 112);
+      ctx.lineTo(cx - 12, cy - 106);
+      ctx.moveTo(cx + 12, cy - 106);
+      ctx.lineTo(cx + 40, cy - 112);
+      ctx.stroke();
+
+      // mouth
+      ctx.strokeStyle = mood === "warn" ? "rgba(255,209,102,0.95)" : "rgba(34,34,52,0.92)";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      const mouthOpen = isSpeaking ? 10 * speakPulse : 4;
+      ctx.moveTo(cx - 12, cy - 22);
+      ctx.quadraticCurveTo(cx, cy - 8 + mouthOpen, cx + 12, cy - 22);
+      ctx.stroke();
+
+      // chest light
+      const chest = ctx.createRadialGradient(cx, cy + 50, 4, cx, cy + 50, 20);
+      chest.addColorStop(0, "rgba(255,242,190,0.98)");
+      chest.addColorStop(0.4, "rgba(255,213,93,0.92)");
+      chest.addColorStop(1, "rgba(255,213,93,0)");
+      ctx.fillStyle = chest;
+      ctx.beginPath();
+      ctx.arc(cx, cy + 50, 22, 0, Math.PI * 2);
+      ctx.fill();
+
+      // little spark lights
+      const spark = (x: number, y: number, r: number, color: string) => {
+        const g = ctx.createRadialGradient(x, y, 1, x, y, r);
+        g.addColorStop(0, color);
+        g.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+      };
+      spark(cx - 20, cy - 6, 8, "rgba(242,210,255,0.9)");
+      spark(cx, cy + 18, 8, "rgba(165,230,255,0.9)");
+      spark(cx + 28, cy - 58, 10, "rgba(255,255,255,0.9)");
+
+      ctx.restore();
+      raf = requestAnimationFrame(draw);
+    };
+
+    raf = requestAnimationFrame(draw);
+
+    return () => {
+      window.removeEventListener("resize", resize);
+      window.removeEventListener("pointermove", handlePointer as any);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [mood, isSpeaking, isListening, pointerTracking, reduceMotion]);
+
+  return (
+    <span className={`homieCanvasFallbackWrap ${className || ""}`.trim()}>
+      <span className="homieCanvasFallbackClip">
+        <canvas ref={canvasRef} className="homieCanvasFallbackCanvas" />
+      </span>
+      {badge ? <span className="homieCanvasFallbackBadge" title={badge}>{badge}</span> : null}
+      {!canvasRef.current && fallback ? <span className="homieCanvasFallbackNode">{fallback}</span> : null}
+    </span>
+  );
+}
+
+type HomieRiveBoundaryProps = {
+  fallback: React.ReactNode;
+  className?: string;
+  reason?: string;
+  children: React.ReactNode;
+  mood: HomieMood;
+  isSpeaking: boolean;
+  isListening: boolean;
+  pointerTracking: boolean;
+  reduceMotion: boolean;
+};
+
+type HomieRiveBoundaryState = { hasError: boolean };
+
+class HomieRiveBoundary extends React.Component<HomieRiveBoundaryProps, HomieRiveBoundaryState> {
+  constructor(props: HomieRiveBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch() {
+    // swallow and show canvas fallback instead of killing the panel
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <CanvasHomieFallback
+          mood={this.props.mood}
+          isSpeaking={this.props.isSpeaking}
+          isListening={this.props.isListening}
+          pointerTracking={this.props.pointerTracking}
+          reduceMotion={this.props.reduceMotion}
+          className={this.props.className}
+          badge="Canvas fallback"
+          fallback={this.props.fallback}
+        />
+      );
+    }
+    return this.props.children as any;
+  }
+}
+
+// Wrapper that preflights the src so the app never "blanks" if the .riv isn't there.
+export default function RiveHomie(props: RiveHomieProps) {
+  const {
+    enabled,
+    src,
+    artboard,
+    stateMachine,
+    pointerTracking,
+    mood,
+    isSpeaking,
+    isListening,
+    gesture,
+    reduceMotion,
+    className,
+    fallback,
+  } = props;
+
+  const [availability, setAvailability] = useState<"unknown" | "ok" | "missing">("unknown");
+  const [webglStatus, setWebglStatus] = useState<"unknown" | "ok" | "unsupported">("unknown");
+
+  useEffect(() => {
+    if (!enabled) return;
+    setWebglStatus(supportsHomieWebGL() ? "ok" : "unsupported");
+  }, [enabled]);
+
+  useEffect(() => {
+    if (!enabled) return;
+    let cancelled = false;
+    const ctrl = new AbortController();
+    const timeout = window.setTimeout(() => ctrl.abort(), 2500);
+
+    fetch(src, { method: "GET", signal: ctrl.signal, cache: "no-store" })
+      .then((r) => {
+        if (cancelled) return;
+        setAvailability(r.ok ? "ok" : "missing");
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setAvailability("missing");
+      })
+      .finally(() => {
+        window.clearTimeout(timeout);
+      });
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeout);
+      ctrl.abort();
+    };
+  }, [enabled, src]);
+
+  if (!enabled) return <>{fallback}</>;
+
+  if (webglStatus === "unsupported") {
+    return (
+      <CanvasHomieFallback
+        mood={mood}
+        isSpeaking={isSpeaking}
+        isListening={isListening}
+        pointerTracking={pointerTracking}
+        reduceMotion={reduceMotion}
+        className={className}
+        badge="Canvas fallback"
+        fallback={fallback}
+      />
+    );
+  }
+
+  if (availability === "missing") {
+    return (
+      <CanvasHomieFallback
+        mood={mood}
+        isSpeaking={isSpeaking}
+        isListening={isListening}
+        pointerTracking={pointerTracking}
+        reduceMotion={reduceMotion}
+        className={className}
+        badge="Rive missing"
+        fallback={fallback}
+      />
+    );
+  }
+
+  if (availability === "unknown" || webglStatus === "unknown") {
+    return (
+      <CanvasHomieFallback
+        mood={mood}
+        isSpeaking={isSpeaking}
+        isListening={isListening}
+        pointerTracking={pointerTracking}
+        reduceMotion={reduceMotion}
+        className={className}
+        badge="Loading avatar"
+        fallback={fallback}
+      />
+    );
+  }
+
+  return (
+    <HomieRiveBoundary
+      fallback={fallback}
+      className={className}
+      reason="Rive WebGL runtime failed in desktop mode."
+      mood={mood}
+      isSpeaking={isSpeaking}
+      isListening={isListening}
+      pointerTracking={pointerTracking}
+      reduceMotion={reduceMotion}
+    >
+      <RiveHomieInner
+        src={src}
+        artboard={artboard}
+        stateMachine={stateMachine}
+        pointerTracking={pointerTracking}
+        mood={mood}
+        isSpeaking={isSpeaking}
+        isListening={isListening}
+        gesture={gesture}
+        reduceMotion={reduceMotion}
+        className={className}
+      />
+    </HomieRiveBoundary>
+  );
+}
+
+function RiveHomieInner({
+  src,
+  artboard,
+  stateMachine,
+  pointerTracking,
+  mood,
+  isSpeaking,
+  isListening,
+  gesture,
+  reduceMotion,
+  className,
+}: Omit<RiveHomieProps, "enabled" | "fallback">) {
+  const layout = useMemo(
+    () => new Layout({ fit: Fit.Contain, alignment: Alignment.Center }),
+    []
+  );
+
+  const { rive, RiveComponent } = useRive({
+    src,
+    artboard: artboard || undefined,
+    stateMachines: stateMachine,
+    autoplay: !reduceMotion,
+    layout,
+  });
+
+  const talkA = useStateMachineInput(rive, stateMachine, "isTalking");
+  const talkB = useStateMachineInput(rive, stateMachine, "talking");
+  const talkC = useStateMachineInput(rive, stateMachine, "isSpeaking");
+  const talkD = useStateMachineInput(rive, stateMachine, "speaking");
+
+  const listenA = useStateMachineInput(rive, stateMachine, "isListening");
+  const listenB = useStateMachineInput(rive, stateMachine, "listening");
+  const listenC = useStateMachineInput(rive, stateMachine, "listen");
+
+  const moodA = useStateMachineInput(rive, stateMachine, "mood");
+  const moodB = useStateMachineInput(rive, stateMachine, "Mood");
+  const alertA = useStateMachineInput(rive, stateMachine, "alert");
+
+  const lookXA = useStateMachineInput(rive, stateMachine, "lookX");
+  const lookXB = useStateMachineInput(rive, stateMachine, "Axis_X");
+  const lookXC = useStateMachineInput(rive, stateMachine, "pointerX");
+
+  const lookYA = useStateMachineInput(rive, stateMachine, "lookY");
+  const lookYB = useStateMachineInput(rive, stateMachine, "Axis_Y");
+  const lookYC = useStateMachineInput(rive, stateMachine, "pointerY");
+
+  const talkLevelA = useStateMachineInput(rive, stateMachine, "talk");
+  const talkLevelB = useStateMachineInput(rive, stateMachine, "mouth");
+  const talkLevelC = useStateMachineInput(rive, stateMachine, "mouthOpen");
+
+  const trigWaveA = useStateMachineInput(rive, stateMachine, "wave");
+  const trigWaveB = useStateMachineInput(rive, stateMachine, "triggerWave");
+  const trigWinkA = useStateMachineInput(rive, stateMachine, "wink");
+  const trigWinkB = useStateMachineInput(rive, stateMachine, "triggerWink");
+  const trigCelebrateA = useStateMachineInput(rive, stateMachine, "celebrate");
+  const trigCelebrateB = useStateMachineInput(rive, stateMachine, "spark");
+
+  const talkInput: any = talkA || talkB || talkC || talkD;
+  const listenInput: any = listenA || listenB || listenC;
+  const moodInput: any = moodA || moodB || alertA;
+  const lookXInput: any = lookXA || lookXB || lookXC;
+  const lookYInput: any = lookYA || lookYB || lookYC;
+  const talkLevelInput: any = talkLevelA || talkLevelB || talkLevelC;
+
+  const waveTrigger: any = trigWaveA || trigWaveB;
+  const winkTrigger: any = trigWinkA || trigWinkB;
+  const celebrateTrigger: any = trigCelebrateA || trigCelebrateB;
+
+  useEffect(() => {
+    if (talkInput) talkInput.value = !!isSpeaking;
+    if (listenInput) listenInput.value = !!isListening;
+
+    if (moodInput) {
+      moodInput.value = mood === "warn" ? 2 : mood === "good" ? 1 : 0;
+    }
+
+    if (rive) {
+      try {
+        if (reduceMotion) rive.pause();
+        else rive.play();
+      } catch {
+        // ignore
+      }
+    }
+  }, [talkInput, listenInput, moodInput, isSpeaking, isListening, mood, rive, reduceMotion]);
+
+  // Smoothed pointer tracking.
+  useEffect(() => {
+    if (!pointerTracking) return;
+    if (!lookXInput && !lookYInput) return;
+
+    let raf = 0;
+    const target = { x: 50, y: 50 };
+    const current = { x: 50, y: 50 };
+
+    const handle = (e: PointerEvent) => {
+      const w = window.innerWidth || 1;
+      const h = window.innerHeight || 1;
+      target.x = Math.max(0, Math.min(100, (e.clientX / w) * 100));
+      target.y = Math.max(0, Math.min(100, 100 - (e.clientY / h) * 100));
+    };
+
+    const tick = () => {
+      current.x += (target.x - current.x) * 0.1;
+      current.y += (target.y - current.y) * 0.1;
+      if (lookXInput) lookXInput.value = current.x;
+      if (lookYInput) lookYInput.value = current.y;
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    window.addEventListener("pointermove", handle, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", handle as any);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [pointerTracking, lookXInput, lookYInput]);
+
+  const rafRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (!talkLevelInput) return;
+    if (!isSpeaking || reduceMotion) {
+      talkLevelInput.value = 0;
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+      return;
+    }
+
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = (now - start) / 1000;
+      const pulseA = Math.abs(Math.sin(t * 6.2));
+      const pulseB = Math.abs(Math.sin(t * 9.1 + 0.7));
+      const pulse = Math.min(1, 0.14 + pulseA * 0.5 + pulseB * 0.24);
+      try {
+        talkLevelInput.value = pulse;
+      } catch {
+        // ignore
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    };
+  }, [talkLevelInput, isSpeaking, reduceMotion]);
+
+  const lastGestureRef = useRef<HomieGesture>("none");
+  useEffect(() => {
+    if (!gesture || gesture === "none") {
+      lastGestureRef.current = "none";
+      return;
+    }
+    if (gesture === lastGestureRef.current) return;
+    lastGestureRef.current = gesture;
+
+    try {
+      if (gesture === "wave" && waveTrigger?.fire) waveTrigger.fire();
+      if (gesture === "wink" && winkTrigger?.fire) winkTrigger.fire();
+      if (gesture === "spark" && celebrateTrigger?.fire) celebrateTrigger.fire();
+    } catch {
+      // ignore
+    }
+  }, [gesture, waveTrigger, winkTrigger, celebrateTrigger]);
+
+  return (
+    <span className={`homieRiveWrap ${className || ""}`.trim()}>
+      <span className="homieRiveClip">
+        <RiveComponent className="homieRiveCanvas" />
+      </span>
+    </span>
+  );
+}

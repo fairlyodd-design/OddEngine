@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Homie Clone Profile Editor v10.36.88</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{color-scheme:dark;--bg:#0a0f1b;--panel:#101827;--panel2:#111d31;--line:rgba(154,230,255,.18);--text:#eef6ff;--muted:#9eb4cc;--good:#7ee7b7;--warn:#ffd479}
+    *{box-sizing:border-box}
+    body{margin:0;font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:
+      radial-gradient(800px 400px at 50% 0%, rgba(154,230,255,.08), rgba(154,230,255,0) 70%),
+      radial-gradient(700px 400px at 50% 100%, rgba(255,182,223,.06), rgba(255,182,223,0) 70%),var(--bg);color:var(--text)}
+    .wrap{max-width:1200px;margin:0 auto;padding:20px}
+    h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin-bottom:16px}
+    .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 16px;padding:12px;border:1px solid var(--line);background:rgba(16,24,39,.78);border-radius:16px;position:sticky;top:0;backdrop-filter:blur(10px);z-index:10}
+    button{border:1px solid var(--line);background:rgba(154,230,255,.08);color:var(--text);border-radius:12px;padding:10px 14px;font:inherit;cursor:pointer}
+    button:hover{background:rgba(154,230,255,.14)}
+    .pill{padding:6px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+    .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}
+    .card{background:linear-gradient(180deg, rgba(17,29,49,.86), rgba(16,24,39,.88));border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 18px 36px rgba(0,0,0,.22)}
+    .card h2{margin:0 0 10px;font-size:18px}
+    label{display:block;margin:12px 0 6px;color:var(--muted)}
+    input, textarea{width:100%;background:rgba(5,10,20,.6);color:var(--text);border:1px solid rgba(154,230,255,.16);border-radius:12px;padding:10px 12px;font:inherit}
+    textarea{min-height:92px;resize:vertical}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.small{font-size:12px;color:var(--muted)}.status{margin-left:auto;color:var(--muted)}.good{color:var(--good)}.warn{color:var(--warn)}
+    .listbox{background:rgba(5,10,20,.45);border:1px solid rgba(154,230,255,.14);border-radius:14px;padding:12px;min-height:120px}
+    .note{padding:10px 12px;border-radius:12px;background:rgba(255,212,121,.08);border:1px solid rgba(255,212,121,.16);color:#ffe6b3}
+    .mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+    @media (max-width: 980px){ .grid{grid-template-columns:1fr} .status{width:100%;margin-left:0} }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Homie Clone Profile Editor</h1>
+  <div class="sub">Shape Homie to feel more like you. Honest design only: profile, family phrases, memory, and training workflow — not fake identity claims.</div>
+  <div class="bar">
+    <button id="loadBtn">Load from bridge</button>
+    <button id="saveBtn">Save profile</button>
+    <button id="savePhrasesBtn">Save family phrases</button>
+    <button id="previewBtn">Run preview</button>
+    <button id="manifestBtn">Generate training manifest</button>
+    <span class="pill mono">http://127.0.0.1:8776</span>
+    <span id="status" class="status">Idle.</span>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h2>Clone identity + tone</h2>
+      <div class="two"><div><label>Display name</label><input id="displayName" /></div><div><label>Relation</label><input id="relation" /></div></div>
+      <label>Mission</label><textarea id="mission"></textarea>
+      <label>Signature tone</label><textarea id="signatureTone"></textarea>
+      <label>User likeness notes (one per line)</label><textarea id="likeness"></textarea>
+      <label>Family priorities (comma separated)</label><input id="priorities" />
+      <label>Emotional lane</label><textarea id="emotionalLane"></textarea>
+      <label>Humor style</label><input id="humorStyle" />
+      <div class="two"><div><label>Warm rate</label><input id="warmRate" /></div><div><label>Focused rate</label><input id="focusedRate" /></div></div>
+      <div class="two"><div><label>Bright rate</label><input id="brightRate" /></div><div><label>Concerned rate</label><input id="concernedRate" /></div></div>
+      <label>Openers (one per line)</label><textarea id="openers"></textarea>
+      <label>Closers (one per line)</label><textarea id="closers"></textarea>
+      <label>Avoid phrases (one per line)</label><textarea id="avoid"></textarea>
+    </div>
+
+    <div class="card">
+      <h2>Family phrases + workflow</h2>
+      <div class="note">Only train your own voice or family voices with clear permission. This workflow is for memory, tone, and consent-first family legacy shaping.</div>
+      <label>Family phrases JSON</label><textarea id="phrasesJson" style="min-height:220px"></textarea>
+      <div class="small">Format: [{"text":"...","lane":"family","notes":"..."}]</div>
+      <label>Preview text</label><textarea id="previewText">Open Render Lab and tell me the next move for the family-safe workflow.</textarea>
+      <div class="two">
+        <div class="listbox"><strong>Bridge summary</strong><pre id="bridgeSummary" class="small" style="margin-top:10px;white-space:pre-wrap"></pre></div>
+        <div class="listbox"><strong>Training workflow</strong><pre id="trainingSummary" class="small" style="margin-top:10px;white-space:pre-wrap"></pre></div>
+      </div>
+      <label>Preview result</label><textarea id="previewResult" style="min-height:200px"></textarea>
+    </div>
+  </div>
+</div>
+<script>
+const base = "http://127.0.0.1:8776";
+const $ = (id) => document.getElementById(id);
+const setStatus = (msg, cls="") => { const el = $("status"); el.textContent = msg; el.className = "status " + cls; };
+function linesToArray(value){ return String(value || "").split(/\r?\n/).map(x => x.trim()).filter(Boolean); }
+function safeNumber(v, fallback){ const n = Number(v); return Number.isFinite(n) ? n : fallback; }
+async function getJson(path){ const res = await fetch(base + path); if (!res.ok) throw new Error(path + " -> HTTP " + res.status); return await res.json(); }
+async function postJson(path, body){ const res = await fetch(base + path, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) }); if (!res.ok) throw new Error(path + " -> HTTP " + res.status); return await res.json(); }
+async function loadAll(){
+  setStatus("Loading…");
+  const [health, profileRes, phrasesRes, trainingRes] = await Promise.all([getJson("/health"), getJson("/clone-profile"), getJson("/family-phrases"), getJson("/training-workflow")]);
+  const p = profileRes.profile || {};
+  $("displayName").value = p.identity?.displayName || "";
+  $("relation").value = p.identity?.relation || "";
+  $("mission").value = p.identity?.mission || "";
+  $("signatureTone").value = p.cloneDesign?.signatureTone || "";
+  $("likeness").value = (p.cloneDesign?.userLikenessNotes || []).join("\n");
+  $("priorities").value = (p.cloneDesign?.familyPriorities || []).join(", ");
+  $("emotionalLane").value = p.cloneDesign?.emotionalLane || "";
+  $("humorStyle").value = p.cloneDesign?.humorStyle || "";
+  $("warmRate").value = String(p.voice?.cadence?.warmRate ?? "");
+  $("focusedRate").value = String(p.voice?.cadence?.focusedRate ?? "");
+  $("brightRate").value = String(p.voice?.cadence?.brightRate ?? "");
+  $("concernedRate").value = String(p.voice?.cadence?.concernedRate ?? "");
+  $("openers").value = (p.voice?.phrases?.openers || []).join("\n");
+  $("closers").value = (p.voice?.phrases?.closers || []).join("\n");
+  $("avoid").value = (p.voice?.phrases?.avoid || []).join("\n");
+  $("phrasesJson").value = JSON.stringify((phrasesRes.familyPhrases?.phrases || []), null, 2);
+  $("bridgeSummary").textContent = JSON.stringify({providerConfigured: health.providerConfigured,memoryCount: health.memoryCount,phraseCount: health.phraseCount,trainingSampleCount: health.trainingSampleCount,profileName: health.profileName}, null, 2);
+  $("trainingSummary").textContent = JSON.stringify(trainingRes.trainingWorkflow || {}, null, 2);
+  setStatus("Loaded.", "good");
+}
+async function saveProfile(){
+  setStatus("Saving profile…");
+  const body = {
+    identity: { displayName: $("displayName").value.trim(), relation: $("relation").value.trim(), mission: $("mission").value.trim() },
+    cloneDesign: {
+      signatureTone: $("signatureTone").value.trim(),
+      userLikenessNotes: linesToArray($("likeness").value),
+      familyPriorities: $("priorities").value.split(",").map(x => x.trim()).filter(Boolean),
+      emotionalLane: $("emotionalLane").value.trim(),
+      humorStyle: $("humorStyle").value.trim()
+    },
+    voice: {
+      cadence: {
+        warmRate: safeNumber($("warmRate").value, 0.88),
+        focusedRate: safeNumber($("focusedRate").value, 0.89),
+        brightRate: safeNumber($("brightRate").value, 0.95),
+        concernedRate: safeNumber($("concernedRate").value, 0.86)
+      },
+      phrases: { openers: linesToArray($("openers").value), closers: linesToArray($("closers").value), avoid: linesToArray($("avoid").value) }
+    }
+  };
+  await postJson("/clone-profile", body);
+  setStatus("Profile saved.", "good");
+}
+async function savePhrases(){
+  setStatus("Saving family phrases…");
+  const phrases = JSON.parse($("phrasesJson").value || "[]");
+  await postJson("/family-phrases", { phrases });
+  setStatus("Family phrases saved.", "good");
+}
+async function preview(){
+  setStatus("Running preview…");
+  const result = await postJson("/preview", { text: $("previewText").value });
+  $("previewResult").value = JSON.stringify(result, null, 2);
+  setStatus("Preview ready.", "good");
+}
+async function manifest(){
+  setStatus("Generating training manifest…");
+  const result = await postJson("/generate-training-manifest", {});
+  $("trainingSummary").textContent = JSON.stringify(result.trainingManifest || result, null, 2);
+  setStatus("Training manifest generated.", "good");
+}
+$("loadBtn").addEventListener("click", () => loadAll().catch(err => setStatus(String(err), "warn")));
+$("saveBtn").addEventListener("click", () => saveProfile().catch(err => setStatus(String(err), "warn")));
+$("savePhrasesBtn").addEventListener("click", () => savePhrases().catch(err => setStatus(String(err), "warn")));
+$("previewBtn").addEventListener("click", () => preview().catch(err => setStatus(String(err), "warn")));
+$("manifestBtn").addEventListener("click", () => manifest().catch(err => setStatus(String(err), "warn")));
+loadAll().catch(err => setStatus(String(err), "warn"));
+</script>
+</body>
+</html>

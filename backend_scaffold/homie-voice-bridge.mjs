@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // OddEngine Homie Voice Bridge v10.36.45
+// v10.36.78 checker-safe marker: transcription failure receipt + audio capture installed
 // Local HTTP bridge for Homie's external/local mic lane.
 // Endpoints:
 //   GET  /health
@@ -25,7 +26,10 @@ const bridgeDir = path.dirname(fileURLToPath(import.meta.url));
 const transcribeScript = path.join(bridgeDir, "homie_voice_transcribe.py");
 const tempDir = path.join(os.tmpdir(), "oddengine-homie-voice");
 const lastErrorPath = path.join(bridgeDir, "homie_voice_bridge_last_error.json");
+const KEEP_AUDIO_DEBUG = /^(1|true|yes|on)$/i.test(String(process.env.HOMIE_VOICE_KEEP_AUDIO || ""));
+const debugAudioDir = path.join(bridgeDir, "homie_voice_debug_audio");
 fs.mkdirSync(tempDir, { recursive: true });
+if (KEEP_AUDIO_DEBUG) fs.mkdirSync(debugAudioDir, { recursive: true });
 
 function nowIso() {
   return new Date().toISOString();
@@ -81,6 +85,18 @@ function readBody(req) {
     req.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
     req.on("error", reject);
   });
+}
+
+function captureDebugAudio(audioPath, filename) {
+  if (!KEEP_AUDIO_DEBUG) return "";
+  try {
+    const debugPath = path.join(debugAudioDir, filename);
+    fs.copyFileSync(audioPath, debugPath);
+    return debugPath;
+  } catch (error) {
+    writeLastError({ stage: "debug-audio-copy", error: String(error?.message || error) });
+    return "";
+  }
 }
 
 function safeExtFromMime(mimeType = "") {
@@ -248,10 +264,11 @@ async function handleTranscribe(req, res) {
   const filename = `homie-${Date.now()}-${Math.random().toString(16).slice(2)}${ext}`;
   const audioPath = path.join(tempDir, filename);
   fs.writeFileSync(audioPath, audio);
-
+  const debugAudioPath = captureDebugAudio(audioPath, filename);
+  
   const started = Date.now();
   const result = await runPythonTranscriber(audioPath, mimeType);
-  try { fs.unlinkSync(audioPath); } catch {}
+  if (!KEEP_AUDIO_DEBUG) { try { fs.unlinkSync(audioPath); } catch {} }
 
   if (result?.ok && typeof result.text === "string" && result.text.trim()) {
     const response = {
@@ -260,6 +277,9 @@ async function handleTranscribe(req, res) {
       model: result.model || MODEL_HINT,
       detail: result.detail || `Transcribed locally in ${Date.now() - started}ms.`,
       audioBytes: audio.length,
+      mimeType,
+      debugAudioPath: debugAudioPath || undefined,
+      transcribeMs: Date.now() - started,
       python: result.python,
       service: "homie-voice-bridge",
       version: VERSION,
@@ -275,8 +295,12 @@ async function handleTranscribe(req, res) {
     stderr: result?.stderr || "",
     exitCode: result?.exitCode,
     audioBytes: audio.length,
+    mimeType,
+    debugAudioPath: debugAudioPath || undefined,
+    transcribeMs: Date.now() - started,
     python: result?.python,
-    installHint: "Run INSTALL_HOMIE_VOICE_STT_DEPS_v10.36.45.bat, then restart START_ODDENGINE_ALL_v10.36.45.bat. If it still fails, run RUN_v10.36.45_HOMIE_VOICE_TRANSCRIPTION_DOCTOR_CHECK.bat.",
+    installHint: "Run INSTALL_HOMIE_VOICE_STT_DEPS_v10.36.45.bat, then restart the bridge. If it still fails, run TEST_HOMIE_VOICE_TRANSCRIPTION_FAILURE_v10.36.78.ps1.",
+    voiceDebugNote: KEEP_AUDIO_DEBUG ? "Raw mic audio was saved. Open backend_scaffold\\homie_voice_debug_audio and play the newest file." : "Set HOMIE_VOICE_KEEP_AUDIO=true or run the debug bridge BAT to save raw mic audio.",
     service: "homie-voice-bridge",
     version: VERSION,
   };
@@ -304,6 +328,7 @@ const server = http.createServer(async (req, res) => {
         mode: "python faster-whisper/openai-whisper",
         scriptPresent: fs.existsSync(transcribeScript),
         modelHint: MODEL_HINT,
+        debugAudioCapture: KEEP_AUDIO_DEBUG,
       },
       note: "Health means the bridge is listening. Use /doctor to verify Python STT imports.",
     });

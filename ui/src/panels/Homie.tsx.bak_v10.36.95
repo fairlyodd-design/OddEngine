@@ -1,0 +1,852 @@
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import Homie3DCompanion from "../components/Homie3DCompanion";
+// v10.36.62 checker-safe marker: Homie full-body not-orb companion polish installed
+// v10.36.61b checker-safe marker: Homie 3D apply/typecheck hotfix installed
+import { isDesktop, oddApi } from "../lib/odd";
+import { PanelHeader } from "../components/PanelHeader";
+import ActionMenu from "../components/ActionMenu";
+import { PanelScheduleCard } from "../components/PanelScheduleCard";
+import { DAILY_CHORES_EVENT, buildDailyChoresContext, computeDailyChoresSnapshot, loadDailyChoresState } from "../lib/dailyChoresCommand";
+import { getVoiceEngineBadges, loadVoiceEngineSnapshot, summarizeVoiceEngine, type VoiceEngineSnapshot } from "../lib/voice";
+import { getOperatorBrainSnapshot, runOperatorBrainNextAction } from "../lib/operatorBrain";
+import HomieUnifiedAvatar from "../components/HomieUnifiedAvatar";
+
+type DevIssue = {
+  id: string;
+  title: string;
+  severity: "error" | "warn" | "info";
+  explanation?: string;
+  recommendedPlaybooks?: string[];
+  evidence?: string;
+};
+
+type DevSnapshot = {
+  ok: boolean;
+  runningCount: number;
+  runs: Array<{ id: string; cmd: string; args: string[]; cwd: string; startedAt: number }>;
+  lastExit?: { id: string; code: number; ts: number } | null;
+  tail: Array<{ ts: number; type: string; id?: string; text: string }>;
+  issues: DevIssue[];
+  playbooks?: Array<{ id: string; name: string; safe: boolean; description: string }>;
+};
+
+type Props = {
+  onNavigate: (panelId: string) => void;
+  activePanelId?: string;
+  onOpenHowTo?: () => void;
+};
+
+type ChatMsg = {
+  id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  ts: number;
+};
+
+const LS_CHAT = "oddengine:homie:chat:v1";
+const LS_SETTINGS = "oddengine:homie:settings:v1";
+const LS_AUTOFIX = "oddengine:homie:autofix:v1";
+const LS_TARGET = "oddengine:homie:targetProject:v1";
+const PREFS_KEY = "oddengine:prefs:v1";
+
+const DEFAULT_SYSTEM =
+  "You are Homie👊, the built-in assistant for OddEngine.\n" +
+  "- Be short, clear, and practical.\n" +
+  "- When suggesting commands, prefer PowerShell on Windows.\n" +
+  "- Ask before running anything that writes/deletes files.\n" +
+  "- If the user shows an error, explain it in plain English then give the safest fix steps.\n" +
+  "- Help the family route to the right panel and reflect the current house/chores priorities when relevant.";
+
+function uid(){
+  return Math.random().toString(16).slice(2) + Date.now().toString(16);
+}
+
+function loadJSON<T>(key: string, fallback: T): T {
+  try {
+    const v = localStorage.getItem(key);
+    if (!v) return fallback;
+    return JSON.parse(v) as T;
+  } catch {
+    return fallback;
+  }
+}
+
+function saveJSON(key: string, val: any) {
+  try {
+    localStorage.setItem(key, JSON.stringify(val));
+  } catch {
+    // ignore
+  }
+}
+
+export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props) {
+  const desktop = isDesktop();
+
+  const [devSnap, setDevSnap] = useState<DevSnapshot | null>(null);
+  const [targetProject, setTargetProject] = useState<string>(() => {
+    try{ return localStorage.getItem(LS_TARGET) || localStorage.getItem("oddengine:dev:projectDir") || ""; }catch(e){ return ""; }
+  });
+  const [autoFixEnabled, setAutoFixEnabled] = useState<boolean>(() => {
+    const stored:any = loadJSON(LS_AUTOFIX, null as any);
+    if(stored && typeof stored.enabled === "boolean") return stored.enabled;
+    const prefs:any = loadJSON(PREFS_KEY, null as any);
+    return !!prefs?.desktop?.autoRunSafeFixes;
+  });
+  const [confirmPb, setConfirmPb] = useState<{ id: string; name: string; description: string; safe: boolean } | null>(null);
+  const [autoCountdown, setAutoCountdown] = useState<number>(0);
+  const [autoPb, setAutoPb] = useState<{ playbookId: string; reason: string } | null>(null);
+  const [tab, setTab] = useState<"ai" | "guide">("ai");
+  const [choresTick, setChoresTick] = useState(0);
+  const [voiceSnapshot, setVoiceSnapshot] = useState<VoiceEngineSnapshot>(() => loadVoiceEngineSnapshot());
+
+  const [model, setModel] = useState(() => loadJSON(LS_SETTINGS, { model: "llama3.1:8b", temperature: 0.2, includeContext: true, system: DEFAULT_SYSTEM }).model);
+  const [temperature, setTemperature] = useState(() => loadJSON(LS_SETTINGS, { model: "llama3.1:8b", temperature: 0.2, includeContext: true, system: DEFAULT_SYSTEM }).temperature);
+  const [includeContext, setIncludeContext] = useState(() => loadJSON(LS_SETTINGS, { model: "llama3.1:8b", temperature: 0.2, includeContext: true, system: DEFAULT_SYSTEM }).includeContext);
+  const [systemPrompt, setSystemPrompt] = useState(() => loadJSON(LS_SETTINGS, { model: "llama3.1:8b", temperature: 0.2, includeContext: true, system: DEFAULT_SYSTEM }).system);
+
+  useEffect(() => {
+    saveJSON(LS_SETTINGS, { model, temperature, includeContext, system: systemPrompt });
+  }, [model, temperature, includeContext, systemPrompt]);
+
+  useEffect(() => {
+    saveJSON(LS_AUTOFIX, { enabled: autoFixEnabled });
+  }, [autoFixEnabled]);
+
+  useEffect(() => {
+    try{ localStorage.setItem(LS_TARGET, targetProject || ""); }catch(e){}
+  }, [targetProject]);
+
+  useEffect(() => {
+    if(!desktop) return;
+    if(targetProject) return;
+    (async () => {
+      try{
+        const info = await oddApi().getSystemInfo();
+        if(info && info.ok && !info.packaged && info.cwd){
+          setTargetProject(info.cwd);
+          try{ localStorage.setItem("oddengine:dev:projectDir", info.cwd); }catch(e){}
+        }
+      }catch(e){}
+    })();
+  }, [desktop, targetProject]);
+
+  useEffect(() => {
+    const onChores = () => setChoresTick((x) => x + 1);
+    try {
+      window.addEventListener(DAILY_CHORES_EVENT as any, onChores);
+      window.addEventListener("storage", onChores);
+    } catch {
+      // ignore
+    }
+    return () => {
+      try {
+        window.removeEventListener(DAILY_CHORES_EVENT as any, onChores);
+        window.removeEventListener("storage", onChores);
+      } catch {
+        // ignore
+      }
+    };
+  }, []);
+  const choresSnapshot = useMemo(() => {
+    void choresTick;
+    return computeDailyChoresSnapshot(loadDailyChoresState());
+  }, [choresTick]);
+
+  useEffect(() => {
+    const onVoiceEngine = () => setVoiceSnapshot(loadVoiceEngineSnapshot());
+    try {
+      window.addEventListener("oddengine:voice-engine-changed", onVoiceEngine as any);
+      window.addEventListener("storage", onVoiceEngine as any);
+    } catch {
+      // ignore
+    }
+    return () => {
+      try {
+        window.removeEventListener("oddengine:voice-engine-changed", onVoiceEngine as any);
+        window.removeEventListener("storage", onVoiceEngine as any);
+      } catch {
+        // ignore
+      }
+    };
+  }, []);
+  const operatorBrain = useMemo(() => getOperatorBrainSnapshot(), [choresTick, activePanelId]);
+
+  const [checking, setChecking] = useState(false);
+  const [ollamaRunning, setOllamaRunning] = useState<boolean | null>(null);
+  const [ollamaModels, setOllamaModels] = useState<string[]>([]);
+  const [ollamaError, setOllamaError] = useState<string>("");
+
+  async function checkOllama() {
+    if (!desktop) return;
+    setChecking(true);
+    setOllamaError("");
+    try {
+      const r = await oddApi().homieCheck();
+      if (r.ok) {
+        setOllamaRunning(true);
+        setOllamaModels(r.models || []);
+      } else {
+        setOllamaRunning(false);
+        setOllamaModels([]);
+        setOllamaError(r.error || "Ollama not reachable");
+      }
+    } catch (e: any) {
+      setOllamaRunning(false);
+      setOllamaModels([]);
+      setOllamaError(String(e));
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  const [messages, setMessages] = useState<ChatMsg[]>(() => loadJSON<ChatMsg[]>(LS_CHAT, []));
+  const [input, setInput] = useState("");
+  const [busy, setBusy] = useState(false);
+  const chatRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    saveJSON(LS_CHAT, messages.slice(-80));
+  }, [messages]);
+
+  useEffect(() => {
+    if (!chatRef.current) return;
+    chatRef.current.scrollTop = chatRef.current.scrollHeight;
+  }, [messages, busy]);
+
+  function resetChat() {
+    setMessages([]);
+    saveJSON(LS_CHAT, []);
+  }
+
+  function addQuick(text: string) {
+    setInput(text);
+    setTab("ai");
+  }
+
+  async function refreshDevSnapshot() {
+    if (!desktop) return;
+    try{
+      const r = await oddApi().getDevSnapshot({ limit: 260 } as any);
+      if (r && r.ok) setDevSnap(r as any);
+    }catch(e){}
+  }
+
+  async function pickTargetProject() {
+    if (!desktop) return;
+    try{
+      const r = await oddApi().pickDirectory({ title: "Pick target project folder" } as any);
+      if (r && r.ok && r.path) setTargetProject(r.path);
+    }catch(e){}
+  }
+
+  async function requestPlaybookRun(pbId: string) {
+    if (!desktop) return;
+    const pb = (devSnap?.playbooks || []).find((p) => p.id === pbId);
+    const cwd = targetProject || (devSnap?.runs?.[0]?.cwd || "");
+    if (!cwd) {
+      setMessages((prev) => [...prev, { id: uid(), role: "assistant", content: "⚠️ No target project selected. Click **Pick Project** in Homie.", ts: Date.now() }]);
+      return;
+    }
+    if (!pb) {
+      setMessages((prev) => [...prev, { id: uid(), role: "assistant", content: `⚠️ Unknown playbook: ${pbId}`, ts: Date.now() }]);
+      return;
+    }
+    setConfirmPb({ id: pb.id, name: pb.name, description: pb.description, safe: !!pb.safe });
+  }
+
+  async function runConfirmedPlaybook() {
+    if(!desktop || !confirmPb) return;
+    const cwd = targetProject || (devSnap?.runs?.[0]?.cwd || "");
+    if (!cwd) return;
+    const ok = window.confirm(`Run playbook: ${confirmPb.name}\n\nTarget: ${cwd}\n\nThis will modify files in that folder.`);
+    if(!ok){ setConfirmPb(null); return; }
+    try{
+      await oddApi().runPlaybook({ playbookId: confirmPb.id, cwd } as any);
+      setMessages((prev) => [...prev, { id: uid(), role: "assistant", content: `✅ Running playbook **${confirmPb.name}** on\n${cwd}\n\nWatch DevEngine logs for progress.`, ts: Date.now() }]);
+    }catch(e:any){
+      setMessages((prev) => [...prev, { id: uid(), role: "assistant", content: `⚠️ Failed to start playbook: ${String(e)}`, ts: Date.now() }]);
+    }finally{
+      setConfirmPb(null);
+      setAutoCountdown(0);
+      setAutoPb(null);
+    }
+  }
+
+  async function send() {
+    const text = input.trim();
+    if (!text || busy) return;
+
+    const ctx = includeContext
+      ? `\n\n[OddEngine Context]\nHost: ${window.location.hostname}\nActive panel: ${activePanelId || "(unknown)"}\nTime: ${new Date().toISOString()}\n\n[Daily Chores Context]\n${buildDailyChoresContext(choresSnapshot)}\n`
+      : "";
+
+    const userMsg: ChatMsg = { id: uid(), role: "user", content: text + ctx, ts: Date.now() };
+    const next = [...messages, userMsg].slice(-80);
+    setMessages(next);
+    setInput("");
+
+    if (!desktop) {
+      setMessages((prev) => [...prev, { id: uid(), role: "assistant", content: "AI chat needs **Desktop mode** (Electron) so Homie can talk to your local Ollama safely.\n\nRun: **npm run dev:desktop** (or build the EXE) and try again.", ts: Date.now() }]);
+      return;
+    }
+
+    setBusy(true);
+    try {
+      const payload = {
+        model,
+        temperature,
+        system: systemPrompt,
+        messages: next
+          .filter((m) => m.role !== "system")
+          .map((m) => ({ role: m.role, content: m.content }))
+      };
+
+      const r = await oddApi().homieChat(payload as any);
+      if (!r.ok) {
+        const err = r.error || "Homie request failed";
+        setMessages((prev) => [...prev, { id: uid(), role: "assistant", content: `⚠️ ${err}\n\nIf you haven't installed Ollama yet:\n1) Install Ollama\n2) Run: **ollama pull ${model}**\n3) Confirm server is up (localhost:11434) then hit **Check Ollama**.`, ts: Date.now() }]);
+      } else {
+        setMessages((prev) => [...prev, { id: uid(), role: "assistant", content: (r.reply || "").trim() || "(no reply)", ts: Date.now() }]);
+      }
+    } catch (e: any) {
+      setMessages((prev) => [...prev, { id: uid(), role: "assistant", content: `⚠️ ${String(e)}`, ts: Date.now() }]);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const recoveryGuide = useMemo(() => {
+    const issues = devSnap?.issues || [];
+    const currentPanel = activePanelId || "Home";
+
+    if (!desktop) {
+      return {
+        tone: "warn",
+        badge: "Web mode",
+        headline: "Recovery is limited in browser mode.",
+        body: `Homie can still route you and explain next steps, but local AI, DevEngine recovery, and the full voice lane work best in Desktop mode. Current panel: ${currentPanel}.`,
+      };
+    }
+
+    if (issues.length) {
+      const first = issues[0];
+      const playbookHint = first.recommendedPlaybooks?.length
+        ? `Safest next move: review or run ${first.recommendedPlaybooks[0]} first.`
+        : "Safest next move: open DevEngine and review the latest logs before changing files.";
+      return {
+        tone: "bad",
+        badge: `${issues.length} recovery item${issues.length === 1 ? "" : "s"}`,
+        headline: first.title || "Homie spotted a live issue.",
+        body: `${first.explanation || "Homie detected an issue in the current local workflow."}\n\n${playbookHint}\n\nCurrent panel: ${currentPanel}`,
+      };
+    }
+
+    if (ollamaRunning === false) {
+      return {
+        tone: "warn",
+        badge: "AI lane degraded",
+        headline: "Homie chat is waiting on Ollama.",
+        body: "Typed routing, panel status, and recovery guidance still work, but full local AI replies will stay degraded until Ollama is back at 127.0.0.1:11434.",
+      };
+    }
+
+    if (voiceSnapshot.externalState === "degraded" || voiceSnapshot.cloudState === "degraded" || voiceSnapshot.pushToTalkState === "degraded") {
+      return {
+        tone: "warn",
+        badge: "Voice degraded",
+        headline: "Homie voice is up, but one lane is degraded.",
+        body: summarizeVoiceEngine(voiceSnapshot) + "\n\nSafest next move: check Preferences or use typed commands while the voice lane settles.",
+      };
+    }
+
+    if (voiceSnapshot.externalState === "unavailable" || voiceSnapshot.cloudState === "unavailable" || voiceSnapshot.pushToTalkState === "unavailable") {
+      return {
+        tone: "warn",
+        badge: "Voice limited",
+        headline: "Voice is not fully available right now.",
+        body: summarizeVoiceEngine(voiceSnapshot) + "\n\nSafest next move: typed commands stay ready, and Homie can still route you to the right panel while voice is down.",
+      };
+    }
+
+    return {
+      tone: "good",
+      badge: "Phoenix ready",
+      headline: "Homie recovery lane is standing by.",
+      body: "Local AI, route-ready help, and voice status look stable. If the OS feels shaky, start here for the calm next move instead of guessing.",
+    };
+  }, [activePanelId, desktop, devSnap, ollamaRunning, voiceSnapshot]);
+
+  const guide = useMemo(
+    () =>
+      [
+        {
+          title: "Where do I start?",
+          body:
+            "Start in **OddBrain** (health + integrity), then **Dev Engine** to pick a project and run builds/logs.\n\nIf you want generators, use **Autopilot** (web-safe export) or Desktop mode for writing files."
+        },
+        {
+          title: "Desktop vs Web",
+          body:
+            "• **Web (npm run dev:web)**: safe UI-only mode. No disk writes.\n• **Desktop (npm run dev:desktop)**: Electron enabled (logs/files/plugins/emulators).\n\nHomie AI runs in **Desktop mode** using **local Ollama** on 127.0.0.1."
+        },
+        {
+          title: "Install Ollama (local AI)",
+          body:
+            "1) Install Ollama for Windows\n2) In PowerShell: **ollama --version**\n3) Pull a model: **ollama pull llama3.1:8b** (or pick a smaller one)\n4) Keep Ollama running (it hosts on **127.0.0.1:11434**)"
+        },
+        {
+          title: "Safety rule",
+          body:
+            "Homie will **ask before** running destructive actions. If you want, you can paste logs/errors and Homie will explain + propose the safest fix steps."
+        }
+      ],
+    []
+  );
+
+  return (
+    <div className="page" style={{ maxWidth: 1100, margin: "0 auto" }}>
+      <PanelHeader
+        panelId="Homie"
+        title="Homie 👊"
+        subtitle="Dev buddy + family guide + local AI helper"
+        badges={[
+          { label: desktop ? "Desktop" : "Web", tone: desktop ? "good" : "warn" },
+          { label: ollamaRunning === null ? "Ollama: ?" : ollamaRunning ? "Ollama: running" : "Ollama: off", tone: ollamaRunning ? "good" : ollamaRunning === false ? "bad" : "muted" },
+          { label: (devSnap?.runningCount || 0) > 0 ? `DevEngine: running (${devSnap?.runningCount || 0})` : "DevEngine: idle", tone: (devSnap?.runningCount || 0) > 0 ? "warn" : "muted" },
+          { label: choresSnapshot.open ? `Chores: ${choresSnapshot.open} open` : "Chores: clear", tone: choresSnapshot.open ? "warn" : "good" },
+        ]}
+        rightSlot={
+          <ActionMenu
+            items={[
+              { label: "Open DevEngine", onClick: () => onNavigate?.("DevEngine") },
+              { label: "Open Daily Chores", onClick: () => onNavigate?.("DailyChores") },
+              { label: "Open Calendar", onClick: () => onNavigate?.("Calendar") },
+              { label: "Pick Project", onClick: () => pickTargetProject(), disabled: !desktop },
+              { label: "Refresh Dev Snapshot", onClick: () => refreshDevSnapshot(), disabled: !desktop },
+              { label: checking ? "Checking Ollama…" : "Check Ollama", onClick: () => checkOllama(), disabled: !desktop || checking },
+              { label: "Reset chat", onClick: () => resetChat(), tone: "danger" },
+            ]}
+          />
+        }
+      />
+      <div data-homie-3d-companion-host="v10.36.62" data-homie-not-orb-mode="v10.36.62" data-homie-3d-hotfix="v10.36.61b">
+        <Homie3DCompanion activePanelId={activePanelId} onNavigate={onNavigate} />
+      </div>
+
+
+      <div className="tabs" style={{ marginBottom: 10 }}>
+        <button className={"tabBtn " + (tab === "ai" ? "active" : "")} onClick={() => setTab("ai")}>AI</button>
+        <button className={"tabBtn " + (tab === "guide" ? "active" : "")} onClick={() => setTab("guide")}>Guide</button>
+        <button className="tabBtn" onClick={() => onOpenHowTo?.()} title="How to Use (F1)">ℹ</button>
+      </div>
+
+      {tab === "ai" && (
+        <>
+          
+          <div className="card softCard" data-homie-visual-unify="v10.36.92" style={{ marginTop: 12, borderColor: "rgba(154,230,255,0.24)" }}>
+            <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+              <div>
+                <div className="h">Unified companion preview</div>
+                <div className="sub">Web and desktop now lead with the same avatar lane first. The older experimental stage stays below only as a temporary reference until it is fully retired.</div>
+              </div>
+              <span className={`badge ${voiceSnapshot.listening ? "good" : "muted"}`}>{voiceSnapshot.listening ? "Listening" : "Visual lane ready"}</span>
+            </div>
+
+            <div className="grid2" style={{ alignItems: "start", marginTop: 12 }}>
+              <div className="card" style={{ background: "rgba(6,12,24,0.38)", borderColor: "rgba(154,230,255,0.14)" }}>
+                <HomieUnifiedAvatar
+                  mood={voiceSnapshot.listening ? "good" : "idle"}
+                  isListening={voiceSnapshot.listening}
+                  isSpeaking={busy}
+                  gesture={voiceSnapshot.listening ? "tilt" : "none"}
+                />
+              </div>
+
+              <div className="card" style={{ background: "rgba(6,12,24,0.38)", borderColor: "rgba(154,230,255,0.14)" }}>
+                <div className="h">Why this pass helps</div>
+                <div className="sub">Less visual confusion. The same hoodie/beard/glasses companion lane now shows up first instead of the older purple stage taking over the main visual impression.</div>
+
+                <div className="assistantChipWrap" style={{ marginTop: 12 }}>
+                  <span className="badge">Web + desktop aligned</span>
+                  <span className="badge">Memoji-inspired</span>
+                  <span className="badge">Desktop-safe fallback</span>
+                  <span className="badge warn">Legacy stage still below</span>
+                </div>
+
+                <div className="timelineCard" style={{ marginTop: 12 }}>
+                  <b>Best next move:</b> use this as the main visual reference, then retire or fully replace the old experimental stage in the next cleanup pass.
+                </div>
+
+                <div className="row" style={{ marginTop: 12, gap: 8, flexWrap: "wrap" }}>
+                  <button className="tabBtn active" onClick={() => addQuick("Keep Homie in the unified hoodie avatar lane and retire the older purple stage next.")}>Lock this visual lane</button>
+                  <button className="tabBtn" onClick={() => onNavigate("HomieCloneStudio")}>Open Clone Studio</button>
+                  <button className="tabBtn" onClick={() => onNavigate("Books")}>Open Writers Lounge</button>
+                  <button className="tabBtn" onClick={() => onNavigate("Preferences")}>Open Preferences</button>
+                </div>
+
+                <div className="small" style={{ marginTop: 10 }}>
+                  Honest note: this pass unifies the lead avatar lane first. It does not yet fully delete the older experimental stage below.
+                </div>
+              </div>
+            </div>
+          </div>
+
+<div className="grid2" style={{ alignItems: "start", marginTop: 8 }}>
+            <PanelScheduleCard
+              panelId="Homie"
+              title="Dev schedule"
+              subtitle="Quick-add build / backup / review reminders."
+              onNavigate={onNavigate}
+              presets={[
+                { label: "+ Build", title: "Build OddEngine", time: "20:00" },
+                { label: "+ Backup", title: "Backup project zip", time: "20:20" },
+                { label: "+ Review", title: "Review errors + next tasks", time: "20:40" },
+              ]}
+            />
+            <div className="card softCard">
+              <div className="h">Quick actions</div>
+              <div className="sub">Common moves Homie helps with.</div>
+              <div className="row" style={{ marginTop: 10, gap: 8, flexWrap: "wrap" }}>
+                <button className="tabBtn" onClick={() => addQuick("Check my logs and tell me the safest fix.")}>Diagnose logs</button>
+                <button className="tabBtn" onClick={() => addQuick("Give me the exact Windows commands to run next.")}>Commands</button>
+                <button className="tabBtn" onClick={() => addQuick("What matters at home today? Route me to the right panel and tell me the next chore lane.")}>House guide</button>
+                <button className="tabBtn" onClick={() => addQuick("Package the next build zip cleanly.")}>Ship zip</button>
+                <button className="tabBtn active" onClick={() => onNavigate?.("DevEngine")}>DevEngine</button>
+              </div>
+            </div>
+          </div>
+
+          <div className="card softCard" style={{ marginTop: 12 }}>
+            <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+              <div>
+                <div className="h">Family guide lane</div>
+                <div className="sub">Homie can see the current house reset board and help the family route to the right next move.</div>
+              </div>
+              <span className={`badge ${choresSnapshot.open ? "warn" : "good"}`}>{choresSnapshot.open ? `${choresSnapshot.open} chores open` : "Board clear"}</span>
+            </div>
+            <div className="timelineCard" style={{ marginTop: 12 }}>{choresSnapshot.summary}</div>
+            {choresSnapshot.todayNote ? <div className="timelineCard" style={{ marginTop: 10 }}>Today note: {choresSnapshot.todayNote}</div> : null}
+            <div className="assistantChipWrap" style={{ marginTop: 12 }}>
+              {choresSnapshot.mustDoToday.slice(0, 3).map((item) => (
+                <span key={item.taskId} className="badge">{item.laneTitle}: {item.text}</span>
+              ))}
+            </div>
+            <div className="row" style={{ marginTop: 12, gap: 8, flexWrap: "wrap" }}>
+              <button className="tabBtn active" onClick={() => onNavigate("DailyChores")}>Open Daily Chores</button>
+              <button className="tabBtn" onClick={() => onNavigate("Home")}>Open Home</button>
+              <button className="tabBtn" onClick={() => addQuick("What should the family do next around the house today? Keep it plain and route-ready.")}>Ask about today</button>
+            </div>
+          </div>
+
+          <div className="card softCard" style={{ marginTop: 12 }}>
+            <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+              <div>
+                <div className="h">Phoenix daily truth</div>
+                <div className="sub">Homie is now reading the same shared daily truth as Home and the shell.</div>
+              </div>
+              <span className="badge good">Synced</span>
+            </div>
+
+            <div className="timelineCard" style={{ marginTop: 12 }}>
+              <b>What matters now:</b> {operatorBrain.whatMattersNow.title}
+              <div className="small" style={{ marginTop: 6 }}>{operatorBrain.whatMattersNow.text}</div>
+            </div>
+
+            <div className="assistantChipWrap" style={{ marginTop: 12 }}>
+              <span className="badge">Family: {operatorBrain.familyLane.title}</span>
+              <span className="badge">Operator: {operatorBrain.operatorLane.title}</span>
+              <span className="badge">Next: {operatorBrain.whatToDoNext.title}</span>
+            </div>
+
+            <div className="row" style={{ marginTop: 12, gap: 8, flexWrap: "wrap" }}>
+              <button className="tabBtn active" onClick={() => onNavigate(operatorBrain.familyLane.panelId)}>Open family lane</button>
+              <button className="tabBtn" onClick={() => onNavigate(operatorBrain.operatorLane.panelId)}>Open operator lane</button>
+              <button className="tabBtn" onClick={() => { runOperatorBrainNextAction(); onNavigate(operatorBrain.whatToDoNext.panelId); }}>Do next action</button>
+              <button className="tabBtn" onClick={() => addQuick("What matters most right now for the family and where should I go next?")}>Ask in chat</button>
+            </div>
+          </div>
+                    
+          <div className="card softCard" data-homie-clone-quick-access="v10.36.90" data-homie-clone-bridge-readiness="v10.36.90" style={{ marginTop: 12, borderColor: "rgba(154,230,255,0.24)" }}>
+            <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+              <div>
+                <div className="h">Homie clone studio quick access</div>
+                <div className="sub">Shape Homie from inside the OS: tone, likeness notes, family phrases, preview shaping, and consent-first voice training workflow.</div>
+              </div>
+              <span className="badge warn">Bridge: 127.0.0.1:8776</span>
+            </div>
+
+            <div className="timelineCard" style={{ marginTop: 12 }}>
+              <b>Best next move:</b> open Clone Studio, save your signature tone, add 5–10 family phrases, then generate a manifest only from approved voice samples.
+            </div>
+
+            <div className="assistantChipWrap" style={{ marginTop: 12 }}>
+              <span className="badge">Clone profile</span>
+              <span className="badge">Family phrases</span>
+              <span className="badge">Preview shaping</span>
+              <span className="badge warn">Consent-first training</span>
+            </div>
+
+            <div className="row" style={{ marginTop: 12, gap: 8, flexWrap: "wrap" }}>
+              <button className="tabBtn active" onClick={() => onNavigate("HomieCloneStudio")}>Open Clone Studio</button>
+              <button className="tabBtn" onClick={() => addQuick("Help me shape Homie to feel more like me without sounding fake or corporate.")}>Ask clone guide</button>
+              <button className="tabBtn" onClick={() => onNavigate("Books")}>Open Writers Lounge</button>
+              <button className="tabBtn" onClick={() => onNavigate(activePanelId || "Home")}>Back to current panel</button>
+            </div>
+
+            <div className="small" style={{ marginTop: 10 }}>
+              Honest lane: this shapes tone, phrases, memory, and workflow. It does not pretend a perfect identity clone already exists.
+            </div>
+          </div>
+
+<div className="card softCard" style={{ marginTop: 12, borderColor: "rgba(56,189,248,0.28)" }}>
+            <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+              <div>
+                <div className="h">Phoenix recovery + voice status</div>
+                <div className="sub">Homie turns red moments into the calm next move: what broke, what still works, and where to go first.</div>
+              </div>
+              <span className={`badge ${recoveryGuide.tone}`}>{recoveryGuide.badge}</span>
+            </div>
+
+            <div className="timelineCard" style={{ marginTop: 12 }}>{recoveryGuide.headline}</div>
+            <div className="small" style={{ marginTop: 10, whiteSpace: "pre-wrap", opacity: 0.92 }}>{recoveryGuide.body}</div>
+
+            <div className="assistantChipWrap" style={{ marginTop: 12 }}>
+              {getVoiceEngineBadges(voiceSnapshot).map((badge) => (
+                <span key={badge.label} className={`badge ${badge.tone}`}>{badge.label}</span>
+              ))}
+            </div>
+            <div className="small" style={{ marginTop: 8 }}>{summarizeVoiceEngine(voiceSnapshot)}</div>
+
+            <div className="row" style={{ marginTop: 12, gap: 8, flexWrap: "wrap" }}>
+              <button className="tabBtn active" onClick={() => addQuick("Tell me the safest recovery path right now in plain English.")}>Ask recovery guide</button>
+              <button className="tabBtn" onClick={() => addQuick("What voice path is active right now and what should I do next?")}>Ask voice status</button>
+              <button className={`tabBtn ${voiceSnapshot.listening ? "active" : ""}`} onClick={() => window.dispatchEvent(new CustomEvent("oddengine:voice-request", { detail: { source: "homie", action: voiceSnapshot.listening ? "stop" : "listen" } }))}>{voiceSnapshot.listening ? "Stop voice" : "Start voice"}</button>
+              <button className="tabBtn" onClick={() => onNavigate(activePanelId || "Home")}>Open current panel</button>
+              <button className="tabBtn" onClick={() => onNavigate("Preferences")}>Open Preferences</button>
+              <button className="tabBtn" onClick={() => window.dispatchEvent(new CustomEvent("oddengine:focus-commandbar"))}>Focus command bar</button>
+            </div>
+          </div>
+<div className="card" style={{ marginTop: 12 }}>
+            <div className="row" style={{ justifyContent: "space-between" }}>
+              <div>
+                <div style={{ fontWeight: 700 }}>Homie AI Status</div>
+                <div className="small">Uses local Ollama on 127.0.0.1 (no cloud required)</div>
+              </div>
+              <div className="row">
+                <span className={"badge " + (ollamaRunning ? "good" : ollamaRunning === false ? "bad" : "")}>{ollamaRunning === null ? "Unknown" : ollamaRunning ? "Ollama Running" : "Not Running"}</span>
+                <button onClick={checkOllama} disabled={!desktop || checking}>{checking ? "Checking…" : "Check Ollama"}</button>
+              </div>
+            </div>
+            {!desktop && (
+              <div className="small" style={{ marginTop: 10 }}>
+                ⚠️ You are in **Web mode**. AI chat needs **Desktop mode**.
+              </div>
+            )}
+            {ollamaError && (
+              <div className="small" style={{ marginTop: 10, color: "#fbbf24" }}>
+                {ollamaError}
+              </div>
+            )}
+            {!!ollamaModels.length && (
+              <div className="small" style={{ marginTop: 10 }}>
+                Detected models: {ollamaModels.slice(0, 6).join(", ")}{ollamaModels.length > 6 ? "…" : ""}
+              </div>
+            )}
+          </div>
+
+          <div className="card" style={{ marginTop: 12 }}>
+            <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div>
+                <div style={{ fontWeight: 700 }}>Dev Engine Awareness</div>
+                <div className="small">Homie can read DevEngine status + recent logs, detect common errors, and suggest safe fixes.</div>
+              </div>
+              <div className="row">
+                <span className={"badge " + ((devSnap?.runningCount || 0) > 0 ? "warn" : "good")}>
+                  {(devSnap?.runningCount || 0) > 0 ? `Running (${devSnap?.runningCount || 0})` : "Idle"}
+                </span>
+                <button onClick={refreshDevSnapshot} disabled={!desktop}>Refresh</button>
+              </div>
+            </div>
+
+            <div className="row" style={{ marginTop: 10, gap: 10, flexWrap: "wrap" }}>
+              <div className="small" style={{ opacity: 0.9 }}>
+                <b>Target Project:</b>{" "}
+                <span style={{ opacity: 0.9 }}>{targetProject ? targetProject : "(not set)"}</span>
+              </div>
+              <button onClick={pickTargetProject} disabled={!desktop}>Pick Project</button>
+              <label className="row small" style={{ gap: 8, cursor: "pointer" }}>
+                <input
+                  type="checkbox"
+                  checked={autoFixEnabled}
+                  onChange={(e) => setAutoFixEnabled(e.target.checked)}
+                />
+                Auto-run safe fixes (with confirm)
+              </label>
+            </div>
+
+            {autoPb && autoCountdown > 0 && (
+              <div className="small" style={{ marginTop: 10, padding: 10, borderRadius: 10, border: "1px solid rgba(255,255,255,0.12)" }}>
+                ⚙️ <b>Auto-fix detected:</b> {autoPb.reason} → will suggest a safe fix in <b>{autoCountdown}s</b>.
+                <button style={{ marginLeft: 10 }} onClick={() => { setAutoPb(null); setAutoCountdown(0); }}>Cancel</button>
+              </div>
+            )}
+
+            {devSnap?.issues && devSnap.issues.length > 0 ? (
+              <div style={{ marginTop: 12 }}>
+                <div style={{ fontWeight: 700, marginBottom: 8 }}>Detected Issues</div>
+                {devSnap.issues.slice(0, 4).map((iss) => (
+                  <div key={iss.id} style={{ padding: 10, borderRadius: 12, border: "1px solid rgba(255,255,255,0.10)", marginBottom: 10 }}>
+                    <div className="row" style={{ justifyContent: "space-between" }}>
+                      <div>
+                        <div style={{ fontWeight: 700 }}>{iss.title}</div>
+                        <div className="small" style={{ opacity: 0.9, marginTop: 4 }}>{iss.explanation}</div>
+                      </div>
+                      <span className={"badge " + (iss.severity === "error" ? "bad" : iss.severity === "warn" ? "warn" : "good")}>
+                        {iss.severity.toUpperCase()}
+                      </span>
+                    </div>
+                    {!!(iss.recommendedPlaybooks && iss.recommendedPlaybooks.length) && (
+                      <div className="row" style={{ marginTop: 10, gap: 8, flexWrap: "wrap" }}>
+                        {(iss.recommendedPlaybooks || []).map((pbId) => {
+                          const pb = (devSnap.playbooks || []).find((p) => p.id === pbId);
+                          return (
+                            <button key={pbId} onClick={() => requestPlaybookRun(pbId)} disabled={!desktop}>
+                              Run: {pb ? pb.name : pbId}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="small" style={{ marginTop: 12, opacity: 0.8 }}>
+                No issues detected in the last log window.
+              </div>
+            )}
+
+            {confirmPb && (
+              <div style={{ marginTop: 12, padding: 12, borderRadius: 12, border: "1px solid rgba(59,130,246,0.35)", background: "rgba(59,130,246,0.08)" }}>
+                <div style={{ fontWeight: 700 }}>Confirm playbook</div>
+                <div className="small" style={{ marginTop: 6 }}>
+                  <b>{confirmPb.name}</b> — {confirmPb.description}
+                </div>
+                <div className="small" style={{ marginTop: 6 }}>
+                  Target: <code>{targetProject || devSnap?.runs?.[0]?.cwd || "(not set)"}</code>
+                </div>
+                <div className="row" style={{ marginTop: 10, gap: 8 }}>
+                  <button onClick={runConfirmedPlaybook} disabled={!desktop}>Run</button>
+                  <button onClick={() => setConfirmPb(null)}>Cancel</button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="card" style={{ marginTop: 12 }}>
+            <div className="row">
+              <div style={{ flex: 1 }}>
+                <div className="small">Model</div>
+                <input value={model} onChange={(e) => setModel(e.target.value)} placeholder="llama3.1:8b" />
+              </div>
+              <div style={{ width: 160 }}>
+                <div className="small">Temp</div>
+                <input
+                  type="number"
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={temperature}
+                  onChange={(e) => setTemperature(Number(e.target.value))}
+                />
+              </div>
+              <div style={{ width: 220 }}>
+                <div className="small">Context</div>
+                <select value={includeContext ? "on" : "off"} onChange={(e) => setIncludeContext(e.target.value === "on")}>
+                  <option value="on">Include panel/host</option>
+                  <option value="off">No context</option>
+                </select>
+              </div>
+            </div>
+            <div className="small" style={{ marginTop: 8 }}>System prompt (controls Homie’s behavior)</div>
+            <textarea value={systemPrompt} onChange={(e) => setSystemPrompt(e.target.value)} rows={4} />
+          </div>
+
+          <div className="card" style={{ marginTop: 12 }}>
+            <div className="row" style={{ justifyContent: "space-between" }}>
+              <div style={{ fontWeight: 700 }}>Chat</div>
+              <div className="row">
+                <button onClick={() => addQuick("Run a quick health check for OddEngine. If you propose fixes, ask before running them.")}>Health Check</button>
+                <button onClick={() => addQuick("Explain this error in plain English and give the safest fix steps.\n\nPASTE ERROR HERE:")}>Explain Error</button>
+                <button onClick={resetChat} disabled={busy}>Clear</button>
+              </div>
+            </div>
+
+            <div ref={chatRef} className="chatWrap" style={{ marginTop: 12 }}>
+              {messages.length === 0 && (
+                <div className="small">No messages yet. Try: “What matters at home today?”, “Explain this error…”, or “How do I build the EXE?”</div>
+              )}
+              {messages.map((m) => (
+                <div key={m.id} className="chatRow" style={{ justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
+                  <div className={"bubble " + (m.role === "user" ? "user" : "assistant")}>
+                    {m.content}
+                    <div className="chatMeta">{m.role} • {new Date(m.ts).toLocaleString()}</div>
+                  </div>
+                </div>
+              ))}
+              {busy && (
+                <div className="chatRow"><div className="bubble assistant">Thinking…</div></div>
+              )}
+            </div>
+
+            <div className="row" style={{ marginTop: 12, alignItems: "flex-end" }}>
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                rows={3}
+                placeholder="Ask Homie…"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
+                    send();
+                  }
+                }}
+              />
+              <button onClick={send} disabled={busy} style={{ width: 140 }}>
+                {busy ? "Sending…" : "Send (Ctrl+Enter)"}
+              </button>
+            </div>
+
+            <div className="small" style={{ marginTop: 8 }}>
+              Tip: Homie sees the current Daily Chores board too, so you can ask what the family should do next and get a route-ready answer.
+            </div>
+          </div>
+        </>
+      )}
+
+      {tab === "guide" && (
+        <>
+          <div className="card" style={{ marginTop: 12 }}>
+            <div style={{ fontWeight: 700 }}>Quick links</div>
+            <div className="row" style={{ marginTop: 10, flexWrap: "wrap" }}>
+              <button onClick={() => onNavigate("OddBrain")}>Open OddBrain</button>
+              <button onClick={() => onNavigate("DailyChores")}>Open Daily Chores</button>
+              <button onClick={() => onNavigate("DevEngine")}>Open Dev Engine</button>
+              <button onClick={() => onNavigate("Autopilot")}>Open Autopilot</button>
+              <button onClick={() => onNavigate("Security")}>Open Security</button>
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
+            {guide.map((g) => (
+              <div key={g.title} className="card">
+                <div style={{ fontWeight: 800 }}>{g.title}</div>
+                <div style={{ marginTop: 8, whiteSpace: "pre-wrap", lineHeight: 1.35 }}>{g.body}</div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

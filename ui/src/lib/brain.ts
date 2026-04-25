@@ -1612,7 +1612,9 @@ export function buildMissions() {
   const familyHealth = safeJson("oddengine:familyHealth:v1");
   const grocery = safeJson("oddengine:groceryMeals:v1");
   const saas = safeJson("oddengine:optionssaas:v1");
-  const plugins = safeJson("oddengine:plugins:user:v1") || [];
+  const plugins = safeJson("oddengine:plugins:user:v1") || [
+  { id:"HomieCloneStudio", icon:"🧬", title:"Homie Clone Studio", sub:"Profile + family voice workflow", section:"ODDENGINE", assistantName:"Clone Guide", assistantRole:"Tone, phrases, memory, and consent-first voice workflow", description:"Edits the Homie clone profile, family phrases, preview shaping, and family voice training workflow from inside the OS.", quickPrompts:["Make Homie feel more like me.","Edit my family phrases and tone.","Generate the next safe voice training manifest."], storageKeys:["oddengine:homieCloneStudio:draft:v1"], nextSteps:["Start with signature tone and likeness notes.","Save 5–10 family phrases before training anything.","Use only consent-first voice samples."], actions:[{ id:"homie", label:"Open Homie", kind:"navigate", panelId:"Homie" },{ id:"books", label:"Open Writers Lounge", kind:"navigate", panelId:"Books" }] },
+];
 
   if (!budget?.accounts?.length) missions.push({ id: uid("mission"), panelId: "FamilyBudget", level: "warn", text: "Family Budget needs accounts or balances before the payoff planner becomes useful." });
   if (budget?.accounts?.length && !budget?.transactions?.length) missions.push({ id: uid("mission"), panelId: "FamilyBudget", level: "warn", text: "Budget has accounts but no transactions yet — import CSV or add quick entries." });

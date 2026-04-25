@@ -1,0 +1,257 @@
+/* === v10.37.0_ODUIStabilityAndCleanupAuditPass ==========================
+   Surgical OD UI cleanup layer: calmer rhythm, shared panel headers, safer
+   card rendering, and fewer visual one-offs. Keep this block near the end of
+   ui/src/styles.css so it wins without deleting panel-specific behavior.
+============================================================================ */
+:root{
+  --odui-card-radius: 18px;
+  --odui-card-pad: clamp(14px, 1.25vw, 18px);
+  --odui-panel-gap: 14px;
+  --odui-inner-gap: 10px;
+  --odui-line-soft: rgba(214, 224, 255, 0.105);
+  --odui-line-strong: rgba(165, 180, 252, 0.22);
+  --odui-surface: rgba(13, 18, 30, 0.68);
+  --odui-surface-soft: rgba(255, 255, 255, 0.038);
+  --odui-shadow-soft: 0 14px 34px rgba(0,0,0,0.22);
+}
+
+.appShell, .panelShell, .panelSolo, .panelMain, .panelBody, .card, .softCard{
+  min-width: 0;
+}
+
+.panelMain{
+  gap: var(--odui-panel-gap);
+  isolation: isolate;
+  overflow-anchor: none;
+  animation: panelFadeIn 120ms ease;
+}
+
+.panelBody{
+  margin-top: var(--odui-panel-gap);
+}
+
+.card{
+  border-color: var(--odui-line-soft);
+  border-radius: var(--odui-card-radius);
+  padding: var(--odui-card-pad);
+  background:
+    linear-gradient(180deg, rgba(20,27,44,0.74) 0%, rgba(11,15,25,0.66) 100%),
+    var(--odui-surface);
+  box-shadow: var(--odui-shadow-soft);
+  overflow-wrap: anywhere;
+}
+
+.card.softCard, .softCard{
+  border-color: var(--odui-line-soft);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.052), rgba(255,255,255,0.024)),
+    rgba(8,12,20,0.46);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.18);
+}
+
+.assistantWrap .card,
+.activityRail .card,
+.panelMain .card{
+  box-shadow: var(--odui-shadow-soft);
+}
+
+.card:hover,
+.panelMain .card:hover{
+  border-color: var(--odui-line-strong);
+}
+
+.grid, .flowGrid{
+  gap: var(--odui-panel-gap);
+}
+
+.grid.tight, .flowGrid.tight, .flowStack.tight{
+  gap: var(--odui-inner-gap);
+}
+
+.flowStack, .widgetBody, .oduiWidgetBody{
+  gap: var(--odui-inner-gap);
+}
+
+.row{
+  min-width: 0;
+}
+
+.badge{
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 4px 9px;
+  border-color: var(--odui-line-soft);
+  background: rgba(255,255,255,0.035);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.tabBtn, button.tabBtn{
+  min-height: 32px;
+  border-color: var(--odui-line-soft);
+  background: rgba(255,255,255,0.045);
+  box-shadow: none;
+}
+
+.tabBtn:hover, button.tabBtn:hover{
+  background: rgba(255,255,255,0.074);
+  border-color: var(--odui-line-strong);
+}
+
+input, textarea, select, .input{
+  border-color: var(--odui-line-soft);
+  background-color: rgba(5,8,14,0.44);
+}
+
+/* Shared panel header: replaces per-panel inline rhythm without changing APIs. */
+.oduiPanelHeader{
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  margin-bottom: var(--odui-panel-gap);
+}
+
+.oduiPanelHeaderMain{
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.oduiPanelTitleRow{
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.oduiPanelTitle{
+  margin: 0;
+  font-size: clamp(22px, 2vw, 30px);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  font-weight: 950;
+}
+
+.oduiPanelSubtitle{
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+  max-width: 760px;
+}
+
+.oduiPanelBadges,
+.oduiActionRow,
+.oduiPanelHeaderActions{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.oduiPanelHeaderActions{
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.oduiCopilotCard{
+  border: 1px solid var(--odui-line-soft);
+  border-radius: 16px;
+  padding: 12px;
+  background: rgba(255,255,255,0.035);
+}
+
+.oduiCopilotTitle{
+  font-weight: 900;
+  margin-top: 4px;
+}
+
+.oduiCopilotText{
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.oduiActionRow{
+  margin-top: 10px;
+  align-items: center;
+}
+
+/* Shared card frame: one calm header/body rhythm for panels using CardFrame. */
+.oduiCardFrame{
+  position: relative;
+}
+
+.oduiWidgetHeader{
+  min-height: 38px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.oduiWidgetBody{
+  margin-top: 12px;
+}
+
+.widgetTitle{
+  letter-spacing: -0.01em;
+}
+
+.widgetSubtitle{
+  line-height: 1.35;
+}
+
+/* Keep giant tables/forms from making pages feel stitched together. */
+.tableWrap, .panelMain table{
+  max-width: 100%;
+}
+
+.panelMain table{
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.panelMain th, .panelMain td{
+  vertical-align: top;
+}
+
+/* Avoid panel ownership/stacking fights around floating controls. */
+.godCardControls{
+  z-index: 35;
+}
+
+.godFloating{
+  z-index: 60;
+}
+
+/* Panel-specific calm-downs that do not alter behavior. */
+.homieHouseRoom, .homieCompanionShell, .homieStage, .homiePanelRoot{
+  min-width: 0;
+}
+
+.familyBudgetRoot, .moneyPanelRoot, .builderPanelRoot, .devEngineRoot, .homePanelRoot{
+  min-width: 0;
+}
+
+@media (max-width: 900px){
+  .oduiPanelHeader{
+    grid-template-columns: 1fr;
+  }
+  .oduiPanelHeaderActions{
+    justify-content: flex-start;
+  }
+  .oduiPanelTitle{
+    font-size: 24px;
+  }
+  .badge{
+    white-space: normal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .panelMain, .card, .tabBtn, button.tabBtn{
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+/* === end v10.37.0_ODUIStabilityAndCleanupAuditPass ====================== */

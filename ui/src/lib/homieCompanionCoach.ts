@@ -1,3 +1,7 @@
+// v10.36.73c checker-safe marker: natural short STT replies installed
+// v10.36.72b checker-safe marker: duplicate bridge repair plus natural STT replies installed
+// v10.36.68 tone nudge: normal companion mode stays informational by default
+// v10.36.67 checker-safe marker: plain family companion tone retune installed
 export type HomieCompanionMood = "idle" | "good" | "warn";
 
 export type HomieCompanionMessage = {
@@ -331,49 +335,226 @@ function voiceCadenceReply(parts: string[]) {
     .trim();
 }
 
+// ===== v10.36.67 Homie plain family companion tone helpers =====
+function isHomieMicCameraQuestion(text: string) {
+  const lower = text.trim().toLowerCase();
+  return /\b(mic|microphone|camera|cam|hear me|heard me|listen|listening|transcript|voice|speaker|can you hear|can hear you|cannot hear|can\'t hear|not hearing|through cam|through camera)\b/.test(lower);
+}
+
+function isStrongSupportPrompt(text: string) {
+  const lower = text.trim().toLowerCase();
+  return /\b(overwhelmed|panic|scared|sad|grief|heavy|burned out|spiral|ground me|stressed|anxious|pain|sick|medical|doctor)\b/.test(lower);
+}
+
+function wantsBodyMindFamily(text: string) {
+  const lower = text.trim().toLowerCase();
+  return /\b(body mind family|body, mind, family|ground me|overwhelmed|check in|daily rhythm|what matters today|start my day)\b/.test(lower);
+}
+
+function companionOpening(text: string, themes: string[], ctx: HomieCompanionContext) {
+  const lower = text.trim().toLowerCase();
+  if (isHomieMicCameraQuestion(text)) return "Yep — let’s separate the lanes clearly.";
+  if (/\b(thanks|nice|awesome|hell yeah|lol|lmao|fire|🔥|👊)\b/i.test(text)) return "Hell yeah — that’s the right direction.";
+  if (themes.includes("creative")) return "Got you — creative lane.";
+  if (themes.includes("family")) return "Got you — family lane.";
+  if (themes.includes("money")) return "Got you — money lane.";
+  if (isStrongSupportPrompt(text)) return "I’m with you — we’ll keep it simple, not dramatic.";
+  return "Got you — companion mode."; 
+}
+
+function companionInfoReply(text: string, themes: string[], ctx: HomieCompanionContext, nextStep: string) {
+  const lower = text.trim().toLowerCase();
+  if (isHomieMicCameraQuestion(text)) {
+    return formatDisplayReply([
+      "Yep — let’s separate the lanes clearly.",
+      "Speaker out: working, because you can hear Homie.",
+      "Mic in: use Start listening, Hold to talk, Talk by mic, or the new Say test button. Homie only knows he heard you when Last transcript fills in.",
+      "Camera: visual only right now. It shows preview and samples simple brightness/motion. It does not hear audio, identify people, or understand objects yet.",
+      "Next move: click Say test, say “Homie can hear me,” then check Last transcript. If it stays blank, the issue is the browser/Windows input path, not the camera."
+    ]);
+  }
+
+  if (wantsBodyMindFamily(text) || isStrongSupportPrompt(text)) {
+    return formatDisplayReply([
+      companionOpening(text, themes, ctx),
+      "Body: quick status only — no drama. Breathe once, then check whether you need water, food, rest, or a break.",
+      "Mind: shrink the task until it has one visible next action.",
+      "Family: keep the handoff understandable. Save one thing they can open later.",
+      "Next move: " + nextStep
+    ]);
+  }
+
+  return formatDisplayReply([
+    companionOpening(text, themes, ctx),
+    "What I heard: " + (cleanPrompt(text) || "you want a practical next step").slice(0, 220),
+    "Useful read: I can explain, organize, route panels, remember notes, or help pick the next move.",
+    "Current lane: " + ctx.activePanelTitle + ".",
+    "Next move: " + nextStep
+  ]);
+}
+
+function companionSpokenFromDisplay(displayText: string) {
+  const compact = displayText
+    .replace(/\n+/g, " ")
+    .replace(/Speaker out:/g, "Speaker out is")
+    .replace(/Mic in:/g, "Mic in is")
+    .replace(/Camera:/g, "Camera is")
+    .replace(/Next move:/g, "Next move:")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (compact.length <= 260) return compact;
+  return compact.slice(0, 257) + "...";
+}
+// ===== v10.36.67 Homie plain family companion tone helpers END =====
+// ===== v10.36.72b Homie natural STT repair helpers =====
+function homieNormalizeHeardText(text: string) {
+  return cleanPrompt(String(text || ""))
+    .replace(/[“”]/g, '"')
+    .replace(/[’]/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function homieIsTinyVoiceAck(text: string) {
+  const lower = homieNormalizeHeardText(text).toLowerCase();
+  return /^(ok|okay|yeah|yes|yep|no|nope|thanks|thank you|nice|cool|sweet|now|good|got it|hell yeah|lol|lmao|yup)[.!?]*$/.test(lower);
+}
+
+function homieLooksLikeSTTDrift(text: string) {
+  const lower = homieNormalizeHeardText(text).toLowerCase();
+  if (!lower) return true;
+  if (/\b(going to this here we now|to this here we now|this here we now|do this here we now|going to this here)\b/.test(lower)) return true;
+  const words = lower.split(/\s+/).filter(Boolean);
+  if (words.length >= 5) {
+    const filler = words.filter((word) => /^(to|the|a|an|we|me|you|it|is|are|this|that|here|now|going)$/.test(word)).length;
+    if (filler / words.length > 0.68) return true;
+  }
+  return false;
+}
+
+function homieCorrectionText(text: string) {
+  const match = homieNormalizeHeardText(text).match(/^(correction|correct that|i said|what i said was)[:\s-]+(.+)$/i);
+  return match?.[2]?.trim() || "";
+}
+
+function buildHomieTinyAckReply(text: string): HomieCompanionReply {
+  const heard = homieNormalizeHeardText(text);
+  const isThanks = /^(thanks|thank you|appreciate it|nice|awesome|hell yeah|cool|sweet)[.!?]*$/i.test(heard);
+  const displayText = isThanks
+    ? "Anytime, Homie. I’m here and listening."
+    : "Got it. I heard: \"" + heard + "\". Say the next full sentence when you’re ready.";
+  return { text: displayText, displayText, spokenText: isThanks ? "Anytime, Homie. I’m listening." : "Got it. Say the next full sentence when you’re ready.", mood: "good", tags: ["voice"], nextStep: "Say one full sentence, or say correction followed by the exact words." };
+}
+
+function buildHomieSTTDriftReply(text: string, ctx: HomieCompanionContext): HomieCompanionReply {
+  const heard = homieNormalizeHeardText(text) || "blank audio";
+  const displayText = [
+    "I heard: \"" + heard + "\".",
+    "That sounds like transcription drift, not a clean instruction. I won’t pretend I understood it perfectly.",
+    "Try: say it again slower, say \"correction: ...\" with the exact words, or type the important part once.",
+    "Current lane: " + ctx.activePanelTitle + "."
+  ].join("\n\n");
+  return { text: displayText, displayText, spokenText: "I heard something, but it sounds like transcription drift. Say correction followed by the exact words, or repeat it slower.", mood: "warn", tags: ["voice", "stt-drift"], nextStep: "Say: correction, then the exact words you wanted Homie to use." };
+}
+
+function buildHomieCorrectionReply(text: string, ctx: HomieCompanionContext): HomieCompanionReply {
+  const corrected = homieCorrectionText(text);
+  const displayText = [
+    "Correction received.",
+    "Clean wording: \"" + corrected + "\"",
+    "I’ll use that instead of the messy transcript.",
+    "Current lane: " + ctx.activePanelTitle + "."
+  ].join("\n\n");
+  return { text: displayText, displayText, spokenText: "Got it. I’ll use the corrected wording.", mood: "good", tags: detectThemes(corrected), nextStep: "Now say the command or question with that clean wording, or type it once." };
+}
+
+function buildHomieNaturalCompanionDisplay(workingText: string, themes: string[], ctx: HomieCompanionContext, nextStep: string) {
+  const heard = homieNormalizeHeardText(workingText);
+  const lines = [
+    ctx.source === "voice" ? "I heard: \"" + heard + "\"." : "Got you.",
+    "Current lane: " + ctx.activePanelTitle + "."
+  ];
+  if (themes.includes("creative")) lines.push("Creative read: turn it into one saved artifact, not a giant universe.");
+  else if (themes.includes("money")) lines.push("Money read: keep it practical, small, and explainable.");
+  else if (themes.includes("family")) lines.push("Family read: make it easy for someone else to open later.");
+  else if (themes.includes("grounding") || themes.includes("health")) lines.push("Grounding read: slow it down and make the next move tiny.");
+  else lines.push("Useful read: I can explain, organize, route panels, remember notes, or help pick the next move.");
+  lines.push("Next move: " + nextStep);
+  return lines.join("\n\n");
+}
+// ===== v10.36.72b Homie natural STT repair helpers END =====
+
+// ===== v10.36.73c Homie short STT reply helpers =====
+function homieV73cNormalize(text: string) { return cleanPrompt(String(text || "")).replace(/\s+/g, " " ).trim(); }
+function homieV73cShortAck(text: string) { return /^(ok|okay|yeah|yes|yep|no|nope|thanks|thank you|nice|cool|sweet|now|good|got it|hell yeah|lol|lmao|yup)[.!?]*$/i.test(homieV73cNormalize(text)); }
+function homieV73cDrift(text: string) { const lower = homieV73cNormalize(text).toLowerCase(); if (/\b(going to this here we now|to this here we now|this here we now|do this here we now|going to this here)\b/.test(lower)) return true; const words = lower.split(/\s+/).filter(Boolean); if (words.length >= 5) { const filler = words.filter((w) => /^(to|the|a|an|we|me|you|it|is|are|this|that|here|now|going)$/.test(w)).length; return filler / words.length > 0.68; } return false; }
+function homieV73cShortReply(text: string): HomieCompanionReply { const heard = homieV73cNormalize(text); const thanks = /^(thanks|thank you|appreciate it|nice|awesome|hell yeah|cool|sweet)[.!?]*$/i.test(heard); const displayText = thanks ? "Anytime, Homie. I’m here and listening." : "Got it. I heard: \"" + heard + "\". Say the next full sentence when you’re ready."; return { text: displayText, displayText, spokenText: thanks ? "Anytime, Homie. I’m listening." : "Got it. Say the next full sentence when you’re ready.", mood: "good", tags: ["voice"], nextStep: "Say one full sentence, or say correction followed by the exact words." }; }
+function homieV73cDriftReply(text: string, ctx: HomieCompanionContext): HomieCompanionReply { const heard = homieV73cNormalize(text) || "blank audio"; const displayText = ["I heard: \"" + heard + "\".", "That sounds like transcription drift, not a clean instruction. I won’t pretend I understood it perfectly.", "Try: say it again slower, say correction with the exact words, or type the important part once.", "Current lane: " + ctx.activePanelTitle + "."].join("\n\n"); return { text: displayText, displayText, spokenText: "I heard something, but it sounds like transcription drift. Say correction followed by the exact words, or repeat it slower.", mood: "warn", tags: ["voice", "stt-drift"], nextStep: "Say: correction, then the exact words you wanted Homie to use." }; }
+// ===== v10.36.73c Homie short STT reply helpers END =====
+
 export function buildHomieCompanionReply(text: string, ctx: HomieCompanionContext): HomieCompanionReply {
   const cleaned = cleanPrompt(text);
   const workingText = cleaned || text;
-  const themes = detectThemes(workingText);
+  // v10.36.73c short voice early return: avoid essaying over tiny/noisy STT.
+  if (ctx.source === "voice" && homieV73cShortAck(workingText)) {
+    const reply = homieV73cShortReply(workingText);
+    remember(reply.tags, workingText, reply.text, reply.nextStep || "Say one full sentence next.", undefined, false);
+    return reply;
+  }
+  if (ctx.source === "voice" && homieV73cDrift(workingText)) {
+    const reply = homieV73cDriftReply(workingText, ctx);
+    remember(reply.tags, workingText, reply.text, reply.nextStep || "Repeat or correct the phrase.", undefined, false);
+    return reply;
+  }
+  const normalized = homieNormalizeHeardText(workingText);
   const memory = loadMemory();
+  const correction = homieCorrectionText(workingText);
+
+  if (correction) {
+    const reply = buildHomieCorrectionReply(workingText, ctx);
+    remember(reply.tags, correction, reply.text, reply.nextStep || "Use the corrected wording.", reply.artifact, false);
+    return reply;
+  }
+
+  if (ctx.source === "voice" && homieLooksLikeSTTDrift(normalized)) {
+    const reply = buildHomieSTTDriftReply(normalized, ctx);
+    remember(reply.tags, normalized, reply.text, reply.nextStep || "Repeat the phrase or say correction.", undefined, false);
+    return reply;
+  }
+
+  if (ctx.source === "voice" && homieIsTinyVoiceAck(normalized)) {
+    const reply = buildHomieTinyAckReply(normalized);
+    remember(reply.tags, normalized, reply.text, reply.nextStep || "Say one full sentence next.", undefined, false);
+    return reply;
+  }
+
+  const themes = detectThemes(workingText);
   const checkIn = /check in|how am i|how are we|life coach|coach me|ground me|help me focus|talk to me/i.test(text);
   const nextStep = nextStepFor(themes, workingText);
   const artifact = shouldCreateLegacyArtifact(themes, text) ? buildLegacyArtifact(workingText, ctx, nextStep) : undefined;
 
-  const opening = openingLine(themes, memory, checkIn, text);
-  const parts = [
-    opening,
-    `Body: ${bodyStep(themes)}`,
-    `Mind: ${mindStep(themes)}`,
-    `Family: ${familyStep(themes)}`,
-    `Next move: ${nextStep}`,
-  ];
+  let displayText = buildHomieNaturalCompanionDisplay(workingText, themes, ctx, nextStep);
+  if (artifact) displayText += "\n\nFamily artifact: drafted " + artifact.title + ". Review before final family use.";
 
-  if (artifact) parts.push(`I also drafted a tiny legacy artifact: ${artifact.title}. You can copy or save it from this card.`);
-  if ((memory.checkInCount || 0) > 0 && memory.lastNextStep && !themes.includes("celebration")) {
-    parts.push(`Last thread I remember: ${memory.lastNextStep}`);
-  }
-
-  let displayText = formatDisplayReply(parts);
   if (startsLikeRepeat(displayText, memory)) {
-    displayText = formatDisplayReply([
-      "Still with you, Homie — different angle this time.",
-      `Body: ${bodyStep(themes)}`,
-      `Mind: ${mindStep(themes)}`,
-      `Family: ${familyStep(themes)}`,
-      `Next move: ${nextStep}`,
-      artifact ? `I also drafted a tiny legacy artifact: ${artifact.title}. You can copy or save it from this card.` : "",
-    ]);
+    displayText = [
+      "Same lane, cleaner pass.",
+      ctx.source === "voice" ? "I heard: \"" + normalized + "\"." : "What I heard: " + normalized,
+      "Current lane: " + ctx.activePanelTitle + ".",
+      "Next move: " + nextStep
+    ].join("\n\n");
   }
 
-  const spokenText = formatSpokenReply(opening, nextStep, themes);
+  const spokenText = ctx.source === "voice"
+    ? ("I heard: " + normalized + ". Next move: " + nextStep).replace(/\s+/g, " ").slice(0, 260)
+    : formatSpokenReply(openingLine(themes, memory, checkIn, text), nextStep, themes);
+
   remember(themes, workingText, displayText, nextStep, artifact, checkIn);
   const mood: HomieCompanionMood = themes.includes("grounding") || themes.includes("health") ? "warn" : "good";
   return { text: displayText, displayText, spokenText, mood, tags: themes, nextStep, artifact };
 }
-
 export function buildHomieCompanionCheckIn(ctx: HomieCompanionContext): HomieCompanionReply {
-  return buildHomieCompanionReply(`Homie, check in with me from ${ctx.activePanelTitle}. Body, mind, family, next move.`, { ...ctx, source: ctx.source || "quick" });
+  return buildHomieCompanionReply(`Homie, quick companion check from ${ctx.activePanelTitle}. Give me the useful read and one small next move.`, { ...ctx, source: ctx.source || "quick" });
 }
 
 export function getHomieCompanionMemorySnapshot(): HomieCompanionMemorySnapshot {

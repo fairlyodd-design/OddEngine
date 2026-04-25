@@ -1,4 +1,4 @@
-:root{
+﻿:root{
   --bg:#090914;
   --panel:#131427;
   --panel2:#0d1020;
@@ -1180,7 +1180,7 @@ textarea{ resize: vertical; }
   height: 32px;
 }
 
-/* v10.21.9 — Fortnite mascot (Memoji) Homie skin + Hype buddy animations */
+/* v10.21.9 â€” Fortnite mascot (Memoji) Homie skin + Hype buddy animations */
 .homieMemojiWrap{ position: relative; width: 72px; height: 72px; display:flex; align-items:center; justify-content:center; }
 .homieMemojiOuter{ position: relative; width: 72px; height: 72px; display:flex; align-items:center; justify-content:center;
   --homie-look-x: 0px;
@@ -1210,7 +1210,7 @@ textarea{ resize: vertical; }
 .homieOrb.skin-memoji.gesture-tilt .homieMemojiOuter{ animation: homieMascotTilt 720ms ease-in-out 1; }
 .homieOrb.skin-memoji.gesture-wave .homieMemojiOuter{ animation: homieMascotWave 720ms ease-in-out 1; }
 .homieOrb.skin-memoji.gesture-spark .homieMemojiOuter::after{
-  content: "✦";
+  content: "âœ¦";
   position:absolute;
   top: -6px;
   right: 4px;
@@ -1232,7 +1232,7 @@ textarea{ resize: vertical; }
 .homieMemojiOuter.emote-facepalm .homieMemojiFx{ opacity: 1; animation: homieMascotFxPop 920ms cubic-bezier(0.2,0.9,0.2,1) 1; }
 
 .homieMemojiOuter.emote-celebrate::after{
-  content: "✦";
+  content: "âœ¦";
   position:absolute;
   left: 6px;
   top: -8px;
@@ -1302,7 +1302,7 @@ textarea{ resize: vertical; }
 }
 
 
-/* v10.21.3 — Homie Buddy animation pass (emoji/person vibe) */
+/* v10.21.3 â€” Homie Buddy animation pass (emoji/person vibe) */
 .homieOrbFace{ transform-origin: center; }
 .homieOrbBrow{ position:absolute; top:-1px; width: 12px; height: 3px; border-radius: 999px; background: rgba(238,246,255,0.55); opacity: 0.65; }
 .homieOrbBrow.left{ left: 5px; --brow-rot: -10deg; transform: rotate(-10deg); }
@@ -1351,7 +1351,7 @@ textarea{ resize: vertical; }
 
 
 
-/* v10.21.4 — Homie Rive game-buddy mode (modern game buddy) */
+/* v10.21.4 â€” Homie Rive game-buddy mode (modern game buddy) */
 .homieRiveWrap{ position:absolute; inset: 0; display:block; }
 .homieRiveClip{ position:absolute; inset: 0; border-radius: 999px; overflow: hidden; }
 .homieRiveCanvas{ width: 100%; height: 100%; display:block; }
@@ -1619,7 +1619,7 @@ textarea{ resize: vertical; }
 }
 
 
-/* v10.17.8a — Homie Room art pass */
+/* v10.17.8a â€” Homie Room art pass */
 .homieBuddyPanel{ backdrop-filter: blur(14px); }
 .homieBuddyPanel .row .small{ opacity: 0.82; }
 .homieHouseScene{ transition: background 380ms ease, border-color 280ms ease, box-shadow 280ms ease, transform 280ms ease; }
@@ -1747,7 +1747,7 @@ textarea{ resize: vertical; }
 .homieStatusLine{ font-size: 12px; opacity: 0.88; }
 
 
-/* v10.17.9 — draggable room layouts */
+/* v10.17.9 â€” draggable room layouts */
 .homieLayoutButtons{ margin: 0 0 10px; gap: 6px; }
 .homieHouseRoom.layoutMode{ box-shadow: inset 0 0 0 1px rgba(94,234,242,0.18), inset 0 0 0 999px rgba(94,234,242,0.02), inset 0 -24px 44px rgba(0,0,0,0.32); }
 .homieHouseRoom.layoutMode::after{ content:"Drag layout items"; position:absolute; right:10px; top:10px; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(220,236,255,0.76); background:rgba(10,16,30,0.46); border:1px solid rgba(255,255,255,0.08); border-radius:999px; padding:4px 8px; pointer-events:none; z-index:8; }
@@ -1836,7 +1836,7 @@ textarea{ resize: vertical; }
   .calendarWrap{ grid-template-columns: 1fr; }
 }
 
-/* --- ActionMenu (⋯) --- */
+/* --- ActionMenu (â‹¯) --- */
 .actionMenuWrap{ position: relative; display: inline-flex; align-items: center; }
 .actionMenu{ position: absolute; right: 0; top: 36px; z-index: 50; min-width: 220px;
   background: rgba(10,14,22,0.98);
@@ -3187,7 +3187,7 @@ iframe {
 }
 
 .homieHouseTopbar .badge.good::after{
-  content:" • alive";
+  content:" â€¢ alive";
   opacity:0.8;
 }
 /* ===== v10.36.15 Homie Companion Life Coach Presence END ===== */
@@ -3237,3 +3237,797 @@ iframe {
 }
 .homieCompanionMsg.homie span{ white-space: pre-wrap; }
 /* ===== v10.36.16c_HomieCompanionLegacyButtonValidationFixPass_END ===== */
+/* === v10.37.1_FULLSCREEN_RAIL_SCROLL_AND_CELL_CONTAINMENT_START === */
+/* ==========================================================
+   OddEngine v10.37.1 â€” Fullscreen Rail Scroll + Cell Containment
+   Surgical CSS-only stability hotfix.
+   Purpose:
+   - left/right rails scroll correctly in fullscreen desktop/web shell
+   - cards/grids/cells stop escaping behind neighboring areas
+   - preserve CardGODMode + panel behavior
+   ========================================================== */
+
+:root{
+  --odui-shell-pad: var(--card-pad, 12px);
+  --odui-rail-left: 280px;
+  --odui-rail-right: 340px;
+}
+
+html, body, #root{
+  width:100%;
+  min-width:0;
+  height:100%;
+  min-height:0;
+  overflow:hidden;
+}
+
+body{
+  overscroll-behavior:none;
+}
+
+.layout,
+.layoutWide{
+  width:100%;
+  max-width:100vw;
+  height:100vh;
+  height:100dvh;
+  min-height:0;
+  overflow:hidden;
+  grid-template-rows:minmax(0, 1fr);
+}
+
+.layoutWide{
+  grid-template-columns:minmax(236px, 280px) minmax(0, 1fr) minmax(292px, 340px);
+}
+
+.rail,
+.main,
+.activityRail{
+  min-width:0;
+  min-height:0;
+  max-height:100vh;
+  max-height:100dvh;
+  scrollbar-gutter: stable;
+}
+
+.rail{
+  height:100vh;
+  height:100dvh;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+
+.main{
+  height:100vh;
+  height:100dvh;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  min-width:0;
+}
+
+.activityRail{
+  position:sticky;
+  top:0;
+  align-self:start;
+  height:100vh;
+  height:100dvh;
+  max-height:100vh;
+  max-height:100dvh;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  padding:var(--odui-shell-pad);
+  padding-bottom:140px;
+}
+
+.assistantWrap{
+  max-height:calc(100dvh - 28px);
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+
+/* Important: prevent CSS grid/flex children from forcing columns wider than the shell. */
+.layout > *,
+.layoutWide > *,
+.panelShell,
+.panelSolo,
+.panelMain,
+.panelMain > *,
+.assistantWrap,
+.activityRail,
+.card,
+.softCard,
+.heroCard,
+.subCard,
+.flowStack,
+.stack,
+.grid,
+.flowGrid,
+.row,
+.cluster{
+  min-width:0;
+  max-width:100%;
+}
+
+.card,
+.softCard,
+.heroCard,
+.subCard{
+  position:relative;
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+
+.panelShell{
+  grid-template-columns:minmax(0, 1fr) minmax(292px, 340px);
+  width:100%;
+  max-width:100%;
+  overflow:visible;
+}
+
+.panelMain{
+  width:100%;
+  contain:layout paint;
+}
+
+/* Responsive grid hardening: keeps dashboard cells from smashing/bleeding. */
+.grid,
+.flowGrid,
+.homeTop,
+.homeMissionRow,
+.homeOpsRow,
+.homeAppsRow,
+.homeAppsGrid,
+.homeBottom,
+.tradingSplit,
+.drawerStatGrid,
+.writersGrid,
+.entShell,
+.entHero,
+.entKodi,
+.quickActionGrid,
+.calendarWrap,
+.calendarWeek,
+.calendarGrid{
+  min-width:0;
+}
+
+.homeTop,
+.homeMissionRow,
+.homeOpsRow,
+.homeAppsRow,
+.homeAppsGrid,
+.homeBottom,
+.tradingSplit,
+.drawerStatGrid,
+.quickActionGrid{
+  grid-auto-rows:minmax(min-content, auto);
+}
+
+.card > *,
+.subCard > *,
+.softCard > *,
+.heroCard > *,
+.widgetBody > *,
+.panelBody > *{
+  min-width:0;
+  max-width:100%;
+}
+
+img, video, canvas, svg{
+  max-width:100%;
+}
+
+pre, code, textarea, input, select{
+  max-width:100%;
+}
+
+pre, code{
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+
+.tableWrap,
+.tableScroller,
+.overflowTable,
+[class*="Table"],
+[class*="table"]{
+  min-width:0;
+  max-width:100%;
+  overflow-x:auto;
+  overflow-y:visible;
+}
+
+table{
+  max-width:100%;
+}
+
+/* Left nav containment: titles/subtitles truncate instead of pushing behind pin buttons. */
+.navItem{
+  min-width:0;
+  align-items:center;
+  overflow:hidden;
+}
+
+.navItem > div:not(.navIcon){
+  min-width:0;
+  flex:1 1 auto;
+}
+
+.navIcon{
+  flex:0 0 34px;
+}
+
+.navTitle,
+.navSub,
+.shellBarTitle,
+.shellBarSub,
+.widgetTitle,
+.widgetSubtitle,
+.assistantTitle,
+.subCardTitle,
+.subCardSub{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.navTitle,
+.navSub,
+.widgetTitle,
+.widgetSubtitle{
+  white-space:nowrap;
+}
+
+.pinBtn{
+  flex:0 0 30px;
+}
+
+/* Command/header action rows can wrap instead of overlapping neighboring cells. */
+.shellBar,
+.commandBarRow,
+.widgetHeader,
+.assistantHeader{
+  min-width:0;
+}
+
+.shellBarRight,
+.shellBarBadges,
+.shellBarActions,
+.widgetHeaderRight{
+  min-width:0;
+  max-width:100%;
+}
+
+.tabBtn,
+.btn,
+button,
+.badge{
+  max-width:100%;
+}
+
+/* Keep floating controls visible but not layout-breaking. */
+.godLayoutBar{
+  max-width:min(100%, 720px);
+  overflow:hidden;
+}
+
+.godLayoutBarRow{
+  min-width:0;
+  flex-wrap:wrap;
+}
+
+/* Fullscreen/window breakpoints. */
+@media(max-width:1450px){
+  .layoutWide{ grid-template-columns:minmax(236px, 260px) minmax(0, 1fr); }
+  .activityRail{ display:none; }
+}
+
+@media(max-width:1120px){
+  .panelShell{ grid-template-columns:minmax(0, 1fr); }
+  .assistantWrap{ position:relative; top:auto; max-height:none; }
+}
+
+@media(max-width:820px){
+  html, body, #root{ overflow:auto; }
+  .layout,
+  .layoutWide{
+    grid-template-columns:minmax(0, 1fr);
+    height:auto;
+    min-height:100dvh;
+    overflow:visible;
+  }
+  .rail,
+  .main,
+  .activityRail{
+    height:auto;
+    max-height:none;
+    overflow:visible;
+  }
+  .rail{ border-right:none; border-bottom:1px solid var(--line); }
+}
+
+/* === v10.37.1_FULLSCREEN_RAIL_SCROLL_AND_CELL_CONTAINMENT_END === */
+
+/* === v10.37.2_TRUE_RAIL_SCROLL_AND_ACTION_CONTAINMENT_PASS_START ===
+   Purpose: true fullscreen rail scrolling + action/button containment.
+   Surgical scope: shell rails, panel lanes, action rows, card content overflow.
+   Does not alter Trading logic, CardGODMode logic, panel routing, or data flow.
+*/
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+body {
+  overscroll-behavior: none;
+}
+
+/* The desktop shell needs three independently scrollable lanes. */
+.layout.layoutWide {
+  height: 100vh !important;
+  max-height: 100vh !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  display: grid !important;
+  grid-template-columns: minmax(218px, 280px) minmax(0, 1fr) minmax(276px, 320px) !important;
+  align-items: stretch !important;
+}
+
+.layoutWide .rail,
+.layoutWide .main,
+.layoutWide .activityRail {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  scrollbar-gutter: stable both-edges;
+}
+
+/* Left nav: make the panel list itself the scroller and keep the version footer reachable. */
+.layoutWide .rail {
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 10px !important;
+}
+
+.layoutWide .rail > div:first-child {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  padding-bottom: 14px !important;
+}
+
+.layoutWide .rail > div:last-child {
+  flex: 0 0 auto !important;
+  margin-top: 8px !important;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  background: linear-gradient(180deg, rgba(8,12,18,0), rgba(8,12,18,0.86) 24%, rgba(8,12,18,0.94));
+  backdrop-filter: blur(10px);
+}
+
+/* Right rail: real scroll lane plus enough bottom space so Homie buddy does not cover actions. */
+.layoutWide .activityRail {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  padding: 12px 10px 138px 10px !important;
+  border-left: 1px solid rgba(121,87,255,0.22);
+}
+
+.layoutWide .activityRail > * {
+  flex: 0 0 auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+/* Main lane: scrolls by itself; inner panel grid must not force side rails off screen. */
+.layoutWide .main {
+  position: relative !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  padding: 12px !important;
+}
+
+.panelShell {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 300px) !important;
+  gap: 12px !important;
+  align-items: start !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.panelSolo,
+.panelMain,
+.panelShell > *,
+.panelMain > * {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+/* Assistant dock inside main needs its own containment so bottom controls are not chopped. */
+.assistantDock,
+.panelShell .assistantDock {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  max-height: calc(100vh - 24px) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  padding-bottom: 96px !important;
+  overscroll-behavior: contain !important;
+  scrollbar-gutter: stable;
+}
+
+/* Stop cards and cells from expanding beyond their grid columns. */
+.card,
+.softCard,
+.subCard,
+.timelineCard,
+.heroCard,
+.statPill,
+.homeMissionCard,
+.homeOpsCard,
+.homeAppTile,
+.homeAppGridTile,
+.entTile,
+.panelLoadingCard {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.grid,
+.flowGrid,
+.homeGrid,
+.homeTop,
+.homeBottom,
+.homeMissionRow,
+.homeOpsRow,
+.homeAppsRow,
+.homeAppsGrid,
+.entShell,
+.entHero,
+.entKodi {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.grid > *,
+.flowGrid > *,
+.homeGrid > *,
+.homeTop > *,
+.homeBottom > *,
+.homeMissionRow > *,
+.homeOpsRow > *,
+.homeAppsRow > *,
+.homeAppsGrid > *,
+.entShell > *,
+.entHero > *,
+.entKodi > * {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+/* Action rows/buttons must wrap instead of clipping or hiding behind neighbor cards. */
+.activityRail .row,
+.assistantDock .row,
+.timelineCard .row,
+.heroCard .row,
+.card .assistantChipWrap,
+.homeMissionActions,
+.homeOpsActions,
+.entTileActions,
+.widgetHeader,
+.widgetHeaderRight,
+.shellBarRight,
+.shellBarActions,
+.shellStats {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  flex-wrap: wrap !important;
+}
+
+button,
+.btn,
+.tabBtn,
+.godBtn,
+.godMiniBtn,
+.pinBtn,
+.badge {
+  max-width: 100% !important;
+}
+
+.tabBtn,
+.btn,
+.godMiniBtn {
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  line-height: 1.15 !important;
+}
+
+/* Nav labels truncate instead of shoving pins/section controls off the rail. */
+.navItem {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+.navItem > div:not(.navIcon) {
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+}
+
+.navTitle,
+.navSub,
+.widgetTitle,
+.widgetSubtitle,
+.shellBarTitle,
+.shellBarSub,
+.homeAppName,
+.homeAppSub {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Inputs/tables/code are the usual card blowout offenders. */
+input,
+textarea,
+select,
+pre,
+code,
+table,
+.tableWrap,
+.panelMain img,
+.panelMain video,
+.panelMain canvas {
+  max-width: 100% !important;
+}
+
+textarea,
+pre,
+code {
+  overflow-wrap: anywhere !important;
+}
+
+.tableWrap,
+.panelMain table {
+  overflow-x: auto !important;
+}
+
+/* Keep floating Homie visible but less likely to block right rail buttons. */
+.homieBuddy,
+.homieBuddyShell,
+.homieCompanion,
+.homieFloat,
+[class*="homieBuddy"],
+[class*="HomieBuddy"] {
+  max-width: min(128px, 28vw) !important;
+  max-height: min(128px, 28vh) !important;
+}
+
+/* Narrow/fullscreen fallback: make the right rail usable instead of crushing the center. */
+@media (max-width: 1220px) {
+  .layout.layoutWide {
+    grid-template-columns: minmax(198px, 240px) minmax(0, 1fr) minmax(238px, 280px) !important;
+  }
+  .panelShell {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .assistantDock,
+  .panelShell .assistantDock {
+    max-height: none !important;
+    padding-bottom: 24px !important;
+  }
+}
+
+@media (max-width: 980px) {
+  .layout.layoutWide {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .layoutWide .rail,
+  .layoutWide .activityRail {
+    display: none !important;
+  }
+}
+
+/* === v10.37.2_TRUE_RAIL_SCROLL_AND_ACTION_CONTAINMENT_PASS_END === */
+
+
+
+/* ===== v10.37.3 Homie Pop-Out Ownership Repair =====
+   Repairs Homie buddy after OD UI rail containment passes.
+   Goal: keep Homie button/panel fixed-size and readable while preserving rail scroll lanes.
+*/
+
+/* The floating Homie dock must not be treated like rail/card content. */
+.homieRebuildDock,
+.layoutWide > .homieRebuildDock,
+body .homieRebuildDock {
+  position: fixed !important;
+  right: max(18px, env(safe-area-inset-right)) !important;
+  bottom: max(18px, env(safe-area-inset-bottom)) !important;
+  z-index: 2147483200 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-end !important;
+  justify-content: flex-end !important;
+  gap: 12px !important;
+  width: auto !important;
+  max-width: min(96vw, 690px) !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  contain: layout style !important;
+  pointer-events: none !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+}
+
+.homieRebuildDock > * {
+  pointer-events: auto !important;
+  min-width: 0 !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+}
+
+/* Launcher should always stay a round/touchable button, never a squeezed text column. */
+.homieRebuildLauncher,
+button.homieRebuildLauncher,
+.homieRebuildDock .homieRebuildLauncher {
+  position: relative !important;
+  flex: 0 0 90px !important;
+  width: 90px !important;
+  min-width: 90px !important;
+  max-width: 90px !important;
+  height: 90px !important;
+  min-height: 90px !important;
+  max-height: 90px !important;
+  aspect-ratio: 1 / 1 !important;
+  padding: 0 !important;
+  border-radius: 999px !important;
+  display: grid !important;
+  place-items: center !important;
+  overflow: hidden !important;
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  line-height: 1 !important;
+  letter-spacing: normal !important;
+  text-align: center !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  transform-origin: 50% 70% !important;
+}
+
+.homieRebuildLauncher *,
+.homieRebuildLauncher .homieOrbCore,
+.homieRebuildLauncher .homieOrbFace,
+.homieRebuildLauncher .homieEye,
+.homieRebuildLauncher .homieMouth {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  white-space: normal !important;
+}
+
+/* Open pop-out panel gets a real width, independent scroll, and safe bottom clearance. */
+.homieRebuildDock .homieRebuildPanel:not(.standalone) {
+  flex: 0 1 560px !important;
+  width: min(560px, calc(100vw - 132px)) !important;
+  min-width: min(360px, calc(100vw - 132px)) !important;
+  max-width: calc(100vw - 132px) !important;
+  max-height: calc(100vh - 44px) !important;
+  overflow: auto !important;
+  overflow-x: hidden !important;
+  overscroll-behavior: contain !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+}
+
+.homieRebuildPanel *,
+.homieRebuildPanel button,
+.homieRebuildPanel input,
+.homieRebuildPanel textarea,
+.homieRebuildPanel select {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+}
+
+.homieRebuildPanel button,
+.homieRebuildDock button {
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  min-width: max-content;
+}
+
+.homieRebuildHeaderActions,
+.homieRebuildPresence,
+.homiePresenceConsentRow,
+.homieRebuildQuickActions,
+.homieRebuildComposer,
+.homieRebuildSectionHead,
+.homieRebuildPanel .row,
+.homieRebuildPanel .cluster {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.homieRebuildHeaderActions,
+.homieRebuildPresence,
+.homiePresenceConsentRow,
+.homieRebuildQuickActions,
+.homieRebuildPanel .row,
+.homieRebuildPanel .cluster {
+  flex-wrap: wrap !important;
+}
+
+/* Keep global cell containment from crushing all buttons into columns. */
+button,
+.tabBtn,
+.btn,
+.pinBtn,
+.helpFab,
+.godBtn,
+.godMiniBtn {
+  writing-mode: horizontal-tb;
+  text-orientation: mixed;
+  word-break: normal;
+}
+
+/* Give the right rail enough footer space so the fixed Homie dock does not hide final actions. */
+.activityRail {
+  padding-bottom: 132px !important;
+}
+
+@media (max-width: 920px) {
+  .homieRebuildDock,
+  body .homieRebuildDock {
+    right: 12px !important;
+    bottom: 12px !important;
+    max-width: calc(100vw - 24px) !important;
+  }
+
+  .homieRebuildLauncher,
+  button.homieRebuildLauncher,
+  .homieRebuildDock .homieRebuildLauncher {
+    flex-basis: 76px !important;
+    width: 76px !important;
+    min-width: 76px !important;
+    max-width: 76px !important;
+    height: 76px !important;
+    min-height: 76px !important;
+    max-height: 76px !important;
+  }
+
+  .homieRebuildDock .homieRebuildPanel:not(.standalone) {
+    width: calc(100vw - 112px) !important;
+    min-width: 0 !important;
+    max-width: calc(100vw - 112px) !important;
+  }
+}
+/* ===== v10.37.3 Homie Pop-Out Ownership Repair END ===== */
+
+

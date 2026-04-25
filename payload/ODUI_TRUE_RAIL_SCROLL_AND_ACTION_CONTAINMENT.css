@@ -1,0 +1,296 @@
+/* === v10.37.2_TRUE_RAIL_SCROLL_AND_ACTION_CONTAINMENT_PASS_START ===
+   Purpose: true fullscreen rail scrolling + action/button containment.
+   Surgical scope: shell rails, panel lanes, action rows, card content overflow.
+   Does not alter Trading logic, CardGODMode logic, panel routing, or data flow.
+*/
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+body {
+  overscroll-behavior: none;
+}
+
+/* The desktop shell needs three independently scrollable lanes. */
+.layout.layoutWide {
+  height: 100vh !important;
+  max-height: 100vh !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  display: grid !important;
+  grid-template-columns: minmax(218px, 280px) minmax(0, 1fr) minmax(276px, 320px) !important;
+  align-items: stretch !important;
+}
+
+.layoutWide .rail,
+.layoutWide .main,
+.layoutWide .activityRail {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  scrollbar-gutter: stable both-edges;
+}
+
+/* Left nav: make the panel list itself the scroller and keep the version footer reachable. */
+.layoutWide .rail {
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 10px !important;
+}
+
+.layoutWide .rail > div:first-child {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  padding-bottom: 14px !important;
+}
+
+.layoutWide .rail > div:last-child {
+  flex: 0 0 auto !important;
+  margin-top: 8px !important;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  background: linear-gradient(180deg, rgba(8,12,18,0), rgba(8,12,18,0.86) 24%, rgba(8,12,18,0.94));
+  backdrop-filter: blur(10px);
+}
+
+/* Right rail: real scroll lane plus enough bottom space so Homie buddy does not cover actions. */
+.layoutWide .activityRail {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  padding: 12px 10px 138px 10px !important;
+  border-left: 1px solid rgba(121,87,255,0.22);
+}
+
+.layoutWide .activityRail > * {
+  flex: 0 0 auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+/* Main lane: scrolls by itself; inner panel grid must not force side rails off screen. */
+.layoutWide .main {
+  position: relative !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  padding: 12px !important;
+}
+
+.panelShell {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 300px) !important;
+  gap: 12px !important;
+  align-items: start !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.panelSolo,
+.panelMain,
+.panelShell > *,
+.panelMain > * {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+/* Assistant dock inside main needs its own containment so bottom controls are not chopped. */
+.assistantDock,
+.panelShell .assistantDock {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  max-height: calc(100vh - 24px) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  padding-bottom: 96px !important;
+  overscroll-behavior: contain !important;
+  scrollbar-gutter: stable;
+}
+
+/* Stop cards and cells from expanding beyond their grid columns. */
+.card,
+.softCard,
+.subCard,
+.timelineCard,
+.heroCard,
+.statPill,
+.homeMissionCard,
+.homeOpsCard,
+.homeAppTile,
+.homeAppGridTile,
+.entTile,
+.panelLoadingCard {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.grid,
+.flowGrid,
+.homeGrid,
+.homeTop,
+.homeBottom,
+.homeMissionRow,
+.homeOpsRow,
+.homeAppsRow,
+.homeAppsGrid,
+.entShell,
+.entHero,
+.entKodi {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.grid > *,
+.flowGrid > *,
+.homeGrid > *,
+.homeTop > *,
+.homeBottom > *,
+.homeMissionRow > *,
+.homeOpsRow > *,
+.homeAppsRow > *,
+.homeAppsGrid > *,
+.entShell > *,
+.entHero > *,
+.entKodi > * {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+/* Action rows/buttons must wrap instead of clipping or hiding behind neighbor cards. */
+.activityRail .row,
+.assistantDock .row,
+.timelineCard .row,
+.heroCard .row,
+.card .assistantChipWrap,
+.homeMissionActions,
+.homeOpsActions,
+.entTileActions,
+.widgetHeader,
+.widgetHeaderRight,
+.shellBarRight,
+.shellBarActions,
+.shellStats {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  flex-wrap: wrap !important;
+}
+
+button,
+.btn,
+.tabBtn,
+.godBtn,
+.godMiniBtn,
+.pinBtn,
+.badge {
+  max-width: 100% !important;
+}
+
+.tabBtn,
+.btn,
+.godMiniBtn {
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  line-height: 1.15 !important;
+}
+
+/* Nav labels truncate instead of shoving pins/section controls off the rail. */
+.navItem {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+.navItem > div:not(.navIcon) {
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+}
+
+.navTitle,
+.navSub,
+.widgetTitle,
+.widgetSubtitle,
+.shellBarTitle,
+.shellBarSub,
+.homeAppName,
+.homeAppSub {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Inputs/tables/code are the usual card blowout offenders. */
+input,
+textarea,
+select,
+pre,
+code,
+table,
+.tableWrap,
+.panelMain img,
+.panelMain video,
+.panelMain canvas {
+  max-width: 100% !important;
+}
+
+textarea,
+pre,
+code {
+  overflow-wrap: anywhere !important;
+}
+
+.tableWrap,
+.panelMain table {
+  overflow-x: auto !important;
+}
+
+/* Keep floating Homie visible but less likely to block right rail buttons. */
+.homieBuddy,
+.homieBuddyShell,
+.homieCompanion,
+.homieFloat,
+[class*="homieBuddy"],
+[class*="HomieBuddy"] {
+  max-width: min(128px, 28vw) !important;
+  max-height: min(128px, 28vh) !important;
+}
+
+/* Narrow/fullscreen fallback: make the right rail usable instead of crushing the center. */
+@media (max-width: 1220px) {
+  .layout.layoutWide {
+    grid-template-columns: minmax(198px, 240px) minmax(0, 1fr) minmax(238px, 280px) !important;
+  }
+  .panelShell {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .assistantDock,
+  .panelShell .assistantDock {
+    max-height: none !important;
+    padding-bottom: 24px !important;
+  }
+}
+
+@media (max-width: 980px) {
+  .layout.layoutWide {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .layoutWide .rail,
+  .layoutWide .activityRail {
+    display: none !important;
+  }
+}
+
+/* === v10.37.2_TRUE_RAIL_SCROLL_AND_ACTION_CONTAINMENT_PASS_END === */

@@ -1,0 +1,72 @@
+import React from "react";
+import RiveHomie, { type HomieGesture, type HomieMood } from "./RiveHomie";
+
+// v10.36.92 checker-safe marker: unified web and desktop avatar preview component installed
+
+type Props = {
+  mood?: HomieMood;
+  isListening?: boolean;
+  isSpeaking?: boolean;
+  gesture?: HomieGesture;
+  compact?: boolean;
+};
+
+export default function HomieUnifiedAvatar({
+  mood = "idle",
+  isListening = false,
+  isSpeaking = false,
+  gesture = "none",
+  compact = false,
+}: Props) {
+  const resolvedMood: HomieMood =
+    mood === "warn" ? "warn" : isListening ? "good" : mood;
+
+  const resolvedGesture: HomieGesture =
+    gesture !== "none" ? gesture : isSpeaking ? "nod" : isListening ? "tilt" : "none";
+
+  return (
+    <div
+      data-homie-unified-avatar="v10.36.92"
+      style={{
+        display: "grid",
+        gap: compact ? 8 : 10,
+        justifyItems: "center",
+        width: "100%",
+      }}
+    >
+      <RiveHomie
+        enabled={true}
+        src="/rive/homie_companion.riv"
+        stateMachine="State Machine 1"
+        pointerTracking={!compact}
+        mood={resolvedMood}
+        isSpeaking={!!isSpeaking}
+        isListening={!!isListening}
+        gesture={resolvedGesture}
+        reduceMotion={false}
+        className="homieUnifiedAvatarRive"
+        fallback={
+          <div
+            style={{
+              width: "100%",
+              maxWidth: 372,
+              aspectRatio: "1 / 1.18",
+              borderRadius: 34,
+              border: "1px solid rgba(154,230,255,0.16)",
+              background:
+                "radial-gradient(340px 190px at 50% 0%, rgba(154,230,255,0.12), rgba(154,230,255,0) 72%), radial-gradient(290px 180px at 50% 100%, rgba(255,170,220,0.10), rgba(255,170,220,0) 74%), linear-gradient(180deg, rgba(20,28,45,0.97) 0%, rgba(9,13,23,0.98) 100%)",
+            }}
+          />
+        }
+      />
+      {!compact ? (
+        <div style={{ textAlign: "center", maxWidth: 430 }}>
+          <div style={{ fontWeight: 800, letterSpacing: "0.01em" }}>Unified Homie visual lane</div>
+          <div className="small" style={{ marginTop: 4, opacity: 0.9 }}>
+            Same avatar-first lane for web and desktop. Memoji-inspired hoodie companion with the desktop-safe canvas fallback.
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}

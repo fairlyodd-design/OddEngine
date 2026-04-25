@@ -1,0 +1,21 @@
+{
+  "schema": "oddengine.homie.clone-memory-bank.v1",
+  "updatedAt": "2026-04-23T13:40:43.305Z",
+  "entries": [
+    {
+      "id": "19dba924ca9-35f04b",
+      "createdAt": "2026-04-23T13:40:43.305Z",
+      "title": "Family priority memory",
+      "text": "Family comes first, keep the room calm, and always reduce things to the next move.",
+      "summary": "Family comes first, keep the room calm, and always reduce things to the next move.",
+      "sourceType": "manual-note",
+      "sourcePath": "",
+      "tags": [
+        "family",
+        "next-move",
+        "tone"
+      ],
+      "metadata": {}
+    }
+  ]
+}

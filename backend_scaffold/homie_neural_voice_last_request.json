@@ -1,0 +1,45 @@
+{
+  "ts": "2026-04-23T17:13:18.483Z",
+  "service": "homie-neural-voice-bridge",
+  "version": "v10.36.88",
+  "mode": "preview",
+  "provider": "custom-http",
+  "providerConfigured": false,
+  "emotion": "focused",
+  "gesture": "none",
+  "cadence": {
+    "rate": 0.89,
+    "pitch": 0.97,
+    "pauseMs": 125
+  },
+  "sourceText": "Open Render Lab and tell me the next move for the family-safe workflow.",
+  "shapedText": "Open Render Lab and tell me the next move for the family-safe workflow.",
+  "memoryBlend": {
+    "topTags": [
+      "family",
+      "next-move",
+      "tone"
+    ],
+    "recentEcho": {
+      "title": "Family priority memory",
+      "summary": "Family comes first, keep the room calm, and always reduce things to the next move."
+    },
+    "familyPriorities": [
+      "body",
+      "mind",
+      "family",
+      "next move"
+    ]
+  },
+  "phraseBlend": {
+    "opener": "Keep the room calm.",
+    "closer": "One next move at a time.",
+    "phraseCount": 3
+  },
+  "trainingSampleCount": 0,
+  "profileSummary": {
+    "displayName": "Homie",
+    "mission": "Keep the room calm, useful, warm, and honest.",
+    "tone": "calm, grounded, loyal, practical, slightly playful"
+  }
+}

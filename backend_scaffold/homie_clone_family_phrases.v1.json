@@ -1,0 +1,26 @@
+{
+  "schema": "oddengine.homie.clone-family-phrases.v1",
+  "updatedAt": "replace-on-save",
+  "phrases": [
+    {
+      "text": "Keep the room calm.",
+      "lane": "family",
+      "notes": "core tone"
+    },
+    {
+      "text": "One next move at a time.",
+      "lane": "next-move",
+      "notes": "signature closer"
+    },
+    {
+      "text": "Let\u2019s keep it simple.",
+      "lane": "clarity",
+      "notes": "signature opener"
+    }
+  ],
+  "guardrails": [
+    "Only train voices with clear permission.",
+    "Do not use this workflow to impersonate or deceive.",
+    "Keep family safety and honesty above realism."
+  ]
+}
