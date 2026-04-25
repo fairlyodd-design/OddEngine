@@ -1,4 +1,4 @@
-﻿:root{
+:root{
   --bg:#090914;
   --panel:#131427;
   --panel2:#0d1020;
@@ -4030,4 +4030,752 @@ button,
 }
 /* ===== v10.37.3 Homie Pop-Out Ownership Repair END ===== */
 
+/* ===== v10.37.4 ODUI Panel By Panel Calm Audit ===== */
+/*
+  Surgical calm-audit layer.
+  Scope: panel-level containment and visual rhythm only.
+  Does not touch Trading logic, CardGODMode logic, routes, Homie memory, voice, or backend.
+*/
 
+:root{
+  --odui-calm-gap: 12px;
+  --odui-calm-gap-lg: 14px;
+  --odui-calm-pad: 14px;
+  --odui-calm-radius: 18px;
+  --odui-calm-border: rgba(154,230,255,0.105);
+  --odui-calm-surface: rgba(8,12,18,0.34);
+}
+
+/* Keep all panel content inside its lane. */
+.panelMain,
+.panelMain > *,
+.panelMain .card,
+.panelMain .subCard,
+.panelMain .softCard,
+.panelMain .heroCard,
+.panelMain .timelineCard{
+  min-width: 0;
+  max-width: 100%;
+}
+
+.panelMain{
+  overflow-x: hidden;
+  contain: layout paint;
+}
+
+.panelMain .card,
+.panelMain .subCard,
+.panelMain .softCard,
+.panelMain .heroCard{
+  overflow: hidden;
+  border-radius: var(--odui-calm-radius);
+}
+
+.panelMain .card:not(.brandRailCard):not(.shellHero):not(.shellBar),
+.panelMain .subCard,
+.panelMain .softCard{
+  border-color: var(--odui-calm-border);
+}
+
+/* Calmer rhythm in the first audit group. */
+.homeRoot,
+.homiePanelRoot,
+.builderRoot,
+.devEngineRoot,
+.moneyRoot,
+.familyBudgetRoot,
+.panelMain[data-panelid="Home"],
+.panelMain[data-panelid="Homie"],
+.panelMain[data-panelid="DevEngine"],
+.panelMain[data-panelid="Builder"],
+.panelMain[data-panelid="Money"],
+.panelMain[data-panelid="FamilyBudget"]{
+  min-width: 0;
+}
+
+.panelMain[data-panelid="Home"] .grid,
+.panelMain[data-panelid="Homie"] .grid,
+.panelMain[data-panelid="DevEngine"] .grid,
+.panelMain[data-panelid="Builder"] .grid,
+.panelMain[data-panelid="Money"] .grid,
+.panelMain[data-panelid="FamilyBudget"] .grid,
+.homeGrid,
+.homeTop,
+.homeBottom,
+.homeMissionRow,
+.homeOpsRow,
+.homeAppsGrid,
+.homeAppsRow{
+  min-width: 0;
+}
+
+/* Auto-fit target-panel grids where old fixed tracks cause smashed cells. */
+.panelMain[data-panelid="Home"] .homeMissionRow,
+.panelMain[data-panelid="Home"] .homeOpsRow,
+.panelMain[data-panelid="Home"] .homeAppsGrid{
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+}
+
+.panelMain[data-panelid="Home"] .homeGrid,
+.panelMain[data-panelid="Home"] .homeTop,
+.panelMain[data-panelid="Home"] .homeBottom{
+  gap: var(--odui-calm-gap-lg);
+}
+
+/* Action rows wrap instead of cutting buttons off. */
+.panelMain .row,
+.panelMain .cluster,
+.panelMain .assistantChipWrap,
+.panelMain .homeMissionActions,
+.panelMain .homeOpsActions,
+.panelMain .shellBarActions,
+.panelMain .widgetHeaderRight,
+.activityRail .row,
+.activityRail .assistantChipWrap{
+  min-width: 0;
+  max-width: 100%;
+}
+
+.panelMain .row:has(button),
+.panelMain .cluster:has(button),
+.panelMain .assistantChipWrap,
+.panelMain .homeMissionActions,
+.panelMain .homeOpsActions,
+.activityRail .row:has(button),
+.activityRail .assistantChipWrap{
+  flex-wrap: wrap;
+}
+
+.panelMain button,
+.activityRail button,
+.rail button{
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.18;
+}
+
+.panelMain .tabBtn,
+.activityRail .tabBtn,
+.rail .tabBtn{
+  min-height: 34px;
+  padding-inline: 10px;
+}
+
+/* Prevent long titles/text from pushing cards into other areas. */
+.panelMain .h,
+.panelMain .widgetTitle,
+.panelMain .subCardTitle,
+.panelMain .homeAppName,
+.panelMain .homeMissionTitle,
+.panelMain .homeOpsTitle,
+.panelMain .assistantTitle,
+.panelMain .assistantSectionTitle,
+.activityRail .assistantTitle,
+.activityRail .assistantSectionTitle{
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.panelMain .sub,
+.panelMain .small,
+.panelMain p,
+.panelMain li,
+.panelMain span,
+.activityRail .small,
+.activityRail p,
+.activityRail li,
+.activityRail span{
+  overflow-wrap: anywhere;
+}
+
+/* Tables/code/media get local scroll instead of breaking the panel. */
+.panelMain table,
+.activityRail table{
+  max-width: 100%;
+}
+
+.panelMain .tableWrap,
+.activityRail .tableWrap{
+  overflow: auto;
+  max-width: 100%;
+  border-radius: 14px;
+}
+
+.panelMain pre,
+.panelMain code,
+.activityRail pre,
+.activityRail code{
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.panelMain img,
+.panelMain video,
+.panelMain canvas,
+.panelMain svg{
+  max-width: 100%;
+}
+
+.panelMain input,
+.panelMain textarea,
+.panelMain select,
+.activityRail input,
+.activityRail textarea,
+.activityRail select{
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Home calm pass: reduce visual fight without changing content. */
+.panelMain[data-panelid="Home"] .homeWidget,
+.panelMain[data-panelid="Home"] .homeMissionCard,
+.panelMain[data-panelid="Home"] .homeOpsCard,
+.panelMain[data-panelid="Home"] .homeActivity,
+.panelMain[data-panelid="Money"] .card,
+.panelMain[data-panelid="FamilyBudget"] .card,
+.panelMain[data-panelid="Builder"] .card,
+.panelMain[data-panelid="DevEngine"] .card{
+  background:
+    radial-gradient(420px 170px at 12% 0%, rgba(154,230,255,0.055), rgba(154,230,255,0) 68%),
+    var(--odui-calm-surface);
+  border-color: var(--odui-calm-border);
+}
+
+/* Form-heavy panels: keep forms usable in narrow lanes. */
+.panelMain[data-panelid="Builder"] form,
+.panelMain[data-panelid="DevEngine"] form,
+.panelMain[data-panelid="Money"] form,
+.panelMain[data-panelid="FamilyBudget"] form,
+.panelMain[data-panelid="Builder"] .row,
+.panelMain[data-panelid="DevEngine"] .row,
+.panelMain[data-panelid="Money"] .row,
+.panelMain[data-panelid="FamilyBudget"] .row{
+  min-width: 0;
+}
+
+/* Keep Homie pop-out ownership protected from panel containment. */
+.homieRebuildDock,
+.homieRebuildDock *,
+.homieRebuildLauncher,
+.homieRebuildPanel{
+  box-sizing: border-box;
+}
+
+.homieRebuildDock{
+  contain: none !important;
+  overflow: visible !important;
+}
+
+.homieRebuildLauncher{
+  flex: 0 0 auto !important;
+  min-width: 90px !important;
+  min-height: 90px !important;
+  white-space: normal !important;
+}
+
+.homieRebuildPanel{
+  min-width: min(360px, calc(100vw - 42px));
+  overflow: auto;
+}
+
+/* Avoid helper/fab overlap on panel action rows. */
+.helpFab{
+  max-width: min(280px, calc(100vw - 48px));
+}
+
+@media (max-width: 1180px){
+  .panelShell{
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 820px){
+  .panelMain .widgetHeader,
+  .panelMain .homeMissionTop,
+  .panelMain .homeOpsTop{
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .panelMain .widgetHeaderRight{
+    justify-content: flex-start;
+  }
+}
+/* ===== v10.37.4 ODUI Panel By Panel Calm Audit END ===== */
+
+/* ===== v10.37.6 FairlyGodMode Command Deck Polish + Truth Reasons ===== */
+.fairlyGodModeLauncher,.fgGodLauncher,.fairlyGodModeFab,button[data-fg-god-launcher="true"]{width:66px!important;height:66px!important;min-width:66px!important;min-height:66px!important;border-radius:22px!important;font-size:12px!important;letter-spacing:.11em!important;line-height:1.25!important;padding:8px!important;box-shadow:0 16px 44px rgba(0,0,0,.38),0 0 0 1px rgba(94,234,242,.20) inset,0 0 28px rgba(94,234,242,.12)!important}.fairlyGodModeDeck,.fgGodDeck,.fairlyGodModeHud,.fairlyGodModePanel{max-height:calc(100vh - 42px)!important;overflow:auto!important;scrollbar-gutter:stable!important}.fgGodDeckTitle,.fairlyGodModeTitle{display:flex;align-items:center;gap:10px;font-size:27px!important;line-height:1.08!important;font-weight:950!important;letter-spacing:-.02em!important}.fgGodActivePanelLine,.fairlyGodModeActiveLine{display:block;margin-top:5px;font-size:12px!important;font-weight:700!important;letter-spacing:.05em!important;text-transform:uppercase!important;color:rgba(226,238,255,.64)!important}.fgGodPanelRow,.fairlyGodPanelRow,.fairlyGodModePanelRow{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:10px!important;min-width:0!important}.fgGodPanelRowMain,.fairlyGodPanelRowMain,.fairlyGodModePanelRowMain{min-width:0!important}.fgGodPanelActions,.fairlyGodPanelActions,.fairlyGodModePanelActions{display:flex!important;gap:6px!important;flex-wrap:wrap!important;justify-content:flex-end!important;align-items:center!important;max-width:330px!important}.fgGodPanelActions button,.fairlyGodPanelActions button,.fairlyGodModePanelActions button,.fgGodTinyBtn,.fairlyGodTinyBtn{min-height:30px!important;padding:6px 9px!important;border-radius:999px!important;font-size:12px!important;font-weight:800!important;white-space:nowrap!important}.fgGodReasonCard,.fairlyGodReasonCard,.fairlyGodModeReasonCard{margin-top:10px;padding:12px 13px;border-radius:18px;border:1px solid rgba(94,234,242,.14);background:radial-gradient(320px 150px at 12% 0%,rgba(94,234,242,.075),rgba(94,234,242,0) 68%),rgba(255,255,255,.035);color:rgba(232,241,255,.86);line-height:1.42}.fgGodReasonCard.warn,.fairlyGodReasonCard.warn,.fairlyGodModeReasonCard.warn{border-color:rgba(255,209,102,.22);background:radial-gradient(320px 150px at 12% 0%,rgba(255,209,102,.075),rgba(255,209,102,0) 68%),rgba(255,255,255,.035)}.fgGodReasonCard.bad,.fairlyGodReasonCard.bad,.fairlyGodModeReasonCard.bad{border-color:rgba(255,122,167,.22);background:radial-gradient(320px 150px at 12% 0%,rgba(255,122,167,.08),rgba(255,122,167,0) 68%),rgba(255,255,255,.035)}.fgGodReasonTitle,.fairlyGodReasonTitle{font-weight:950;margin-bottom:4px}.fgGodReasonText,.fairlyGodReasonText{color:rgba(226,238,255,.72);font-size:13px}.fgGodDangerZone,.fairlyGodDangerZone{border:1px solid rgba(255,122,167,.18);background:radial-gradient(320px 160px at 10% 0%,rgba(255,122,167,.075),rgba(255,122,167,0) 72%),rgba(255,255,255,.03);border-radius:20px;padding:14px}@media(max-width:820px){.fgGodPanelRow,.fairlyGodPanelRow,.fairlyGodModePanelRow{grid-template-columns:1fr!important}.fgGodPanelActions,.fairlyGodPanelActions,.fairlyGodModePanelActions{justify-content:flex-start!important;max-width:none!important}}
+/* ===== v10.37.6 FairlyGodMode Command Deck Polish + Truth Reasons END ===== */
+
+/* ===== v10.37.7 FairlyGodMode OS Doctor + Epic Stack Foundation ===== */
+.fairlyGodModeLauncher{
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  width: 66px !important;
+  height: 66px !important;
+  min-width: 66px !important;
+  min-height: 66px !important;
+  border-radius: 22px !important;
+  border: 1px solid rgba(94,234,242,.30);
+  background:
+    radial-gradient(100px 80px at 40% 0%, rgba(94,234,242,.18), rgba(94,234,242,0) 72%),
+    linear-gradient(180deg, rgba(20,28,42,.92), rgba(8,12,20,.94));
+  color: rgba(246,248,255,.96);
+  cursor: pointer;
+  font-size: 12px !important;
+  letter-spacing: .11em !important;
+  line-height: 1.25 !important;
+  padding: 8px !important;
+  box-shadow:
+    0 16px 44px rgba(0,0,0,.38),
+    0 0 0 1px rgba(94,234,242,.20) inset,
+    0 0 28px rgba(94,234,242,.12) !important;
+}
+.fairlyGodModeLauncher span{ display:block; font-weight:950; }
+
+.fairlyGodModeBackdrop{
+  position: fixed;
+  inset: 0;
+  z-index: 119;
+  background: rgba(0,0,0,.30);
+  backdrop-filter: blur(4px);
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding: 20px 18px;
+}
+
+.fairlyGodModeDeck{
+  width: min(980px, calc(100vw - 28px));
+  max-height: calc(100vh - 42px) !important;
+  overflow: auto !important;
+  scrollbar-gutter: stable !important;
+  border-radius: 26px !important;
+  padding: 20px !important;
+  border-color: rgba(255,209,102,.20) !important;
+  background:
+    radial-gradient(760px 360px at 14% 0%, rgba(94,234,242,.09), rgba(94,234,242,0) 70%),
+    radial-gradient(700px 340px at 86% 0%, rgba(143,98,255,.10), rgba(143,98,255,0) 68%),
+    rgba(8,12,20,.94) !important;
+}
+.fairlyGodModeDeck::-webkit-scrollbar{ width: 10px; }
+.fairlyGodModeDeck::-webkit-scrollbar-thumb{
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(143,98,255,.74), rgba(94,234,242,.56));
+  border: 3px solid rgba(7,10,18,.72);
+}
+
+.fgGodTop{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; border-bottom:1px solid rgba(255,255,255,.08); padding-bottom:16px; }
+.fgGodTopActions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+.fgGodDeckTitle,.fairlyGodModeTitle{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size: 27px !important;
+  line-height: 1.08 !important;
+  font-weight: 950 !important;
+  letter-spacing: -.02em !important;
+}
+.fgGodActivePanelLine,.fairlyGodModeActiveLine{
+  display:block;
+  margin-top: 5px;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  letter-spacing: .05em !important;
+  text-transform: uppercase !important;
+  color: rgba(226,238,255,.64) !important;
+}
+.fgGodTabs{ display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+.fgGodSection{ display:grid; gap:14px; margin-top:16px; }
+
+.fgGodMetricGrid{ display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:12px; }
+.fgGodMetric{ min-height:88px; display:flex; flex-direction:column; justify-content:center; }
+.fgGodMetric b{ font-size:30px; line-height:1; }
+.fgGodMetric span{ color:rgba(226,238,255,.68); margin-top:8px; }
+
+.fgGodReasonCard{
+  margin-top: 0;
+  padding: 12px 13px;
+  border-radius: 18px;
+  border: 1px solid rgba(94,234,242,.14);
+  background:
+    radial-gradient(320px 150px at 12% 0%, rgba(94,234,242,.075), rgba(94,234,242,0) 68%),
+    rgba(255,255,255,.035);
+  color: rgba(232,241,255,.86);
+  line-height: 1.42;
+}
+.fgGodReasonCard.warn{
+  border-color: rgba(255,209,102,.22);
+  background:
+    radial-gradient(320px 150px at 12% 0%, rgba(255,209,102,.075), rgba(255,209,102,0) 68%),
+    rgba(255,255,255,.035);
+}
+.fgGodReasonCard.bad{
+  border-color: rgba(255,122,167,.22);
+  background:
+    radial-gradient(320px 150px at 12% 0%, rgba(255,122,167,.08), rgba(255,122,167,0) 68%),
+    rgba(255,255,255,.035);
+}
+.fgGodReasonTitle{ font-weight: 950; margin-bottom: 4px; }
+.fgGodReasonText{ color: rgba(226,238,255,.72); font-size: 13px; }
+.fgGodDoctorActions{ display:flex; flex-wrap:wrap; gap:8px; margin-top: 10px; }
+
+.fgGodQueue{ display:grid; gap:10px; }
+.fgGodQueueItem{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  padding:12px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.035);
+}
+.fgGodQueueItem.warn{ border-color:rgba(255,209,102,.18); }
+.fgGodQueueItem.bad{ border-color:rgba(255,122,167,.20); }
+.fgGodQueueItem div{ min-width:0; display:grid; gap:4px; }
+.fgGodQueueItem span{ color:rgba(226,238,255,.64); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+.fgGodGroup{ display:grid; gap:10px; }
+.fgGodGroupTitle{ font-size:12px; letter-spacing:.15em; text-transform:uppercase; font-weight:950; color:rgba(226,238,255,.62); }
+.fgGodPanelGrid{ display:grid; grid-template-columns:1fr; gap:10px; }
+.fgGodPanelRow{
+  display:grid !important;
+  grid-template-columns: minmax(0,1fr) auto !important;
+  align-items:center !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+  border:1px solid rgba(143,98,255,.35);
+  background:rgba(12,16,28,.72);
+  border-radius:18px;
+  padding:10px;
+}
+.fgGodPanelRow.selected{ border-color:rgba(94,234,242,.44); background:rgba(94,234,242,.055); }
+.fgGodPanelRowMain{
+  min-width:0 !important;
+  border:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  text-align:left;
+  padding:0 !important;
+  color:inherit;
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  gap:12px;
+  align-items:center;
+  cursor:pointer;
+}
+.fgGodPanelIcon{ font-size:24px; width:34px; text-align:center; }
+.fgGodPanelText{ min-width:0; display:flex; flex-direction:column; gap:3px; }
+.fgGodPanelText b{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.fgGodPanelText small{ color:rgba(226,238,255,.64); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.fgGodPanelActions{
+  display:flex !important;
+  gap:6px !important;
+  flex-wrap:wrap !important;
+  justify-content:flex-end !important;
+  align-items:center !important;
+  max-width: 390px !important;
+}
+.fgGodPanelActions button{
+  min-height: 30px !important;
+  padding: 6px 9px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  white-space: nowrap !important;
+}
+
+.fgGodModeGrid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.fgGodModeCard{ min-height: 150px; }
+.fgGodModeTitle{ font-size:17px; font-weight:950; margin-bottom:6px; }
+
+.fgGodReceiptList{ display:grid; gap:9px; }
+.fgGodReceipt{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  padding:12px;
+  border-radius:18px;
+  border:1px solid rgba(94,234,242,.14);
+  background:rgba(255,255,255,.032);
+}
+.fgGodReceipt.warn{ border-color:rgba(255,209,102,.20); }
+.fgGodReceipt.bad{ border-color:rgba(255,122,167,.22); }
+.fgGodReceipt div{ min-width:0; display:grid; gap:3px; }
+.fgGodReceipt span,.fgGodReceipt small{ color:rgba(226,238,255,.65); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+.fgGodCommandBox{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; align-items:center; }
+.fgGodLegacyHero{ padding:18px !important; }
+.fgGodLegacyTitle{ font-size:24px; font-weight:950; margin-bottom:8px; }
+.fgGodLegacyGrid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.fgGodLegacyCard{
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.035);
+  border-radius:18px;
+  padding:13px;
+  display:grid;
+  gap:5px;
+}
+.fgGodLegacyCard span{ color:rgba(226,238,255,.64); font-size:13px; }
+.fgGodSafetyList{ display:grid; gap:10px; color:rgba(232,241,255,.78); }
+button.danger, .tabBtn.danger{ border-color:rgba(255,122,167,.34) !important; color:rgba(255,190,210,.96) !important; }
+
+@media (max-width: 820px){
+  .fairlyGodModeBackdrop{ padding: 10px; }
+  .fairlyGodModeDeck{ width:100%; padding:16px !important; }
+  .fgGodTop{ flex-direction:column; }
+  .fgGodMetricGrid,.fgGodModeGrid,.fgGodLegacyGrid{ grid-template-columns:1fr; }
+  .fgGodPanelRow{ grid-template-columns: 1fr !important; }
+  .fgGodPanelActions{ justify-content:flex-start !important; max-width:none !important; }
+  .fgGodCommandBox{ grid-template-columns:1fr; }
+}
+/* ===== v10.37.7 FairlyGodMode OS Doctor + Epic Stack Foundation END ===== */
+
+/* ===== v10.37.8 FairlyGodMode Workspace Modes Deepening ===== */
+:root{
+  --fgm-mode-wallpaper-opacity: 0.16;
+  --fgm-mode-rail-opacity: 0.70;
+  --fgm-mode-main-dim: 0;
+}
+
+body[data-fgm-mode="legacy"]{
+  --fgm-mode-wallpaper-opacity: 0.13;
+  --fgm-mode-rail-opacity: 0.78;
+}
+body[data-fgm-mode="trading"]{
+  --fgm-mode-wallpaper-opacity: 0.10;
+  --fgm-mode-rail-opacity: 0.84;
+}
+body[data-fgm-mode="money"]{
+  --fgm-mode-wallpaper-opacity: 0.12;
+  --fgm-mode-rail-opacity: 0.76;
+}
+body[data-fgm-mode="studio"]{
+  --fgm-mode-wallpaper-opacity: 0.18;
+  --fgm-mode-rail-opacity: 0.72;
+}
+body[data-fgm-mode="morning"]{
+  --fgm-mode-wallpaper-opacity: 0.20;
+  --fgm-mode-rail-opacity: 0.68;
+}
+body[data-fgm-mode="night"]{
+  --fgm-mode-wallpaper-opacity: 0.08;
+  --fgm-mode-rail-opacity: 0.88;
+  --fgm-mode-main-dim: .08;
+}
+body[data-fgm-mode="house"]{
+  --fgm-mode-wallpaper-opacity: 0.14;
+  --fgm-mode-rail-opacity: 0.78;
+}
+
+.layoutWide::before{
+  opacity: var(--fgm-mode-wallpaper-opacity, 0.16) !important;
+}
+
+body[data-fgm-mode] .rail{
+  background:
+    radial-gradient(800px 360px at 0% 0%, rgba(37,88,202,0.16) 0%, rgba(8,12,18,0) 58%),
+    radial-gradient(800px 360px at 100% 10%, rgba(196,50,127,0.10) 0%, rgba(8,12,18,0) 58%),
+    rgba(8,12,18,var(--fgm-mode-rail-opacity, .70)) !important;
+}
+
+body[data-fgm-mode] .main::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background: rgba(0,0,0,var(--fgm-mode-main-dim,0));
+  z-index: 0;
+}
+body[data-fgm-mode] .main > *{ position: relative; z-index: 1; }
+
+.fgGodModeBanner{
+  position: sticky;
+  top: 0;
+  z-index: 15;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(94,234,242,.18);
+  background:
+    radial-gradient(360px 160px at 10% 0%, rgba(94,234,242,.10), rgba(94,234,242,0) 70%),
+    rgba(8,12,20,.82);
+  backdrop-filter: blur(12px);
+}
+.fgGodModeBannerLeft{ min-width:0; }
+.fgGodModeBannerTitle{ font-weight:950; }
+.fgGodModeBannerSub{
+  color:rgba(226,238,255,.64);
+  font-size:12px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.fgGodModeBannerActions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+
+.fgGodModeGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.fgGodModeCard{
+  position:relative;
+  min-height: 182px;
+  overflow:hidden;
+}
+.fgGodModeCard::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:.58;
+  background:
+    radial-gradient(420px 220px at 16% 0%, rgba(94,234,242,.11), rgba(94,234,242,0) 62%),
+    radial-gradient(380px 200px at 100% 0%, rgba(143,98,255,.12), rgba(143,98,255,0) 65%);
+}
+.fgGodModeCard > *{ position:relative; z-index:1; }
+.fgGodModeTitle{
+  font-size:18px;
+  font-weight:950;
+  margin-bottom:6px;
+}
+.fgGodModeIntent{
+  color:rgba(226,238,255,.72);
+  line-height:1.42;
+  font-size:13px;
+}
+.fgGodModeMeta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:10px;
+}
+.fgGodModeMeta .badge{
+  background:rgba(255,255,255,.04);
+}
+.fgGodModeActions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
+}
+.fgGodModeHistory{
+  display:grid;
+  gap:9px;
+}
+.fgGodModeHistoryItem{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  padding:11px 12px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.032);
+}
+.fgGodModeHistoryItem b,
+.fgGodModeHistoryItem span{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.fgGodModeHistoryItem span{
+  display:block;
+  color:rgba(226,238,255,.62);
+  font-size:12px;
+  margin-top:3px;
+}
+.fgGodModePreview{
+  border:1px solid rgba(255,209,102,.18);
+  background:
+    radial-gradient(340px 150px at 8% 0%, rgba(255,209,102,.075), rgba(255,209,102,0) 70%),
+    rgba(255,255,255,.035);
+  border-radius:18px;
+  padding:13px;
+}
+.fgGodModePreviewGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px;
+  margin-top:10px;
+}
+.fgGodModePreviewCell{
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;
+  padding:10px;
+  background:rgba(0,0,0,.16);
+  min-width:0;
+}
+.fgGodModePreviewCell b{
+  display:block;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:rgba(226,238,255,.58);
+}
+.fgGodModePreviewCell span{
+  display:block;
+  margin-top:4px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+@media(max-width: 820px){
+  .fgGodModeGrid,
+  .fgGodModePreviewGrid{
+    grid-template-columns:1fr;
+  }
+  .fgGodModeBanner{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .fgGodModeBannerActions{
+    justify-content:flex-start;
+  }
+}
+/* ===== v10.37.8 FairlyGodMode Workspace Modes Deepening END ===== */
+
+/* ===== v10.37.8d Global Shell ASCII Icon Sanity ===== */
+.navIcon,
+.fgGodPanelIcon,
+.homeAppIcon{
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 950 !important;
+  letter-spacing: .04em !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+.navIcon{
+  width: 38px !important;
+  min-width: 38px !important;
+}
+.brandRailCard,
+.shellHero,
+.shellBar,
+.bannerFamilyNight,
+.bannerLan{
+  unicode-bidi: isolate;
+}
+.pinBtn{
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif !important;
+  font-weight: 950 !important;
+}
+/* ===== v10.37.8d Global Shell ASCII Icon Sanity END ===== */
