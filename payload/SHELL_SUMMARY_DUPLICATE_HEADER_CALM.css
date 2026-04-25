@@ -1,0 +1,162 @@
+/* ===== v10.38.2c Shell Summary Duplicate Header Calm Pass ===== */
+/*
+  The shell summary was visually competing with each panel's own header.
+  This turns it into a slim context strip and prevents HOME Home / BRAIN OddBrain style duplication.
+*/
+.fairlyOddShellHero,
+.shellHero{
+  min-height: 0 !important;
+  padding: 10px 12px !important;
+  border-radius: 18px !important;
+  margin-bottom: 10px !important;
+  background:
+    radial-gradient(520px 160px at 16% 0%, rgba(94,234,242,.06), rgba(94,234,242,0) 65%),
+    rgba(10,14,24,.58) !important;
+  box-shadow: 0 10px 28px rgba(0,0,0,.22) !important;
+}
+
+.fairlyOddShellHero .shellLogo,
+.shellHero .shellLogo{
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 14px !important;
+  opacity: .82 !important;
+}
+
+.fairlyOddShellHero .shellTitle,
+.shellHero .shellTitle{
+  font-size: 14px !important;
+  line-height: 1.15 !important;
+  letter-spacing: .03em !important;
+  text-transform: uppercase !important;
+  font-weight: 900 !important;
+  color: rgba(226,238,255,.82) !important;
+  margin-top: 1px !important;
+}
+
+.fairlyOddShellHero .shellTitle::before,
+.shellHero .shellTitle::before{
+  content: "Current panel: ";
+  color: rgba(226,238,255,.52);
+  font-weight: 800;
+}
+
+.fairlyOddShellHero .shellEyebrow,
+.shellHero .shellEyebrow{
+  font-size: 10px !important;
+  letter-spacing: .16em !important;
+  color: rgba(226,238,255,.48) !important;
+}
+
+.fairlyOddShellHero .sub,
+.shellHero .sub{
+  max-width: 720px !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+  color: rgba(226,238,255,.58) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.fairlyOddShellHero .shellStats,
+.shellHero .shellStats{
+  gap: 8px !important;
+}
+
+.fairlyOddShellHero .statPill,
+.shellHero .statPill{
+  min-width: 92px !important;
+  padding: 8px 10px !important;
+  border-radius: 14px !important;
+  background: rgba(255,255,255,.035) !important;
+}
+
+.fairlyOddShellHero .statPill b,
+.shellHero .statPill b{
+  font-size: 16px !important;
+}
+
+.fairlyOddShellHero .statPill span,
+.shellHero .statPill span{
+  font-size: 11px !important;
+}
+
+.fairlyOddShellHero .assistantChipWrap,
+.shellHero .assistantChipWrap{
+  margin-top: 6px !important;
+}
+
+.fairlyOddShellHero .badge,
+.shellHero .badge{
+  font-size: 11px !important;
+  padding: 3px 7px !important;
+}
+
+.fairlyOddShellHero .row:last-child,
+.shellHero .row:last-child{
+  margin-top: 8px !important;
+}
+
+.fairlyOddShellHero .row:last-child .small,
+.shellHero .row:last-child .small{
+  font-size: 11px !important;
+  color: rgba(226,238,255,.52) !important;
+}
+
+.fairlyOddShellHero .tabBtn,
+.shellHero .tabBtn{
+  min-height: 30px !important;
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+}
+
+/* Compact shell bar should stay even slimmer. */
+.shellBar{
+  padding: 8px 10px !important;
+  border-radius: 16px !important;
+  margin-bottom: 10px !important;
+  background: rgba(10,14,24,.56) !important;
+  box-shadow: 0 8px 22px rgba(0,0,0,.18) !important;
+}
+
+.shellBarLogo{
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 12px !important;
+  opacity: .82 !important;
+}
+
+.shellBarTitle{
+  font-size: 13px !important;
+  text-transform: uppercase !important;
+  letter-spacing: .04em !important;
+}
+
+.shellBarTitle::before{
+  content: "Current: ";
+  color: rgba(226,238,255,.50);
+}
+
+.shellBarSub{
+  font-size: 11px !important;
+  color: rgba(226,238,255,.52) !important;
+}
+
+.shellBarBadges .badge{
+  font-size: 11px !important;
+  padding: 3px 7px !important;
+}
+
+/* Prevent ASCII icon labels from doubling with panel titles in hero contexts. */
+.shellHero .shellTitle,
+.shellBarTitle{
+  word-spacing: 1px;
+}
+
+/* Keep actual panel content visually dominant. */
+.panelShell,
+.panelSolo{
+  margin-top: 0 !important;
+}
+/* ===== v10.38.2c Shell Summary Duplicate Header Calm Pass END ===== */

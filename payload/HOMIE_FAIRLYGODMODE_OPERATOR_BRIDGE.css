@@ -1,0 +1,21 @@
+/* ===== v10.38.2 Homie FairlyGodMode Operator Bridge ===== */
+.fgGodHomieBridgeGrid{display:grid;grid-template-columns:1.2fr .8fr;gap:12px}
+.fgGodHomieBridgeCard{min-width:0}
+.fgGodHomieCommandRow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+.fgGodHomieCommandHints{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.fgGodHomieCommandHints button{font-size:12px;padding:7px 10px;border-radius:999px}
+.fgGodHomieReply{border:1px solid rgba(94,234,242,.16);background:rgba(94,234,242,.045);border-radius:18px;padding:13px;display:grid;gap:6px}
+.fgGodHomieReply.warn{border-color:rgba(255,209,102,.22);background:rgba(255,209,102,.045)}
+.fgGodHomieReply.bad{border-color:rgba(255,122,167,.22);background:rgba(255,122,167,.045)}
+.fgGodHomieReply b{font-size:14px}
+.fgGodHomieReply span{color:rgba(226,238,255,.70);font-size:13px;line-height:1.45}
+.fgGodHomieActionPlan{display:grid;gap:8px;margin-top:10px}
+.fgGodHomieActionItem{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:9px;align-items:center;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.028);border-radius:15px;padding:9px}
+.fgGodHomieActionItem small{color:rgba(226,238,255,.62)}
+.fgGodHomieLog{display:grid;gap:8px;max-height:360px;overflow:auto;padding-right:3px}
+.fgGodHomieLogItem{border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.14);border-radius:15px;padding:10px;display:grid;gap:5px}
+.fgGodHomieLogItem b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fgGodHomieLogItem span{color:rgba(226,238,255,.62);font-size:12px;line-height:1.4}
+.fgGodHomieBridgeBadgeRow{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+@media(max-width:820px){.fgGodHomieBridgeGrid{grid-template-columns:1fr}.fgGodHomieCommandRow{grid-template-columns:1fr}.fgGodHomieActionItem{grid-template-columns:1fr}}
+/* ===== v10.38.2 Homie FairlyGodMode Operator Bridge END ===== */

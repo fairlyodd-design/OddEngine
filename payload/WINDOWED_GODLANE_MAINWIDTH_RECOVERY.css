@@ -1,0 +1,191 @@
+/* ===== v10.38.3b Windowed God Lane Collapse + Main Width Recovery ===== */
+/*
+  The remaining windowed-mode squeeze is caused by side lanes/cards between the main content
+  and the assistant rail. This pass collapses those lanes below the main content at windowed widths.
+*/
+
+/* Protect panel content from being narrowed by sibling lanes. */
+.panelShell{
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.panelMain{
+  width: 100% !important;
+  min-width: min(680px, 100%) !important;
+}
+
+/* Make all non-main children of the panel shell drop below the main content, not beside it. */
+.panelShell > :not(.panelMain){
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+/* Known side assistant/dock/card lanes should become full-width sections. */
+.assistantDock,
+.panelAssistant,
+.aiDock,
+.aiPanelDock,
+[class*="AssistantDock"],
+[class*="assistantDock"],
+[class*="panelAssistant"]{
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+/* CardGODMode side/floating stacks should not reserve a skinny lane. */
+.godModeSide,
+.godSide,
+.godLane,
+.cardGodLane,
+.cardGodSide,
+.godManagedLane,
+.godCardsLane,
+.godFloatingStack,
+.cardFloatingStack,
+[class*="GodLane"],
+[class*="godLane"],
+[class*="GodSide"],
+[class*="godSide"],
+[class*="FloatingStack"]{
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  grid-column: 1 / -1 !important;
+}
+
+/* If a panel uses inner grids, force side columns to collapse before text becomes vertical. */
+.panelMain .grid,
+.panelMain [class*="grid"],
+.panelMain [class*="Grid"],
+.panelMain [class*="layout"],
+.panelMain [class*="Layout"]{
+  min-width: 0 !important;
+}
+
+/* The skinny side-card stack visible in the screenshot must wrap horizontally, not vertically. */
+.panelMain .sideStack,
+.panelMain .rightStack,
+.panelMain .actionStack,
+.panelMain .coachStack,
+.panelMain [class*="sideStack"],
+.panelMain [class*="rightStack"],
+.panelMain [class*="actionStack"],
+.panelMain [class*="coachStack"]{
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+/* Stop card text from wrapping one letter per line. */
+.panelMain .card,
+.panelMain .softCard,
+.panelMain .subCard,
+.panelMain .homeWidget,
+.panelMain .homeMissionCard,
+.panelMain .homeOpsCard,
+.panelMain [class*="card"],
+.panelMain [class*="Card"]{
+  min-width: min(220px, 100%) !important;
+  max-width: 100% !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+}
+
+.panelMain h1,
+.panelMain h2,
+.panelMain h3,
+.panelMain h4,
+.panelMain .h,
+.panelMain .title,
+.panelMain [class*="title"],
+.panelMain [class*="Title"]{
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+}
+
+/* Buttons become rows before their parent becomes a tiny column. */
+.panelMain .tabBtn,
+.panelMain .btn,
+.panelMain button{
+  min-width: fit-content !important;
+  white-space: normal !important;
+}
+
+/* Windowed breakpoints: main content wins, side utilities drop. */
+@media (max-width: 1480px){
+  .panelMain{
+    min-width: min(720px, 100%) !important;
+  }
+
+  .panelMain > .row,
+  .panelMain > .cluster,
+  .panelMain > [class*="row"],
+  .panelMain > [class*="Row"]{
+    min-width: 0 !important;
+    flex-wrap: wrap !important;
+  }
+}
+
+@media (max-width: 1320px){
+  .layout.layoutWide{
+    grid-template-columns: minmax(220px, 260px) minmax(0, 1fr) !important;
+  }
+
+  .activityRail{
+    position: fixed !important;
+    right: 12px !important;
+    top: 80px !important;
+    bottom: 80px !important;
+    width: min(320px, calc(100vw - 32px)) !important;
+    transform: translateX(calc(100% - 44px)) !important;
+    z-index: 90 !important;
+    transition: transform 160ms ease !important;
+    overflow: auto !important;
+  }
+
+  .activityRail:hover,
+  .activityRail:focus-within{
+    transform: translateX(0) !important;
+  }
+}
+
+/* Strong recovery for the screenshot-size window. */
+@media (max-width: 1180px){
+  .layout.layoutWide{
+    grid-template-columns: 230px minmax(0, 1fr) !important;
+  }
+
+  .panelMain{
+    min-width: 0 !important;
+  }
+
+  .panelMain > *{
+    max-width: 100% !important;
+  }
+
+  .shellHero .shellStats,
+  .fairlyOddShellHero .shellStats{
+    display: none !important;
+  }
+}
+
+/* Last resort: if a card would be less than readable, let it overflow-x instead of vertical crush. */
+@media (max-width: 980px){
+  .main{
+    overflow-x: auto !important;
+  }
+
+  .panelMain{
+    min-width: 640px !important;
+  }
+
+  .panelShell{
+    min-width: 640px !important;
+  }
+}
+/* ===== v10.38.3b Windowed God Lane Collapse + Main Width Recovery END ===== */

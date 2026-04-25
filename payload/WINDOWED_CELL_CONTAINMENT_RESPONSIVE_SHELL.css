@@ -1,0 +1,311 @@
+/* ===== v10.38.2d Windowed Mode Cell Containment + Responsive Shell ===== */
+/*
+  Fixes windowed-mode squeeze:
+  - fullscreen remains roomy
+  - windowed/narrow widths collapse pressure points
+  - assistant dock/right rail/cards stop becoming vertical text columns
+*/
+
+:root{
+  --od-rail-w: clamp(220px, 18vw, 292px);
+  --od-right-rail-w: clamp(260px, 19vw, 330px);
+  --od-dock-w: clamp(230px, 21vw, 320px);
+}
+
+/* Make the whole shell use responsive tracks instead of hard pressure widths. */
+.layout.layoutWide{
+  grid-template-columns: var(--od-rail-w) minmax(0, 1fr) var(--od-right-rail-w) !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.layout,
+.rail,
+.main,
+.activityRail,
+.panelShell,
+.panelSolo,
+.panelMain{
+  min-width: 0 !important;
+  min-height: 0 !important;
+}
+
+.main{
+  overflow: auto !important;
+  contain: layout paint !important;
+}
+
+/* Main panel + assistant dock: never let dock crush the panel into skinny columns. */
+.panelShell{
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, var(--od-dock-w)) !important;
+  align-items: start !important;
+  gap: 12px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.panelSolo{
+  display: block !important;
+  min-width: 0 !important;
+}
+
+.panelMain{
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+}
+
+.assistantDock,
+.panelAssistant,
+[class*="assistantDock"],
+[class*="AssistantDock"]{
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow-wrap: anywhere !important;
+}
+
+/* CardGODMode/floating cards should not create vertical squeeze lanes. */
+.card,
+.softCard,
+.subCard,
+.godFloating,
+.cardFloating,
+.homeWidget,
+.homeMissionCard,
+.homeOpsCard{
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow-wrap: anywhere !important;
+}
+
+.card > *,
+.softCard > *,
+.subCard > *{
+  min-width: 0 !important;
+}
+
+/* Button/action rows wrap before they clip. */
+.row,
+.cluster,
+.shellStats,
+.shellBarRight,
+.shellBarActions,
+.shellBarBadges,
+.assistantChipWrap,
+.homeMissionActions,
+.homeOpsActions,
+.fgGodDoctorActions,
+.fgGodPanelActions,
+.fgGodReceiptActions,
+.fgGodModeActions,
+.fgGodTopActions{
+  min-width: 0 !important;
+  flex-wrap: wrap !important;
+}
+
+button,
+.tabBtn,
+.btn,
+.badge{
+  max-width: 100% !important;
+  white-space: normal !important;
+}
+
+/* Inputs/tables/code/media cannot force the layout wider. */
+input,
+textarea,
+select,
+pre,
+code,
+table,
+.tableWrap,
+img,
+video,
+canvas{
+  max-width: 100% !important;
+}
+
+pre,
+code{
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere !important;
+}
+
+/* Shell summary should not steal width in windowed mode. */
+.shellHero,
+.fairlyOddShellHero,
+.shellBar{
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+.shellHero .row,
+.fairlyOddShellHero .row{
+  min-width: 0 !important;
+}
+
+.shellHero .shellStats,
+.fairlyOddShellHero .shellStats{
+  flex-wrap: wrap !important;
+  justify-content: flex-start !important;
+}
+
+.shellHero .statPill,
+.fairlyOddShellHero .statPill{
+  flex: 1 1 86px !important;
+  min-width: 82px !important;
+}
+
+/* Nav rail: keep labels from pushing pin buttons or overflowing. */
+.navItem{
+  grid-template-columns: auto minmax(0,1fr) auto !important;
+  min-width: 0 !important;
+}
+
+.navTitle,
+.navSub,
+.brandWord,
+.brandTag{
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Homie bubble should not cover / squeeze layout in smaller windows. */
+.homieBuddy,
+.homieBuddyShell,
+.homieCompanion,
+[class*="HomieBuddy"]{
+  max-width: min(240px, 34vw) !important;
+}
+
+/* Medium windows: right rail becomes narrower and panel assistant drops under content. */
+@media (max-width: 1320px){
+  :root{
+    --od-rail-w: 230px;
+    --od-right-rail-w: 260px;
+    --od-dock-w: 260px;
+  }
+
+  .panelShell{
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .panelShell > :not(.panelMain){
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .assistantDock,
+  .panelAssistant,
+  [class*="assistantDock"],
+  [class*="AssistantDock"]{
+    grid-column: 1 / -1 !important;
+  }
+
+  .godLayoutBar{
+    position: sticky !important;
+    top: 8px !important;
+    width: auto !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+  }
+}
+
+/* Narrow desktop/windowed mode: hide/collapse the right rail pressure. */
+@media (max-width: 1120px){
+  .layout.layoutWide{
+    grid-template-columns: minmax(190px, 230px) minmax(0, 1fr) !important;
+  }
+
+  .activityRail{
+    position: fixed !important;
+    right: 12px !important;
+    top: 84px !important;
+    bottom: 84px !important;
+    width: min(310px, calc(100vw - 32px)) !important;
+    max-width: calc(100vw - 32px) !important;
+    z-index: 85 !important;
+    transform: translateX(calc(100% - 42px)) !important;
+    transition: transform 160ms ease !important;
+    overflow: auto !important;
+  }
+
+  .activityRail:hover,
+  .activityRail:focus-within{
+    transform: translateX(0) !important;
+  }
+
+  .shellHero .shellStats,
+  .fairlyOddShellHero .shellStats{
+    display: none !important;
+  }
+}
+
+/* Small windows: single lane shell, rail becomes top scroll strip. */
+@media (max-width: 860px){
+  .layout.layoutWide{
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100vh !important;
+    overflow: hidden !important;
+  }
+
+  .rail{
+    width: 100% !important;
+    max-height: 210px !important;
+    border-right: 0 !important;
+    border-bottom: 1px solid var(--line) !important;
+    overflow: auto !important;
+  }
+
+  .main{
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    overflow: auto !important;
+  }
+
+  .activityRail{
+    display: none !important;
+  }
+
+  .panelShell{
+    grid-template-columns: 1fr !important;
+  }
+
+  .shellHero,
+  .fairlyOddShellHero{
+    padding: 8px 10px !important;
+  }
+
+  .shellHero .shellLogo,
+  .fairlyOddShellHero .shellLogo{
+    display: none !important;
+  }
+
+  .fgGodPanelRow,
+  .fgGodReceiptHeader,
+  .fgGodHomieCommandRow{
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Last-resort: prevent vertical one-letter columns. */
+@media (max-width: 720px){
+  .card,
+  .softCard,
+  .subCard{
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .shellTitle,
+  .shellBarTitle,
+  .h,
+  h1,h2,h3,h4{
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+  }
+}
+/* ===== v10.38.2d Windowed Mode Cell Containment + Responsive Shell END ===== */

@@ -1,0 +1,65 @@
+/* ===== v10.38.2b FairlyGodMode HUD Full Repair ===== */
+.fairlyGodModeLauncher{position:fixed;left:16px;bottom:16px;z-index:120;display:grid;place-items:center;width:66px!important;height:66px!important;min-width:66px!important;min-height:66px!important;border-radius:22px!important;border:1px solid rgba(94,234,242,.30);background:radial-gradient(100px 80px at 40% 0%,rgba(94,234,242,.18),rgba(94,234,242,0) 72%),linear-gradient(180deg,rgba(20,28,42,.92),rgba(8,12,20,.94));color:rgba(246,248,255,.96);cursor:pointer;font-size:12px!important;letter-spacing:.11em!important;line-height:1.25!important;padding:8px!important;box-shadow:0 16px 44px rgba(0,0,0,.38),0 0 0 1px rgba(94,234,242,.20) inset,0 0 28px rgba(94,234,242,.12)!important}
+.fairlyGodModeLauncher span{display:block;font-weight:950}
+.fairlyGodModeBackdrop{position:fixed;inset:0;z-index:119;background:rgba(0,0,0,.30);backdrop-filter:blur(4px);display:flex;align-items:flex-start;justify-content:center;padding:20px 18px}
+.fairlyGodModeDeck{width:min(980px,calc(100vw - 28px));max-height:calc(100vh - 42px)!important;overflow:auto!important;scrollbar-gutter:stable!important;border-radius:26px!important;padding:20px!important;border-color:rgba(255,209,102,.20)!important;background:radial-gradient(760px 360px at 14% 0%,rgba(94,234,242,.09),rgba(94,234,242,0) 70%),radial-gradient(700px 340px at 86% 0%,rgba(143,98,255,.10),rgba(143,98,255,0) 68%),rgba(8,12,20,.94)!important}
+.fgGodTop{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:16px}
+.fgGodTopActions,.fgGodTabs,.fgGodDoctorActions,.fgGodModeActions,.fgGodModeMeta,.fgGodHomieCommandHints,.fgGodHomieBridgeBadgeRow{display:flex;gap:8px;flex-wrap:wrap}
+.fgGodDeckTitle,.fairlyGodModeTitle{display:flex;align-items:center;gap:10px;font-size:27px!important;line-height:1.08!important;font-weight:950!important;letter-spacing:-.02em!important}
+.fgGodActivePanelLine,.fairlyGodModeActiveLine{display:block;margin-top:5px;font-size:12px!important;font-weight:800!important;letter-spacing:.05em!important;text-transform:uppercase!important;color:rgba(226,238,255,.64)!important}
+.fgGodTabs{margin-top:16px}
+.fgGodSection{display:grid;gap:14px;margin-top:16px}
+.fgGodMetricGrid,.fgGodLedgerStats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.fgGodMetric,.fgGodLedgerStat{min-height:82px;display:flex;flex-direction:column;justify-content:center}
+.fgGodMetric b,.fgGodLedgerStat b{font-size:28px;line-height:1}
+.fgGodMetric span,.fgGodLedgerStat span{color:rgba(226,238,255,.68);margin-top:8px}
+.fgGodReasonCard,.fgGodModePreview{padding:12px 13px;border-radius:18px;border:1px solid rgba(94,234,242,.14);background:radial-gradient(320px 150px at 12% 0%,rgba(94,234,242,.075),rgba(94,234,242,0) 68%),rgba(255,255,255,.035);color:rgba(232,241,255,.86);line-height:1.42}
+.fgGodReasonCard.warn,.fgGodQueueItem.warn,.fgGodReceipt.warn,.fgGodReceiptExpanded.warn{border-color:rgba(255,209,102,.22)}
+.fgGodReasonCard.bad,.fgGodQueueItem.bad,.fgGodReceipt.bad,.fgGodReceiptExpanded.bad{border-color:rgba(255,122,167,.22)}
+.fgGodReasonTitle{font-weight:950;margin-bottom:4px}
+.fgGodReasonText{color:rgba(226,238,255,.72);font-size:13px}
+.fgGodQueue,.fgGodPanelGrid,.fgGodReceiptList,.fgGodLedgerHistory,.fgGodModeHistory,.fgGodHomieLog{display:grid;gap:10px}
+.fgGodQueueItem,.fgGodReceipt,.fgGodLedgerHistoryItem,.fgGodModeHistoryItem{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px;border-radius:18px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035)}
+.fgGodQueueItem div,.fgGodReceipt div,.fgGodLedgerHistoryItem div,.fgGodModeHistoryItem div{min-width:0;display:grid;gap:4px}
+.fgGodQueueItem span,.fgGodReceipt span,.fgGodReceipt small,.fgGodLedgerHistoryItem span,.fgGodModeHistoryItem span{color:rgba(226,238,255,.64);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.fgGodGroup{display:grid;gap:10px}
+.fgGodGroupTitle{font-size:12px;letter-spacing:.15em;text-transform:uppercase;font-weight:950;color:rgba(226,238,255,.62)}
+.fgGodPanelRow{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:10px!important;min-width:0!important;border:1px solid rgba(143,98,255,.35);background:rgba(12,16,28,.72);border-radius:18px;padding:10px}
+.fgGodPanelRow.selected{border-color:rgba(94,234,242,.44);background:rgba(94,234,242,.055)}
+.fgGodPanelRowMain{min-width:0!important;border:0!important;background:transparent!important;box-shadow:none!important;text-align:left;padding:0!important;color:inherit;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;cursor:pointer}
+.fgGodPanelIcon{font-size:10px!important;font-weight:950;width:38px;text-align:center;overflow:hidden}
+.fgGodPanelText{min-width:0;display:flex;flex-direction:column;gap:3px}
+.fgGodPanelText b,.fgGodPanelText small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fgGodPanelText small{color:rgba(226,238,255,.64)}
+.fgGodPanelActions,.fgGodReceiptActions{display:flex!important;gap:6px!important;flex-wrap:wrap!important;justify-content:flex-end!important;align-items:center!important;max-width:390px!important}
+.fgGodPanelActions button,.fgGodReceiptActions button{min-height:30px!important;padding:6px 9px!important;border-radius:999px!important;font-size:12px!important;font-weight:800!important;white-space:nowrap!important}
+.fgGodModeGrid,.fgGodLegacyGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fgGodModeCard{min-height:170px}
+.fgGodModeTitle,.fgGodLegacyTitle{font-size:18px;font-weight:950;margin-bottom:6px}
+.fgGodModeIntent{color:rgba(226,238,255,.72);line-height:1.42;font-size:13px}
+.fgGodModeBanner{position:sticky;top:0;z-index:15;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;padding:10px 12px;border-radius:18px;border:1px solid rgba(94,234,242,.18);background:rgba(8,12,20,.82);backdrop-filter:blur(12px)}
+.fgGodModeBannerTitle{font-weight:950}.fgGodModeBannerSub{color:rgba(226,238,255,.64);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fgGodLedgerToolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.fgGodLedgerToolbar .left,.fgGodLedgerToolbar .right{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.fgGodLedgerSearch{min-width:min(360px,100%);flex:1}
+.fgGodReceiptExpanded{border:1px solid rgba(94,234,242,.14);background:rgba(255,255,255,.032);border-radius:18px;padding:12px;display:grid;gap:10px}
+.fgGodReceiptHeader{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start}
+.fgGodReceiptHeader h4{margin:0;font-size:16px}
+.fgGodReceiptHeader p{margin:4px 0 0;color:rgba(226,238,255,.64);font-size:12px}
+.fgGodReceiptFacts,.fgGodReceiptDetailGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.fgGodReceiptDetailGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.fgGodReceiptFact,.fgGodReceiptDetail,.fgGodLegacyCard{border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.14);border-radius:14px;padding:10px;min-width:0}
+.fgGodReceiptFact b{display:block;color:rgba(226,238,255,.58);text-transform:uppercase;letter-spacing:.08em;font-size:11px}
+.fgGodReceiptFact span{display:block;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fgGodReceiptDetail ul{margin:0;padding-left:18px;color:rgba(226,238,255,.68);font-size:12px;line-height:1.45}
+.fgGodReceiptJson{max-height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word;font-size:12px;line-height:1.42;color:rgba(226,238,255,.72);border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.22);border-radius:14px;padding:10px}
+.fgGodHomieBridgeGrid{display:grid;grid-template-columns:1.2fr .8fr;gap:12px}
+.fgGodHomieCommandRow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+.fgGodHomieReply{border:1px solid rgba(94,234,242,.16);background:rgba(94,234,242,.045);border-radius:18px;padding:13px;display:grid;gap:6px}
+.fgGodHomieReply.warn{border-color:rgba(255,209,102,.22);background:rgba(255,209,102,.045)}
+.fgGodHomieReply span,.fgGodLegacyCard span{color:rgba(226,238,255,.70);font-size:13px;line-height:1.45}
+.fgGodHomieLogItem{border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.14);border-radius:15px;padding:10px;display:grid;gap:5px}
+.fgGodHomieLogItem span{color:rgba(226,238,255,.62);font-size:12px;line-height:1.4}
+button.danger,.tabBtn.danger{border-color:rgba(255,122,167,.34)!important;color:rgba(255,190,210,.96)!important}
+@media(max-width:820px){.fgGodTop,.fgGodModeBanner{flex-direction:column}.fgGodMetricGrid,.fgGodLedgerStats,.fgGodModeGrid,.fgGodLegacyGrid,.fgGodReceiptFacts,.fgGodReceiptDetailGrid,.fgGodHomieBridgeGrid{grid-template-columns:1fr}.fgGodPanelRow,.fgGodReceiptHeader,.fgGodHomieCommandRow{grid-template-columns:1fr!important}.fgGodPanelActions,.fgGodReceiptActions{justify-content:flex-start!important;max-width:none!important}}
+/* ===== v10.38.2b FairlyGodMode HUD Full Repair END ===== */

@@ -145,7 +145,7 @@ function ShellSummary({
       <div className="shellBarEyebrow">
        {meta.section} {isDesktop() ? "Desktop" : "Web"} FAIRLYODD OS
       </div>
-      <div className="shellBarTitle">{meta.icon} {meta.title}</div>
+      <div className="shellBarTitle">{meta.title}</div>
       <div className="shellBarSub">{ctx.summary}</div>
      </div>
     </div>
@@ -172,7 +172,7 @@ function ShellSummary({
      <img src={fairlyOddLogo} alt="FairlyOdd logo" className="shellLogo" />
      <div>
       <div className="small shellEyebrow">{meta.section} {isDesktop() ? "Desktop" : "Web"} FAIRLYODD OS</div>
-      <div className="shellTitle">{meta.icon} {meta.title}</div>
+      <div className="shellTitle">{meta.title}</div>
       <div className="sub" style={{ maxWidth: 760 }}>{ctx.summary}</div>
       <div className="assistantChipWrap" style={{ marginTop: 12 }}>
        {insight.badges.slice(0, 4).map((badge) => <span key={badge.label} className={`badge ${badge.tone}`}>{badge.label}</span>)}

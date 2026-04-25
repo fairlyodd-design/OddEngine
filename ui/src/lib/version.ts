@@ -1,5 +1,12 @@
-export const APP_VERSION = "10.37.8d";
+export const APP_VERSION = "10.38.3b";
 export const FAIRLYGODMODE_OS_DOCTOR_PASS = "v10.37.7_FairlyGodModeOSDoctorAndEpicStackFoundationPass";
 export const FAIRLYGODMODE_WORKSPACE_MODES_PASS = "v10.37.8_FairlyGodModeWorkspaceModesDeepeningPass";
 export const FAIRLYGODMODE_ASCII_HOTFIX_PASS = "v10.37.8c_FairlyGodModeAsciiSanitizerHotfixPass";
 export const GLOBAL_ASCII_ICON_SANITY_PASS = "v10.37.8d_GlobalShellAsciiIconSanityPass";
+export const PANEL_TRUTH_RECEIPTS_PASS = "v10.37.9_PanelTruthReceiptsAndReadinessLedgerPass";
+export const HOMIE_FAIRLYGODMODE_OPERATOR_BRIDGE_PASS = "v10.38.2_HomieFairlyGodModeOperatorBridgePass";
+export const FAIRLYGODMODE_HUD_REPAIR_PASS = "v10.38.2b_FairlyGodModeHUDFullComponentRepairPass";
+export const SHELL_SUMMARY_CALM_PASS = "v10.38.2c_ShellSummaryDuplicateHeaderCalmPass";
+export const WINDOWED_CELL_CONTAINMENT_PASS = "v10.38.2d_WindowedModeCellContainmentAndResponsiveShellPass";
+export const FAMILY_LEGACY_VAULT_PASS = "v10.38.3_FamilyLegacyVaultModeAndOpenFirstPass";
+export const WINDOWED_GODLANE_RECOVERY_PASS = "v10.38.3b_WindowedModeGodLaneCollapseAndMainWidthRecoveryPass";

@@ -1,0 +1,275 @@
+/* ===== v10.37.4 ODUI Panel By Panel Calm Audit ===== */
+/*
+  Surgical calm-audit layer.
+  Scope: panel-level containment and visual rhythm only.
+  Does not touch Trading logic, CardGODMode logic, routes, Homie memory, voice, or backend.
+*/
+
+:root{
+  --odui-calm-gap: 12px;
+  --odui-calm-gap-lg: 14px;
+  --odui-calm-pad: 14px;
+  --odui-calm-radius: 18px;
+  --odui-calm-border: rgba(154,230,255,0.105);
+  --odui-calm-surface: rgba(8,12,18,0.34);
+}
+
+/* Keep all panel content inside its lane. */
+.panelMain,
+.panelMain > *,
+.panelMain .card,
+.panelMain .subCard,
+.panelMain .softCard,
+.panelMain .heroCard,
+.panelMain .timelineCard{
+  min-width: 0;
+  max-width: 100%;
+}
+
+.panelMain{
+  overflow-x: hidden;
+  contain: layout paint;
+}
+
+.panelMain .card,
+.panelMain .subCard,
+.panelMain .softCard,
+.panelMain .heroCard{
+  overflow: hidden;
+  border-radius: var(--odui-calm-radius);
+}
+
+.panelMain .card:not(.brandRailCard):not(.shellHero):not(.shellBar),
+.panelMain .subCard,
+.panelMain .softCard{
+  border-color: var(--odui-calm-border);
+}
+
+/* Calmer rhythm in the first audit group. */
+.homeRoot,
+.homiePanelRoot,
+.builderRoot,
+.devEngineRoot,
+.moneyRoot,
+.familyBudgetRoot,
+.panelMain[data-panelid="Home"],
+.panelMain[data-panelid="Homie"],
+.panelMain[data-panelid="DevEngine"],
+.panelMain[data-panelid="Builder"],
+.panelMain[data-panelid="Money"],
+.panelMain[data-panelid="FamilyBudget"]{
+  min-width: 0;
+}
+
+.panelMain[data-panelid="Home"] .grid,
+.panelMain[data-panelid="Homie"] .grid,
+.panelMain[data-panelid="DevEngine"] .grid,
+.panelMain[data-panelid="Builder"] .grid,
+.panelMain[data-panelid="Money"] .grid,
+.panelMain[data-panelid="FamilyBudget"] .grid,
+.homeGrid,
+.homeTop,
+.homeBottom,
+.homeMissionRow,
+.homeOpsRow,
+.homeAppsGrid,
+.homeAppsRow{
+  min-width: 0;
+}
+
+/* Auto-fit target-panel grids where old fixed tracks cause smashed cells. */
+.panelMain[data-panelid="Home"] .homeMissionRow,
+.panelMain[data-panelid="Home"] .homeOpsRow,
+.panelMain[data-panelid="Home"] .homeAppsGrid{
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+}
+
+.panelMain[data-panelid="Home"] .homeGrid,
+.panelMain[data-panelid="Home"] .homeTop,
+.panelMain[data-panelid="Home"] .homeBottom{
+  gap: var(--odui-calm-gap-lg);
+}
+
+/* Action rows wrap instead of cutting buttons off. */
+.panelMain .row,
+.panelMain .cluster,
+.panelMain .assistantChipWrap,
+.panelMain .homeMissionActions,
+.panelMain .homeOpsActions,
+.panelMain .shellBarActions,
+.panelMain .widgetHeaderRight,
+.activityRail .row,
+.activityRail .assistantChipWrap{
+  min-width: 0;
+  max-width: 100%;
+}
+
+.panelMain .row:has(button),
+.panelMain .cluster:has(button),
+.panelMain .assistantChipWrap,
+.panelMain .homeMissionActions,
+.panelMain .homeOpsActions,
+.activityRail .row:has(button),
+.activityRail .assistantChipWrap{
+  flex-wrap: wrap;
+}
+
+.panelMain button,
+.activityRail button,
+.rail button{
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.18;
+}
+
+.panelMain .tabBtn,
+.activityRail .tabBtn,
+.rail .tabBtn{
+  min-height: 34px;
+  padding-inline: 10px;
+}
+
+/* Prevent long titles/text from pushing cards into other areas. */
+.panelMain .h,
+.panelMain .widgetTitle,
+.panelMain .subCardTitle,
+.panelMain .homeAppName,
+.panelMain .homeMissionTitle,
+.panelMain .homeOpsTitle,
+.panelMain .assistantTitle,
+.panelMain .assistantSectionTitle,
+.activityRail .assistantTitle,
+.activityRail .assistantSectionTitle{
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.panelMain .sub,
+.panelMain .small,
+.panelMain p,
+.panelMain li,
+.panelMain span,
+.activityRail .small,
+.activityRail p,
+.activityRail li,
+.activityRail span{
+  overflow-wrap: anywhere;
+}
+
+/* Tables/code/media get local scroll instead of breaking the panel. */
+.panelMain table,
+.activityRail table{
+  max-width: 100%;
+}
+
+.panelMain .tableWrap,
+.activityRail .tableWrap{
+  overflow: auto;
+  max-width: 100%;
+  border-radius: 14px;
+}
+
+.panelMain pre,
+.panelMain code,
+.activityRail pre,
+.activityRail code{
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.panelMain img,
+.panelMain video,
+.panelMain canvas,
+.panelMain svg{
+  max-width: 100%;
+}
+
+.panelMain input,
+.panelMain textarea,
+.panelMain select,
+.activityRail input,
+.activityRail textarea,
+.activityRail select{
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Home calm pass: reduce visual fight without changing content. */
+.panelMain[data-panelid="Home"] .homeWidget,
+.panelMain[data-panelid="Home"] .homeMissionCard,
+.panelMain[data-panelid="Home"] .homeOpsCard,
+.panelMain[data-panelid="Home"] .homeActivity,
+.panelMain[data-panelid="Money"] .card,
+.panelMain[data-panelid="FamilyBudget"] .card,
+.panelMain[data-panelid="Builder"] .card,
+.panelMain[data-panelid="DevEngine"] .card{
+  background:
+    radial-gradient(420px 170px at 12% 0%, rgba(154,230,255,0.055), rgba(154,230,255,0) 68%),
+    var(--odui-calm-surface);
+  border-color: var(--odui-calm-border);
+}
+
+/* Form-heavy panels: keep forms usable in narrow lanes. */
+.panelMain[data-panelid="Builder"] form,
+.panelMain[data-panelid="DevEngine"] form,
+.panelMain[data-panelid="Money"] form,
+.panelMain[data-panelid="FamilyBudget"] form,
+.panelMain[data-panelid="Builder"] .row,
+.panelMain[data-panelid="DevEngine"] .row,
+.panelMain[data-panelid="Money"] .row,
+.panelMain[data-panelid="FamilyBudget"] .row{
+  min-width: 0;
+}
+
+/* Keep Homie pop-out ownership protected from panel containment. */
+.homieRebuildDock,
+.homieRebuildDock *,
+.homieRebuildLauncher,
+.homieRebuildPanel{
+  box-sizing: border-box;
+}
+
+.homieRebuildDock{
+  contain: none !important;
+  overflow: visible !important;
+}
+
+.homieRebuildLauncher{
+  flex: 0 0 auto !important;
+  min-width: 90px !important;
+  min-height: 90px !important;
+  white-space: normal !important;
+}
+
+.homieRebuildPanel{
+  min-width: min(360px, calc(100vw - 42px));
+  overflow: auto;
+}
+
+/* Avoid helper/fab overlap on panel action rows. */
+.helpFab{
+  max-width: min(280px, calc(100vw - 48px));
+}
+
+@media (max-width: 1180px){
+  .panelShell{
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 820px){
+  .panelMain .widgetHeader,
+  .panelMain .homeMissionTop,
+  .panelMain .homeOpsTop{
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .panelMain .widgetHeaderRight{
+    justify-content: flex-start;
+  }
+}
+/* ===== v10.37.4 ODUI Panel By Panel Calm Audit END ===== */
