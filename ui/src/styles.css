@@ -5730,3 +5730,7 @@ code{
 }
 /* ===== v10.38.3b Windowed God Lane Collapse + Main Width Recovery END ===== */
 
+/* ===== v10.38.456 Legacy Export + Icon System + Backup Snapshot Stack ===== */
+.oddIcon{display:inline-grid;place-items:center;width:22px;height:22px;color:rgba(244,248,255,.92)}.oddIcon svg{width:20px;height:20px;display:block;fill:currentColor}.navIcon,.fgGodPanelIcon{font-size:0!important;display:grid!important;place-items:center!important}.navIcon .oddIcon,.fgGodPanelIcon .oddIcon{width:20px!important;height:20px!important}.fgGodBackupActions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.fgGodBackupGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.fgGodBackupCard{border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.032);border-radius:18px;padding:13px;display:grid;gap:8px;min-width:0}.fgGodSnapshotList{display:grid;gap:8px;max-height:280px;overflow:auto}.fgGodSnapshotItem{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.14);border-radius:14px;padding:9px 10px}
+/* ===== v10.38.456 Legacy Export + Icon System + Backup Snapshot Stack END ===== */
+

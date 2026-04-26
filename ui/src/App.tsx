@@ -6,6 +6,7 @@ import ActivityRail from "./components/ActivityRail";
 import CommandBar from "./components/CommandBar";
 import HomieBuddy from "./components/HomieBuddy";
 import CardGODMode from "./components/CardGODMode";
+import OddIcon from "./components/OddIcon";
 import FairlyGodModeHUD from "./components/FairlyGodModeHUD";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { startAutomationLoop } from "./lib/automation";
@@ -456,7 +457,7 @@ export default function App() {
         </div>
         {!collapsed && pinnedItems.map((it: any) => (
          <div key={it.id} className={"navItem " + (activeId === it.id ? "active" : "")} onClick={() => setActive(it.id)}>
-          <div className="navIcon">{it.icon}</div>
+          <div className="navIcon"><OddIcon id={it.id} /></div>
           <div style={{ minWidth: 0 }}>
            <div className="navTitle">{it.title}</div>
            <div className="navSub">{it.sub}</div>
@@ -486,7 +487,7 @@ export default function App() {
         </div>
         {!collapsedSections[section] && visible.map((it: any) => (
          <div key={it.id} className={"navItem " + (activeId === it.id ? "active" : "")} onClick={() => setActive(it.id)}>
-          <div className="navIcon">{it.icon}</div>
+          <div className="navIcon"><OddIcon id={it.id} /></div>
           <div style={{ minWidth: 0 }}>
            <div className="navTitle">{it.title}</div>
            <div className="navSub">{it.sub}</div>

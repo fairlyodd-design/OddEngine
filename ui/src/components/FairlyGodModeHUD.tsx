@@ -9,6 +9,7 @@ import {
   normalizePanelId,
 } from "../lib/brain";
 import "./FairlyGodModeHUD.css";
+import OddIcon from "./OddIcon";
 
 type Tab = "Doctor" | "Panels" | "Modes" | "Receipts" | "Homie" | "Legacy" | "Safety";
 type Health = "good" | "warn" | "bad";
@@ -43,6 +44,7 @@ const HOMIE_COMMAND_LOG_KEY = "oddengine:fairlygodmode:homieCommandLog:v1";
 const HOMIE_PENDING_CONFIRM_KEY = "oddengine:fairlygodmode:homiePendingConfirm:v1";
 const LEGACY_KEY = "oddengine:fairlygodmode:legacyOpenFirst:v1";
 const LEGACY_EXPORT_KEY = "oddengine:fairlygodmode:legacyLastExport:v1";
+const BACKUP_SNAPSHOT_KEY = "oddengine:fairlygodmode:backupSnapshots:v1";
 
 function readJSON<T>(key: string, fallback: T): T {
   try {
@@ -91,6 +93,15 @@ function copyText(text: string) {
   }
 }
 
+function downloadTextFile(filename: string, text: string, type = "text/plain") {
+  try { const blob = new Blob([text], { type }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); window.setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 0); return true; } catch { return false; }
+}
+function collectFairlyGodModeBackup() {
+  const keys: string[] = [];
+  for (let i = 0; i < localStorage.length; i += 1) { const key = localStorage.key(i) || ""; if (key.startsWith("oddengine:fairlygodmode:") || key.startsWith("oddengine:godlayout:") || key.startsWith("oddengine:godpresets:") || key.startsWith("oddengine:godtemplate:") || key.startsWith("oddengine:godcard:") || key === "oddengine:pinnedPanels" || key === "oddengine:navCollapsedSections" || key === "oddengine:shellMode" || key === "oddengine:cmdMode" || key === "oddengine:homie:toneHint:v1") keys.push(key); }
+  const data: Record<string, any> = {}; keys.sort().forEach((key) => { data[key] = readJSON<any>(key, localStorage.getItem(key)); }); return { app: "OddEngine", type: "FairlyGodModeBackup", version: "v10.38.456", exportedAt: Date.now(), keyCount: keys.length, data };
+}
+function restoreFairlyGodModeBackup(backup: any) { if (!backup || backup.type !== "FairlyGodModeBackup" || !backup.data) throw new Error("Not a FairlyGodMode backup file."); const entries = Object.entries(backup.data); entries.forEach(([key, value]) => localStorage.setItem(key, JSON.stringify(value))); return entries.length; }
 function isEmptyState(value: any) {
   if (value == null) return true;
   if (Array.isArray(value)) return value.length === 0;
@@ -497,6 +508,8 @@ export default function FairlyGodModeHUD({ activePanelId, onNavigate }: { active
   const [showReceiptJson, setShowReceiptJson] = useState(false);
   const [legacyDraft, setLegacyDraft] = useState<any>(() => readJSON(LEGACY_KEY, defaultLegacyState()));
   const [showLegacyExport, setShowLegacyExport] = useState(false);
+  const [backupImportText, setBackupImportText] = useState("");
+  const [showBackupJson, setShowBackupJson] = useState(false);
 
   const active = normalizePanelId(activePanelId);
   const activeMeta = getPanelMeta(active);
@@ -798,6 +811,12 @@ export default function FairlyGodModeHUD({ activePanelId, onNavigate }: { active
     const next = defaultLegacyState();
     saveLegacyDraft(next);
   }
+  function downloadLegacyMarkdown() { const summary = buildLegacySummary(); writeJSON(LEGACY_EXPORT_KEY, { exportedAt: Date.now(), summary, data: legacyDraft }); downloadTextFile("FairlyOdd_Open_First_Legacy.md", summary, "text/markdown"); }
+  function downloadLegacyJson() { const data = { exportedAt: Date.now(), data: legacyDraft }; writeJSON(LEGACY_EXPORT_KEY, data); downloadTextFile("FairlyOdd_Open_First_Legacy.json", JSON.stringify(data, null, 2), "application/json"); }
+  function createBackupSnapshot() { const backup = collectFairlyGodModeBackup(); const snapshots = readJSON<any[]>(BACKUP_SNAPSHOT_KEY, []); writeJSON(BACKUP_SNAPSHOT_KEY, [{ id: `snapshot_${Date.now()}`, ...backup }, ...snapshots].slice(0, 12)); window.alert(`Snapshot created with ${backup.keyCount} key(s).`); }
+  function downloadBackupSnapshot() { const backup = collectFairlyGodModeBackup(); downloadTextFile(`OddEngine_FairlyGodMode_Backup_${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(backup, null, 2), "application/json"); }
+  function restoreBackupFromText() { const ok = window.confirm("Restore this FairlyGodMode backup into localStorage? This can change layouts, modes, receipts, legacy notes, and operator logs."); if (!ok) return; try { const parsed = JSON.parse(backupImportText); const count = restoreFairlyGodModeBackup(parsed); window.alert(`Restored ${count} key(s). Reload the app to fully apply layouts and modes.`); } catch (err: any) { window.alert(`Restore failed: ${err?.message || String(err)}`); } }
+  function restoreSnapshot(snapshot: any) { const ok = window.confirm("Restore this local snapshot? This can change layouts, modes, receipts, legacy notes, and operator logs."); if (!ok) return; try { const count = restoreFairlyGodModeBackup(snapshot); window.alert(`Restored ${count} key(s). Reload the app to fully apply layouts and modes.`); } catch (err: any) { window.alert(`Restore failed: ${err?.message || String(err)}`); } }
   function clearVisualMode() {
     localStorage.removeItem(MODE_KEY);
     localStorage.removeItem("oddengine:homie:toneHint:v1");
@@ -906,7 +925,7 @@ export default function FairlyGodModeHUD({ activePanelId, onNavigate }: { active
                       {group.map((r) => (
                         <div key={r.panelId} className={`fgGodPanelRow fairlyGodPanelRow ${selected.panelId === r.panelId ? "selected" : ""}`}>
                           <button className="fgGodPanelRowMain fairlyGodPanelRowMain" onClick={() => setSelectedPanel(r.panelId)}>
-                            <span className="fgGodPanelIcon">{getPanelMeta(r.panelId).icon}</span>
+                            <span className="fgGodPanelIcon"><OddIcon id={r.panelId} /></span>
                             <span className="fgGodPanelText">
                               <b>{r.title}</b>
                               <small>{r.currentRisk}</small>
@@ -1144,6 +1163,10 @@ export default function FairlyGodModeHUD({ activePanelId, onNavigate }: { active
                     <button className="tabBtn" onClick={() => onNavigate("FamilyBudget")}>Family Budget</button>
                     <button className="tabBtn" onClick={() => onNavigate("FamilyHealth")}>Family Health</button>
                     <button className="tabBtn" onClick={exportLegacySummary}>Copy/export summary</button>
+                    <button className="tabBtn" onClick={downloadLegacyMarkdown}>Download markdown</button>
+                    <button className="tabBtn" onClick={downloadLegacyJson}>Download JSON</button>
+                    <button className="tabBtn" onClick={downloadLegacyMarkdown}>Download markdown</button>
+                    <button className="tabBtn" onClick={downloadLegacyJson}>Download JSON</button>
                   </div>
                 </div>
 
@@ -1292,6 +1315,7 @@ export default function FairlyGodModeHUD({ activePanelId, onNavigate }: { active
                   <div className="fgGodReasonTitle">Safety rules</div>
                   <div className="fgGodReasonText">FairlyGodMode is an operator layer. It can explain, navigate, seed starter state, and reset layout memory with confirmation. It does not rewrite panel logic.</div>
                 </div>
+                <div className="fgGodBackupGrid"><div className="fgGodBackupCard"><b>Backup / snapshot</b><p>Back up FairlyGodMode state: legacy notes, receipts, modes, Homie operator logs, pinned panels, collapsed nav, and CardGODMode layout keys.</p><div className="fgGodBackupActions"><button className="tabBtn active" onClick={createBackupSnapshot}>Create local snapshot</button><button className="tabBtn" onClick={downloadBackupSnapshot}>Download backup JSON</button><button className="tabBtn" onClick={() => setShowBackupJson((v) => !v)}>{showBackupJson ? "Hide JSON" : "Preview JSON"}</button></div></div><div className="fgGodBackupCard"><b>Restore backup</b><p>Paste a backup JSON file here. Restore requires confirmation and may change layouts/modes/legacy notes.</p><textarea className="fgGodLegacyTextArea" value={backupImportText} onChange={(e) => setBackupImportText(e.target.value)} placeholder="Paste backup JSON here..." /><div className="fgGodBackupActions"><button className="tabBtn danger" disabled={!backupImportText.trim()} onClick={restoreBackupFromText}>Restore pasted backup</button></div></div></div>{showBackupJson && <pre className="fgGodLegacyExportBox">{JSON.stringify(collectFairlyGodModeBackup(), null, 2)}</pre>}<div className="fgGodBackupCard"><b>Local snapshots</b><span>Recent snapshots are kept locally in this browser/Electron profile.</span><div className="fgGodSnapshotList">{readJSON<any[]>(BACKUP_SNAPSHOT_KEY, []).slice(0, 12).map((snapshot) => (<div key={snapshot.id} className="fgGodSnapshotItem"><div><b>{safeDate(snapshot.exportedAt)}</b><span>{snapshot.keyCount || 0} key(s) - {snapshot.version || "backup"}</span></div><button className="tabBtn" onClick={() => restoreSnapshot(snapshot)}>Restore</button></div>))}{!readJSON<any[]>(BACKUP_SNAPSHOT_KEY, []).length && (<div className="fgGodSnapshotItem"><div><b>No snapshots yet</b><span>Create a local snapshot to begin.</span></div></div>)}</div></div>
                 <div className="fgGodSafetyList">
                   <div>No Trading logic rewrite.</div>
                   <div>No CardGODMode internal rewrite.</div>
