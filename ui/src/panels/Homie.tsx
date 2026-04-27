@@ -427,6 +427,14 @@ function getHomieWarmVoiceLine(snapshot: VoiceEngineSnapshot) {
   if (summary.toLowerCase().includes("degraded")) return "Voice is partly available. Typed mode is safe, and one short sentence works best.";
   return "Mic is ready when you want it. Typed mode is safe too.";
 }
+const HOMIE_MOOD_LEDGER_KEY = "oddengine:homie:mood-ledger:v1";
+type HomieMoodLedgerEntry = { id: string; lane: "body" | "mind" | "family" | "money" | "creative"; mood: string; themes: string[]; note: string; createdAt: number; };
+function readHomieMoodLedger(): HomieMoodLedgerEntry[] { try { const raw = localStorage.getItem(HOMIE_MOOD_LEDGER_KEY); const parsed = raw ? JSON.parse(raw) : []; return Array.isArray(parsed) ? parsed.slice(0, 50) : []; } catch { return []; } }
+function writeHomieMoodLedger(entries: HomieMoodLedgerEntry[]) { try { localStorage.setItem(HOMIE_MOOD_LEDGER_KEY, JSON.stringify(entries.slice(0, 50))); window.dispatchEvent(new CustomEvent("homie:mood-ledger-updated")); } catch {} }
+function homieMoodLaneThemes(lane: HomieMoodLedgerEntry["lane"]) { const map: Record<HomieMoodLedgerEntry["lane"], string[]> = { body:["body","energy","rest"], mind:["mind","overwhelmed","focused"], family:["family care","legacy","handoff"], money:["money pressure","safety","next move"], creative:["creative push","studio","build"] }; return map[lane] || ["next move"]; }
+function homieMoodLaneNote(lane: HomieMoodLedgerEntry["lane"]) { const map: Record<HomieMoodLedgerEntry["lane"], string> = { body:"Body check-in saved. Start with water, food, breath, rest, or pain level.", mind:"Mind check-in saved. We can make the next step smaller.", family:"Family check-in saved. This can become a kind note or Open First guidance.", money:"Money check-in saved. We can pick the safest practical move.", creative:"Creative check-in saved. We can turn momentum into one finished artifact." }; return map[lane] || "Check-in saved. One calm next step."; }
+function buildHomieMoodSummary(entries: HomieMoodLedgerEntry[]) { const latest = entries[0]; if (!latest) return "No check-ins saved yet. Pick body, mind, family, money, or creative."; const date = new Date(latest.createdAt).toLocaleString([], { month:"short", day:"numeric", hour:"numeric", minute:"2-digit" }); return `Last check-in: ${latest.lane} at ${date}. Themes: ${latest.themes.join(", ")}.`; }
+function buildHomieMoodThemes(entries: HomieMoodLedgerEntry[]) { const counts: Record<string, number> = {}; entries.slice(0, 12).forEach((entry) => entry.themes.forEach((theme) => counts[theme] = (counts[theme] || 0) + 1)); return Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 8).map(([theme,count]) => ({ theme, count })); }
 export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props) {
   const desktop = isDesktop();
 
@@ -560,6 +568,16 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
   const homieRecentMemory = useMemo(() => summarizeHomieMemory(messages), [messages]);
   const homieLegacyBrief = useMemo(() => getLegacyOpenFirstBrief(), [messages.length, activePanelId]);
   const homieVoicePlain = useMemo(() => explainVoicePlain(voiceSnapshot), [voiceSnapshot]);
+  const [homieMoodLedger, setHomieMoodLedger] = useState<HomieMoodLedgerEntry[]>(() => readHomieMoodLedger());
+  const homieMoodSummary = useMemo(() => buildHomieMoodSummary(homieMoodLedger), [homieMoodLedger]);
+  const homieMoodThemes = useMemo(() => buildHomieMoodThemes(homieMoodLedger), [homieMoodLedger]);
+  useEffect(() => { const onUpdate = () => setHomieMoodLedger(readHomieMoodLedger()); window.addEventListener("homie:mood-ledger-updated", onUpdate as EventListener); return () => window.removeEventListener("homie:mood-ledger-updated", onUpdate as EventListener); }, []);
+  function saveHomieMoodCheckIn(lane: HomieMoodLedgerEntry["lane"]) {
+    const entry: HomieMoodLedgerEntry = { id: `checkin_${Date.now()}_${lane}`, lane, mood: lane === "mind" ? "overwhelmed/focused" : lane === "family" ? "family care" : lane === "money" ? "money pressure" : lane === "creative" ? "creative push" : "body check", themes: homieMoodLaneThemes(lane), note: homieMoodLaneNote(lane), createdAt: Date.now() };
+    const next = [entry, ...readHomieMoodLedger()].slice(0, 50);
+    writeHomieMoodLedger(next); setHomieMoodLedger(next);
+    addQuick(`Homie, I checked in on ${lane}. ${entry.note} Want one tiny step, a plan, or a family note?`);
+  }
   const homieWarmVoiceLine = useMemo(() => getHomieWarmVoiceLine(voiceSnapshot), [voiceSnapshot]);
 
   async function checkOllama() {
@@ -853,7 +871,19 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
           </div>
         </div>
 
-        <div className="homiePresencePane" style={{ marginTop: 12 }}>
+                <div className="homieMoodLedgerCard" data-homie-mood-ledger="v10.38.10">
+          <div className="homieMoodLedgerHead"><div><b>Check-in memory ledger</b><span>{homieMoodSummary}</span></div><button className="tabBtn" onClick={() => { writeHomieMoodLedger([]); setHomieMoodLedger([]); }}>Clear</button></div>
+          <div className="homieMoodLedgerGrid">
+            <button className="homieMoodLedgerBtn" onClick={() => saveHomieMoodCheckIn("body")}><b>Body</b><span>energy, rest, pain, food</span></button>
+            <button className="homieMoodLedgerBtn" onClick={() => saveHomieMoodCheckIn("mind")}><b>Mind</b><span>overwhelmed, focus, mood</span></button>
+            <button className="homieMoodLedgerBtn" onClick={() => saveHomieMoodCheckIn("family")}><b>Family</b><span>care, legacy, handoff</span></button>
+            <button className="homieMoodLedgerBtn" onClick={() => saveHomieMoodCheckIn("money")}><b>Money</b><span>safety, pressure, next move</span></button>
+            <button className="homieMoodLedgerBtn" onClick={() => saveHomieMoodCheckIn("creative")}><b>Creative</b><span>studio, build, finish</span></button>
+          </div>
+          <div className="homieMoodLedgerSummary"><div className="homieMoodLedgerLine">Want one tiny step, a plan, or a family note?</div></div>
+          <div className="homieMoodLedgerThemes">{homieMoodThemes.length ? homieMoodThemes.map((item) => <span key={item.theme} className={`homieMoodLedgerTheme ${item.count > 1 ? "hot" : ""}`}>{item.theme}</span>) : <span className="homieMoodLedgerTheme">local-only memory</span>}</div>
+        </div>
+<div className="homiePresencePane" style={{ marginTop: 12 }}>
           <div className="homiePresenceTitle">{homieLegacyBrief.title} family handoff</div>
           <div className="homiePresenceText">{homieLegacyBrief.body}</div>
           <div className="homiePresenceText"><b>Important note:</b> {homieLegacyBrief.important}</div>

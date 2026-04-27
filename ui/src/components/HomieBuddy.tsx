@@ -408,7 +408,7 @@ function buildHomieDailyRhythmLine(state: HomieDailyRhythmState, memory: { check
   const today = getHomieDailyRhythmDayKey();
   if (state.lastCheckInDay === today) return "Daily rhythm is already checked in for today.";
   if (state.lastPromptDay === today) return "Today’s rhythm prompt is open — answer only what feels useful.";
-  if ((memory.checkInCount || 0) > 0) return "Ready for one calm next step: body, family, money, or creative.";
+  if ((memory.checkInCount || 0) > 0) return "Ready for one tiny step, a plan, or a family note.";
   return "When you’re ready: what matters today?";
 }
 
@@ -1355,6 +1355,8 @@ function getHomieVoiceWarmthLine(args: { isListening?: boolean; isSpeaking?: boo
   if (permission === "denied") return "Mic is blocked. Typed mode is safe, and you can re-enable mic permission when ready.";
   return "Bridge is checking. Typed mode is safe while I verify voice and mic.";
 }
+function readHomieMoodLedgerForBuddy() { try { const raw = localStorage.getItem("oddengine:homie:mood-ledger:v1"); const parsed = raw ? JSON.parse(raw) : []; return Array.isArray(parsed) ? parsed.slice(0, 12) : []; } catch { return []; } }
+function buildHomieBuddyMoodSummary() { const entries = readHomieMoodLedgerForBuddy(); const latest = entries[0]; if (!latest) return "No local check-in saved yet."; const themes = Array.isArray(latest.themes) ? latest.themes.join(", ") : latest.lane || "next move"; return `Last check-in: ${latest.lane || "check-in"} - ${themes}.`; }
 export default function HomieBuddy({
   activePanelId,
   onNavigate,
@@ -3129,6 +3131,8 @@ async function startExternalVoice(pushToTalk = false, source = "homie") {
   );
   // ===== v10.38.8g Homie Buddy human companion avatar END =====
 
+  const homieBuddyMoodSummary = buildHomieBuddyMoodSummary();
+
   const panel = (
     <div className={`homieBuddyPanel card softCard homieRebuildPanel ${presenceClass} ${mode === "standalone" ? "standalone" : ""}`}>
       <div className="homieRebuildHeader">
@@ -3179,7 +3183,10 @@ async function startExternalVoice(pushToTalk = false, source = "homie") {
             <span className={`homieLivingPresencePill ${livingPresenceState === "idle" ? "good" : ""}`}>State: {livingPresenceState}</span>
             <span className="homieLivingPresencePill">{voiceWarmthLine || "Typed mode is safe."}</span>
           </div>
-          <div className="homieRebuildStageText">
+                    <div className="homieMoodLedgerLine" data-homie-buddy-mood-ledger="v10.38.10">
+            {homieBuddyMoodSummary || "No local check-in saved yet."} Want one tiny step, a plan, or a family note?
+          </div>
+<div className="homieRebuildStageText">
 <div className="assistantSectionTitle">Human Homie companion lane</div>
             <div className="small">{status}</div>
             <div className="small homieRebuildPresenceLine">{presenceLine}</div>
