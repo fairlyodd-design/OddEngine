@@ -283,7 +283,7 @@ function summarizeHomieMemory(messages: ChatMsg[]) {
     .filter((m) => m.role === "user")
     .slice(-3)
     .map((m) => m.content.replace(/\s+/g, " ").slice(0, 110));
-  return recent.length ? recent : ["No recent check-ins yet. Start with: Homie, what should I do next?"];
+  return recent.length ? recent : ["No recent check-ins yet. Start with: Homie, help me pick one calm next step."];
 }
 
 function getLegacyOpenFirstBrief() {
@@ -418,6 +418,15 @@ function HomieDirectHumanAvatar() {
     </div>
   );
 }
+function getHomieWarmVoiceLine(snapshot: VoiceEngineSnapshot) {
+  const summary = summarizeVoiceEngine(snapshot);
+  if (snapshot.listening) return "Mic is ready. Say one short sentence and I will stay with you.";
+  if (snapshot.speaking) return "Voice output is active. Homie is talking now.";
+  if (summary.toLowerCase().includes("checking")) return "Bridge is checking. Typed mode is safe while voice verifies.";
+  if (summary.toLowerCase().includes("unavailable")) return "Voice is limited right now. Typed mode is safe.";
+  if (summary.toLowerCase().includes("degraded")) return "Voice is partly available. Typed mode is safe, and one short sentence works best.";
+  return "Mic is ready when you want it. Typed mode is safe too.";
+}
 export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props) {
   const desktop = isDesktop();
 
@@ -551,6 +560,7 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
   const homieRecentMemory = useMemo(() => summarizeHomieMemory(messages), [messages]);
   const homieLegacyBrief = useMemo(() => getLegacyOpenFirstBrief(), [messages.length, activePanelId]);
   const homieVoicePlain = useMemo(() => explainVoicePlain(voiceSnapshot), [voiceSnapshot]);
+  const homieWarmVoiceLine = useMemo(() => getHomieWarmVoiceLine(voiceSnapshot), [voiceSnapshot]);
 
   async function checkOllama() {
     if (!desktop) return;
@@ -806,7 +816,7 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
           <div className="homiePresencePane">
             <div className="homiePresenceTitle">I am here with you.</div>
             <div className="homiePresenceText">
-              Homie is tuned for calm next steps: body, mind, family, money, studio, and what to open next.
+              Homie is here for one calm next step: body, mind, family, money, studio, or what to open next.
             </div>
             <div className="homiePresenceChips">
               {homieThemes.map((theme) => <span key={theme} className="homiePresenceChip">{theme}</span>)}
@@ -821,6 +831,16 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
 
           <div className="homiePresencePane">
             <div className="homiePresenceTitle">Memory + voice clarity</div>
+            <div className="homieVoiceWarmthCard">
+              <b>Voice warmth</b>
+              <p>{homieWarmVoiceLine}</p>
+            </div>
+            <div className="homieWarmCheckinGrid">
+              <button className="homieWarmCheckinBtn" onClick={() => addQuick("Homie, help me check my body and energy first.")}><b>Body</b><span>energy, pain, food, rest</span></button>
+              <button className="homieWarmCheckinBtn" onClick={() => addQuick("Homie, help me calm my mind and pick one step.")}><b>Mind</b><span>overwhelm, focus, mood</span></button>
+              <button className="homieWarmCheckinBtn" onClick={() => addQuick("Homie, help me leave one useful note for my family.")}><b>Family</b><span>legacy, care, handoff</span></button>
+              <button className="homieWarmCheckinBtn" onClick={() => addQuick("Homie, help me pick the safest money next move.")}><b>Money</b><span>budget, work, safety</span></button>
+            </div>
             <div className="homieVoicePlain">
               <div className="small">Voice / mic in plain English</div>
               <div className="homiePresenceText">{homieVoicePlain}</div>

@@ -408,7 +408,7 @@ function buildHomieDailyRhythmLine(state: HomieDailyRhythmState, memory: { check
   const today = getHomieDailyRhythmDayKey();
   if (state.lastCheckInDay === today) return "Daily rhythm is already checked in for today.";
   if (state.lastPromptDay === today) return "Today’s rhythm prompt is open — answer only what feels useful.";
-  if ((memory.checkInCount || 0) > 0) return "Ready for one gentle next step: body, family, money, or creative.";
+  if ((memory.checkInCount || 0) > 0) return "Ready for one calm next step: body, family, money, or creative.";
   return "When you’re ready: what matters today?";
 }
 
@@ -1336,6 +1336,24 @@ function HomieBuddyHumanAvatar() {
       <div className="homieBuddyHumanLabel">HOMIE</div>
     </div>
   );
+}
+function getHomieLivingPresenceState(args: { isListening?: boolean; isSpeaking?: boolean; mood?: string; status?: string; activeTitle?: string }) {
+  const text = `${args.status || ""} ${args.activeTitle || ""}`.toLowerCase();
+  if (args.isListening) return "listening";
+  if (args.isSpeaking) return "speaking";
+  if (text.includes("legacy") || text.includes("open first") || text.includes("family")) return "legacy";
+  if (args.mood === "warn" || text.includes("care") || text.includes("overwhelm") || text.includes("tired")) return "caring";
+  if (text.includes("checking") || text.includes("thinking") || text.includes("bridge")) return "thinking";
+  return "idle";
+}
+
+function getHomieVoiceWarmthLine(args: { isListening?: boolean; isSpeaking?: boolean; diagnostics?: any; voiceModeLabel?: string }) {
+  const permission = args.diagnostics?.permissionState || "unknown";
+  if (args.isListening) return "Mic is ready. Say one short sentence and I will stay with you.";
+  if (args.isSpeaking) return "Voice output is active. I am talking now.";
+  if (permission === "granted") return "Mic is ready when you want it. Typed mode is safe too.";
+  if (permission === "denied") return "Mic is blocked. Typed mode is safe, and you can re-enable mic permission when ready.";
+  return "Bridge is checking. Typed mode is safe while I verify voice and mic.";
 }
 export default function HomieBuddy({
   activePanelId,
@@ -3083,8 +3101,10 @@ async function startExternalVoice(pushToTalk = false, source = "homie") {
     stopHomieMicLevelProbe(true);
   }, []);
   // ===== v10.38.8g Homie Buddy human companion avatar =====
+  const livingPresenceState = getHomieLivingPresenceState({ isListening, isSpeaking, mood, status, activeTitle });
+  const voiceWarmthLine = getHomieVoiceWarmthLine({ isListening, isSpeaking, diagnostics, voiceModeLabel });
   const avatarContents = (
-    <span className="homieHumanBuddyCore" data-homie-buddy-human-avatar="v10.38.8g" aria-label="Human-inspired Homie companion avatar">
+    <span className="homieHumanBuddyCore" data-presence-state={livingPresenceState || "idle"} data-homie-buddy-human-avatar="v10.38.9" aria-label="Human-inspired Homie companion avatar">
       <span className="homieHumanBuddyAura" />
       <span className="homieHumanBuddyCap" />
       <span className="homieHumanBuddyEar left" />
@@ -3154,6 +3174,10 @@ async function startExternalVoice(pushToTalk = false, source = "homie") {
             <span>Mic: opt-in</span>
             <span>Camera: opt-in</span>
             <span>Memory: local</span>
+          </div>
+          <div className="homieLivingPresenceBar" aria-label="Homie living presence">
+            <span className={`homieLivingPresencePill ${livingPresenceState === "idle" ? "good" : ""}`}>State: {livingPresenceState}</span>
+            <span className="homieLivingPresencePill">{voiceWarmthLine || "Typed mode is safe."}</span>
           </div>
           <div className="homieRebuildStageText">
 <div className="assistantSectionTitle">Human Homie companion lane</div>

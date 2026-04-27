@@ -6331,3 +6331,151 @@ code{
 .homieRebuildAvatarWrap .homieOrbRing{display:none!important}
 /* ===== v10.38.8g HomieBuddy Avatar Contents Block Replacement END ===== */
 
+/* ===== v10.38.9 Homie Living Presence + Voice Warmth ===== */
+.homieHumanBuddyCore,
+.homieHumanAura,
+.homieHumanIdentityBoard [data-homie-buddy-human-avatar],
+[data-homie-buddy-human-avatar="v10.38.8g"]{
+  --homiePresenceGlow:rgba(255,209,92,.50);
+  --homiePresenceBlue:rgba(154,230,255,.28);
+}
+
+.homieHumanBuddyCore[data-presence-state="idle"],
+.homieHumanAura[data-presence-state="idle"]{
+  animation:homieLivingIdle 6.2s ease-in-out infinite;
+}
+
+.homieHumanBuddyCore[data-presence-state="listening"],
+.homieHumanAura[data-presence-state="listening"]{
+  animation:homieLivingListening 2.2s ease-in-out infinite;
+  --homiePresenceGlow:rgba(94,234,242,.68);
+}
+
+.homieHumanBuddyCore[data-presence-state="thinking"],
+.homieHumanAura[data-presence-state="thinking"]{
+  animation:homieLivingThinking 2.8s ease-in-out infinite;
+  --homiePresenceGlow:rgba(143,98,255,.55);
+}
+
+.homieHumanBuddyCore[data-presence-state="speaking"],
+.homieHumanAura[data-presence-state="speaking"]{
+  animation:homieLivingSpeaking 1.55s ease-in-out infinite;
+  --homiePresenceGlow:rgba(255,209,92,.78);
+}
+
+.homieHumanBuddyCore[data-presence-state="caring"],
+.homieHumanAura[data-presence-state="caring"]{
+  animation:homieLivingCaring 4.4s ease-in-out infinite;
+  --homiePresenceGlow:rgba(255,148,180,.55);
+}
+
+.homieHumanBuddyCore[data-presence-state="legacy"],
+.homieHumanAura[data-presence-state="legacy"]{
+  animation:homieLivingLegacy 4.8s ease-in-out infinite;
+  --homiePresenceGlow:rgba(255,209,92,.72);
+}
+
+@keyframes homieLivingIdle{
+  0%,100%{transform:translateY(0) scale(1)}
+  50%{transform:translateY(-4px) scale(1.008)}
+}
+@keyframes homieLivingListening{
+  0%,100%{transform:translateY(0) scale(1);filter:drop-shadow(0 22px 34px rgba(0,0,0,.34))}
+  50%{transform:translateY(-6px) scale(1.018);filter:drop-shadow(0 0 24px rgba(94,234,242,.28))}
+}
+@keyframes homieLivingThinking{
+  0%,100%{transform:translateY(0) rotate(-.2deg)}
+  50%{transform:translateY(-5px) rotate(.8deg)}
+}
+@keyframes homieLivingSpeaking{
+  0%,100%{transform:translateY(0) scale(1)}
+  33%{transform:translateY(-3px) scale(1.012)}
+  66%{transform:translateY(-1px) scale(.998)}
+}
+@keyframes homieLivingCaring{
+  0%,100%{transform:translateY(0) scale(1)}
+  50%{transform:translateY(-5px) scale(1.015)}
+}
+@keyframes homieLivingLegacy{
+  0%,100%{transform:translateY(0) scale(1)}
+  50%{transform:translateY(-4px) scale(1.01)}
+}
+
+.homieHumanBuddyCore[data-presence-state] .homieHumanBuddyCoreLight,
+.homieHumanAura[data-presence-state] .homieHumanCore,
+.homieHumanBuddyCore[data-presence-state] .homieHumanBuddySmile{
+  box-shadow:0 0 26px var(--homiePresenceGlow)!important;
+}
+
+.homieLivingPresenceBar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+  margin:10px 0 0;
+}
+.homieLivingPresencePill{
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.035);
+  border-radius:999px;
+  padding:6px 10px;
+  color:rgba(226,238,255,.72);
+  font-size:12px;
+}
+.homieLivingPresencePill.good{
+  border-color:rgba(45,255,190,.18);
+  background:rgba(45,255,190,.045);
+  color:rgba(115,255,218,.92);
+}
+.homieLivingPresencePill.warn{
+  border-color:rgba(255,209,92,.22);
+  background:rgba(255,209,92,.05);
+  color:rgba(255,226,143,.92);
+}
+
+.homieVoiceWarmthCard{
+  border:1px solid rgba(94,234,242,.15)!important;
+  background:linear-gradient(180deg,rgba(94,234,242,.052),rgba(255,255,255,.024))!important;
+  border-radius:18px!important;
+  padding:12px!important;
+}
+.homieVoiceWarmthCard b{
+  display:block;
+  color:rgba(245,249,255,.95);
+  margin-bottom:4px;
+}
+.homieVoiceWarmthCard p{
+  margin:0;
+  color:rgba(226,238,255,.70);
+  font-size:13px;
+  line-height:1.45;
+}
+
+.homieWarmCheckinGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.homieWarmCheckinBtn{
+  border:1px solid rgba(255,255,255,.10)!important;
+  background:rgba(255,255,255,.035)!important;
+  border-radius:14px!important;
+  padding:9px!important;
+  text-align:left!important;
+  min-height:44px!important;
+}
+.homieWarmCheckinBtn b{
+  display:block;
+  font-size:12px;
+}
+.homieWarmCheckinBtn span{
+  display:block;
+  margin-top:2px;
+  color:rgba(226,238,255,.58);
+  font-size:11px;
+}
+@media(max-width:900px){
+  .homieWarmCheckinGrid{grid-template-columns:1fr}
+}
+/* ===== v10.38.9 Homie Living Presence + Voice Warmth END ===== */
+
