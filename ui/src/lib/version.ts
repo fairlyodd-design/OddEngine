@@ -1,4 +1,4 @@
-export const APP_VERSION = "10.38.456";
+export const APP_VERSION = "10.38.8g";
 export const FAIRLYGODMODE_OS_DOCTOR_PASS = "v10.37.7_FairlyGodModeOSDoctorAndEpicStackFoundationPass";
 export const FAIRLYGODMODE_WORKSPACE_MODES_PASS = "v10.37.8_FairlyGodModeWorkspaceModesDeepeningPass";
 export const FAIRLYGODMODE_ASCII_HOTFIX_PASS = "v10.37.8c_FairlyGodModeAsciiSanitizerHotfixPass";
@@ -11,3 +11,11 @@ export const WINDOWED_CELL_CONTAINMENT_PASS = "v10.38.2d_WindowedModeCellContain
 export const FAMILY_LEGACY_VAULT_PASS = "v10.38.3_FamilyLegacyVaultModeAndOpenFirstPass";
 export const WINDOWED_GODLANE_RECOVERY_PASS = "v10.38.3b_WindowedModeGodLaneCollapseAndMainWidthRecoveryPass";
 export const LEGACY_ICONS_BACKUP_STACK_PASS = "v10.38.456_LegacyIconsBackupSnapshotStackPass";
+export const HOMIE_PRESENCE_CALM_MEMORY_PASS = "v10.38.7_HomiePresenceCalmMemoryAndOperatorPolishPass";
+export const HOMIE_HUMAN_LEGACY_IDENTITY_PASS = "v10.38.8_HomieHumanLegacyCompanionIdentityPass";
+export const HOMIE_SINGLE_IDENTITY_PASS = "v10.38.8b_HomieSingleIdentityAndPresenceUnificationPass";
+export const HOMIE_COMPANION_LANE_HUMAN_SYNC_PASS = "v10.38.8c_HomieCompanionLaneHumanAvatarSyncPass";
+export const HOMIE_COMPANION_DIRECT_AVATAR_OVERRIDE_PASS = "v10.38.8d_HomieCompanionLaneDirectAvatarOverridePass";
+export const HOMIE_COMPANION_SOURCE_AVATAR_FIX_PASS = "v10.38.8e_HomieCompanionSourceTraceAndAvatarSlotFixPass";
+export const HOMIE_BUDDY_RIVE_STAGE_REPLACEMENT_PASS = "v10.38.8f_HomieBuddyRiveStageReplacementPass";
+export const HOMIE_BUDDY_AVATAR_CONTENTS_REPLACEMENT_PASS = "v10.38.8g_HomieBuddyAvatarContentsBlockReplacementPass";

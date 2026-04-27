@@ -408,7 +408,7 @@ function buildHomieDailyRhythmLine(state: HomieDailyRhythmState, memory: { check
   const today = getHomieDailyRhythmDayKey();
   if (state.lastCheckInDay === today) return "Daily rhythm is already checked in for today.";
   if (state.lastPromptDay === today) return "Today’s rhythm prompt is open — answer only what feels useful.";
-  if ((memory.checkInCount || 0) > 0) return "Ready for a gentle today scan: body, family, money, creative.";
+  if ((memory.checkInCount || 0) > 0) return "Ready for one gentle next step: body, family, money, or creative.";
   return "When you’re ready: what matters today?";
 }
 
@@ -472,7 +472,7 @@ function buildHomieLegacyTimelineReview(args: {
   const legacyCount = Number(args.memory?.legacyArtifactCount || artifacts.length || 0);
   const themes = homieCleanTimelineText(args.memory?.recentThemeText || "general", "general");
   const lastNextMove = homieCleanTimelineText(args.memory?.lastNextStep || args.dailyRhythmLine || "Choose one small next move and keep going.");
-  const activeThread = homieCleanTimelineText(args.status || "Homie is here with you.");
+  const activeThread = homieCleanTimelineText(args.status || "Homie is here with you, warm and steady.");
   const checkedToday = args.dailyRhythm?.lastCheckInDay === today;
   const promptedToday = args.dailyRhythm?.lastPromptDay === today;
   const greetedToday = args.dailyRhythm?.lastGreetingDay === today;
@@ -1313,6 +1313,30 @@ function buildHomieLegacyFamilyFolderPreview(args: {
 // v10.36.72b checker-safe marker: bridge dedupe repair installed
 // v10.36.73c checker-safe marker: bridge launcher and say test crash hotfix installed
 // v10.36.77 checker-safe marker: direct bridge probe/transcribe and bridge-required dead-end fix installed
+function HomieBuddyHumanAvatar() {
+  return (
+    <div className="homieBuddyHumanAvatarStage" aria-label="Human-inspired Homie companion avatar">
+      <div className="homieBuddyHumanCap" />
+      <div className="homieBuddyHumanEar left" />
+      <div className="homieBuddyHumanEar right" />
+      <div className="homieBuddyHumanHead" />
+      <div className="homieBuddyHumanBrow left" />
+      <div className="homieBuddyHumanBrow right" />
+      <div className="homieBuddyHumanGlasses">
+        <div className="homieBuddyHumanBridge" />
+      </div>
+      <div className="homieBuddyHumanEye left" />
+      <div className="homieBuddyHumanEye right" />
+      <div className="homieBuddyHumanBeard" />
+      <div className="homieBuddyHumanSmile" />
+      <div className="homieBuddyHumanBody" />
+      <div className="homieBuddyHumanCore" />
+      <div className="homieBuddyHumanHand left" />
+      <div className="homieBuddyHumanHand right" />
+      <div className="homieBuddyHumanLabel">HOMIE</div>
+    </div>
+  );
+}
 export default function HomieBuddy({
   activePanelId,
   onNavigate,
@@ -1326,7 +1350,7 @@ export default function HomieBuddy({
 }) {
   const [prefs, setPrefs] = useState(() => loadPrefs());
   const [open, setOpen] = useState(mode === "standalone");
-  const [status, setStatus] = useState("Homie is here with you.");
+  const [status, setStatus] = useState("Homie is here with you, warm and steady.");
   const [voiceEnabled, setVoiceEnabled] = useState(prefs.ai.homieVoiceEnabled);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -3058,39 +3082,32 @@ async function startExternalVoice(pushToTalk = false, source = "homie") {
     stopHomieCameraPreview(true);
     stopHomieMicLevelProbe(true);
   }, []);
-
-  // ===== v10.36.63 Homie Buddy big full-body companion avatar =====
+  // ===== v10.38.8g Homie Buddy human companion avatar =====
   const avatarContents = (
-    <span className="homieFullBodyCore" data-homie-buddy-fullbody-avatar="v10.36.63" aria-label="Homie full-body companion avatar">
-      <span className="homieFullBodyHalo" />
-      <span className="homieFullBodyWing left" />
-      <span className="homieFullBodyWing right" />
-      <span className="homieFullBodyShadow" />
-      <span className="homieFullBodyLeg left"><span className="homieFullBodyFoot" /></span>
-      <span className="homieFullBodyLeg right"><span className="homieFullBodyFoot" /></span>
-      <span className="homieFullBodyArm left"><span className="homieFullBodyHand" /></span>
-      <span className="homieFullBodyArm right"><span className="homieFullBodyHand" /></span>
-      <span className="homieFullBodyTorso">
-        <span className="homieFullBodyChest" />
-        <span className="homieFullBodyCoreLight" />
+    <span className="homieHumanBuddyCore" data-homie-buddy-human-avatar="v10.38.8g" aria-label="Human-inspired Homie companion avatar">
+      <span className="homieHumanBuddyAura" />
+      <span className="homieHumanBuddyCap" />
+      <span className="homieHumanBuddyEar left" />
+      <span className="homieHumanBuddyEar right" />
+      <span className="homieHumanBuddyHead" />
+      <span className="homieHumanBuddyBrow left" />
+      <span className="homieHumanBuddyBrow right" />
+      <span className="homieHumanBuddyGlasses">
+        <span className="homieHumanBuddyBridge" />
       </span>
-      <span className="homieFullBodyNeck" />
-      <span className="homieFullBodyHead">
-        <span className="homieFullBodyAntenna left"><span /></span>
-        <span className="homieFullBodyAntenna right"><span /></span>
-        <span className="homieFullBodyFacePlate" />
-        <span className="homieFullBodyBrow left" />
-        <span className="homieFullBodyBrow right" />
-        <span className="homieFullBodyEye left" />
-        <span className="homieFullBodyEye right" />
-        <span className="homieFullBodyCheek left" />
-        <span className="homieFullBodyCheek right" />
-        <span className="homieFullBodyMouth" />
-      </span>
-      <span className="homieFullBodyName">HOMIE</span>
+      <span className="homieHumanBuddyEye left" />
+      <span className="homieHumanBuddyEye right" />
+      <span className="homieHumanBuddyBeard" />
+      <span className="homieHumanBuddySmile" />
+      <span className="homieHumanBuddyBody" />
+      <span className="homieHumanBuddyCoreLight" />
+      <span className="homieHumanBuddyHand left" />
+      <span className="homieHumanBuddyHand right" />
+      <span className="homieHumanBuddyFoot" />
+      <span className="homieHumanBuddyName">HOMIE</span>
     </span>
   );
-  // ===== v10.36.63 Homie Buddy big full-body companion avatar END =====
+  // ===== v10.38.8g Homie Buddy human companion avatar END =====
 
   const panel = (
     <div className={`homieBuddyPanel card softCard homieRebuildPanel ${presenceClass} ${mode === "standalone" ? "standalone" : ""}`}>
@@ -3139,7 +3156,7 @@ async function startExternalVoice(pushToTalk = false, source = "homie") {
             <span>Memory: local</span>
           </div>
           <div className="homieRebuildStageText">
-            <div className="assistantSectionTitle">A calmer Homie lane</div>
+<div className="assistantSectionTitle">Human Homie companion lane</div>
             <div className="small">{status}</div>
             <div className="small homieRebuildPresenceLine">{presenceLine}</div>
             <div className="small homieTolanIdlePresenceLine">I’m here. We can stay quiet, talk by mic, or take one small next move.</div>

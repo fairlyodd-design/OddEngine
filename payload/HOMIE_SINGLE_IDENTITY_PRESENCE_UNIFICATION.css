@@ -1,0 +1,72 @@
+/* ===== v10.38.8b Homie Single Identity + Presence Unification ===== */
+/*
+  Human-inspired Homie is now the single lead identity.
+  The older robot/alien hero remains available only as a collapsed legacy preview.
+*/
+[data-homie-hero-parity-match="v10.36.99"],
+[data-homie-lead-avatar-hero="v10.36.99"]{
+  display:none!important;
+}
+
+.homieLegacyRobotPreview{
+  border:1px solid rgba(255,255,255,.08)!important;
+  background:rgba(255,255,255,.026)!important;
+  border-radius:18px!important;
+  padding:10px 12px!important;
+  margin:10px 0!important;
+}
+.homieLegacyRobotPreview summary{
+  cursor:pointer;
+  color:rgba(226,238,255,.72);
+  font-weight:850;
+}
+.homieLegacyRobotPreview .small{
+  margin-top:8px;
+  color:rgba(226,238,255,.56);
+}
+
+/* Make the human card feel like the lead, not an extra module. */
+.homieHumanIdentityBoard{
+  margin-top:8px!important;
+  border-color:rgba(255,209,102,.26)!important;
+  box-shadow:0 24px 70px rgba(0,0,0,.28),0 0 0 1px rgba(255,209,102,.08) inset!important;
+}
+.homieHumanStage{
+  min-height:430px!important;
+}
+.homieHumanCaption:after{
+  content:"  Single lead identity active.";
+  color:rgba(255,209,102,.72);
+}
+
+/* Sync right companion lane copy tone when current classes exist. */
+.homieBuddyShell .h,
+.homieCompanion .h,
+[class*="Homie"] .companionTitle{
+  letter-spacing:-.01em;
+}
+.homieBuddyShell,
+.homieCompanion,
+[class*="homieBuddy"],
+[class*="HomieBuddy"]{
+  border-color:rgba(255,209,102,.16)!important;
+}
+.homieBuddyShell .badge,
+.homieCompanion .badge{
+  border-color:rgba(255,209,102,.20)!important;
+}
+
+/* Reduce duplicate visual clutter in Homie panel. */
+.page .homiePresenceBoard + .homieHumanIdentityBoard{
+  margin-top:10px!important;
+}
+.homieHumanCopy .homieHumanCard:first-child h3:after{
+  content:" - lead face";
+  color:rgba(255,209,102,.72);
+  font-size:12px;
+  letter-spacing:.03em;
+}
+@media(max-width:980px){
+  .homieHumanStage{min-height:360px!important}
+}
+/* ===== v10.38.8b Homie Single Identity + Presence Unification END ===== */

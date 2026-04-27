@@ -1,0 +1,23 @@
+/* ===== v10.38.8f HomieBuddy Rive Stage Replacement ===== */
+
+.homieBuddyHumanAvatarStage{width:min(270px,76%);aspect-ratio:.78/1;margin:0 auto;position:relative;display:grid;place-items:center;filter:drop-shadow(0 24px 36px rgba(0,0,0,.36));animation:homieBuddyHumanFloat 5.8s ease-in-out infinite}
+@keyframes homieBuddyHumanFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.homieBuddyHumanAvatarStage:before{content:"";position:absolute;inset:4%;border-radius:34px;background:radial-gradient(circle at 50% 26%,rgba(154,230,255,.22),rgba(154,230,255,0) 46%),radial-gradient(circle at 50% 74%,rgba(255,209,92,.12),rgba(255,209,92,0) 52%),rgba(255,255,255,.025);border:1px solid rgba(154,230,255,.12)}
+.homieBuddyHumanCap{position:absolute;top:12%;left:50%;width:49%;height:18%;transform:translateX(-50%);border-radius:999px 999px 30% 30%;background:linear-gradient(180deg,#f2f4f7,#d8dde6);box-shadow:0 9px 16px rgba(0,0,0,.18);z-index:4}
+.homieBuddyHumanCap:after{content:"";position:absolute;left:50%;bottom:-16%;width:58%;height:27%;transform:translateX(-50%);border-radius:999px;background:linear-gradient(180deg,#e7ebf2,#c8ced8)}
+.homieBuddyHumanHead{position:absolute;top:17%;left:50%;width:44%;height:38%;transform:translateX(-50%);border-radius:34% 34% 31% 31%;background:radial-gradient(circle at 34% 32%,rgba(255,255,255,.22),rgba(255,255,255,0) 23%),linear-gradient(180deg,#d58d67,#bc7652);box-shadow:0 0 28px rgba(154,230,255,.13),inset 0 -10px 14px rgba(70,32,20,.16);z-index:2}
+.homieBuddyHumanEar{position:absolute;top:33%;width:8%;height:11%;border-radius:999px;background:#bd7652;z-index:1}.homieBuddyHumanEar.left{left:26%}.homieBuddyHumanEar.right{right:26%}
+.homieBuddyHumanGlasses{position:absolute;top:31%;left:50%;width:41%;height:12%;transform:translateX(-50%);z-index:8}
+.homieBuddyHumanGlasses:before,.homieBuddyHumanGlasses:after{content:"";position:absolute;top:0;width:39%;height:85%;border:2px solid rgba(34,40,50,.82);border-radius:11px;background:rgba(230,248,255,.11)}
+.homieBuddyHumanGlasses:before{left:0}.homieBuddyHumanGlasses:after{right:0}.homieBuddyHumanBridge{position:absolute;left:41%;top:38%;width:18%;height:3px;border-radius:999px;background:rgba(34,40,50,.82)}
+.homieBuddyHumanEye{position:absolute;top:33%;width:4.5%;height:5.6%;border-radius:999px;background:#241c1b;box-shadow:0 0 0 3px rgba(255,255,255,.42);z-index:9}.homieBuddyHumanEye.left{left:41%}.homieBuddyHumanEye.right{right:55%}
+.homieBuddyHumanBrow{position:absolute;top:28.5%;width:13%;height:5%;border-top:3px solid rgba(69,42,25,.72);border-radius:999px;z-index:9}.homieBuddyHumanBrow.left{left:36%;transform:rotate(-8deg)}.homieBuddyHumanBrow.right{right:36%;transform:rotate(8deg)}
+.homieBuddyHumanBeard{position:absolute;top:43%;left:50%;width:35%;height:26%;transform:translateX(-50%);clip-path:polygon(6% 0,94% 0,84% 64%,50% 100%,16% 64%);border-radius:24px 24px 44px 44px;background:linear-gradient(180deg,#6b3d2c,#4a281b);z-index:6}
+.homieBuddyHumanSmile{position:absolute;top:45.5%;left:50%;width:18%;height:8%;transform:translateX(-50%);border-radius:0 0 999px 999px;background:#27120e;overflow:hidden;z-index:10}.homieBuddyHumanSmile:after{content:"";position:absolute;top:8%;left:13%;width:74%;height:36%;border-radius:0 0 999px 999px;background:rgba(255,255,255,.92)}
+.homieBuddyHumanBody{position:absolute;top:64%;left:50%;width:32%;height:25%;transform:translateX(-50%);border-radius:38% 38% 24% 24%;background:linear-gradient(180deg,#161d31,#080d18);box-shadow:0 18px 30px rgba(0,0,0,.26);z-index:3}
+.homieBuddyHumanCore{position:absolute;top:75%;left:50%;width:9%;aspect-ratio:1;transform:translateX(-50%);border-radius:999px;background:#ffd15c;box-shadow:0 0 22px rgba(255,209,92,.55);z-index:7}
+.homieBuddyHumanHand{position:absolute;top:75%;width:8%;aspect-ratio:1;border-radius:999px;background:linear-gradient(180deg,#bce8ff,#9fd0f4);box-shadow:0 0 14px rgba(154,230,255,.34);z-index:5}.homieBuddyHumanHand.left{left:28%}.homieBuddyHumanHand.right{right:28%}
+.homieBuddyHumanLabel{position:absolute;bottom:5%;left:0;right:0;text-align:center;color:rgba(226,238,255,.58);font-size:11px;font-weight:900;letter-spacing:.16em;z-index:8}
+.homieBuddyHumanSyncedNote,.homieCompanionHumanSyncedCopy,.homieCompanionHumanMini{display:none!important}
+
+/* ===== v10.38.8f HomieBuddy Rive Stage Replacement END ===== */

@@ -1099,8 +1099,8 @@ export default function FairlyGodModeHUD({ activePanelId, onNavigate }: { active
                 <div className="fgGodHomieBridgeGrid">
                   <div className="fgGodHomieBridgeCard">
                     <div className="fgGodReasonCard">
-                      <div className="fgGodReasonTitle">Homie Operator Bridge</div>
-                      <div className="fgGodReasonText">Type what you want Homie to do. This bridge routes plain language into safe FairlyGodMode actions.</div>
+                      <div className="fgGodReasonTitle">Homie calm operator bridge</div>
+                      <div className="fgGodReasonText">Tell Homie what you need in plain English. Homie will route safe actions, explain warnings, or guide the next step without changing risky systems.</div>
                       <div className="fgGodHomieBridgeBadgeRow">
                         <span className="badge good">local only</span>
                         <span className="badge warn">resets require confirmation</span>
@@ -1120,7 +1120,7 @@ export default function FairlyGodModeHUD({ activePanelId, onNavigate }: { active
                     </div>
 
                     <div className={`fgGodHomieReply ${String(homieReply).toLowerCase().includes("reset") ? "warn" : ""}`}>
-                      <b>Homie operator reply</b>
+                      <b>Homie reply</b>
                       <span>{homieReply}</span>
                     </div>
                   </div>

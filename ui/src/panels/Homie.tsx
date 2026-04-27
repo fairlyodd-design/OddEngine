@@ -56,12 +56,12 @@ const LS_SETTINGS = "oddengine:homie:settings:v1";
 const LS_TARGET = "oddengine:homie:targetProject:v1";
 
 const DEFAULT_SYSTEM =
-  "You are Homie👊, the built-in assistant for OddEngine.\n" +
-  "- Be short, clear, and practical.\n" +
+  "You are Homie, the warm built-in companion for FairlyOdd OS.\n" +
+  "- Be calm, clear, kind, and practical.\n" +
   "- When suggesting commands, prefer PowerShell on Windows.\n" +
   "- Ask before running anything that writes/deletes files.\n" +
   "- If the user shows an error, explain it in plain English then give the safest fix steps.\n" +
-  "- Help the family route to the right panel and reflect the current house/chores priorities when relevant.";
+  "- Help route the user to the right panel. When family, legacy, health, money, or next steps are involved, be gentle, specific, and grounded.";
 
 function uid() {
   return Math.random().toString(16).slice(2) + Date.now().toString(16);
@@ -254,7 +254,7 @@ function HomieLeadAvatarHeroStage({
         </div>
 
         <div style={{ textAlign: "center", maxWidth: 420 }}>
-          <div style={{ fontWeight: 800, letterSpacing: "0.01em" }}>Unified Homie visual lane</div>
+          <div style={{ fontWeight: 800, letterSpacing: "0.01em" }}>Earlier robot visual lane</div>
           <div className="small" style={{ marginTop: 4, opacity: 0.9 }}>
             Hero-parity lead avatar with tighter head shape, closer eye spacing, softer aura, and cleaner framing to better match the right-side companion lane.
           </div>
@@ -264,6 +264,160 @@ function HomieLeadAvatarHeroStage({
   );
 }
 
+function buildHomieThemeList(activePanelId?: string) {
+  const legacy = loadJSON<any>("oddengine:fairlygodmode:legacyOpenFirst:v1", {});
+  const mode = loadJSON<any>("oddengine:fairlygodmode:activeMode:v1", {});
+  const themes = new Set<string>();
+  themes.add("next move");
+  if (activePanelId) themes.add(activePanelId);
+  if (legacy?.familyMessage || legacy?.importantNotes) themes.add("family legacy");
+  if (mode?.name) themes.add(mode.name);
+  themes.add("body / mind");
+  themes.add("money");
+  themes.add("studio");
+  return Array.from(themes).slice(0, 7);
+}
+
+function summarizeHomieMemory(messages: ChatMsg[]) {
+  const recent = messages
+    .filter((m) => m.role === "user")
+    .slice(-3)
+    .map((m) => m.content.replace(/\s+/g, " ").slice(0, 110));
+  return recent.length ? recent : ["No recent check-ins yet. Start with: Homie, what should I do next?"];
+}
+
+function getLegacyOpenFirstBrief() {
+  const legacy = loadJSON<any>("oddengine:fairlygodmode:legacyOpenFirst:v1", {});
+  return {
+    title: legacy?.welcomeTitle || "Open First",
+    body:
+      legacy?.familyMessage ||
+      legacy?.welcomeBody ||
+      "Legacy mode is ready. Add family notes, open-first guidance, and important next steps in FG/GOD -> Legacy.",
+    important: legacy?.importantNotes || "No important notes saved yet.",
+  };
+}
+
+function explainVoicePlain(snapshot: VoiceEngineSnapshot) {
+  const summary = summarizeVoiceEngine(snapshot);
+  if (snapshot.listening) return "Mic/listening lane is active. Homie is ready to hear you.";
+  if (snapshot.speaking) return "Voice output is active. Homie is talking.";
+  if (summary.toLowerCase().includes("degraded")) return "Voice is partly available, but one lane needs attention. Typed Homie stays safe.";
+  if (summary.toLowerCase().includes("unavailable")) return "Voice is limited right now. Typed Homie and FairlyGodMode commands still work.";
+  return summary || "Voice status is calm. Typed commands are always safe.";
+}
+function HomieHumanLegacyIdentity({ addQuick, onNavigate }: { addQuick: (text: string) => void; onNavigate?: (panelId: string) => void }) {
+  return (
+    <div className="card softCard homieHumanIdentityBoard" data-homie-human-legacy-identity="v10.38.8">
+      <div className="homieHumanIdentityGrid">
+        <div className="homieHumanStage">
+          <div className="homieHumanAura">
+            <div className="homieHumanCap" />
+            <div className="homieHumanEar left" />
+            <div className="homieHumanEar right" />
+            <div className="homieHumanHead" />
+            <div className="homieHumanGlasses">
+              <div className="homieHumanLens left"><div className="homieHumanEye left" /><div className="homieHumanBrow left" /></div>
+              <div className="homieHumanLens right"><div className="homieHumanEye right" /><div className="homieHumanBrow right" /></div>
+              <div className="homieHumanBridge" />
+            </div>
+            <div className="homieHumanNose" />
+            <div className="homieHumanBeard" />
+            <div className="homieHumanSmile" />
+            <div className="homieHumanBody" />
+            <div className="homieHumanCore" />
+            <div className="homieHumanHand left" />
+            <div className="homieHumanHand right" />
+            <div className="homieHumanFoot" />
+          </div>
+          <div className="homieHumanCaption">Human-inspired Homie: cap, glasses, beard, warm smile, kind eyes.</div>
+        </div>
+
+        <div className="homieHumanCopy">
+          <div className="homieHumanCard">
+            <h3>Homie identity direction - single lead</h3>
+            <p>
+              Homie is not a clone of another companion. Homie is the single FairlyOdd family guide: warm, grounded,
+              lightly playful, and built to help with one clear next step.
+            </p>
+          </div>
+
+          <div className="homieHumanCard">
+            <h3>How Homie should feel</h3>
+            <div className="homieHumanPrinciples">
+              <div className="homieHumanPrinciple">Present: "I am here. We can take this one step at a time."</div>
+              <div className="homieHumanPrinciple">Family-safe: explains panels without dev jargon.</div>
+              <div className="homieHumanPrinciple">Grounded: helps body, mind, money, home, and creative work.</div>
+              <div className="homieHumanPrinciple">Legacy-aware: knows Open First matters most.</div>
+            </div>
+          </div>
+
+          <div className="homieHumanCard">
+            <h3>Living presence states</h3>
+            <p>Idle, listening, thinking, speaking, caring, and legacy mode are visual/wording states first. No voice engine rewrite in this pass.</p>
+            <div className="homieHumanPromptRow">
+              <button className="tabBtn active" onClick={() => addQuick("Homie, I need one calm next step.")}>One calm step</button>
+              <button className="tabBtn" onClick={() => addQuick("Homie, help my family understand this OS.")}>Family guide</button>
+              <button className="tabBtn" onClick={() => addQuick("Homie, help me write an Open First note.")}>Open First note</button>
+              <button className="tabBtn" onClick={() => onNavigate?.("FamilyBudget")}>Budget</button>
+              <button className="tabBtn" onClick={() => onNavigate?.("Books")}>Creative works</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+function HomieCompanionHumanMini() {
+  return (
+    <div className="homieCompanionHumanMini" aria-label="Human-inspired Homie companion">
+      <div className="homieCompanionHumanCap" />
+      <div className="homieCompanionHumanEar left" />
+      <div className="homieCompanionHumanEar right" />
+      <div className="homieCompanionHumanHead" />
+      <div className="homieCompanionHumanBrow left" />
+      <div className="homieCompanionHumanBrow right" />
+      <div className="homieCompanionHumanGlasses">
+        <div className="homieCompanionHumanBridge" />
+      </div>
+      <div className="homieCompanionHumanEye left" />
+      <div className="homieCompanionHumanEye right" />
+      <div className="homieCompanionHumanBeard" />
+      <div className="homieCompanionHumanSmile" />
+      <div className="homieCompanionHumanBody" />
+      <div className="homieCompanionHumanCore" />
+      <div className="homieCompanionHumanHand left" />
+      <div className="homieCompanionHumanHand right" />
+      <div className="homieCompanionHumanLabel">HOMIE</div>
+    </div>
+  );
+}
+function HomieDirectHumanAvatar() {
+  return (
+    <div className="homieCompanionDirectHumanSlot">
+      <div className="homieDirectHumanMini" aria-label="Human-inspired Homie avatar">
+        <div className="homieDirectHumanCap" />
+        <div className="homieDirectHumanEar left" />
+        <div className="homieDirectHumanEar right" />
+        <div className="homieDirectHumanHead" />
+        <div className="homieDirectHumanBrow left" />
+        <div className="homieDirectHumanBrow right" />
+        <div className="homieDirectHumanGlasses">
+          <div className="homieDirectHumanBridge" />
+        </div>
+        <div className="homieDirectHumanEye left" />
+        <div className="homieDirectHumanEye right" />
+        <div className="homieDirectHumanBeard" />
+        <div className="homieDirectHumanSmile" />
+        <div className="homieDirectHumanBody" />
+        <div className="homieDirectHumanCore" />
+        <div className="homieDirectHumanHand left" />
+        <div className="homieDirectHumanHand right" />
+        <div className="homieDirectHumanLabel">HOMIE</div>
+      </div>
+    </div>
+  );
+}
 export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props) {
   const desktop = isDesktop();
 
@@ -393,6 +547,10 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
   }, [choresTick]);
 
   const operatorBrain = useMemo(() => getOperatorBrainSnapshot(), [choresTick, activePanelId]);
+  const homieThemes = useMemo(() => buildHomieThemeList(activePanelId), [activePanelId, messages.length]);
+  const homieRecentMemory = useMemo(() => summarizeHomieMemory(messages), [messages]);
+  const homieLegacyBrief = useMemo(() => getLegacyOpenFirstBrief(), [messages.length, activePanelId]);
+  const homieVoicePlain = useMemo(() => explainVoicePlain(voiceSnapshot), [voiceSnapshot]);
 
   async function checkOllama() {
     if (!desktop) return;
@@ -608,8 +766,8 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
     <div className="page" style={{ maxWidth: 1100, margin: "0 auto" }}>
       <PanelHeader
         panelId="Homie"
-        title="Homie 👊"
-        subtitle="Dev buddy + family guide + local AI helper"
+        title="Homie"
+        subtitle="Warm OS companion, family guide, and local AI helper"
         badges={[
           { label: desktop ? "Desktop" : "Web", tone: desktop ? "good" : "warn" },
           {
@@ -643,13 +801,64 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
         <button className="tabBtn" onClick={() => onOpenHowTo?.()} title="How to Use (F1)">ℹ</button>
       </div>
 
+      <div className="card softCard homiePresenceBoard" data-homie-presence-board="v10.38.7">
+        <div className="homiePresenceTop">
+          <div className="homiePresencePane">
+            <div className="homiePresenceTitle">I am here with you.</div>
+            <div className="homiePresenceText">
+              Homie is tuned for calm next steps: body, mind, family, money, studio, and what to open next.
+            </div>
+            <div className="homiePresenceChips">
+              {homieThemes.map((theme) => <span key={theme} className="homiePresenceChip">{theme}</span>)}
+            </div>
+            <div className="homieSoftPromptRow">
+              <button className="tabBtn" onClick={() => addQuick("Homie, what should I do next?")}>Next move</button>
+              <button className="tabBtn" onClick={() => addQuick("Homie, explain this panel like I am tired.")}>Explain this panel</button>
+              <button className="tabBtn" onClick={() => addQuick("Homie, help me leave clear notes for my family.")}>Legacy notes</button>
+              <button className="tabBtn" onClick={() => onNavigate?.("Home")}>Open Home</button>
+            </div>
+          </div>
+
+          <div className="homiePresencePane">
+            <div className="homiePresenceTitle">Memory + voice clarity</div>
+            <div className="homieVoicePlain">
+              <div className="small">Voice / mic in plain English</div>
+              <div className="homiePresenceText">{homieVoicePlain}</div>
+            </div>
+            <div className="homieMemoryList">
+              {homieRecentMemory.map((item, idx) => (
+                <div key={idx} className="homieMemoryItem">{item}</div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="homiePresencePane" style={{ marginTop: 12 }}>
+          <div className="homiePresenceTitle">{homieLegacyBrief.title} family handoff</div>
+          <div className="homiePresenceText">{homieLegacyBrief.body}</div>
+          <div className="homiePresenceText"><b>Important note:</b> {homieLegacyBrief.important}</div>
+          <div className="homieSoftPromptRow">
+            <button className="tabBtn active" onClick={() => addQuick("Homie, show me the family open-first plan.")}>Ask Homie for Open First</button>
+            <button className="tabBtn" onClick={() => onNavigate?.("FamilyBudget")}>Open budget</button>
+            <button className="tabBtn" onClick={() => onNavigate?.("FamilyHealth")}>Open family health</button>
+          </div>
+        </div>
+      </div>
+      <HomieHumanLegacyIdentity addQuick={addQuick} onNavigate={onNavigate} />
+
       {tab === "ai" && (
         <>
+                    <details className="homieLegacyRobotPreview">
+            <summary>Legacy robot visual preview is hidden</summary>
+            <div className="small">
+              The older robot/alien visual lane is preserved for comparison only. The human-inspired Homie is now the single lead identity.
+            </div>
+          </details>
           <div className="card softCard" data-homie-hero-parity-match="v10.36.99" style={{ marginTop: 12, borderColor: "rgba(154,230,255,0.24)" }}>
             <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
               <div>
-                <div className="h">Unified companion lead</div>
-                <div className="sub">Hero-parity pass for the top lead avatar: tighter head shape, closer eye spacing, better mouth curve, softer aura, cleaner body taper, and calmer frame spacing to match the right-side companion more closely.</div>
+                <div className="h">Legacy robot visual preview</div>
+                <div className="sub">Preserved comparison preview for the earlier robot visual lane: tighter head shape, closer eye spacing, better mouth curve, softer aura, cleaner body taper, and calmer frame spacing to match the right-side companion more closely.</div>
               </div>
               <span className={`badge ${voiceSnapshot.listening ? "good" : "muted"}`}>{voiceSnapshot.listening ? "Listening" : "Lead visual ready"}</span>
             </div>
@@ -660,7 +869,7 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
               </div>
 
               <div className="card" style={{ background: "rgba(6,12,24,0.38)", borderColor: "rgba(154,230,255,0.14)" }}>
-                <div className="h">Hero parity + right-lane match</div>
+                <div className="h">Legacy visual comparison</div>
                 <div className="sub">This is no longer a wiring fix. It is purely a visual parity pass to pull the top lead avatar closer to the right-side hero companion without changing the single-owner layout you already stabilized.</div>
 
                 <div className="assistantChipWrap" style={{ marginTop: 12 }}>
