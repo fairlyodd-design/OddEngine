@@ -7727,3 +7727,31 @@ code{
 .homieHumanStage{min-height:452px!important}
 .homieRebuildStage{min-height:374px!important}
 /* ===== v10.38.19e Homie Face Hood Opening Body Scale Final Fit END ===== */
+
+/* ===== v10.38.20 Homie Reference Composite Avatar ===== */
+/* Direct composite from user-provided hoodie-body reference + FairlyOdd/Homie head reference. */
+.homieHumanStage::before{
+  inset:-4% -1% -9% -1%!important;
+  background-image:url("/homie/homie-composite-hoodie-avatar.png")!important;
+  background-size:contain!important;
+  background-position:center!important;
+}
+
+.homieRebuildStage::before{
+  inset:-2% 2% -8% 2%!important;
+  background-image:url("/homie/homie-composite-hoodie-avatar-512.png")!important;
+  background-size:contain!important;
+  background-position:center!important;
+}
+
+.homieHumanStage,
+.homieRebuildStage{
+  background:
+    radial-gradient(450px 350px at 50% 32%,rgba(154,230,255,.15),rgba(154,230,255,0) 72%),
+    radial-gradient(365px 290px at 50% 87%,rgba(255,209,102,.08),rgba(255,209,102,0) 66%),
+    rgba(3,7,16,.36)!important;
+}
+
+.homieHumanStage{min-height:462px!important}
+.homieRebuildStage{min-height:382px!important}
+/* ===== v10.38.20 Homie Reference Composite Avatar END ===== */
