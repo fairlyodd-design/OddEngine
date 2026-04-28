@@ -1,0 +1,241 @@
+/* ===== v10.38.16 Homie Reference Face + Companion Micro-Presence ===== */
+/* UI/CSS-only refinement toward the provided human reference; Homie-owned, no copied assets. */
+
+/* Main stage: softer portrait glow */
+.homieHumanStage{
+  background:
+    radial-gradient(360px 280px at 50% 26%,rgba(255,255,255,.10),rgba(255,255,255,0) 48%),
+    radial-gradient(360px 270px at 50% 38%,rgba(154,230,255,.14),rgba(154,230,255,0) 74%),
+    radial-gradient(300px 240px at 50% 84%,rgba(255,209,102,.10),rgba(255,209,102,0) 66%),
+    rgba(3,7,16,.32)!important;
+}
+
+/* Main face: rounder, more Memoji/photo-reference proportion */
+.homieHumanHead{
+  width:150px!important;
+  height:158px!important;
+  top:31px!important;
+  border-radius:74px 74px 62px 62px!important;
+  background:
+    radial-gradient(circle at 33% 21%,rgba(255,255,255,.48),rgba(255,255,255,0) 24%),
+    radial-gradient(circle at 51% 47%,rgba(255,231,210,.28),rgba(255,231,210,0) 41%),
+    radial-gradient(circle at 50% 74%,rgba(107,52,29,.10),rgba(107,52,29,0) 42%),
+    linear-gradient(180deg,#eeae82 0%,#d88e64 54%,#b86b49 100%)!important;
+  box-shadow:
+    0 0 54px rgba(154,230,255,.16),
+    inset 0 15px 24px rgba(255,255,255,.13),
+    inset 0 -19px 24px rgba(76,32,18,.18)!important;
+}
+
+/* White cap closer to the image: smooth rounded helmet-like cap */
+.homieHumanCap{
+  top:12px!important;
+  width:166px!important;
+  height:72px!important;
+  border-radius:84px 84px 24px 24px!important;
+  background:
+    radial-gradient(circle at 35% 16%,rgba(255,255,255,1),rgba(255,255,255,0) 34%),
+    linear-gradient(180deg,#ffffff 0%,#f1f3f7 48%,#d6dde7 100%)!important;
+  box-shadow:
+    0 14px 22px rgba(0,0,0,.16),
+    inset 0 7px 12px rgba(255,255,255,.68),
+    inset 0 -7px 12px rgba(160,170,185,.18)!important;
+}
+.homieHumanCap:after{
+  width:112px!important;
+  height:18px!important;
+  bottom:-8px!important;
+  border-radius:999px!important;
+  opacity:.96!important;
+}
+
+/* Eyes/glasses: softer, warmer, less startled */
+.homieHumanGlasses{
+  top:88px!important;
+  width:130px!important;
+  height:40px!important;
+  transform:translateX(-50%) translateY(0)!important;
+}
+.homieHumanLens{
+  width:50px!important;
+  height:37px!important;
+  border:2.4px solid rgba(43,45,49,.82)!important;
+  border-radius:17px!important;
+  background:
+    radial-gradient(circle at 34% 22%,rgba(255,255,255,.44),rgba(255,255,255,0) 34%),
+    radial-gradient(circle at 50% 60%,rgba(180,220,255,.12),rgba(180,220,255,0) 48%),
+    rgba(244,252,255,.10)!important;
+  box-shadow:0 2px 0 rgba(0,0,0,.10), inset 0 0 11px rgba(255,255,255,.09)!important;
+}
+.homieHumanBridge{
+  left:55px!important;
+  top:17px!important;
+  width:20px!important;
+  height:2px!important;
+  opacity:.82!important;
+}
+.homieHumanEye{
+  top:11px!important;
+  width:10px!important;
+  height:13px!important;
+  background:#2a1b18!important;
+  border-radius:999px!important;
+  box-shadow:
+    0 0 0 4px rgba(255,255,255,.70),
+    1px -1px 0 4.5px rgba(165,190,178,.10),
+    0 0 10px rgba(154,230,255,.16)!important;
+}
+.homieHumanEye.left{left:27px!important}
+.homieHumanEye.right{right:27px!important}
+.homieHumanBrow{
+  top:-13px!important;
+  width:38px!important;
+  border-top:3px solid rgba(72,43,25,.74)!important;
+  border-radius:999px!important;
+}
+.homieHumanBrow.left{left:8px!important;transform:rotate(-9deg)!important}
+.homieHumanBrow.right{right:8px!important;transform:rotate(9deg)!important}
+
+/* Nose gets a little more face depth */
+.homieHumanNose{
+  top:119px!important;
+  width:23px!important;
+  height:26px!important;
+  background:
+    radial-gradient(circle at 48% 22%,rgba(255,235,215,.56),rgba(255,235,215,0) 42%),
+    linear-gradient(180deg,rgba(174,93,60,.28),rgba(80,32,18,.06))!important;
+}
+
+/* Beard: more pointed like the pic, but less giant block */
+.homieHumanBeard{
+  top:136px!important;
+  width:112px!important;
+  height:112px!important;
+  border-radius:34px 34px 86px 86px!important;
+  clip-path:polygon(8% 0,92% 0,88% 56%,50% 100%,12% 56%)!important;
+  background:
+    radial-gradient(circle at 50% 9%,rgba(127,76,52,.92),rgba(127,76,52,0) 36%),
+    radial-gradient(circle at 50% 88%,rgba(28,12,8,.36),rgba(28,12,8,0) 42%),
+    linear-gradient(180deg,#7b4934 0%,#5b3120 56%,#32160d 100%)!important;
+}
+
+/* Smile: happy, open, more image-like */
+.homieHumanSmile{
+  top:154px!important;
+  width:67px!important;
+  height:31px!important;
+  border-radius:0 0 999px 999px!important;
+  background:#22100c!important;
+}
+.homieHumanSmile:after{
+  left:8px!important;
+  top:3px!important;
+  width:51px!important;
+  height:10px!important;
+  border-radius:0 0 999px 999px!important;
+  background:rgba(255,255,255,.97)!important;
+}
+
+/* Body stays smaller so face leads like the reference */
+.homieHumanBody{
+  top:221px!important;
+  width:84px!important;
+  height:68px!important;
+  border-radius:34px 34px 26px 26px!important;
+}
+.homieHumanCore{top:247px!important}
+.homieHumanHand{top:245px!important}
+.homieHumanFoot{bottom:2px!important}
+
+/* Companion popout gets same face language */
+.homieRebuildStage{
+  background:
+    radial-gradient(330px 245px at 50% 30%,rgba(255,255,255,.08),rgba(255,255,255,0) 50%),
+    radial-gradient(330px 250px at 50% 38%,rgba(154,230,255,.13),rgba(154,230,255,0) 74%),
+    rgba(3,7,16,.34)!important;
+}
+.homieHumanBuddyHead{
+  top:39px!important;
+  width:108px!important;
+  height:109px!important;
+  border-radius:52px 52px 42px 42px!important;
+  background:
+    radial-gradient(circle at 33% 21%,rgba(255,255,255,.45),rgba(255,255,255,0) 24%),
+    radial-gradient(circle at 51% 47%,rgba(255,231,210,.24),rgba(255,231,210,0) 41%),
+    linear-gradient(180deg,#eeae82 0%,#d88e64 54%,#b86b49 100%)!important;
+}
+.homieHumanBuddyCap{
+  top:15px!important;
+  width:126px!important;
+  height:53px!important;
+  border-radius:999px 999px 25px 25px!important;
+  background:
+    radial-gradient(circle at 35% 16%,rgba(255,255,255,1),rgba(255,255,255,0) 34%),
+    linear-gradient(180deg,#ffffff 0%,#f1f3f7 48%,#d6dde7 100%)!important;
+}
+.homieHumanBuddyCap:after{
+  width:78px!important;
+  height:13px!important;
+  bottom:-7px!important;
+}
+.homieHumanBuddyGlasses{
+  top:76px!important;
+  width:101px!important;
+  height:33px!important;
+}
+.homieHumanBuddyGlasses:before,
+.homieHumanBuddyGlasses:after{
+  width:39px!important;
+  height:29px!important;
+  border:2.4px solid rgba(43,45,49,.82)!important;
+  border-radius:15px!important;
+  background:rgba(244,252,255,.10)!important;
+}
+.homieHumanBuddyBridge{left:45px!important;top:14px!important;width:13px!important}
+.homieHumanBuddyEye{
+  top:85px!important;
+  width:9px!important;
+  height:11px!important;
+  background:#2a1b18!important;
+  box-shadow:
+    0 0 0 4px rgba(255,255,255,.68),
+    0 0 10px rgba(154,230,255,.16)!important;
+}
+.homieHumanBuddyEye.left{left:88px!important}
+.homieHumanBuddyEye.right{right:88px!important}
+.homieHumanBuddyBrow{
+  top:69px!important;
+  width:28px!important;
+  border-top-width:3px!important;
+}
+.homieHumanBuddyBrow.left{left:77px!important;transform:rotate(-9deg)!important}
+.homieHumanBuddyBrow.right{right:77px!important;transform:rotate(9deg)!important}
+.homieHumanBuddyBeard{
+  top:109px!important;
+  width:84px!important;
+  height:86px!important;
+  border-radius:30px 30px 66px 66px!important;
+  clip-path:polygon(8% 0,92% 0,88% 56%,50% 100%,12% 56%)!important;
+}
+.homieHumanBuddySmile{
+  top:118px!important;
+  width:50px!important;
+  height:23px!important;
+}
+.homieHumanBuddySmile:after{
+  width:37px!important;
+  height:8px!important;
+}
+
+/* Companion micro-presence tone */
+.homieCompanionPresenceHint{
+  border:1px solid rgba(255,209,102,.14);
+  background:rgba(255,209,102,.035);
+  border-radius:14px;
+  padding:8px 10px;
+  color:rgba(226,238,255,.70);
+  font-size:11.5px;
+  line-height:1.35;
+  text-align:center;
+}
+/* ===== v10.38.16 Homie Reference Face + Companion Micro-Presence END ===== */

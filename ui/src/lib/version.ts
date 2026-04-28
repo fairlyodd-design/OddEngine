@@ -1,4 +1,4 @@
-export const APP_VERSION = "10.38.15b";
+export const APP_VERSION = "10.38.16";
 export const FAIRLYGODMODE_OS_DOCTOR_PASS = "v10.37.7_FairlyGodModeOSDoctorAndEpicStackFoundationPass";
 export const FAIRLYGODMODE_WORKSPACE_MODES_PASS = "v10.37.8_FairlyGodModeWorkspaceModesDeepeningPass";
 export const FAIRLYGODMODE_ASCII_HOTFIX_PASS = "v10.37.8c_FairlyGodModeAsciiSanitizerHotfixPass";
@@ -33,3 +33,4 @@ export const HOMIE_BUDDY_SETDRAFT_TYPECHECK_FIX_PASS = "v10.38.13c_HomieBuddySet
 export const HOMIE_REAL_CONVERSATION_MEMORY_ROUTINES_PASS = "v10.38.14_HomieRealConversationMemoryAndCompanionRoutinesPass";
 export const HOMIE_ROUTINE_RECEIPTS_LEGACY_SYNC_PASS = "v10.38.15_HomieRoutineReceiptsLegacyVaultSyncPass";
 export const HOMIE_BUDDY_ROUTINE_SUMMARY_REFERENCE_FIX_PASS = "v10.38.15b_HomieBuddyRoutineSummaryReferenceFixPass";
+export const HOMIE_REFERENCE_FACE_MICRO_PRESENCE_PASS = "v10.38.16_HomieReferenceFaceAndCompanionMicroPresencePass";
