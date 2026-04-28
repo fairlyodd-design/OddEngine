@@ -3133,6 +3133,22 @@ async function startExternalVoice(pushToTalk = false, source = "homie") {
 
   const homieBuddyMoodSummary = buildHomieBuddyMoodSummary();
 
+  function homieBuddySetCompanionDraft(nextPrompt: string) {
+    try {
+      const input = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+        '[data-homie-buddy-input="true"], [data-homie-input="true"], textarea[placeholder*="Homie"], input[placeholder*="Homie"]'
+      );
+      if (input) {
+        input.value = nextPrompt;
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.focus();
+        return;
+      }
+      window.dispatchEvent(new CustomEvent("homie:companion-draft", { detail: { prompt: nextPrompt } }));
+    } catch {
+      window.dispatchEvent(new CustomEvent("homie:companion-draft", { detail: { prompt: nextPrompt } }));
+    }
+  }
   const panel = (
     <div className={`homieBuddyPanel card softCard homieRebuildPanel ${presenceClass} ${mode === "standalone" ? "standalone" : ""}`}>
       <div className="homieRebuildHeader">
@@ -3189,9 +3205,9 @@ async function startExternalVoice(pushToTalk = false, source = "homie") {
               <p>Pick one: name the feeling, choose one tiny step, or save a family note.</p>
             </div>
             <div className="homieCompanionPromptGrid">
-              <button className="homieCompanionPromptBtn" onClick={() => setDraft("Homie, ask me a gentle check-in and help me name what I actually feel.")}><b>Check in</b><span>feeling first</span></button>
-              <button className="homieCompanionPromptBtn" onClick={() => setDraft("Homie, reflect my mood and give me one tiny next step.")}><b>Reflect</b><span>mood + step</span></button>
-              <button className="homieCompanionPromptBtn" onClick={() => setDraft("Homie, help me make this useful for my family as a legacy note.")}><b>Legacy</b><span>family note</span></button>
+              <button className="homieCompanionPromptBtn" onClick={() => homieBuddySetCompanionDraft("Homie, ask me a gentle check-in and help me name what I actually feel.")}><b>Check in</b><span>feeling first</span></button>
+              <button className="homieCompanionPromptBtn" onClick={() => homieBuddySetCompanionDraft("Homie, reflect my mood and give me one tiny next step.")}><b>Reflect</b><span>mood + step</span></button>
+              <button className="homieCompanionPromptBtn" onClick={() => homieBuddySetCompanionDraft("Homie, help me make this useful for my family as a legacy note.")}><b>Legacy</b><span>family note</span></button>
             </div>
           </div>
 <div className="homieMoodLedgerLine" data-homie-buddy-mood-ledger="v10.38.10">
