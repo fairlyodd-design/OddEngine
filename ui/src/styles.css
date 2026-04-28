@@ -7680,3 +7680,29 @@ code{
 .homieHumanStage{min-height:450px!important}
 .homieRebuildStage{min-height:372px!important}
 /* ===== v10.38.19c Homie Head Body Blend Pose Polish END ===== */
+
+/* ===== v10.38.19d Homie Hood Head Scale Neck Blend Fix ===== */
+/* Corrected asset: lower/smaller head, reduced collar bulk, cleaner hood opening. */
+.homieHumanStage::before{
+  inset:-2% 1% -8% 1%!important;
+  background-image:url("/homie/homie-fullbody-hoodie-jeans.png")!important;
+  background-size:contain!important;
+}
+
+.homieRebuildStage::before{
+  inset:0% 4% -7% 4%!important;
+  background-image:url("/homie/homie-fullbody-hoodie-jeans-512.png")!important;
+  background-size:contain!important;
+}
+
+.homieHumanStage,
+.homieRebuildStage{
+  background:
+    radial-gradient(440px 345px at 50% 32%,rgba(154,230,255,.15),rgba(154,230,255,0) 72%),
+    radial-gradient(360px 285px at 50% 87%,rgba(255,209,102,.08),rgba(255,209,102,0) 66%),
+    rgba(3,7,16,.36)!important;
+}
+
+.homieHumanStage{min-height:450px!important}
+.homieRebuildStage{min-height:372px!important}
+/* ===== v10.38.19d Homie Hood Head Scale Neck Blend Fix END ===== */
