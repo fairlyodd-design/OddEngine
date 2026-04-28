@@ -7497,3 +7497,67 @@ code{
 .homieCompanionBehaviorCard,.homieRoutineLedgerCard,.homieBuddyRoutineStatus{box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 18px 35px rgba(0,0,0,.16)!important}
 /* ===== v10.38.17 Homie Face Proportion + Companion Presence Polish END ===== */
 
+/* ===== v10.38.18 Homie Generated Portrait Asset Swap ===== */
+/* Asset-backed Homie portrait. CSS avatar remains underneath as fallback. */
+.homieHumanStage,
+.homieRebuildStage{
+  position:relative!important;
+  overflow:hidden!important;
+}
+
+.homieHumanStage .homieHumanAura,
+.homieRebuildStage .homieHumanBuddyCore{
+  opacity:0!important;
+  transform:scale(.985)!important;
+  transition:opacity .18s ease!important;
+}
+
+.homieHumanStage::before,
+.homieRebuildStage::before{
+  content:"";
+  position:absolute;
+  inset:8% 8% 6% 8%;
+  z-index:5;
+  pointer-events:none;
+  background-image:url("/homie/homie-reference-portrait.png");
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:contain;
+  filter:
+    drop-shadow(0 26px 38px rgba(0,0,0,.34))
+    drop-shadow(0 0 18px rgba(154,230,255,.10));
+}
+
+.homieHumanStage::after,
+.homieRebuildStage::after{
+  content:"";
+  position:absolute;
+  inset:10%;
+  z-index:4;
+  pointer-events:none;
+  border-radius:32px;
+  background:
+    radial-gradient(circle at 50% 36%,rgba(255,255,255,.10),rgba(255,255,255,0) 42%),
+    radial-gradient(circle at 50% 54%,rgba(154,230,255,.13),rgba(154,230,255,0) 68%),
+    radial-gradient(circle at 50% 86%,rgba(255,209,102,.09),rgba(255,209,102,0) 62%);
+}
+
+.homieHumanStage{
+  min-height:390px!important;
+}
+
+.homieRebuildStage::before{
+  inset:10% 9% 8% 9%;
+  background-image:url("/homie/homie-reference-portrait-256.png");
+}
+
+.homieRebuildStage{
+  min-height:320px!important;
+}
+
+.homieCompanionBehaviorCard,
+.homieRoutineLedgerCard,
+.homieBuddyRoutineStatus{
+  backdrop-filter:blur(18px)!important;
+}
+/* ===== v10.38.18 Homie Generated Portrait Asset Swap END ===== */
