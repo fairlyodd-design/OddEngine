@@ -7628,3 +7628,29 @@ code{
   z-index:8!important;
 }
 /* ===== v10.38.19 Homie Full Body Hoodie Jeans Avatar END ===== */
+
+/* ===== v10.38.19b Homie Body Proportion Realism Wardrobe Fit ===== */
+/* Better full-body asset: slimmer hoodie, tapered jeans, more natural body proportion. */
+.homieHumanStage::before{
+  inset:-1% 1% -7% 1%!important;
+  background-image:url("/homie/homie-fullbody-hoodie-jeans.png")!important;
+  background-size:contain!important;
+}
+
+.homieRebuildStage::before{
+  inset:0% 5% -6% 5%!important;
+  background-image:url("/homie/homie-fullbody-hoodie-jeans-512.png")!important;
+  background-size:contain!important;
+}
+
+.homieHumanStage,
+.homieRebuildStage{
+  background:
+    radial-gradient(420px 330px at 50% 34%,rgba(154,230,255,.145),rgba(154,230,255,0) 72%),
+    radial-gradient(340px 270px at 50% 86%,rgba(255,209,102,.08),rgba(255,209,102,0) 66%),
+    rgba(3,7,16,.36)!important;
+}
+
+.homieHumanStage{min-height:440px!important}
+.homieRebuildStage{min-height:365px!important}
+/* ===== v10.38.19b Homie Body Proportion Realism Wardrobe Fit END ===== */
