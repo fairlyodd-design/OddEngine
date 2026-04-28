@@ -408,7 +408,7 @@ function buildHomieDailyRhythmLine(state: HomieDailyRhythmState, memory: { check
   const today = getHomieDailyRhythmDayKey();
   if (state.lastCheckInDay === today) return "Daily rhythm is already checked in for today.";
   if (state.lastPromptDay === today) return "Today’s rhythm prompt is open — answer only what feels useful.";
-  if ((memory.checkInCount || 0) > 0) return "Ready for one tiny step, a plan, or a family note.";
+  if ((memory.checkInCount || 0) > 0) return "Ready for one tiny step, a plan, a memory, or a family note.";
   return "When you’re ready: what matters today?";
 }
 
@@ -472,7 +472,7 @@ function buildHomieLegacyTimelineReview(args: {
   const legacyCount = Number(args.memory?.legacyArtifactCount || artifacts.length || 0);
   const themes = homieCleanTimelineText(args.memory?.recentThemeText || "general", "general");
   const lastNextMove = homieCleanTimelineText(args.memory?.lastNextStep || args.dailyRhythmLine || "Choose one small next move and keep going.");
-  const activeThread = homieCleanTimelineText(args.status || "Homie is here with you, warm and steady.");
+  const activeThread = homieCleanTimelineText(args.status || "Homie is here with you: warm, steady, and ready for one small step.");
   const checkedToday = args.dailyRhythm?.lastCheckInDay === today;
   const promptedToday = args.dailyRhythm?.lastPromptDay === today;
   const greetedToday = args.dailyRhythm?.lastGreetingDay === today;
@@ -1370,7 +1370,7 @@ export default function HomieBuddy({
 }) {
   const [prefs, setPrefs] = useState(() => loadPrefs());
   const [open, setOpen] = useState(mode === "standalone");
-  const [status, setStatus] = useState("Homie is here with you, warm and steady.");
+  const [status, setStatus] = useState("Homie is here with you: warm, steady, and ready for one small step.");
   const [voiceEnabled, setVoiceEnabled] = useState(prefs.ai.homieVoiceEnabled);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -3187,7 +3187,7 @@ async function startExternalVoice(pushToTalk = false, source = "homie") {
             {homieBuddyMoodSummary || "No local check-in saved yet."} Want one tiny step, a plan, or a family note?
           </div>
 <div className="homieRebuildStageText">
-<div className="assistantSectionTitle">Human Homie companion lane</div>
+<div className="assistantSectionTitle">Homie companion presence</div>
             <div className="small">{status}</div>
             <div className="small homieRebuildPresenceLine">{presenceLine}</div>
             <div className="small homieTolanIdlePresenceLine">I’m here. We can stay quiet, talk by mic, or take one small next move.</div>

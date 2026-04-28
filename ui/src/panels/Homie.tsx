@@ -345,10 +345,10 @@ function HomieHumanLegacyIdentity({ addQuick, onNavigate }: { addQuick: (text: s
           <div className="homieHumanCard">
             <h3>How Homie should feel</h3>
             <div className="homieHumanPrinciples">
-              <div className="homieHumanPrinciple">Present: "I am here. We can take this one step at a time."</div>
-              <div className="homieHumanPrinciple">Family-safe: explains panels without dev jargon.</div>
-              <div className="homieHumanPrinciple">Grounded: helps body, mind, money, home, and creative work.</div>
-              <div className="homieHumanPrinciple">Legacy-aware: knows Open First matters most.</div>
+              <div className="homieHumanPrinciple">Present: "I am here with you. We can take this one step at a time."</div>
+              <div className="homieHumanPrinciple">Family-safe: explains panels simply and kindly.</div>
+              <div className="homieHumanPrinciple">Grounded: helps body, mind, family, money, home, and creative work.</div>
+              <div className="homieHumanPrinciple">Legacy-aware: helps turn today into something useful for family.</div>
             </div>
           </div>
 
