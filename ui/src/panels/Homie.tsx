@@ -301,7 +301,7 @@ function getLegacyOpenFirstBrief() {
 function explainVoicePlain(snapshot: VoiceEngineSnapshot) {
   const summary = summarizeVoiceEngine(snapshot);
   if (snapshot.listening) return "Mic/listening lane is active. Homie is ready to hear you.";
-  if (snapshot.speaking) return "Voice output is active. Homie is talking.";
+  if (isHomieVoiceSnapshotSpeaking(snapshot)) return "Voice output is active. Homie is talking.";
   if (summary.toLowerCase().includes("degraded")) return "Voice is partly available, but one lane needs attention. Typed Homie stays safe.";
   if (summary.toLowerCase().includes("unavailable")) return "Voice is limited right now. Typed Homie and FairlyGodMode commands still work.";
   return summary || "Voice status is calm. Typed commands are always safe.";
@@ -418,10 +418,21 @@ function HomieDirectHumanAvatar() {
     </div>
   );
 }
+function isHomieVoiceSnapshotSpeaking(snapshot: VoiceEngineSnapshot) {
+  const loose = snapshot as VoiceEngineSnapshot & {
+    speaking?: boolean;
+    isSpeaking?: boolean;
+    ttsPlaying?: boolean;
+    status?: string;
+    mode?: string;
+  };
+  const text = `${loose.status || ""} ${loose.mode || ""}`.toLowerCase();
+  return Boolean(loose.speaking || loose.isSpeaking || loose.ttsPlaying || text.includes("speaking") || text.includes("talking"));
+}
 function getHomieWarmVoiceLine(snapshot: VoiceEngineSnapshot) {
   const summary = summarizeVoiceEngine(snapshot);
   if (snapshot.listening) return "Mic is ready. Say one short sentence and I will stay with you.";
-  if (snapshot.speaking) return "Voice output is active. Homie is talking now.";
+  if (isHomieVoiceSnapshotSpeaking(snapshot)) return "Voice output is active. Homie is talking now.";
   if (summary.toLowerCase().includes("checking")) return "Bridge is checking. Typed mode is safe while voice verifies.";
   if (summary.toLowerCase().includes("unavailable")) return "Voice is limited right now. Typed mode is safe.";
   if (summary.toLowerCase().includes("degraded")) return "Voice is partly available. Typed mode is safe, and one short sentence works best.";
