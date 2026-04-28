@@ -408,7 +408,7 @@ function buildHomieDailyRhythmLine(state: HomieDailyRhythmState, memory: { check
   const today = getHomieDailyRhythmDayKey();
   if (state.lastCheckInDay === today) return "Daily rhythm is already checked in for today.";
   if (state.lastPromptDay === today) return "Today’s rhythm prompt is open — answer only what feels useful.";
-  if ((memory.checkInCount || 0) > 0) return "Ready for one tiny step, a plan, a memory, or a family note.";
+  if ((memory.checkInCount || 0) > 0) return "Ready for one tiny step, a plan, a memory, a family note, or just a minute to breathe.";
   return "When you’re ready: what matters today?";
 }
 
@@ -472,7 +472,7 @@ function buildHomieLegacyTimelineReview(args: {
   const legacyCount = Number(args.memory?.legacyArtifactCount || artifacts.length || 0);
   const themes = homieCleanTimelineText(args.memory?.recentThemeText || "general", "general");
   const lastNextMove = homieCleanTimelineText(args.memory?.lastNextStep || args.dailyRhythmLine || "Choose one small next move and keep going.");
-  const activeThread = homieCleanTimelineText(args.status || "Homie is here with you: warm, steady, and ready for one small step.");
+  const activeThread = homieCleanTimelineText(args.status || "Homie is here with you: warm, steady, and ready to sit with the real human part first.");
   const checkedToday = args.dailyRhythm?.lastCheckInDay === today;
   const promptedToday = args.dailyRhythm?.lastPromptDay === today;
   const greetedToday = args.dailyRhythm?.lastGreetingDay === today;
@@ -1370,7 +1370,7 @@ export default function HomieBuddy({
 }) {
   const [prefs, setPrefs] = useState(() => loadPrefs());
   const [open, setOpen] = useState(mode === "standalone");
-  const [status, setStatus] = useState("Homie is here with you: warm, steady, and ready for one small step.");
+  const [status, setStatus] = useState("Homie is here with you: warm, steady, and ready to sit with the real human part first.");
   const [voiceEnabled, setVoiceEnabled] = useState(prefs.ai.homieVoiceEnabled);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -3183,7 +3183,18 @@ async function startExternalVoice(pushToTalk = false, source = "homie") {
             <span className={`homieLivingPresencePill ${livingPresenceState === "idle" ? "good" : ""}`}>State: {livingPresenceState}</span>
             <span className="homieLivingPresencePill">{voiceWarmthLine || "Typed mode is safe."}</span>
           </div>
-                    <div className="homieMoodLedgerLine" data-homie-buddy-mood-ledger="v10.38.10">
+                              <div className="homieBuddyCompanionMiniDeck" data-homiebuddy-companion-behavior="v10.38.13">
+            <div className="homieCompanionBehaviorCard">
+              <b>How are you really?</b>
+              <p>Pick one: name the feeling, choose one tiny step, or save a family note.</p>
+            </div>
+            <div className="homieCompanionPromptGrid">
+              <button className="homieCompanionPromptBtn" onClick={() => setDraft("Homie, ask me a gentle check-in and help me name what I actually feel.")}><b>Check in</b><span>feeling first</span></button>
+              <button className="homieCompanionPromptBtn" onClick={() => setDraft("Homie, reflect my mood and give me one tiny next step.")}><b>Reflect</b><span>mood + step</span></button>
+              <button className="homieCompanionPromptBtn" onClick={() => setDraft("Homie, help me make this useful for my family as a legacy note.")}><b>Legacy</b><span>family note</span></button>
+            </div>
+          </div>
+<div className="homieMoodLedgerLine" data-homie-buddy-mood-ledger="v10.38.10">
             {homieBuddyMoodSummary || "No local check-in saved yet."} Want one tiny step, a plan, or a family note?
           </div>
 <div className="homieRebuildStageText">

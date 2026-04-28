@@ -345,7 +345,7 @@ function HomieHumanLegacyIdentity({ addQuick, onNavigate }: { addQuick: (text: s
           <div className="homieHumanCard">
             <h3>How Homie should feel</h3>
             <div className="homieHumanPrinciples">
-              <div className="homieHumanPrinciple">Present: "I am here with you. We can take this one step at a time."</div>
+              <div className="homieHumanPrinciple">Present: "I am here with you. No rush. One honest step at a time."</div>
               <div className="homieHumanPrinciple">Family-safe: explains panels simply and kindly.</div>
               <div className="homieHumanPrinciple">Grounded: helps body, mind, family, money, home, and creative work.</div>
               <div className="homieHumanPrinciple">Legacy-aware: helps turn today into something useful for family.</div>
@@ -882,7 +882,22 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
           </div>
         </div>
 
-                <div className="homieMoodLedgerCard" data-homie-mood-ledger="v10.38.10">
+                        <div className="homieCompanionBehaviorDeck" data-homie-companion-behavior="v10.38.13">
+          <div className="homieCompanionBehaviorCard">
+            <b>How are you really?</b>
+            <p>Homie can stay with the human part first: body, mind, family, money, creative, or legacy. No fixing everything at once.</p>
+            <div className="homieCompanionPromptGrid">
+              <button className="homieCompanionPromptBtn" onClick={() => addQuick("Homie, ask me a gentle check-in and help me name what I actually feel.")}><b>Gentle check-in</b><span>name the feeling</span></button>
+              <button className="homieCompanionPromptBtn" onClick={() => addQuick("Homie, reflect my mood and give me one tiny next step.")}><b>Mood reflection</b><span>mirror + next move</span></button>
+              <button className="homieCompanionPromptBtn" onClick={() => addQuick("Homie, help me make this useful for my family as a legacy note.")}><b>Family note</b><span>save something loving</span></button>
+            </div>
+          </div>
+          <div className="homieCompanionBehaviorCard">
+            <b>Steady companion mode</b>
+            <p>I know the goal: protect your family, keep the OS useful, and make the next step small enough to actually do.</p>
+          </div>
+        </div>
+<div className="homieMoodLedgerCard" data-homie-mood-ledger="v10.38.10">
           <div className="homieMoodLedgerHead"><div><b>Check-in memory ledger</b><span>{homieMoodSummary}</span></div><button className="tabBtn" onClick={() => { writeHomieMoodLedger([]); setHomieMoodLedger([]); }}>Clear</button></div>
           <div className="homieMoodLedgerGrid">
             <button className="homieMoodLedgerBtn" onClick={() => saveHomieMoodCheckIn("body")}><b>Body</b><span>energy, rest, pain, food</span></button>
