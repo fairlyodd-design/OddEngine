@@ -1355,6 +1355,30 @@ function getHomieVoiceWarmthLine(args: { isListening?: boolean; isSpeaking?: boo
   if (permission === "denied") return "Mic is blocked. Typed mode is safe, and you can re-enable mic permission when ready.";
   return "Bridge is checking. Typed mode is safe while I verify voice and mic.";
 }
+function homieBuddyReadRoutineReceipts() {
+  try {
+    const raw = localStorage.getItem("oddengine:homie:routine-receipts:v1");
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.slice(0, 12) : [];
+  } catch {
+    return [];
+  }
+}
+
+function homieBuddyAddRoutineReceipt(kind: string, title: string, detail: string) {
+  const receipt = { id: `buddy_receipt_${Date.now()}_${kind}`, kind, title, detail, createdAt: Date.now() };
+  try {
+    const next = [receipt, ...homieBuddyReadRoutineReceipts()].slice(0, 50);
+    localStorage.setItem("oddengine:homie:routine-receipts:v1", JSON.stringify(next));
+    window.dispatchEvent(new CustomEvent("homie:routine-receipts-updated"));
+  } catch {}
+}
+
+function buildHomieBuddyRoutineSummary() {
+  const latest = homieBuddyReadRoutineReceipts()[0];
+  if (!latest) return "No routine receipt yet.";
+  return `${latest.title}: ${latest.detail}`;
+}
 function readHomieMoodLedgerForBuddy() { try { const raw = localStorage.getItem("oddengine:homie:mood-ledger:v1"); const parsed = raw ? JSON.parse(raw) : []; return Array.isArray(parsed) ? parsed.slice(0, 12) : []; } catch { return []; } }
 function buildHomieBuddyMoodSummary() { const entries = readHomieMoodLedgerForBuddy(); const latest = entries[0]; if (!latest) return "No local check-in saved yet."; const themes = Array.isArray(latest.themes) ? latest.themes.join(", ") : latest.lane || "next move"; return `Last check-in: ${latest.lane || "check-in"} - ${themes}.`; }
 export default function HomieBuddy({
@@ -3165,11 +3189,13 @@ async function startExternalVoice(pushToTalk = false, source = "homie") {
       } catch {
         // local-only best effort
       }
+      homieBuddyAddRoutineReceipt("checkin", "Check-in saved", "HomieBuddy saved a local check-in.");
       homieBuddySetCompanionDraft("Homie, ask me how I am really doing, then help me name one honest feeling and one tiny next step.");
       return;
     }
 
     if (kind === "reflect") {
+      homieBuddyAddRoutineReceipt("reflect", "Reflection drafted", `Latest themes reflected: ${themes.join(", ")}.`);
       homieBuddySetCompanionDraft(`Homie, reflect my latest check-in (${lane}: ${themes.join(", ")}) and suggest one tiny next step.`);
       return;
     }
@@ -3179,10 +3205,15 @@ async function startExternalVoice(pushToTalk = false, source = "homie") {
       : "Homie, help me draft a kind family legacy note and one Open First handoff.";
     try {
       localStorage.setItem("oddengine:homie:latest-legacy-draft:v1", legacyPrompt);
+      const rawLegacy = localStorage.getItem("oddengine:homie:legacy-vault-sync:v1");
+      const parsedLegacy = rawLegacy ? JSON.parse(rawLegacy) : [];
+      const legacyList = Array.isArray(parsedLegacy) ? parsedLegacy : [];
+      localStorage.setItem("oddengine:homie:legacy-vault-sync:v1", JSON.stringify([{ id: `buddy_legacy_${now}`, title: "Homie family legacy draft", body: legacyPrompt, source: "HomieBuddy Companion Routine", createdAt: now }, ...legacyList].slice(0, 50)));
       window.dispatchEvent(new CustomEvent("homie:legacy-draft-updated", { detail: { prompt: legacyPrompt, createdAt: now } }));
     } catch {
       // local-only best effort
     }
+    homieBuddyAddRoutineReceipt("legacy", "Legacy draft synced", "Family note and Open First handoff starter saved locally.");
     homieBuddySetCompanionDraft(legacyPrompt);
   }
   function homieBuddySetCompanionDraft(nextPrompt: string) {
@@ -3201,6 +3232,8 @@ async function startExternalVoice(pushToTalk = false, source = "homie") {
       window.dispatchEvent(new CustomEvent("homie:companion-draft", { detail: { prompt: nextPrompt } }));
     }
   }
+  const homieBuddyRoutineSummary = buildHomieBuddyRoutineSummary();
+
   const panel = (
     <div className={`homieBuddyPanel card softCard homieRebuildPanel ${presenceClass} ${mode === "standalone" ? "standalone" : ""}`}>
       <div className="homieRebuildHeader">
@@ -3251,7 +3284,11 @@ async function startExternalVoice(pushToTalk = false, source = "homie") {
             <span className={`homieLivingPresencePill ${livingPresenceState === "idle" ? "good" : ""}`}>State: {livingPresenceState}</span>
             <span className="homieLivingPresencePill">{voiceWarmthLine || "Typed mode is safe."}</span>
           </div>
-                              <div className="homieBuddyCompanionMiniDeck" data-homiebuddy-companion-behavior="v10.38.13">
+                                        <div className="homieBuddyRoutineStatus" data-homiebuddy-routine-status="v10.38.15">
+            <b>Latest routine</b>
+            {homieBuddyRoutineSummary || "No routine receipt yet."}
+          </div>
+<div className="homieBuddyCompanionMiniDeck" data-homiebuddy-companion-behavior="v10.38.13">
             <div className="homieCompanionBehaviorCard">
               <b>How are you really?</b>
               <p>These are real local routines now: save a check-in, reflect the latest mood, or draft a family handoff.</p>

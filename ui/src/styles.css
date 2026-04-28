@@ -7211,3 +7211,19 @@ code{
 }
 /* ===== v10.38.14 Homie Real Conversation Memory + Companion Routines END ===== */
 
+/* ===== v10.38.15 Homie Routine Receipts + Legacy Vault Sync ===== */
+.homieRoutineLedgerCard{border:1px solid rgba(45,255,190,.15);background:radial-gradient(420px 190px at 0% 0%,rgba(45,255,190,.07),rgba(45,255,190,0) 70%),rgba(255,255,255,.03);border-radius:20px;padding:13px;margin:12px 0}
+.homieRoutineLedgerHead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
+.homieRoutineLedgerHead b{display:block;color:rgba(236,255,248,.95);font-size:15px}
+.homieRoutineLedgerHead span{display:block;color:rgba(226,238,255,.62);font-size:12px;line-height:1.35;margin-top:3px}
+.homieRoutineLedgerActions{display:flex;flex-wrap:wrap;gap:7px;justify-content:flex-end}
+.homieRoutineLedgerList{display:grid;gap:8px}
+.homieRoutineLedgerItem{border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.032);border-radius:15px;padding:10px}
+.homieRoutineLedgerItem b{display:block;color:rgba(255,246,220,.94);font-size:12.5px;margin-bottom:4px}
+.homieRoutineLedgerItem p{margin:0;color:rgba(226,238,255,.70);font-size:12px;line-height:1.38}
+.homieRoutineLedgerItem small{display:block;margin-top:5px;color:rgba(226,238,255,.48);font-size:10.5px}
+.homieBuddyRoutineStatus{border:1px solid rgba(45,255,190,.13);background:rgba(45,255,190,.035);border-radius:14px;padding:8px 9px;color:rgba(226,238,255,.70);font-size:11.5px;line-height:1.35;text-align:center;margin:8px 0}
+.homieBuddyRoutineStatus b{display:block;color:rgba(135,255,218,.95);margin-bottom:2px}
+@media(max-width:760px){.homieRoutineLedgerHead{display:grid}.homieRoutineLedgerActions{justify-content:flex-start}}
+/* ===== v10.38.15 Homie Routine Receipts + Legacy Vault Sync END ===== */
+

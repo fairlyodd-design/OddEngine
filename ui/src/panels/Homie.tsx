@@ -465,12 +465,14 @@ function runHomieCompanionRoutine(kind: "checkin" | "reflect" | "legacy", addPro
     const next = [entry, ...entries].slice(0, 50);
     writeHomieMoodLedger(next);
     addPrompt("Homie, ask me how I am really doing, then help me name one honest feeling and one tiny next step.");
+    addHomieRoutineReceipt("checkin", "Check-in saved", "Mind, body, family, and next move were written to local Homie memory.");
     return "Check-in saved: mind, body, family, next move.";
   }
 
   if (kind === "reflect") {
     const themeText = baseThemes.join(", ");
     addPrompt(`Homie, reflect my latest check-in (${latestLane}: ${themeText}) and suggest one tiny next step.`);
+    addHomieRoutineReceipt("reflect", "Reflection drafted", `Latest themes reflected: ${themeText}.`);
     return `Reflection ready from latest themes: ${themeText}.`;
   }
 
@@ -479,12 +481,84 @@ function runHomieCompanionRoutine(kind: "checkin" | "reflect" | "legacy", addPro
     : "Homie, help me draft a kind family legacy note and one Open First handoff.";
   addPrompt(legacyText);
   try {
+    syncHomieLegacyDraftToVault(legacyText);
+    addHomieRoutineReceipt("legacy", "Legacy draft synced", "Family note and Open First handoff starter saved locally.");
     localStorage.setItem("oddengine:homie:latest-legacy-draft:v1", legacyText);
     window.dispatchEvent(new CustomEvent("homie:legacy-draft-updated", { detail: { prompt: legacyText, createdAt: now } }));
   } catch {
     // local-only best effort
   }
   return "Legacy draft started: family note + Open First handoff.";
+}
+const HOMIE_ROUTINE_RECEIPTS_KEY = "oddengine:homie:routine-receipts:v1";
+const HOMIE_LEGACY_SYNC_KEY = "oddengine:homie:legacy-vault-sync:v1";
+
+type HomieRoutineReceipt = {
+  id: string;
+  kind: "checkin" | "reflect" | "legacy" | "export" | "clear";
+  title: string;
+  detail: string;
+  createdAt: number;
+};
+
+function readHomieRoutineReceipts(): HomieRoutineReceipt[] {
+  try {
+    const raw = localStorage.getItem(HOMIE_ROUTINE_RECEIPTS_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.slice(0, 50) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeHomieRoutineReceipts(receipts: HomieRoutineReceipt[]) {
+  try {
+    localStorage.setItem(HOMIE_ROUTINE_RECEIPTS_KEY, JSON.stringify(receipts.slice(0, 50)));
+    window.dispatchEvent(new CustomEvent("homie:routine-receipts-updated"));
+  } catch {}
+}
+
+function addHomieRoutineReceipt(kind: HomieRoutineReceipt["kind"], title: string, detail: string) {
+  const receipt: HomieRoutineReceipt = { id: `receipt_${Date.now()}_${kind}`, kind, title, detail, createdAt: Date.now() };
+  const next = [receipt, ...readHomieRoutineReceipts()].slice(0, 50);
+  writeHomieRoutineReceipts(next);
+  return receipt;
+}
+
+function syncHomieLegacyDraftToVault(prompt: string) {
+  const item = { id: `legacy_sync_${Date.now()}`, title: "Homie family legacy draft", body: prompt, source: "Homie Companion Routine", createdAt: Date.now() };
+  try {
+    const raw = localStorage.getItem(HOMIE_LEGACY_SYNC_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    const next = [item, ...(Array.isArray(parsed) ? parsed : [])].slice(0, 50);
+    localStorage.setItem(HOMIE_LEGACY_SYNC_KEY, JSON.stringify(next));
+    localStorage.setItem("oddengine:homie:latest-legacy-draft:v1", prompt);
+    window.dispatchEvent(new CustomEvent("homie:legacy-draft-updated", { detail: item }));
+  } catch {}
+  return item;
+}
+
+function exportHomieLocalMemoryBundle() {
+  const legacyDrafts = (() => {
+    try {
+      const raw = localStorage.getItem(HOMIE_LEGACY_SYNC_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  })();
+  const bundle = { exportedAt: new Date().toISOString(), moodLedger: readHomieMoodLedger(), routineReceipts: readHomieRoutineReceipts(), legacyDrafts };
+  const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `homie-memory-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  addHomieRoutineReceipt("export", "Homie memory exported", "Downloaded local Homie memory bundle.");
 }
 export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props) {
   const desktop = isDesktop();
@@ -620,6 +694,7 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
   const homieLegacyBrief = useMemo(() => getLegacyOpenFirstBrief(), [messages.length, activePanelId]);
   const homieVoicePlain = useMemo(() => explainVoicePlain(voiceSnapshot), [voiceSnapshot]);
   const [homieRoutineReceipt, setHomieRoutineReceipt] = useState<string>("");
+  const [homieRoutineReceipts, setHomieRoutineReceipts] = useState<HomieRoutineReceipt[]>(() => readHomieRoutineReceipts());
   const [homieMoodLedger, setHomieMoodLedger] = useState<HomieMoodLedgerEntry[]>(() => readHomieMoodLedger());
   const homieMoodSummary = useMemo(() => buildHomieMoodSummary(homieMoodLedger), [homieMoodLedger]);
   const homieMoodThemes = useMemo(() => buildHomieMoodThemes(homieMoodLedger), [homieMoodLedger]);
@@ -945,6 +1020,28 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
             <small>Local only. HomieBuddy and this panel share the same memory ledger.</small>
           </div>
         ) : null}
+        <div className="homieRoutineLedgerCard" data-homie-routine-ledger="v10.38.15">
+          <div className="homieRoutineLedgerHead">
+            <div>
+              <b>Routine receipts</b>
+              <span>{homieRoutineReceipts[0] ? `${homieRoutineReceipts[0].title}: ${homieRoutineReceipts[0].detail}` : "No routine receipts yet. Check in, reflect, or draft a family note."}</span>
+            </div>
+            <div className="homieRoutineLedgerActions">
+              <button className="tabBtn" onClick={() => exportHomieLocalMemoryBundle()}>Export Homie memory</button>
+              <button className="tabBtn" onClick={() => { writeHomieRoutineReceipts([]); setHomieRoutineReceipts([]); }}>Clear receipts</button>
+              <button className="tabBtn" onClick={() => { writeHomieMoodLedger([]); setHomieMoodLedger([]); addHomieRoutineReceipt("clear", "Mood ledger cleared", "Local Homie mood/check-in ledger cleared."); setHomieRoutineReceipts(readHomieRoutineReceipts()); }}>Clear mood ledger</button>
+            </div>
+          </div>
+          <div className="homieRoutineLedgerList">
+            {homieRoutineReceipts.slice(0, 3).map((receipt) => (
+              <div key={receipt.id} className="homieRoutineLedgerItem">
+                <b>{receipt.title}</b>
+                <p>{receipt.detail}</p>
+                <small>{new Date(receipt.createdAt).toLocaleString()}</small>
+              </div>
+            ))}
+          </div>
+        </div>
 <div className="homieMoodLedgerCard" data-homie-mood-ledger="v10.38.10">
           <div className="homieMoodLedgerHead"><div><b>Check-in memory ledger</b><span>{homieMoodSummary}</span></div><button className="tabBtn" onClick={() => { writeHomieMoodLedger([]); setHomieMoodLedger([]); }}>Clear</button></div>
           <div className="homieMoodLedgerGrid">
