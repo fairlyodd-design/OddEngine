@@ -408,7 +408,7 @@ function buildHomieDailyRhythmLine(state: HomieDailyRhythmState, memory: { check
   const today = getHomieDailyRhythmDayKey();
   if (state.lastCheckInDay === today) return "Daily rhythm is already checked in for today.";
   if (state.lastPromptDay === today) return "Today’s rhythm prompt is open — answer only what feels useful.";
-  if ((memory.checkInCount || 0) > 0) return "Ready for one tiny step, a plan, a memory, a family note, or one quiet minute.";
+  if ((memory.checkInCount || 0) > 0) return "Ready for one calm step, a plan, a memory, a family note, or one quiet minute.";
   return "When you’re ready: what matters today?";
 }
 
@@ -472,7 +472,7 @@ function buildHomieLegacyTimelineReview(args: {
   const legacyCount = Number(args.memory?.legacyArtifactCount || artifacts.length || 0);
   const themes = homieCleanTimelineText(args.memory?.recentThemeText || "general", "general");
   const lastNextMove = homieCleanTimelineText(args.memory?.lastNextStep || args.dailyRhythmLine || "Choose one small next move and keep going.");
-  const activeThread = homieCleanTimelineText(args.status || "Homie is here with you: warm, steady, and ready to notice what feels true first.");
+  const activeThread = homieCleanTimelineText(args.status || "Homie is here with you: warm, steady, and here to remember what matters.");
   const checkedToday = args.dailyRhythm?.lastCheckInDay === today;
   const promptedToday = args.dailyRhythm?.lastPromptDay === today;
   const greetedToday = args.dailyRhythm?.lastGreetingDay === today;
@@ -1394,7 +1394,7 @@ export default function HomieBuddy({
 }) {
   const [prefs, setPrefs] = useState(() => loadPrefs());
   const [open, setOpen] = useState(mode === "standalone");
-  const [status, setStatus] = useState("Homie is here with you: warm, steady, and ready to notice what feels true first.");
+  const [status, setStatus] = useState("Homie is here with you: warm, steady, and here to remember what matters.");
   const [voiceEnabled, setVoiceEnabled] = useState(prefs.ai.homieVoiceEnabled);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -3291,7 +3291,7 @@ async function startExternalVoice(pushToTalk = false, source = "homie") {
 <div className="homieBuddyCompanionMiniDeck" data-homiebuddy-companion-behavior="v10.38.13">
             <div className="homieCompanionBehaviorCard">
               <b>How are you really?</b>
-              <p>Tiny companion routines: check in, reflect what feels true, or save something useful for family.</p>
+              <p>Tiny companion routines: check in, reflect what feels true, or save something your family can understand later.</p>
             </div>
             <div className="homieCompanionPromptGrid">
               <button className="homieCompanionPromptBtn" onClick={() => homieBuddyRunCompanionRoutine("checkin")}><b>Check in</b><span>feeling first</span></button>
