@@ -1,3 +1,4 @@
+import { HomieTrue3DAvatar } from "../components/HomieTrue3DAvatar";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { isDesktop, oddApi } from "../lib/odd";
 import { PanelHeader } from "../components/PanelHeader";
@@ -311,6 +312,7 @@ function HomieHumanLegacyIdentity({ addQuick, onNavigate }: { addQuick: (text: s
     <div className="card softCard homieHumanIdentityBoard" data-homie-human-legacy-identity="v10.38.8">
       <div className="homieHumanIdentityGrid">
         <div className="homieHumanStage">
+          <div data-homie-true-3d="main-stage"><HomieTrue3DAvatar size="main" /></div>
           <div className="homieHumanAura">
             <div className="homieHumanCap" />
             <div className="homieHumanEar left" />

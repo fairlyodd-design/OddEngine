@@ -1,0 +1,31 @@
+{
+  "name": "Homie Starter 3D Avatar",
+  "version": "v10.38.21",
+  "type": "procedural-canvas-3d-starter",
+  "description": "Phase 1 starter avatar spec: hoodie, jeans, shoes, cap, beard, glasses. Future lane can replace with GLB/VRM.",
+  "parts": {
+    "head": {
+      "shape": "rounded sphere",
+      "cap": "white rounded cap",
+      "glasses": true,
+      "beard": "warm pointed beard"
+    },
+    "body": {
+      "top": "hoodie",
+      "bottom": "jeans",
+      "shoes": "soft dark sneakers"
+    },
+    "motion": [
+      "idleTurn",
+      "breathing",
+      "dragRotate"
+    ],
+    "futureHooks": [
+      "listening",
+      "thinking",
+      "speaking",
+      "caring",
+      "legacy"
+    ]
+  }
+}

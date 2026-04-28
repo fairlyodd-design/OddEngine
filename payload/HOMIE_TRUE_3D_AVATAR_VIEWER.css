@@ -1,0 +1,65 @@
+/* ===== v10.38.21 Homie True 3D Avatar Viewer ===== */
+.homieHumanStage,
+.homieRebuildStage{
+  position:relative!important;
+  overflow:hidden!important;
+}
+
+.homieHumanStage:has(.homie3DAvatarMount)::before,
+.homieRebuildStage:has(.homie3DAvatarMount)::before{
+  opacity:.10!important;
+  filter:blur(8px) saturate(.65)!important;
+}
+
+.homie3DAvatarMount{
+  position:absolute;
+  inset:5% 6% 5% 6%;
+  z-index:12;
+  border-radius:28px;
+  pointer-events:auto;
+  user-select:none;
+  touch-action:none;
+  background:
+    radial-gradient(330px 250px at 50% 34%,rgba(154,230,255,.10),rgba(154,230,255,0) 72%),
+    radial-gradient(240px 180px at 50% 78%,rgba(255,209,102,.06),rgba(255,209,102,0) 70%);
+}
+
+.homie3DAvatarMount--buddy{
+  inset:3% 7% 4% 7%;
+}
+
+.homie3DAvatarCanvas{
+  display:block;
+  width:100%;
+  height:100%;
+  cursor:grab;
+}
+
+.homie3DAvatarCanvas:active{
+  cursor:grabbing;
+}
+
+.homie3DAvatarHint{
+  position:absolute;
+  left:50%;
+  bottom:8px;
+  transform:translateX(-50%);
+  padding:4px 9px;
+  border-radius:999px;
+  border:1px solid rgba(154,230,255,.16);
+  background:rgba(3,7,16,.38);
+  color:rgba(226,238,255,.54);
+  font-size:10px;
+  letter-spacing:.02em;
+  pointer-events:none;
+  opacity:.72;
+}
+
+@supports not selector(:has(*)){
+  .homieHumanStage::before,
+  .homieRebuildStage::before{
+    opacity:.16!important;
+    filter:blur(8px) saturate(.65)!important;
+  }
+}
+/* ===== v10.38.21 Homie True 3D Avatar Viewer END ===== */

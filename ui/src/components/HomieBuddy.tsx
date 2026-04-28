@@ -1,3 +1,4 @@
+import { HomieTrue3DAvatar } from "./HomieTrue3DAvatar";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 // v10.36.81 checker-safe marker: premium warm local TTS + cleaner panel personality installed
 // v10.36.80 checker-safe marker: warm local TTS voice shaping installed
@@ -3303,6 +3304,7 @@ async function startExternalVoice(pushToTalk = false, source = "homie") {
             {homieBuddyMoodSummary || "No local check-in saved yet."} Want one tiny step, a plan, or a family note?
           </div>
 <div className="homieRebuildStageText">
+          <div data-homie-true-3d="buddy-stage"><HomieTrue3DAvatar size="buddy" /></div>
 <div className="assistantSectionTitle">Homie companion presence</div>
             <div className="small">{status}</div>
             <div className="small homieRebuildPresenceLine">{presenceLine}</div>
