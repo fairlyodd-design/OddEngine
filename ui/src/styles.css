@@ -7706,3 +7706,24 @@ code{
 .homieHumanStage{min-height:450px!important}
 .homieRebuildStage{min-height:372px!important}
 /* ===== v10.38.19d Homie Hood Head Scale Neck Blend Fix END ===== */
+
+/* ===== v10.38.19e Homie Face Hood Opening Body Scale Final Fit ===== */
+.homieHumanStage::before{
+  inset:-2% 0% -8% 0%!important;
+  background-image:url("/homie/homie-fullbody-hoodie-jeans.png")!important;
+  background-size:contain!important;
+}
+.homieRebuildStage::before{
+  inset:0% 3% -7% 3%!important;
+  background-image:url("/homie/homie-fullbody-hoodie-jeans-512.png")!important;
+  background-size:contain!important;
+}
+.homieHumanStage,.homieRebuildStage{
+  background:
+    radial-gradient(450px 350px at 50% 32%,rgba(154,230,255,.15),rgba(154,230,255,0) 72%),
+    radial-gradient(365px 290px at 50% 87%,rgba(255,209,102,.08),rgba(255,209,102,0) 66%),
+    rgba(3,7,16,.36)!important;
+}
+.homieHumanStage{min-height:452px!important}
+.homieRebuildStage{min-height:374px!important}
+/* ===== v10.38.19e Homie Face Hood Opening Body Scale Final Fit END ===== */

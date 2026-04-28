@@ -1,4 +1,4 @@
-export const APP_VERSION = "10.38.19d";
+export const APP_VERSION = "10.38.19e";
 export const FAIRLYGODMODE_OS_DOCTOR_PASS = "v10.37.7_FairlyGodModeOSDoctorAndEpicStackFoundationPass";
 export const FAIRLYGODMODE_WORKSPACE_MODES_PASS = "v10.37.8_FairlyGodModeWorkspaceModesDeepeningPass";
 export const FAIRLYGODMODE_ASCII_HOTFIX_PASS = "v10.37.8c_FairlyGodModeAsciiSanitizerHotfixPass";
@@ -41,3 +41,4 @@ export const HOMIE_FULLBODY_HOODIE_JEANS_AVATAR_PASS = "v10.38.19_HomieFullBodyH
 export const HOMIE_BODY_PROPORTION_REALISM_WARDROBE_FIT_PASS = "v10.38.19b_HomieBodyProportionRealismAndWardrobeFitPass";
 export const HOMIE_HEAD_BODY_BLEND_POSE_POLISH_PASS = "v10.38.19c_HomieHeadBodyBlendAndPosePolishPass";
 export const HOMIE_HOOD_HEAD_SCALE_NECK_BLEND_FIX_PASS = "v10.38.19d_HomieHoodHeadScaleAndNeckBlendFixPass";
+export const HOMIE_FACE_HOOD_OPENING_BODY_SCALE_FINAL_FIT_PASS = "v10.38.19e_HomieFaceHoodOpeningAndBodyScaleFinalFitPass";
