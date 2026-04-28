@@ -1,0 +1,146 @@
+/* v10.38.22c_HomieAvatarStageSourceTraceAndHardReplacePass
+   Purpose: make the procedural 3D canvas the only winning lead visual. */
+
+.homie3DHardStage,
+.homieRebuildStage[data-homie-stage-source="true-3d-hard-replace"],
+.homieHumanStage[data-homie-stage-source="true-3d-hard-replace"] {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  min-height: 360px;
+  padding: 18px 16px 14px;
+  border-radius: 26px;
+  background:
+    radial-gradient(420px 260px at 50% 28%, rgba(154,230,255,.12), rgba(154,230,255,0) 66%),
+    radial-gradient(360px 240px at 52% 38%, rgba(255,170,220,.07), rgba(255,170,220,0) 72%),
+    linear-gradient(180deg, rgba(9,14,24,.94), rgba(6,9,16,.96));
+}
+
+.homie3DHardStage::before,
+.homie3DHardStage::after,
+.homieRebuildStage[data-homie-stage-source="true-3d-hard-replace"]::before,
+.homieRebuildStage[data-homie-stage-source="true-3d-hard-replace"]::after,
+.homieHumanStage[data-homie-stage-source="true-3d-hard-replace"]::before,
+.homieHumanStage[data-homie-stage-source="true-3d-hard-replace"]::after {
+  content: none !important;
+  display: none !important;
+  background-image: none !important;
+  opacity: 0 !important;
+}
+
+.homie3DHardMount,
+[data-homie-true-3d="v10.38.22c"] {
+  position: relative;
+  z-index: 20;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  width: min(100%, 380px);
+  height: 420px;
+  margin: 0 auto;
+  pointer-events: auto;
+  background: transparent !important;
+}
+
+.homie3DHardMount--buddy {
+  width: 188px;
+  height: 216px;
+}
+
+.homie3DHardCanvas {
+  position: relative;
+  z-index: 21;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: transparent !important;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  filter: drop-shadow(0 24px 34px rgba(0,0,0,.42));
+}
+
+.homie3DHardCanvas:active { cursor: grabbing; }
+
+.homie3DHardHint {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  z-index: 22;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(154,230,255,.16);
+  background: rgba(6,10,18,.62);
+  color: rgba(232,241,255,.68);
+  font-size: 11px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* The old image/composite layers must never win inside a hard-replaced stage. */
+.homie3DHardStage .homie-composite-hoodie-avatar,
+.homie3DHardStage .homie-fullbody-hoodie-jeans,
+.homie3DHardStage [class*="homie-composite"],
+.homie3DHardStage [class*="homieComposite"],
+.homie3DHardStage [class*="fullbody-hoodie"],
+.homie3DHardStage [class*="fullBodyHoodie"],
+.homie3DHardStage img[src*="homie-composite"],
+.homie3DHardStage img[src*="hoodie-avatar"],
+.homie3DHardStage img[src*="hoodie-jeans"],
+.homieRebuildStage[data-homie-stage-source="true-3d-hard-replace"] .homie-composite-hoodie-avatar,
+.homieRebuildStage[data-homie-stage-source="true-3d-hard-replace"] .homie-fullbody-hoodie-jeans,
+.homieRebuildStage[data-homie-stage-source="true-3d-hard-replace"] [class*="homie-composite"],
+.homieRebuildStage[data-homie-stage-source="true-3d-hard-replace"] [class*="homieComposite"],
+.homieRebuildStage[data-homie-stage-source="true-3d-hard-replace"] [class*="fullbody-hoodie"],
+.homieRebuildStage[data-homie-stage-source="true-3d-hard-replace"] [class*="fullBodyHoodie"],
+.homieRebuildStage[data-homie-stage-source="true-3d-hard-replace"] img[src*="homie-composite"],
+.homieRebuildStage[data-homie-stage-source="true-3d-hard-replace"] img[src*="hoodie-avatar"],
+.homieRebuildStage[data-homie-stage-source="true-3d-hard-replace"] img[src*="hoodie-jeans"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Global neutralizers for the exact leak signatures from 10.38.18/19/20/22. */
+.homie-composite-hoodie-avatar,
+.homie-fullbody-hoodie-jeans,
+img.homie-composite-hoodie-avatar,
+img.homie-fullbody-hoodie-jeans,
+img[src*="homie-composite-hoodie-avatar"],
+img[src*="homie-fullbody-hoodie-jeans"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+@media (max-width: 720px) {
+  .homie3DHardStage { min-height: 320px; }
+  .homie3DHardMount { height: 360px; }
+}
+
+/* Non-:has fallback: hard-kill the exact pseudo layers globally. */
+.homieHumanStage::before,
+.homieHumanStage::after,
+.homieRebuildStage::before,
+.homieRebuildStage::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+  opacity: 0 !important;
+}
+
+/* Inside the avatar slot, only the true 3D canvas mount is allowed to display. */
+.homieRebuildAvatarWrap > :not([data-homie-true-3d]),
+.homieHumanStage .homieRebuildAvatarWrap > :not([data-homie-true-3d]),
+.homieRebuildStage .homieRebuildAvatarWrap > :not([data-homie-true-3d]) {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}

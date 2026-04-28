@@ -1,0 +1,28 @@
+{
+  "name": "Homie Rigged GLB Prototype",
+  "version": "v10.38.22",
+  "asset": "/homie/homie-rigged-prototype.glb",
+  "type": "prototype-rig-lane",
+  "status": "starter GLB skeleton/metadata lane",
+  "avatarDirection": {
+    "head": "Homie-inspired cap, glasses, warm eyes, beard",
+    "body": "hoodie, jeans, soft shoes",
+    "presence": "FairlyOdd family companion"
+  },
+  "supportedStage": {
+    "currentViewer": "HomieTrue3DAvatar procedural canvas viewer",
+    "fallback": "PNG/CSS avatar fallback only when true 3D stage is unavailable",
+    "futureViewer": "GLB/VRM viewer with animation mixer"
+  },
+  "animationHooks": [
+    "idle",
+    "breathing",
+    "dragRotate",
+    "listening",
+    "thinking",
+    "speaking",
+    "caring",
+    "legacy"
+  ],
+  "nextPhase": "Add GLB renderer/VRM rig and model animation clips."
+}

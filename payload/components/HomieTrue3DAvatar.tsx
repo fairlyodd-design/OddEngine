@@ -6,22 +6,6 @@ type HomieTrue3DAvatarProps = {
   className?: string;
 };
 
-type Point3 = { x: number; y: number; z: number };
-
-function project(p: Point3, yaw: number, scale: number, cx: number, cy: number) {
-  const cos = Math.cos(yaw);
-  const sin = Math.sin(yaw);
-  const x = p.x * cos - p.z * sin;
-  const z = p.x * sin + p.z * cos;
-  const perspective = 680 / (680 + z);
-  return {
-    x: cx + x * scale * perspective,
-    y: cy + p.y * scale * perspective,
-    s: scale * perspective,
-    z,
-  };
-}
-
 function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   const rr = Math.min(r, w / 2, h / 2);
   ctx.beginPath();
@@ -39,222 +23,155 @@ function ellipse(ctx: CanvasRenderingContext2D, x: number, y: number, rx: number
   ctx.fillStyle = fill;
   ctx.fill();
   if (stroke) {
+    ctx.strokeStyle = stroke;
     ctx.lineWidth = lineWidth;
-    ctx.strokeStyle = stroke;
     ctx.stroke();
   }
 }
 
-function capsule(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, fill: string, stroke?: string) {
-  roundedRect(ctx, x, y, w, h, Math.min(w, h) / 2);
-  ctx.fillStyle = fill;
-  ctx.fill();
-  if (stroke) {
-    ctx.strokeStyle = stroke;
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-  }
-}
+function drawHomie(ctx: CanvasRenderingContext2D, w: number, h: number, yaw: number, t: number, mood: string) {
+  ctx.clearRect(0, 0, w, h);
+  const cx = w / 2;
+  const cy = h * 0.52;
+  const s = Math.min(w, h) / 420;
+  const breathe = Math.sin(t * 2) * 5 * s;
+  const turn = Math.sin(yaw);
 
-function drawAvatar(ctx: CanvasRenderingContext2D, width: number, height: number, yaw: number, breathe: number, mood: string) {
-  ctx.clearRect(0, 0, width, height);
-  const cx = width / 2;
-  const cy = height * 0.53;
-  const scale = Math.min(width, height) / 440;
-  const lift = Math.sin(breathe) * 4 * scale;
-  const glow = ctx.createRadialGradient(cx, cy - 95 * scale, 20 * scale, cx, cy, 230 * scale);
+  const glow = ctx.createRadialGradient(cx, cy - 40*s, 20*s, cx, cy, 210*s);
   glow.addColorStop(0, "rgba(154,230,255,.24)");
-  glow.addColorStop(0.55, "rgba(154,230,255,.08)");
+  glow.addColorStop(.55, "rgba(154,230,255,.08)");
   glow.addColorStop(1, "rgba(154,230,255,0)");
   ctx.fillStyle = glow;
   ctx.beginPath();
-  ctx.ellipse(cx, cy, 230 * scale, 255 * scale, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx, cy, 220*s, 250*s, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  const side = Math.sin(yaw);
-  const front = Math.cos(yaw);
-  const p = (x: number, y: number, z = 0) => project({ x, y, z }, yaw, scale, cx, cy + lift);
-
-  // Ground shadow
   ctx.save();
-  ctx.globalAlpha = 0.46;
-  ellipse(ctx, cx, cy + 210 * scale, 88 * scale, 18 * scale, "rgba(0,0,0,.55)");
-  ctx.restore();
+  ctx.translate(cx, cy + breathe);
+  ctx.scale(s, s);
 
-  // Legs
-  const legLeft = p(-35, 65, 0);
-  const legRight = p(35, 65, 0);
-  capsule(ctx, legLeft.x - 22 * legLeft.s / scale, legLeft.y, 42 * legLeft.s / scale, 138 * legLeft.s / scale, "#20509b", "rgba(130,190,255,.20)");
-  capsule(ctx, legRight.x - 22 * legRight.s / scale, legRight.y, 42 * legRight.s / scale, 138 * legRight.s / scale, "#1d478b", "rgba(130,190,255,.20)");
-  ctx.strokeStyle = "rgba(5,20,55,.55)";
-  ctx.lineWidth = 2 * scale;
-  ctx.beginPath();
-  ctx.moveTo(cx, cy + 75 * scale);
-  ctx.lineTo(cx, cy + 198 * scale);
-  ctx.stroke();
+  ctx.globalAlpha = .42;
+  ellipse(ctx, 0, 214, 92, 18, "rgba(0,0,0,.55)");
+  ctx.globalAlpha = 1;
 
-  // Shoes
-  const shoeL = p(-42, 202, 10);
-  const shoeR = p(42, 202, 10);
-  capsule(ctx, shoeL.x - 34 * scale, shoeL.y, 68 * scale, 22 * scale, "#151a2a", "rgba(190,220,255,.24)");
-  capsule(ctx, shoeR.x - 34 * scale, shoeR.y, 68 * scale, 22 * scale, "#151a2a", "rgba(190,220,255,.24)");
+  // Legs and shoes
+  roundedRect(ctx, -48, 78, 42, 140, 20); ctx.fillStyle = "#20509b"; ctx.fill();
+  roundedRect(ctx, 8, 78, 42, 140, 20); ctx.fillStyle = "#1d478b"; ctx.fill();
+  roundedRect(ctx, -70, 210, 70, 24, 14); ctx.fillStyle = "#151a2a"; ctx.fill();
+  roundedRect(ctx, 0, 210, 70, 24, 14); ctx.fillStyle = "#151a2a"; ctx.fill();
 
-  // Arms behind torso
-  const armLX = -118 - side * 8;
-  const armRX = 118 - side * 8;
-  const armL = p(armLX, -8, -6);
-  const armR = p(armRX, -8, -6);
-  capsule(ctx, armL.x - 21 * scale, armL.y, 42 * scale, 116 * scale, "#354156", "rgba(150,180,210,.18)");
-  capsule(ctx, armR.x - 21 * scale, armR.y, 42 * scale, 116 * scale, "#354156", "rgba(150,180,210,.18)");
-  const handL = p(armLX, 105, 2);
-  const handR = p(armRX, 105, 2);
-  ellipse(ctx, handL.x, handL.y, 22 * scale, 24 * scale, "#df9164");
-  ellipse(ctx, handR.x, handR.y, 22 * scale, 24 * scale, "#df9164");
+  // Arms
+  roundedRect(ctx, -132 - turn*7, -35, 45, 125, 23); ctx.fillStyle = "#354156"; ctx.fill();
+  roundedRect(ctx, 87 - turn*7, -35, 45, 125, 23); ctx.fillStyle = "#354156"; ctx.fill();
+  ellipse(ctx, -109 - turn*7, 98, 23, 25, "#df9164");
+  ellipse(ctx, 109 - turn*7, 98, 23, 25, "#df9164");
 
-  // Torso hoodie
-  const body = p(0, -25, 0);
-  roundedRect(ctx, body.x - 86 * scale, body.y - 42 * scale, 172 * scale, 150 * scale, 50 * scale);
-  const hoodieGrad = ctx.createLinearGradient(body.x, body.y - 45 * scale, body.x, body.y + 110 * scale);
-  hoodieGrad.addColorStop(0, "#4b566b");
-  hoodieGrad.addColorStop(1, "#263145");
-  ctx.fillStyle = hoodieGrad;
+  // Hoodie body
+  const bodyGrad = ctx.createLinearGradient(0, -86, 0, 105);
+  bodyGrad.addColorStop(0, "#4b566b");
+  bodyGrad.addColorStop(1, "#263145");
+  roundedRect(ctx, -90, -75, 180, 172, 58);
+  ctx.fillStyle = bodyGrad;
   ctx.fill();
   ctx.strokeStyle = "rgba(180,210,240,.18)";
-  ctx.lineWidth = 2 * scale;
+  ctx.lineWidth = 2;
   ctx.stroke();
 
-  // Pocket
-  roundedRect(ctx, body.x - 58 * scale, body.y + 40 * scale, 116 * scale, 45 * scale, 22 * scale);
-  ctx.fillStyle = "rgba(20,29,45,.72)";
+  // Pocket and drawstrings
+  roundedRect(ctx, -60, 35, 120, 48, 24);
+  ctx.fillStyle = "rgba(20,29,45,.74)";
   ctx.fill();
-
-  // Hoodie strings
   ctx.strokeStyle = "rgba(220,225,235,.72)";
-  ctx.lineWidth = 2.2 * scale;
+  ctx.lineWidth = 2.5;
   ctx.beginPath();
-  ctx.moveTo(body.x - 20 * scale, body.y - 30 * scale);
-  ctx.lineTo(body.x - 30 * scale, body.y + 18 * scale);
-  ctx.moveTo(body.x + 20 * scale, body.y - 30 * scale);
-  ctx.lineTo(body.x + 30 * scale, body.y + 18 * scale);
+  ctx.moveTo(-22, -58); ctx.lineTo(-34, 12);
+  ctx.moveTo(22, -58); ctx.lineTo(34, 12);
   ctx.stroke();
 
-  // Core glow
-  const coreColor = mood === "legacy" ? "#ffe08b" : mood === "listening" ? "#78f5ff" : "#ffcc4a";
-  ellipse(ctx, body.x, body.y + 15 * scale, 20 * scale, 20 * scale, coreColor, "rgba(255,255,255,.38)", 2 * scale);
+  // Core
+  const core = mood === "legacy" ? "#ffe08b" : mood === "listening" ? "#78f5ff" : "#ffcc4a";
+  ellipse(ctx, 0, -4, 21, 21, core, "rgba(255,255,255,.38)", 2);
 
   // Hood behind head
-  const hood = p(0, -128, -4);
-  ellipse(ctx, hood.x, hood.y, 106 * scale, 104 * scale, "#364055", "rgba(170,200,230,.20)", 2 * scale);
-  ellipse(ctx, hood.x, hood.y + 8 * scale, 78 * scale, 80 * scale, "#252f42");
+  ellipse(ctx, 0, -142, 112, 106, "#364055", "rgba(170,200,230,.22)", 2);
+  ellipse(ctx, 0, -132, 82, 80, "#252f42");
 
-  // Neck bridge
-  const neck = p(0, -78, 5);
-  roundedRect(ctx, neck.x - 20 * scale, neck.y - 5 * scale, 40 * scale, 54 * scale, 16 * scale);
+  // Neck
+  roundedRect(ctx, -20, -98, 40, 62, 16);
   ctx.fillStyle = "#d8865d";
   ctx.fill();
 
   // Head
-  const head = p(0, -146, 18);
-  const headGrad = ctx.createRadialGradient(head.x - 24 * scale, head.y - 38 * scale, 10 * scale, head.x, head.y, 78 * scale);
+  const headGrad = ctx.createRadialGradient(-24, -198, 8, 0, -155, 82);
   headGrad.addColorStop(0, "#ffd7bb");
-  headGrad.addColorStop(0.48, "#df9468");
+  headGrad.addColorStop(.50, "#df9468");
   headGrad.addColorStop(1, "#b86a49");
-  ellipse(ctx, head.x, head.y, 66 * scale, 72 * scale, headGrad as unknown as string);
-
-  // Ears
-  ellipse(ctx, head.x - 67 * scale, head.y + 4 * scale, 14 * scale, 22 * scale, "#d8865d");
-  ellipse(ctx, head.x + 67 * scale, head.y + 4 * scale, 14 * scale, 22 * scale, "#d8865d");
+  ellipse(ctx, 0, -158, 68, 74, headGrad as unknown as string);
+  ellipse(ctx, -68, -151, 15, 22, "#d8865d");
+  ellipse(ctx, 68, -151, 15, 22, "#d8865d");
 
   // Beard
   ctx.beginPath();
-  ctx.moveTo(head.x - 50 * scale, head.y + 32 * scale);
-  ctx.quadraticCurveTo(head.x, head.y + 115 * scale, head.x + 50 * scale, head.y + 32 * scale);
-  ctx.lineTo(head.x + 44 * scale, head.y + 76 * scale);
-  ctx.quadraticCurveTo(head.x, head.y + 120 * scale, head.x - 44 * scale, head.y + 76 * scale);
+  ctx.moveTo(-52, -123);
+  ctx.quadraticCurveTo(0, -46, 52, -123);
+  ctx.lineTo(46, -72);
+  ctx.quadraticCurveTo(0, -36, -46, -72);
   ctx.closePath();
   ctx.fillStyle = "#5b3020";
   ctx.fill();
 
   // Cap
-  roundedRect(ctx, head.x - 76 * scale, head.y - 80 * scale, 152 * scale, 55 * scale, 32 * scale);
-  const capGrad = ctx.createLinearGradient(head.x, head.y - 84 * scale, head.x, head.y - 28 * scale);
+  roundedRect(ctx, -78, -240, 156, 56, 32);
+  const capGrad = ctx.createLinearGradient(0, -242, 0, -184);
   capGrad.addColorStop(0, "#ffffff");
   capGrad.addColorStop(1, "#dce2ec");
   ctx.fillStyle = capGrad;
   ctx.fill();
   ctx.strokeStyle = "rgba(120,130,150,.25)";
-  ctx.lineWidth = 1.5 * scale;
+  ctx.lineWidth = 1.5;
   ctx.stroke();
 
   // Glasses
   ctx.strokeStyle = "rgba(40,42,46,.88)";
-  ctx.lineWidth = 3 * scale;
-  roundedRect(ctx, head.x - 55 * scale, head.y - 22 * scale, 46 * scale, 34 * scale, 14 * scale);
-  ctx.stroke();
-  roundedRect(ctx, head.x + 9 * scale, head.y - 22 * scale, 46 * scale, 34 * scale, 14 * scale);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(head.x - 9 * scale, head.y - 5 * scale);
-  ctx.lineTo(head.x + 9 * scale, head.y - 5 * scale);
-  ctx.stroke();
+  ctx.lineWidth = 3;
+  roundedRect(ctx, -56, -180, 46, 35, 14); ctx.stroke();
+  roundedRect(ctx, 10, -180, 46, 35, 14); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-10, -163); ctx.lineTo(10, -163); ctx.stroke();
 
-  // Eyes
-  ellipse(ctx, head.x - 31 * scale, head.y - 5 * scale, 6 * scale, 8 * scale, "#1f1715");
-  ellipse(ctx, head.x + 31 * scale, head.y - 5 * scale, 6 * scale, 8 * scale, "#1f1715");
-  ellipse(ctx, head.x - 29 * scale, head.y - 7 * scale, 2 * scale, 2 * scale, "rgba(255,255,255,.9)");
-  ellipse(ctx, head.x + 33 * scale, head.y - 7 * scale, 2 * scale, 2 * scale, "rgba(255,255,255,.9)");
-
-  // Brows
+  // Eyes, brows, nose, smile
+  ellipse(ctx, -32, -162, 6, 8, "#1f1715");
+  ellipse(ctx, 32, -162, 6, 8, "#1f1715");
+  ellipse(ctx, -30, -165, 2, 2, "rgba(255,255,255,.9)");
+  ellipse(ctx, 34, -165, 2, 2, "rgba(255,255,255,.9)");
   ctx.strokeStyle = "rgba(70,42,25,.74)";
-  ctx.lineWidth = 3 * scale;
+  ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(head.x - 52 * scale, head.y - 34 * scale);
-  ctx.quadraticCurveTo(head.x - 30 * scale, head.y - 42 * scale, head.x - 10 * scale, head.y - 33 * scale);
-  ctx.moveTo(head.x + 10 * scale, head.y - 33 * scale);
-  ctx.quadraticCurveTo(head.x + 30 * scale, head.y - 42 * scale, head.x + 52 * scale, head.y - 34 * scale);
+  ctx.moveTo(-52, -196); ctx.quadraticCurveTo(-30, -204, -10, -195);
+  ctx.moveTo(10, -195); ctx.quadraticCurveTo(30, -204, 52, -196);
   ctx.stroke();
-
-  // Nose and smile
-  ellipse(ctx, head.x, head.y + 14 * scale, 10 * scale, 14 * scale, "rgba(175,90,58,.45)");
-  roundedRect(ctx, head.x - 34 * scale, head.y + 30 * scale, 68 * scale, 28 * scale, 14 * scale);
+  ellipse(ctx, 0, -142, 10, 14, "rgba(175,90,58,.45)");
+  roundedRect(ctx, -34, -124, 68, 29, 15);
   ctx.fillStyle = "#24100c";
   ctx.fill();
-  roundedRect(ctx, head.x - 25 * scale, head.y + 32 * scale, 50 * scale, 10 * scale, 5 * scale);
+  roundedRect(ctx, -25, -122, 50, 10, 5);
   ctx.fillStyle = "#fff";
   ctx.fill();
 
-  // Small turn indicator / antenna-like FairlyOdd sparkle
-  if (mood === "legacy" || mood === "caring") {
-    ctx.save();
-    ctx.globalAlpha = 0.55 + Math.sin(breathe * 2) * 0.18;
-    ellipse(ctx, head.x + 78 * scale, head.y - 74 * scale, 7 * scale, 7 * scale, "#ffcc4a");
-    ctx.restore();
-  }
+  ctx.restore();
 }
 
 export function HomieTrue3DAvatar({ size = "main", mood = "idle", className = "" }: HomieTrue3DAvatarProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const dragRef = useRef({ active: false, x: 0, yaw: 0 });
   const [yawOffset, setYawOffset] = useState(0);
-  const [webglOk, setWebglOk] = useState(true);
-
-  useEffect(() => {
-    try {
-      const probe = document.createElement("canvas");
-      const gl = probe.getContext("webgl") || probe.getContext("experimental-webgl");
-      setWebglOk(Boolean(gl));
-    } catch {
-      setWebglOk(false);
-    }
-  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    let raf = 0;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    let raf = 0;
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
       const ratio = window.devicePixelRatio || 1;
@@ -270,8 +187,7 @@ export function HomieTrue3DAvatar({ size = "main", mood = "idle", className = ""
     const start = performance.now();
     const render = (now: number) => {
       const t = (now - start) / 1000;
-      const idleYaw = Math.sin(t * 0.38) * 0.16;
-      drawAvatar(ctx, canvas.clientWidth, canvas.clientHeight, idleYaw + yawOffset, t * 2.1, mood);
+      drawHomie(ctx, canvas.clientWidth, canvas.clientHeight, yawOffset + Math.sin(t * .35) * .14, t, mood);
       raf = requestAnimationFrame(render);
     };
 
@@ -286,32 +202,21 @@ export function HomieTrue3DAvatar({ size = "main", mood = "idle", className = ""
     dragRef.current = { active: true, x: event.clientX, yaw: yawOffset };
     event.currentTarget.setPointerCapture(event.pointerId);
   };
-
   const onPointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
     if (!dragRef.current.active) return;
-    const dx = event.clientX - dragRef.current.x;
-    setYawOffset(dragRef.current.yaw + dx * 0.01);
+    setYawOffset(dragRef.current.yaw + (event.clientX - dragRef.current.x) * .01);
   };
-
   const onPointerUp = (event: React.PointerEvent<HTMLCanvasElement>) => {
     dragRef.current.active = false;
-    try {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    } catch {
-      // no-op
-    }
+    try { event.currentTarget.releasePointerCapture(event.pointerId); } catch { /* no-op */ }
   };
 
-  if (!webglOk) {
-    return null;
-  }
-
   return (
-    <div className={`homie3DAvatarMount homie3DAvatarMount--${size} ${className}`} data-homie-true-3d="v10.38.21">
+    <div className={`homie3DAvatarMount homie3DAvatarMount--${size} ${className}`} data-homie-true-3d="forced-v10.38.22b">
       <canvas
         ref={canvasRef}
         className="homie3DAvatarCanvas"
-        aria-label="Homie starter 3D avatar"
+        aria-label="Homie 3D avatar"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}

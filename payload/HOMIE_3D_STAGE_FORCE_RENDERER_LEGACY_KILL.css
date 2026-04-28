@@ -1,0 +1,109 @@
+/* ===== v10.38.22b Homie 3D Stage Force Renderer + Legacy Visual Kill ===== */
+/* Force the procedural 3D canvas to be the only lead avatar visual. */
+
+.homieHumanStage,
+.homieRebuildStage{
+  position:relative!important;
+  overflow:hidden!important;
+  background:
+    radial-gradient(460px 360px at 50% 34%,rgba(154,230,255,.15),rgba(154,230,255,0) 72%),
+    radial-gradient(360px 285px at 50% 87%,rgba(255,209,102,.08),rgba(255,209,102,0) 66%),
+    rgba(3,7,16,.42)!important;
+}
+
+/* Kill old composite/avatar pseudo-image layers unconditionally on the Homie stages. */
+.homieHumanStage::before,
+.homieRebuildStage::before{
+  content:none!important;
+  display:none!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  background-image:none!important;
+  filter:none!important;
+}
+
+.homieHumanStage::after,
+.homieRebuildStage::after{
+  opacity:.48!important;
+  background:
+    radial-gradient(circle at 50% 34%,rgba(255,255,255,.07),rgba(255,255,255,0) 42%),
+    radial-gradient(circle at 50% 58%,rgba(154,230,255,.10),rgba(154,230,255,0) 70%)!important;
+}
+
+/* Hide legacy CSS/PNG avatar internals when the forced 3D mount is present. */
+.homieHumanStage:has(.homie3DAvatarMount) .homieHumanAura,
+.homieHumanStage:has(.homie3DAvatarMount) .homieHumanHead,
+.homieHumanStage:has(.homie3DAvatarMount) .homieHumanBody,
+.homieHumanStage:has(.homie3DAvatarMount) .homieHumanCap,
+.homieHumanStage:has(.homie3DAvatarMount) .homieHumanBeard,
+.homieHumanStage:has(.homie3DAvatarMount) .homieHumanGlasses,
+.homieHumanStage:has(.homie3DAvatarMount) .homieHumanCore,
+.homieHumanStage:has(.homie3DAvatarMount) .homieHumanHand,
+.homieHumanStage:has(.homie3DAvatarMount) .homieHumanFoot,
+.homieRebuildStage:has(.homie3DAvatarMount) .homieHumanBuddyCore,
+.homieRebuildStage:has(.homie3DAvatarMount) .homieHumanBuddyHead,
+.homieRebuildStage:has(.homie3DAvatarMount) .homieHumanBuddyBody,
+.homieRebuildStage:has(.homie3DAvatarMount) .homieHumanBuddyCap,
+.homieRebuildStage:has(.homie3DAvatarMount) .homieHumanBuddyBeard,
+.homieRebuildStage:has(.homie3DAvatarMount) .homieHumanBuddyGlasses{
+  opacity:0!important;
+  visibility:hidden!important;
+  display:none!important;
+}
+
+.homie3DAvatarMount{
+  position:absolute!important;
+  inset:0!important;
+  z-index:100!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:inherit!important;
+  border-radius:inherit!important;
+  pointer-events:auto!important;
+  user-select:none!important;
+  touch-action:none!important;
+  background:
+    radial-gradient(340px 250px at 50% 34%,rgba(154,230,255,.12),rgba(154,230,255,0) 72%),
+    radial-gradient(240px 180px at 50% 78%,rgba(255,209,102,.07),rgba(255,209,102,0) 70%)!important;
+}
+
+.homie3DAvatarMount--buddy{
+  inset:0!important;
+}
+
+.homie3DAvatarCanvas{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  cursor:grab;
+}
+
+.homie3DAvatarCanvas:active{
+  cursor:grabbing;
+}
+
+.homie3DAvatarHint{
+  position:absolute;
+  left:50%;
+  bottom:10px;
+  transform:translateX(-50%);
+  z-index:120;
+  padding:4px 9px;
+  border-radius:999px;
+  border:1px solid rgba(154,230,255,.16);
+  background:rgba(3,7,16,.38);
+  color:rgba(226,238,255,.58);
+  font-size:10px;
+  letter-spacing:.02em;
+  pointer-events:none;
+}
+
+/* Keep captions readable over the forced canvas. */
+.homieHumanStage figcaption,
+.homieRebuildStage figcaption,
+.homieHumanStage .small,
+.homieRebuildStage .small{
+  position:relative!important;
+  z-index:130!important;
+}
+/* ===== v10.38.22b Homie 3D Stage Force Renderer + Legacy Visual Kill END ===== */

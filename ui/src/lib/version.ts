@@ -1,4 +1,4 @@
-export const APP_VERSION = "10.38.21b";
+export const APP_VERSION = "10.38.22b";
 export const FAIRLYGODMODE_OS_DOCTOR_PASS = "v10.37.7_FairlyGodModeOSDoctorAndEpicStackFoundationPass";
 export const FAIRLYGODMODE_WORKSPACE_MODES_PASS = "v10.37.8_FairlyGodModeWorkspaceModesDeepeningPass";
 export const FAIRLYGODMODE_ASCII_HOTFIX_PASS = "v10.37.8c_FairlyGodModeAsciiSanitizerHotfixPass";
@@ -45,3 +45,5 @@ export const HOMIE_FACE_HOOD_OPENING_BODY_SCALE_FINAL_FIT_PASS = "v10.38.19e_Hom
 export const HOMIE_REFERENCE_COMPOSITE_AVATAR_PASS = "v10.38.20_HomieReferenceCompositeAvatarPass";
 export const HOMIE_TRUE_3D_AVATAR_VIEWER_PASS = "v10.38.21_HomieTrue3DAvatarAssetAndViewerPass";
 export const HOMIE_TRUE_3D_AVATAR_MOOD_SCOPE_FIX_PASS = "v10.38.21b_HomieTrue3DAvatarMoodScopeFixPass";
+export const HOMIE_RIGGED_GLB_AVATAR_PROTOTYPE_PASS = "v10.38.22_HomieRiggedGLBAvatarPrototypePass";
+export const HOMIE_3D_STAGE_FORCE_RENDERER_LEGACY_VISUAL_KILL_PASS = "v10.38.22b_Homie3DStageForceRendererAndLegacyVisualKillPass";
