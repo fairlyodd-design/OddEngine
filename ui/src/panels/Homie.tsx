@@ -446,6 +446,46 @@ function homieMoodLaneThemes(lane: HomieMoodLedgerEntry["lane"]) { const map: Re
 function homieMoodLaneNote(lane: HomieMoodLedgerEntry["lane"]) { const map: Record<HomieMoodLedgerEntry["lane"], string> = { body:"Body check-in saved. Start with water, food, breath, rest, or pain level.", mind:"Mind check-in saved. We can make the next step smaller.", family:"Family check-in saved. This can become a kind note or Open First guidance.", money:"Money check-in saved. We can pick the safest practical move.", creative:"Creative check-in saved. We can turn momentum into one finished artifact." }; return map[lane] || "Check-in saved. One calm next step."; }
 function buildHomieMoodSummary(entries: HomieMoodLedgerEntry[]) { const latest = entries[0]; if (!latest) return "No check-ins saved yet. Pick body, mind, family, money, or creative."; const date = new Date(latest.createdAt).toLocaleString([], { month:"short", day:"numeric", hour:"numeric", minute:"2-digit" }); return `Last check-in: ${latest.lane} at ${date}. Themes: ${latest.themes.join(", ")}.`; }
 function buildHomieMoodThemes(entries: HomieMoodLedgerEntry[]) { const counts: Record<string, number> = {}; entries.slice(0, 12).forEach((entry) => entry.themes.forEach((theme) => counts[theme] = (counts[theme] || 0) + 1)); return Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 8).map(([theme,count]) => ({ theme, count })); }
+function runHomieCompanionRoutine(kind: "checkin" | "reflect" | "legacy", addPrompt: (prompt: string) => void) {
+  const entries = readHomieMoodLedger();
+  const latest = entries[0];
+  const now = Date.now();
+  const baseThemes = latest?.themes?.length ? latest.themes : ["body", "mind", "family", "next move"];
+  const latestLane = latest?.lane || "mind";
+
+  if (kind === "checkin") {
+    const entry: HomieMoodLedgerEntry = {
+      id: `routine_${now}_checkin`,
+      lane: "mind",
+      mood: "honest check-in",
+      themes: ["mind", "body", "family", "next move"],
+      note: "Homie check-in started. Name what feels true, then pick one tiny step.",
+      createdAt: now,
+    };
+    const next = [entry, ...entries].slice(0, 50);
+    writeHomieMoodLedger(next);
+    addPrompt("Homie, ask me how I am really doing, then help me name one honest feeling and one tiny next step.");
+    return "Check-in saved: mind, body, family, next move.";
+  }
+
+  if (kind === "reflect") {
+    const themeText = baseThemes.join(", ");
+    addPrompt(`Homie, reflect my latest check-in (${latestLane}: ${themeText}) and suggest one tiny next step.`);
+    return `Reflection ready from latest themes: ${themeText}.`;
+  }
+
+  const legacyText = latest
+    ? `Homie, turn my latest check-in (${latest.lane}: ${baseThemes.join(", ")}) into a kind family legacy note and one Open First handoff.`
+    : "Homie, help me draft a kind family legacy note and one Open First handoff.";
+  addPrompt(legacyText);
+  try {
+    localStorage.setItem("oddengine:homie:latest-legacy-draft:v1", legacyText);
+    window.dispatchEvent(new CustomEvent("homie:legacy-draft-updated", { detail: { prompt: legacyText, createdAt: now } }));
+  } catch {
+    // local-only best effort
+  }
+  return "Legacy draft started: family note + Open First handoff.";
+}
 export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props) {
   const desktop = isDesktop();
 
@@ -579,6 +619,7 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
   const homieRecentMemory = useMemo(() => summarizeHomieMemory(messages), [messages]);
   const homieLegacyBrief = useMemo(() => getLegacyOpenFirstBrief(), [messages.length, activePanelId]);
   const homieVoicePlain = useMemo(() => explainVoicePlain(voiceSnapshot), [voiceSnapshot]);
+  const [homieRoutineReceipt, setHomieRoutineReceipt] = useState<string>("");
   const [homieMoodLedger, setHomieMoodLedger] = useState<HomieMoodLedgerEntry[]>(() => readHomieMoodLedger());
   const homieMoodSummary = useMemo(() => buildHomieMoodSummary(homieMoodLedger), [homieMoodLedger]);
   const homieMoodThemes = useMemo(() => buildHomieMoodThemes(homieMoodLedger), [homieMoodLedger]);
@@ -887,9 +928,9 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
             <b>How are you really?</b>
             <p>Homie can stay with the human part first: body, mind, family, money, creative, or legacy. No fixing everything at once.</p>
             <div className="homieCompanionPromptGrid">
-              <button className="homieCompanionPromptBtn" onClick={() => addQuick("Homie, ask me a gentle check-in and help me name what I actually feel.")}><b>Gentle check-in</b><span>name the feeling</span></button>
-              <button className="homieCompanionPromptBtn" onClick={() => addQuick("Homie, reflect my mood and give me one tiny next step.")}><b>Mood reflection</b><span>mirror + next move</span></button>
-              <button className="homieCompanionPromptBtn" onClick={() => addQuick("Homie, help me make this useful for my family as a legacy note.")}><b>Family note</b><span>save something loving</span></button>
+              <button className="homieCompanionPromptBtn" onClick={() => setHomieRoutineReceipt(runHomieCompanionRoutine("checkin", addQuick))}><b>Gentle check-in</b><span>name the feeling</span></button>
+              <button className="homieCompanionPromptBtn" onClick={() => setHomieRoutineReceipt(runHomieCompanionRoutine("reflect", addQuick))}><b>Mood reflection</b><span>mirror + next move</span></button>
+              <button className="homieCompanionPromptBtn" onClick={() => setHomieRoutineReceipt(runHomieCompanionRoutine("legacy", addQuick))}><b>Family note</b><span>save something loving</span></button>
             </div>
           </div>
           <div className="homieCompanionBehaviorCard">
@@ -897,6 +938,13 @@ export default function Homie({ onNavigate, activePanelId, onOpenHowTo }: Props)
             <p>I know the goal: protect your family, keep the OS useful, and make the next step small enough to actually do.</p>
           </div>
         </div>
+        {homieRoutineReceipt ? (
+          <div className="homieRoutineReceipt" data-homie-routine-receipt="v10.38.14">
+            <b>Companion routine saved</b>
+            {homieRoutineReceipt}
+            <small>Local only. HomieBuddy and this panel share the same memory ledger.</small>
+          </div>
+        ) : null}
 <div className="homieMoodLedgerCard" data-homie-mood-ledger="v10.38.10">
           <div className="homieMoodLedgerHead"><div><b>Check-in memory ledger</b><span>{homieMoodSummary}</span></div><button className="tabBtn" onClick={() => { writeHomieMoodLedger([]); setHomieMoodLedger([]); }}>Clear</button></div>
           <div className="homieMoodLedgerGrid">

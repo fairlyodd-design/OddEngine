@@ -3133,6 +3133,58 @@ async function startExternalVoice(pushToTalk = false, source = "homie") {
 
   const homieBuddyMoodSummary = buildHomieBuddyMoodSummary();
 
+  function homieBuddyRunCompanionRoutine(kind: "checkin" | "reflect" | "legacy") {
+    const key = "oddengine:homie:mood-ledger:v1";
+    let entries: any[] = [];
+    try {
+      const raw = localStorage.getItem(key);
+      const parsed = raw ? JSON.parse(raw) : [];
+      entries = Array.isArray(parsed) ? parsed : [];
+    } catch {
+      entries = [];
+    }
+
+    const latest = entries[0];
+    const themes = Array.isArray(latest?.themes) && latest.themes.length ? latest.themes : ["body", "mind", "family", "next move"];
+    const lane = latest?.lane || "mind";
+    const now = Date.now();
+
+    if (kind === "checkin") {
+      const entry = {
+        id: `buddy_routine_${now}_checkin`,
+        lane: "mind",
+        mood: "honest check-in",
+        themes: ["mind", "body", "family", "next move"],
+        note: "HomieBuddy check-in started. Name what feels true, then pick one tiny step.",
+        createdAt: now,
+      };
+      const next = [entry, ...entries].slice(0, 50);
+      try {
+        localStorage.setItem(key, JSON.stringify(next));
+        window.dispatchEvent(new CustomEvent("homie:mood-ledger-updated"));
+      } catch {
+        // local-only best effort
+      }
+      homieBuddySetCompanionDraft("Homie, ask me how I am really doing, then help me name one honest feeling and one tiny next step.");
+      return;
+    }
+
+    if (kind === "reflect") {
+      homieBuddySetCompanionDraft(`Homie, reflect my latest check-in (${lane}: ${themes.join(", ")}) and suggest one tiny next step.`);
+      return;
+    }
+
+    const legacyPrompt = latest
+      ? `Homie, turn my latest check-in (${lane}: ${themes.join(", ")}) into a kind family legacy note and one Open First handoff.`
+      : "Homie, help me draft a kind family legacy note and one Open First handoff.";
+    try {
+      localStorage.setItem("oddengine:homie:latest-legacy-draft:v1", legacyPrompt);
+      window.dispatchEvent(new CustomEvent("homie:legacy-draft-updated", { detail: { prompt: legacyPrompt, createdAt: now } }));
+    } catch {
+      // local-only best effort
+    }
+    homieBuddySetCompanionDraft(legacyPrompt);
+  }
   function homieBuddySetCompanionDraft(nextPrompt: string) {
     try {
       const input = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(
@@ -3202,12 +3254,12 @@ async function startExternalVoice(pushToTalk = false, source = "homie") {
                               <div className="homieBuddyCompanionMiniDeck" data-homiebuddy-companion-behavior="v10.38.13">
             <div className="homieCompanionBehaviorCard">
               <b>How are you really?</b>
-              <p>Pick one: name the feeling, choose one tiny step, or save a family note.</p>
+              <p>These are real local routines now: save a check-in, reflect the latest mood, or draft a family handoff.</p>
             </div>
             <div className="homieCompanionPromptGrid">
-              <button className="homieCompanionPromptBtn" onClick={() => homieBuddySetCompanionDraft("Homie, ask me a gentle check-in and help me name what I actually feel.")}><b>Check in</b><span>feeling first</span></button>
-              <button className="homieCompanionPromptBtn" onClick={() => homieBuddySetCompanionDraft("Homie, reflect my mood and give me one tiny next step.")}><b>Reflect</b><span>mood + step</span></button>
-              <button className="homieCompanionPromptBtn" onClick={() => homieBuddySetCompanionDraft("Homie, help me make this useful for my family as a legacy note.")}><b>Legacy</b><span>family note</span></button>
+              <button className="homieCompanionPromptBtn" onClick={() => homieBuddyRunCompanionRoutine("checkin")}><b>Check in</b><span>feeling first</span></button>
+              <button className="homieCompanionPromptBtn" onClick={() => homieBuddyRunCompanionRoutine("reflect")}><b>Reflect</b><span>mood + step</span></button>
+              <button className="homieCompanionPromptBtn" onClick={() => homieBuddyRunCompanionRoutine("legacy")}><b>Legacy</b><span>family note</span></button>
             </div>
           </div>
 <div className="homieMoodLedgerLine" data-homie-buddy-mood-ledger="v10.38.10">

@@ -1,0 +1,29 @@
+/* ===== v10.38.14 Homie Real Conversation Memory + Companion Routines ===== */
+.homieRoutineReceipt{
+  border:1px solid rgba(45,255,190,.15);
+  background:
+    radial-gradient(360px 150px at 0% 0%,rgba(45,255,190,.07),rgba(45,255,190,0) 70%),
+    rgba(255,255,255,.028);
+  border-radius:16px;
+  padding:10px 12px;
+  color:rgba(226,238,255,.72);
+  font-size:12px;
+  line-height:1.42;
+  margin:10px 0;
+}
+.homieRoutineReceipt b{
+  display:block;
+  color:rgba(135,255,218,.95);
+  margin-bottom:4px;
+}
+.homieRoutineReceipt small{
+  display:block;
+  margin-top:4px;
+  color:rgba(226,238,255,.52);
+}
+.homieBuddyCompanionMiniDeck .homieRoutineReceipt{
+  text-align:center;
+  padding:9px 10px;
+  margin:8px 0 0;
+}
+/* ===== v10.38.14 Homie Real Conversation Memory + Companion Routines END ===== */
